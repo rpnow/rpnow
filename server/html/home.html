@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RPNow</title>
+  <meta name="description" content="RPNow is a roleplay site where small groups of friends can instantly create private roleplaying chatrooms.">
+  <link rel="stylesheet" type="text/css" href="rp.css">
+</head>
+<body class="home">
+  <form id="new-rp" action="create" method="post">
+    <h1 id="home-title">RPNow</h1>
+    <fieldset>
+      <input type="text" id="rp-name" class="input-with-button" name="title" maxlength="30" placeholder="Type a Title..." required autocomplete=off>
+      <button type="button" id="random-title-button" class="dice">Random</button>
+    </fieldset>
+    <fieldset class="hidden">
+      <textarea name="desc" rows="5" maxlength="255" placeholder="Enter a Description... (Optional)" autocomplete=off></textarea>
+    </fieldset>
+    <fieldset>
+      <button type="button" class="btn-submit" id="begin-roleplay-btn">Begin Roleplay</button><!--
+      --><button type="button" class="btn-submit" id="more-options-btn">More options</button>
+    </fieldset>
+  </form>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="rprandom.js"></script>
+  <script>
+    /*global $ RPRandom*/
+    function randoo(time) {
+      document.getElementById('rp-name').value = RPRandom.shortTitle(25);
+      if(time < 200.0) setTimeout(function() { randoo(time*1.2); }, time);
+    }
+    document.getElementById('random-title-button').addEventListener('click', function() { randoo(1.0); });
+    
+    $('#more-options-btn').click(function(evt) {
+      $("#more-options-btn").hide();
+      $("#begin-roleplay-btn").css('width', '100%');
+      $("fieldset.hidden").show();
+    });
+    
+    $('#begin-roleplay-btn').click(function(evt) {
+      $.ajax({
+        method: 'POST',
+        url: '/api/v1/rps.json',
+        data: {
+          title: $('#rp-name').val(),
+          desc: $('textarea[name=desc]').val() || undefined
+        },
+        success: function(data) {
+          $('body').text(`Created RP: ${data.url}`);
+        }
+      });
+      $('body').text('Creating RP...');
+    });
+  </script>
+</body>
+</html>

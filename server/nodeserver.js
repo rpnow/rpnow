@@ -20,6 +20,7 @@ app.use(compression());
 const STATIC = __dirname.replace('server','static');
 app.use(express.static(STATIC)); //express is serving static files as if it were Apache
 app.use('/api/v1', require('./api'));
+app.use('/', require('./serve-frontend'));
 app.get('*', (req, res) => res.status(404).sendFile(STATIC + '/404.html'));
 
 var server = app.listen(process.env.PORT, process.env.IP);
