@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
+var crypto = require('crypto');
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -89,28 +90,31 @@ router.get('/rps/:url/page/:pageNum.json', (req, res, next) => {
    }
    out.msgs = msgs;
    out.charas = out.msgs
-      .filter(x=>x.type==='character')
-      .map(x=>x.charaId)
-      .reduce((arr,x)=>{ if(!arr.contains(x)) arr.push(x); return arr; }, [])
-      .map(x=>req.rp.charas[x]);
+      .filter(m=>m.type==='character')
+      .map(m=>m.charaId)
+      .reduce((arr,id)=>{ if(id in arr) arr[id] = id; }, [])
+      .map(id=>req.rp.charas[id]);
    res.status(200).json(out);
 });
 
 router.post('/rps/:url/message.json', cleanParams({ content: 10000 }), (req, res, next) => {
    var msg = req.body;
    // message validation
-   if (['narrator', 'character', 'ooc'].indexOf(msg.type)) return next(new Error('Bad message type.'));
+   if (['narrator', 'character', 'ooc'].indexOf(msg.type) === -1) return next(new Error('Bad message type.'));
    if (msg.type === 'character') {
       if (!(msg.charaId >= 0)) return next(new Error('Bad or missing chara id.'));
       if (!req.rp.charas[msg.charaId]) return next(new Error('Invalid chara id.'));
    }
    // submit message
    req.rp.msgs.push({
+      id: req.rp.msgs.length,
       type: msg.type,
       content: msg.content,
       charaId: msg.charaId,
+      timestamp: Date.now(),
+      ipid: crypto.createHash('md5').update(req.ip).digest('hex').substr(0,18)
    });
-   res.sendStatus(204);
+   res.status(201).json({ id: req.rp.msgs.length - 1 });
 });
 
 router.post('/rps/:url/character.json', cleanParams({ name: 30 }), (req, res, next) => {
@@ -118,10 +122,12 @@ router.post('/rps/:url/character.json', cleanParams({ name: 30 }), (req, res, ne
    if (!chara.color || typeof(chara.color) !== 'string') return next(new Error('Invalid chara color.'));
    if (!chara.color.match(/^#[0-9a-f]{6}$/gi)) return next(new Error('Color must be in format #123abc'));
    req.rp.charas.push({
+      id: req.rp.charas.length,
       name: chara.name,
-      color: chara.color
+      color: chara.color,
+      ipid: crypto.createHash('md5').update(req.ip).digest('hex').substr(0,18)
    });
-   res.sendStatus(204);
+   res.status(201).json({ id: req.rp.charas.length - 1 });
 });
 
 router.get('/rps/:url/export.txt', (req, res, next) => {

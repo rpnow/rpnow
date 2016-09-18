@@ -48,6 +48,7 @@
         },
         success: function(data) {
           $('body').text(`Created RP: ${data.url}`);
+          window.location.href = `rp/${data.url}`;
         }
       });
       $('body').text('Creating RP...');

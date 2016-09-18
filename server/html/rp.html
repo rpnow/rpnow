@@ -1,0 +1,360 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Loading... - RPNow</title>
+  <link rel="stylesheet" type="text/css" href="/icomoon.css">
+  <link rel="stylesheet" type="text/css" href="/rp.css">
+</head>
+<body class="rp">
+  <header class="rp-titlebar">
+    <div>
+      <a class="logo" href="/">RPNow</a><!--
+      --><h2><a href="#" id="rp-title"></a></h2>
+      <ul id="title-links">
+        <li><a href="#" title="Write RP"><span class="icon icon-pencil"></span></a>
+        <li><a href="#page-1" title="Archive"><span class="icon icon-books"></span></a>
+        <li><a href="#stats" title="Statistics"><span class="icon icon-stats-bars"></span></a>
+        <li><a href="#export" title="Export"><span class="icon icon-download3"></span></a>
+        <li><a href="/terms" title="Terms & Conditions" target="_blank"><span class="icon icon-file-text2"></span></a>
+      </ul>
+    </div>
+  </header>
+  <div id="rp-description">
+    <p></p>
+  </div>
+  
+  <div class="info" id="showing-latest" style="display:none">
+    <p>
+      Showing latest posts.
+      <a href="#page-1">View Archive</a>
+    </p>
+  </div>
+  <div class="info" id="empty-room" style="display:none">
+    <p>Welcome! You can access this RP at any time from the following URL:</p>
+    <a id="friend-link"></a>
+    <p>To invite a friend, simply send them the link. Let the RP begin!</p>
+    <script>
+      document.getElementById('friend-link').innerHTML = window.location.href;
+      document.getElementById('friend-link').href = window.location.href;
+    </script>
+  </div>
+  <div class="info" id="loading">
+    <p>Loading...</p>
+  </div>
+
+  <div id="messages" class="room-feed">
+  </div>
+
+  <div id="character-selector" class="room-dialog" style="display:none">
+    <ul id="character-list">
+      <li><button type="button" id="narrator-button">Narrator</button></li>
+      <li><button type="button" id="ooc-button">Out of Character</button></li>
+      <li><button type="button" id="new-character-button">New Character...</button></li>
+    </ul>
+  </div>
+
+  <form id="new-character" class="room-dialog" autocomplete="off" style="display:none">
+    <h3>New Character</h3>
+    <div class="input-section">
+      <div class="input-name">Name</div>
+      <div class="input-container"><input type="text" name="name" maxlength="30"></input></div>
+    </div>
+    <div class="input-section">
+      <div class="input-name">Color</div>
+      <div class="input-container"><input type="color" name="color" value="#DDDDDD"></input></div>
+    </div>
+    <input type="submit" value="Add"></input>
+    <button type="button" id="cancel-character">Cancel</button>
+  </form>
+
+  <div id="message-box" autocomplete="off" style="display:none">
+    <div id="format-bar">
+      <div id="message-voice"></div>
+      <button type="button" id="change-character" class="btn-margin"><span>Change...</span></button>
+      <a type="button" id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
+    </div>
+    <div id="message-bar">
+      <div id="message-text">
+        <textarea name="content"></textarea>
+      </div>
+      <div id="message-button-container">
+        <button type="button" id="send-button">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
+  <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.1/spectrum.min.css' />
+  <script src='//cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.1/spectrum.min.js'></script>
+  <script src='/rp.js'></script>
+
+  <script>
+    /* global location localStorage $ rp */
+    // load rp and attach events
+    var url = location.pathname.split('/').reverse()[0].split('#')[0];
+    var titleText = document.title;
+
+    /* var voice; */
+    (function() {
+      var voice;
+      Object.defineProperty(window, 'voice', {
+        get: function() { return voice; },
+        set: function(v) {
+          voice = v;
+          if(voice === 'narrator') {
+            $('#message-voice').text('Narrator');
+            $('#message-box').removeClass('message-box-ooc message-box-chara').addClass('message-box-narrator');
+            $('#message-box').css('background-color', '');
+            $('#message-voice').css('color', '');
+            localStorage.setItem(localStorageKey('last_voice'), 'narrator');
+          }
+          else if(voice === 'ooc') {
+            $('#message-voice').text('Out of Character');
+            $('#message-box').removeClass('message-box-narrator message-box-chara').addClass('message-box-ooc');
+            $('#message-box').css('background-color', '');
+            $('#message-voice').css('color', '');
+            localStorage.setItem(localStorageKey('last_voice'), 'ooc');
+          }
+          else {
+            $('#message-voice').text(voice.name);
+            $('#message-box').removeClass('message-box-narrator message-box-ooc').addClass('message-box-chara');
+            $('#message-box').css('background-color', voice.color);
+            $('#message-voice').css('color', voice.textColor);
+            localStorage.setItem(localStorageKey('last_voice'), voice.id);
+          }
+        }
+      });
+    })();
+
+    function localStorageKey(name) {
+      return 'room_' + url + '_' +  name;
+    }
+
+    function createOverlay(under, clickFunc) {
+      if(!$('#overlay').length) {
+        $('<div/>', { id:'overlay' }).appendTo('body');
+        $('#overlay').css({
+          position: 'fixed',
+          'background-color': 'rgba(0,0,0, 0.5)',
+          top: 0,
+          bottom: 0,
+          right: 0,
+          left: 0
+        });
+        $('body').toggleClass('noscroll', true);
+      }
+      else {
+        $('#overlay').unbind('click');
+      }
+      $('#overlay').css({'z-index': $(under).css('zIndex') - 1});
+      if(clickFunc) $('#overlay').click(clickFunc);
+    }
+    function destroyOverlay() {
+      $('#overlay').remove();
+        $('body').toggleClass('noscroll', false);
+    }
+
+    function showCharacterSelectMenu() {
+      $('#character-selector').stop().slideDown(200);
+      if($(window).height() <= 600) {
+        createOverlay('#character-selector', hideCharacterSelectMenu);
+      }
+    }
+    function hideCharacterSelectMenu() {
+      $('#character-selector').slideUp(200);
+      destroyOverlay();
+      if($(window).height() > 600) {
+        $('#message-box textarea').focus();
+      }
+    }
+    function clickVoiceButton(evt, c) {
+      voice = c;
+      hideCharacterSelectMenu();
+      evt.preventDefault();
+    }
+
+    function showNewCharacterMenu() {
+      createOverlay('#new-character', hideNewCharacterMenu);
+      $('#new-character').show();
+      $('#new-character input[name=name]').focus();
+    }
+
+    function hideNewCharacterMenu() {
+      if($(window).height() <= 600) {
+        createOverlay('#character-selector', hideCharacterSelectMenu);
+      }
+      else {
+        destroyOverlay();
+      }
+      $('#new-character').hide();
+    }
+
+    function formatSentMessage(content, voice) {
+      content = content.trim();
+
+      var oocRegex = [
+        /^\(\(\s*(.*[^\s])\s*\)\)$/g, // (( stuff ))
+        /^\{+\s*(.*?[^\s])\s*\}+$/g, // { stuff }, {{ stuff }}, ...
+        /^\/\/\s*(.*[^\s])\s*$/g // //stuff
+      ];
+      for(var i = 0; i < oocRegex.length; ++i) {
+        var r = oocRegex[i];
+        var match = r.exec(content);
+        if(match) {
+          content = match[1];
+          voice = 'ooc';
+          break;
+        }
+      }
+
+      // replace linebreak codes with actual linebreak
+      content = content.replace(/(\\r\\n|\\n\\r|\\r|\\n|\&lt;br(?: ?\/)?\&gt;)/g, '\n');
+
+      if(!content) return;
+      return { content: content, voice: voice };
+    }
+
+
+    function scrollToBottom() {
+      $('html, body').stop().animate({scrollTop: $(document).height()}, 500);
+    }
+
+    var alertNoise = new Audio('/alert.mp3');
+
+    var flashTitle = (function() {
+      var alertMsg = null;
+      var i = 0;
+      var informTimer = null;
+      function timerAction() {
+        if(i%2) document.title = titleText;
+        else document.title = alertMsg;
+        --i;
+        if(i >= 0) informTimer = setTimeout(timerAction, 500);
+      }
+      document.addEventListener('visibilitychange', function(evt) {
+        if(document.visibilityState === 'visible') {
+          clearTimeout(informTimer);
+          document.title = titleText;
+        }
+      });
+      return function(msg, flashes) {
+        if(document.visibilityState === 'visible') return;
+        i = (flashes===undefined? 1: flashes)*2;
+        if(informTimer) clearTimeout(informTimer);
+        alertMsg = msg;
+        timerAction(msg);
+      };
+    })();
+
+    $(document).ready(function() {
+      rp.chat(url, function(c) {
+        
+        var chat = c;
+        $('#loading').hide();
+        titleText = document.title = chat.title + ' - RPNow';
+        $('#rp-title').text(chat.title);
+        $('#rp-description p').text(chat.desc);
+        chat.msgs.forEach(function(msg) {
+          $('#messages').append(msg.createElement('relative'));
+        });
+        if(chat.msgCount > chat.maxMsgs) {
+          $('#showing-latest').show();
+        }
+        else if(chat.msgCount === 0) {
+          $('#empty-room').show();
+        }
+        chat.charas.forEach(function(chara) {
+          $('#character-list').append(
+            $('<li/>').append(
+              chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
+            )
+          );
+        });
+        voice = chat.charas[+localStorage.getItem(localStorageKey('last_voice'))] || 'narrator';
+        $('#message-box').slideDown(250);
+        chat.onMessage(function(msg) {
+          $('#messages').append(msg.createElement('relative'));
+          while($('#messages .message').length > chat.maxMsgs) {
+            $('#showing-latest').show();
+            $('#empty-room').hide();
+            $('#messages .message:first').remove();
+          }
+          scrollToBottom();
+          // do an alert if the tab isn't in focus
+          if(document.visibilityState === 'hidden') {
+            var alertText;
+            if(msg.type === 'character') alertText = '* ' + msg.chara.name + ' says...';
+            else if(msg.type === 'narrator') alertText = '* The narrator says...';
+            else if(msg.type === 'ooc') alertText = '* OOC message...';
+            flashTitle(alertText, 3);
+            alertNoise.play();
+          }
+        });
+        chat.onChara(function(chara) {
+          $('#character-list').append(
+            $('<li/>').append(
+              chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
+            )
+          );
+        });
+        // button functions
+        $('#message-box button#change-character').click(function(evt) {
+          evt.preventDefault();
+          showCharacterSelectMenu();
+        });
+        $('#narrator-button').click(function(evt) { clickVoiceButton(evt, 'narrator'); });
+        $('#ooc-button').click(function(evt) { clickVoiceButton(evt, 'ooc'); });
+        $('#new-character-button').click(showNewCharacterMenu);
+        $('#cancel-character').click(hideNewCharacterMenu);
+        function sendMessage() {
+          var msgData = formatSentMessage(
+            $('#message-box textarea').val(),
+            voice
+          );
+    
+          if(!msgData) return;
+          
+          createOverlay();
+          
+          chat.sendMessage(msgData.content, msgData.voice, function() {
+            destroyOverlay();
+            $('#message-box textarea').val('');
+          });
+        }
+        $('#send-button').click(sendMessage);
+        $('#message-box textarea').keypress(function(evt) {
+          if((evt.keyCode || evt.which) === 13 && !evt.shiftKey && !evt.ctrlKey) {
+            evt.preventDefault();
+            sendMessage();
+          }
+        });
+        $('#new-character').submit(function(evt) {
+          evt.preventDefault();
+  
+          var name = $('#new-character input[name=name]').val().trim();
+          if(!name) throw new Error('Please enter a name.');
+          var color = $('#new-character input[name=color]').val();
+  
+          $('#new-character').hide();
+  
+          chat.sendChara(name, color, function() {
+            $('#new-character')[0].reset();
+            if($(window).height() <= 600) {
+              createOverlay('#character-selector', hideCharacterSelectMenu);
+            }
+            else {
+              destroyOverlay();
+            }
+          });
+        });
+        
+      });
+    });
+  </script>
+  
+  
+</body>
+</html>
