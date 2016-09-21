@@ -1,10 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var bodyParser = require('body-parser');
-var crypto = require('crypto');
+module.exports = router;
 
+var bodyParser = require('body-parser');
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+
+var crypto = require('crypto');
 
 const PAGE_SIZE = 20;
 const REFRESH_MILLIS = 2000;
@@ -141,4 +143,3 @@ router.use((err, req, res, next) => {
 });
 
 // export
-module.exports = router;
