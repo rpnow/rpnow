@@ -139,7 +139,7 @@ router.post('/rps/:rpCode/msg.json', cleanParams({ content: 10000 }), (req, res,
       type: msg.type,
       content: msg.content,
       charaId: msg.charaId,
-      timestamp: Date.now(),
+      timestamp: Date.now() / 1000,
       ipid: crypto.createHash('md5').update(req.ip).digest('hex').substr(0,18)
    });
    req.rp.addUpdateEntry();

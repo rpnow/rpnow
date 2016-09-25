@@ -156,7 +156,7 @@ var rp = (function() {
     Object.defineProperties(this, {
       'id': {value: data.id},
       'content': {value: data.content},
-      'timeSent': {value: data.timestamp},
+      'timestamp': {value: data.timestamp},
       'user': {value: new User(data.ipid)},
       'type': {value: data.type},
       'createElement': {value: function(timeFormat) {
@@ -233,9 +233,9 @@ var rp = (function() {
   function User(ipid) {
     Object.defineProperties(this, {
       'colors': {value: [
-        ipid.substr(0,6),
-        ipid.substr(6,6),
-        ipid.substr(12,6)
+        '#'+ipid.substr(0,6),
+        '#'+ipid.substr(6,6),
+        '#'+ipid.substr(12,6)
       ]},
       'createIcon': {value: function(){
         return $('<span/>', { 'class': 'color-ip-box' })
