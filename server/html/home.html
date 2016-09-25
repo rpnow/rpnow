@@ -47,8 +47,8 @@
           desc: $('textarea[name=desc]').val() || undefined
         },
         success: function(data) {
-          $('body').text(`Created RP: ${data.url}`);
-          window.location.href = `rp/${data.url}`;
+          $('body').text(`Created RP: ${data.rpCode}`);
+          window.location.href = `rp/${data.rpCode}`;
         }
       });
       $('body').text('Creating RP...');

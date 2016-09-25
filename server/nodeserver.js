@@ -29,7 +29,7 @@ console.log('Running.');
 //shutdown behavior
 function gracefulShutdown(msg) {
    console.log(`Graceful shutdown: ${msg}`);
-   server.close(console.log.bind(this, 'Shutdown complete.'));
+   server.close(() => { console.log('Shutdown complete.'); });
 }
 process.on('SIGTERM', gracefulShutdown.bind(this, 'SIGTERM')); //kill (terminate)
 process.on('SIGINT', gracefulShutdown.bind(this, 'SIGINT')); //Ctrl+C (interrupt)

@@ -286,7 +286,7 @@
           // do an alert if the tab isn't in focus
           if(document.visibilityState === 'hidden') {
             var alertText;
-            if(msg.type === 'character') alertText = '* ' + msg.chara.name + ' says...';
+            if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
             else if(msg.type === 'narrator') alertText = '* The narrator says...';
             else if(msg.type === 'ooc') alertText = '* OOC message...';
             flashTitle(alertText, 3);

@@ -22,10 +22,11 @@ var rp = (function() {
     var reqUrl = serverRootPath + '/api/v1/rps/' + url;
     data = data || {};
     var req = new XMLHttpRequest();
+    req.overrideMimeType('application/json');
     // callback function on success
     if(callback) req.onreadystatechange = function() {
       if(req.readyState === XMLHttpRequest.DONE && (''+req.status).startsWith('20')) {
-        callback(JSON.parse(req.responseText));
+        callback(req.responseText ? JSON.parse(req.responseText): '', req);
       }
     };
     // generate query string from data
@@ -68,7 +69,7 @@ var rp = (function() {
     var title, desc;
     var msgs = [];
     var charas = [];
-    var msgCounter;
+    var updateCounter;
     var maxMsgs;
     // events
     var onMessage, onChara; /* onUpdateMessage, onUpdateChara, onUnloadMessage; */
@@ -81,32 +82,30 @@ var rp = (function() {
       'desc': {get: function() { return desc; }},
       'charas': {get: function() { return charas; }},
       'msgs': {get: function() { return msgs; }},
-      'msgCount': {get: function() { return msgCounter; }},
-      'charaCount': {get: function() { return charas.length; }},
       'maxMsgs': {get: function() { return maxMsgs; }}
     });
     // send message
     chat.sendMessage = function(content, voice, callback) {
       var data = { content: content };
       if(voice instanceof Chara) {
-        data['type'] = 'character';
+        data['type'] = 'chara';
         data.charaId = voice.id;
       }
       else {
         data['type'] = voice;
       }
-      ajax(url + '/message.json', 'POST', data, callback);
+      ajax(url + '/msg.json', 'POST', data, callback);
     };
     // send character
     chat.sendChara = function(name, color, callback) {
       var data = { name: name, color: color };
-      ajax(url + '/character.json', 'POST', data, callback);
+      ajax(url + '/chara.json', 'POST', data, callback);
     };
     
     // update loop
     function fetchUpdates() {
-      ajax(url + '/updates.json', 'GET', { msgCounter: msgCounter, charaCounter: charas.length }, function(data) {
-        processUpdates(data);
+      ajax(url + '/updates.json', 'GET', { updateCounter: updateCounter }, function(data, req) {
+        if (req.status === 200) processUpdates(data);
         setTimeout(fetchUpdates, 2000);
       });
     }
@@ -129,7 +128,7 @@ var rp = (function() {
           onMessage(msg);
         });
       // update msg counter
-      msgCounter += data.msgs.length;
+      updateCounter = data.updateCounter;
     }
     
     // load...
@@ -142,7 +141,7 @@ var rp = (function() {
         msg.chara = charas[msg.charaId];
         return new Message(msg);
       });
-      msgCounter = data.msgCounter;
+      updateCounter = data.updateCounter;
       maxMsgs = data.postsPerPage;
       // callback
       if(onLoad) onLoad(chat);
@@ -165,12 +164,12 @@ var rp = (function() {
         var el = $('<div/>', {
           'class': ({
             'narrator':'message message-narrator',
-            'character':'message message-chara',
+            'chara':'message message-chara',
             'ooc':'message message-ooc'
           })[this.type]
         });
         // character-specific
-        if(this.type === 'character') {
+        if(this.type === 'chara') {
           // style
           if(this.chara) el.css({'background-color':this.chara.color, 'color':this.chara.textColor});
           // nametag
@@ -202,7 +201,7 @@ var rp = (function() {
         return el;
       }}
     });
-    if(this.type==='character') Object.defineProperties(this, {
+    if(this.type==='chara') Object.defineProperties(this, {
       'charaId': {value: +data.charaId},
       'chara': {value: data.chara}
     });
