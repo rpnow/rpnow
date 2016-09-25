@@ -88,7 +88,7 @@ router.get('/rps/:rpCode.json', (req, res, next) => {
 router.get('/rps/:rpCode/updates.json', (req, res, next) => {
    var updateCounter = +req.query.updateCounter;
    if (!(updateCounter >= 0)) return next(new Error('Invalid updateCounter value'));
-   if (updateCounter > req.rp.updateList.length-1) next(new Error('updatecounter larger than latest available update'));
+   if (updateCounter > req.rp.updateList.length-1) return next(new Error('updatecounter larger than latest available update'));
    if (updateCounter === req.rp.updateList.length-1) {
       res.sendStatus(204);
       return;
