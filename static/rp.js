@@ -208,7 +208,11 @@ var rp = (function() {
 
   }
   function contrastColor(color) {
-    return 'black';
+    //YIQ algorithm modified from:
+    // http://24ways.org/2010/calculating-color-contrast/
+    var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
+    var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
+    return (yiq >= 128) ? 'black' : 'white';
   }
   function Chara(data) {
     Object.defineProperties(this, {
