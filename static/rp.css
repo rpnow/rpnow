@@ -537,7 +537,7 @@ header.rp-titlebar #title-links .selected a {
  *   MESSAGES
  *
  **********************************************************/
-#messages {
+.message-list {
   margin: 0 auto;
   width: 100%;
   max-width: 650px;
@@ -545,16 +545,16 @@ header.rp-titlebar #title-links .selected a {
   text-align: left;
   word-wrap: break-word;
 }
-#messages.room-feed {
+#chat-page .message-list {
   margin-bottom: 135px;
 }
-#messages > .message{
+.message{
   word-wrap: break-word;
 }
-#messages > .message > .content {
+.message > .content {
   line-height: 1.6;
 }
-#messages > .message .color-ip-box {
+.message .color-ip-box {
   display: inline-block;
   vertical-align: middle;
   height: 10px;
@@ -562,60 +562,60 @@ header.rp-titlebar #title-links .selected a {
   margin-right: 5px;
   margin-top: -2px;
 }
-#messages > .message .color-ip-box > span {
+.message .color-ip-box > span {
   display: inline-block;
   vertical-align: top;
   width: 7px;
   height: 10px;
 }
-#messages > .message .timestamp {
+.message .timestamp {
   font-size: 90%;
   opacity: 0.5;
 }
-#messages > .message-narrator {
+.message-narrator {
   background-color: #fff;
   box-shadow: 0 1px 1px #bbb;
   padding: 5px;
   text-align: right;
 }
-#messages > .message-narrator > .content {
+.message-narrator > .content {
   border: dotted 1px #bbb;
   padding: 15px 20px;
   text-align: left;
 }
-#messages > .message-narrator > .message-details {
+.message-narrator > .message-details {
   margin: -5px 28px -2px;
 }
-#messages > .message-narrator .color-ip-box {
+.message-narrator .color-ip-box {
   border-color: #555;
 }
-#messages > .message-ooc {
+.message-ooc {
   background-color: #707070;
   box-shadow: 0 0 2px #555;
   color: #eee;
   margin: 0 15px;
   padding: 0 5px;
 }
-#messages > .message-ooc:nth-of-type(2n+1) {
+.message-ooc:nth-of-type(2n+1) {
   background-color: #7a7a7a;
 }
-#messages > .message-ooc + .message-narrator,
-#messages > .message-narrator + .message-ooc {
+.message-ooc + .message-narrator,
+.message-narrator + .message-ooc {
   margin-top: 8px;
 }
-#messages > .message-ooc > .message-details {
+.message-ooc > .message-details {
   display: inline;
 }
-#messages > .message-ooc .timestamp {
+.message-ooc .timestamp {
   opacity: 0.66;
   font-size: 80%;
 }
-#messages > .message-ooc .timestamp::before { content: '[ '; }
-#messages > .message-ooc .timestamp::after { content: ' ] '; }
-#messages > .message-ooc > .content {
+.message-ooc .timestamp::before { content: '[ '; }
+.message-ooc .timestamp::after { content: ' ] '; }
+.message-ooc > .content {
   display: inline;
 }
-#messages > .message-chara {
+.message-chara {
   margin: 10px;
   margin-top: 22px;
   padding: 6px 8px 10px;
@@ -626,7 +626,7 @@ header.rp-titlebar #title-links .selected a {
   max-width: 100%;
   text-align: right;
 }
-#messages > .message-chara > .name{
+.message-chara > .name{
   display: inline-block;
   position: absolute;
   left: 25px;
@@ -640,7 +640,7 @@ header.rp-titlebar #title-links .selected a {
   word-spacing: 1px;
   box-shadow: 0 1px 2px #555;
 }
-#messages > .message-chara > .content {
+.message-chara > .content {
   background-color: white;
   color: black;
   opacity: 0.9;
@@ -650,15 +650,18 @@ header.rp-titlebar #title-links .selected a {
   box-shadow: 0 1px 2px #888 inset;
   text-align: left;
 }
-#messages > .message-chara > .content span.action {
+.message-chara > .content span.action {
   font-size: 80%;
   padding: 0.3em;
   border-radius: 4px;
   opacity: 0.8;
   box-shadow: 0 1px 1px #3c3c3c;
 }
-#messages > .message-chara > .message-details {
+.message-chara > .message-details {
   margin: -5px 15px -2px 5px;
+}
+.rp-page {
+  background-color: inherit;
 }
 
 

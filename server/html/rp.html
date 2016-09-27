@@ -8,6 +8,7 @@
   <link rel="stylesheet" type="text/css" href="/rp.css">
 </head>
 <body class="rp">
+  
   <header class="rp-titlebar">
     <div>
       <a class="logo" href="/">RPNow</a><!--
@@ -25,64 +26,84 @@
     <p></p>
   </div>
   
-  <div class="info" id="showing-latest" style="display:none">
-    <p>
-      Showing latest posts.
-      <a href="#page-1">View Archive</a>
-    </p>
-  </div>
-  <div class="info" id="empty-room" style="display:none">
-    <p>Welcome! You can access this RP at any time from the following URL:</p>
-    <a id="friend-link"></a>
-    <p>To invite a friend, simply send them the link. Let the RP begin!</p>
-    <script>
-      document.getElementById('friend-link').innerHTML = window.location.href;
-      document.getElementById('friend-link').href = window.location.href;
-    </script>
-  </div>
-  <div class="info" id="loading">
+  <div class="info" id="loading" style="display: none">
     <p>Loading...</p>
   </div>
-
-  <div id="messages" class="room-feed">
-  </div>
-
-  <div id="character-selector" class="room-dialog" style="display:none">
-    <ul id="character-list">
-      <li><button type="button" id="narrator-button">Narrator</button></li>
-      <li><button type="button" id="ooc-button">Out of Character</button></li>
-      <li><button type="button" id="new-character-button">New Character...</button></li>
-    </ul>
-  </div>
-
-  <form id="new-character" class="room-dialog" autocomplete="off" style="display:none">
-    <h3>New Character</h3>
-    <div class="input-section">
-      <div class="input-name">Name</div>
-      <div class="input-container"><input type="text" name="name" maxlength="30"></input></div>
+  
+  <div id="chat-page" class="rp-page" style="display: none">
+    <div class="info" id="showing-latest" style="display:none">
+      <p>
+        Showing latest posts.
+        <a href="#page-1">View Archive</a>
+      </p>
     </div>
-    <div class="input-section">
-      <div class="input-name">Color</div>
-      <div class="input-container"><input type="color" name="color" value="#DDDDDD"></input></div>
+    <div class="info" id="empty-room" style="display:none">
+      <p>Welcome! You can access this RP at any time from the following URL:</p>
+      <a id="friend-link"></a>
+      <p>To invite a friend, simply send them the link. Let the RP begin!</p>
+      <script>
+        document.getElementById('friend-link').innerHTML = window.location.href;
+        document.getElementById('friend-link').href = window.location.href;
+      </script>
     </div>
-    <input type="submit" value="Add"></input>
-    <button type="button" id="cancel-character">Cancel</button>
-  </form>
-
-  <div id="message-box" autocomplete="off" style="display:none">
-    <div id="format-bar">
-      <div id="message-voice"></div>
-      <button type="button" id="change-character" class="btn-margin"><span>Change...</span></button>
-      <a type="button" id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
+  
+    <div class="message-list"></div>
+  
+    <div id="character-selector" class="room-dialog" style="display:none">
+      <ul id="character-list">
+        <li><button type="button" id="narrator-button">Narrator</button></li>
+        <li><button type="button" id="ooc-button">Out of Character</button></li>
+        <li><button type="button" id="new-character-button">New Character...</button></li>
+      </ul>
     </div>
-    <div id="message-bar">
-      <div id="message-text">
-        <textarea name="content"></textarea>
+  
+    <form id="new-character" class="room-dialog" autocomplete="off" style="display:none">
+      <h3>New Character</h3>
+      <div class="input-section">
+        <div class="input-name">Name</div>
+        <div class="input-container"><input type="text" name="name" maxlength="30"></input></div>
       </div>
-      <div id="message-button-container">
-        <button type="button" id="send-button">Send</button>
+      <div class="input-section">
+        <div class="input-name">Color</div>
+        <div class="input-container"><input type="color" name="color" value="#DDDDDD"></input></div>
+      </div>
+      <input type="submit" value="Add"></input>
+      <button type="button" id="cancel-character">Cancel</button>
+    </form>
+  
+    <div id="message-box" autocomplete="off" style="display:none">
+      <div id="format-bar">
+        <div id="message-voice"></div>
+        <button type="button" id="change-character" class="btn-margin"><span>Change...</span></button>
+        <a type="button" id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
+      </div>
+      <div id="message-bar">
+        <div id="message-text">
+          <textarea name="content"></textarea>
+        </div>
+        <div id="message-button-container">
+          <button type="button" id="send-button">Send</button>
+        </div>
       </div>
     </div>
+  </div>
+  
+  <div id="archive-page" class="rp-page" style="display: none">
+    <div class="pages"></div>
+    
+    <p id="no-archive-content">This RP has no content. Why not go back and <a href="#">start writing</a>?</p>
+    
+    <div class="message-list"></div>
+    
+    <div class="pages"></div>
+  </div>
+  
+  <div id="stats-page" class="rp-page" style="display: none">
+    STATS
+  </div>
+  
+  <div id="export-page" class="rp-page" style="display: none">
+    EXPORT
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
@@ -250,109 +271,169 @@
     })();
 
     $(document).ready(function() {
-      rp.chat(url, function(c) {
+      var removePageFunction = null;
+      
+      function changePage() {
+        var hash = location.hash || '#';
         
-        var chat = c;
-        $('#loading').hide();
-        titleText = document.title = chat.title + ' - RPNow';
-        $('#rp-title').text(chat.title);
-        $('#rp-description p').text(chat.desc);
-        chat.msgs.forEach(function(msg) {
-          $('#messages').append(msg.createElement('relative'));
-        });
-        if(chat.msgCount > chat.maxMsgs) {
-          $('#showing-latest').show();
-        }
-        else if(chat.msgCount === 0) {
-          $('#empty-room').show();
-        }
-        chat.charas.forEach(function(chara) {
-          $('#character-list').append(
-            $('<li/>').append(
-              chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
-            )
-          );
-        });
-        voice = chat.charas[+localStorage.getItem(localStorageKey('last_voice'))] || 'narrator';
-        $('#message-box').slideDown(250);
-        chat.onMessage(function(msg) {
-          $('#messages').append(msg.createElement('relative'));
-          while($('#messages .message').length > chat.maxMsgs) {
+        if (removePageFunction) removePageFunction();
+        
+        if (location.hash === '#stats') removePageFunction = statsPage();
+        else if (location.hash === '#export') removePageFunction = exportPage();
+        else removePageFunction = chatPage();
+      }
+      
+      $(window).on('hashchange', changePage);
+      changePage();
+      
+      
+      function statsPage() {
+        $('#stats-page').show();
+        return function() { $('#stats-page').hide(); };
+      }
+      
+      function exportPage() {
+        $('#export-page').show();
+        return function() { $('#export-page').hide(); };
+      }
+      
+      /*
+      function archivePage() {
+        $('#archive-page').show();
+      }
+      */
+      
+      function chatPage() {
+        
+        var chat = null;
+        var removeChatPageFunction = function() {
+          if(chat === null) {
+            $('#loading').hide();
+            chat = 'canceled';
+          }
+          else {
+            chat.stop();
+            $('#chat-page .message-list').empty();
+            $('#character-list').remove('.character-button');
+            chat = null;
+          }
+          $('#chat-page').hide();
+        };
+        
+        $('#loading').show();
+        
+        rp.chat(url, function(c) {
+          
+          if (chat === 'canceled') {
+            c.stop();
+            return;
+          }
+          
+          chat = c;
+          $('#loading').hide();
+          $('#chat-page').show();
+          titleText = document.title = chat.title + ' - RPNow';
+          $('#rp-title').text(chat.title);
+          $('#rp-description p').text(chat.desc);
+          chat.msgs.forEach(function(msg) {
+            $('#chat-page .message-list').append(msg.createElement('relative'));
+          });
+          if(chat.msgs.length === chat.maxMsgs) {
             $('#showing-latest').show();
-            $('#empty-room').hide();
-            $('#messages .message:first').remove();
           }
-          scrollToBottom();
-          // do an alert if the tab isn't in focus
-          if(document.visibilityState === 'hidden') {
-            var alertText;
-            if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
-            else if(msg.type === 'narrator') alertText = '* The narrator says...';
-            else if(msg.type === 'ooc') alertText = '* OOC message...';
-            flashTitle(alertText, 3);
-            alertNoise.play();
+          else if(chat.msgs.length === 0) {
+            $('#empty-room').show();
           }
-        });
-        chat.onChara(function(chara) {
-          $('#character-list').append(
-            $('<li/>').append(
-              chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
-            )
-          );
-        });
-        // button functions
-        $('#message-box button#change-character').click(function(evt) {
-          evt.preventDefault();
-          showCharacterSelectMenu();
-        });
-        $('#narrator-button').click(function(evt) { clickVoiceButton(evt, 'narrator'); });
-        $('#ooc-button').click(function(evt) { clickVoiceButton(evt, 'ooc'); });
-        $('#new-character-button').click(showNewCharacterMenu);
-        $('#cancel-character').click(hideNewCharacterMenu);
-        function sendMessage() {
-          var msgData = formatSentMessage(
-            $('#message-box textarea').val(),
-            voice
-          );
-    
-          if(!msgData) return;
-          
-          createOverlay();
-          
-          chat.sendMessage(msgData.content, msgData.voice, function() {
-            destroyOverlay();
-            $('#message-box textarea').val('');
+          chat.charas.forEach(function(chara) {
+            $('#character-list').append(
+              $('<li/>').append(
+                chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
+              )
+            );
           });
-        }
-        $('#send-button').click(sendMessage);
-        $('#message-box textarea').keypress(function(evt) {
-          if((evt.keyCode || evt.which) === 13 && !evt.shiftKey && !evt.ctrlKey) {
+          voice = chat.charas[+localStorage.getItem(localStorageKey('last_voice'))] || 'narrator';
+          $('#message-box').slideDown(250);
+          chat.onMessage(function(msg) {
+            $('#chat-page .message-list').append(msg.createElement('relative'));
+            while($('#chat-page .message').length > this.maxMsgs) {
+              $('#showing-latest').show();
+              $('#empty-room').hide();
+              $('#chat-page .message:first').remove();
+            }
+            scrollToBottom();
+            // do an alert if the tab isn't in focus
+            if(document.visibilityState === 'hidden') {
+              var alertText;
+              if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
+              else if(msg.type === 'narrator') alertText = '* The narrator says...';
+              else if(msg.type === 'ooc') alertText = '* OOC message...';
+              flashTitle(alertText, 3);
+              alertNoise.play();
+            }
+          });
+          chat.onChara(function(chara) {
+            $('#character-list').append(
+              $('<li/>').append(
+                chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
+              )
+            );
+          });
+          // button functions
+          $('#message-box button#change-character').click(function(evt) {
             evt.preventDefault();
-            sendMessage();
-          }
-        });
-        $('#new-character').submit(function(evt) {
-          evt.preventDefault();
-  
-          var name = $('#new-character input[name=name]').val().trim();
-          if(!name) throw new Error('Please enter a name.');
-          var color = $('#new-character input[name=color]').val();
-  
-          $('#new-character').hide();
-  
-          chat.sendChara(name, color, function() {
-            $('#new-character')[0].reset();
-            if($(window).height() <= 600) {
-              createOverlay('#character-selector', hideCharacterSelectMenu);
-            }
-            else {
+            showCharacterSelectMenu();
+          });
+          $('#narrator-button').click(function(evt) { clickVoiceButton(evt, 'narrator'); });
+          $('#ooc-button').click(function(evt) { clickVoiceButton(evt, 'ooc'); });
+          $('#new-character-button').click(showNewCharacterMenu);
+          $('#cancel-character').click(hideNewCharacterMenu);
+          function sendMessage() {
+            var msgData = formatSentMessage(
+              $('#message-box textarea').val(),
+              voice
+            );
+      
+            if(!msgData) return;
+            
+            createOverlay();
+            
+            chat.sendMessage(msgData.content, msgData.voice, function() {
               destroyOverlay();
+              $('#message-box textarea').val('');
+            });
+          }
+          $('#send-button').click(sendMessage);
+          $('#message-box textarea').keypress(function(evt) {
+            if((evt.keyCode || evt.which) === 13 && !evt.shiftKey && !evt.ctrlKey) {
+              evt.preventDefault();
+              sendMessage();
             }
+          });
+          $('#new-character').submit(function(evt) {
+            evt.preventDefault();
+    
+            var name = $('#new-character input[name=name]').val().trim();
+            if(!name) throw new Error('Please enter a name.');
+            var color = $('#new-character input[name=color]').val();
+    
+            $('#new-character').hide();
+    
+            chat.sendChara(name, color, function() {
+              $('#new-character')[0].reset();
+              if($(window).height() <= 600) {
+                createOverlay('#character-selector', hideCharacterSelectMenu);
+              }
+              else {
+                destroyOverlay();
+              }
+            });
           });
         });
         
-      });
+        return removeChatPageFunction;
+      }
     });
+    
   </script>
   
   

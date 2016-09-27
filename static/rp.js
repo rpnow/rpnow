@@ -71,6 +71,7 @@ var rp = (function() {
     var charas = [];
     var updateCounter;
     var maxMsgs;
+    var stopped = false;
     // events
     var onMessage, onChara; /* onUpdateMessage, onUpdateChara, onUnloadMessage; */
     chat.onMessage = function(callback) { onMessage = callback; };
@@ -94,17 +95,18 @@ var rp = (function() {
       else {
         data['type'] = voice;
       }
-      ajax(url + '/msg.json', 'POST', data, callback);
+      ajax(url + '/msg.json', 'POST', data, stopped?null:callback);
     };
     // send character
     chat.sendChara = function(name, color, callback) {
       var data = { name: name, color: color };
-      ajax(url + '/chara.json', 'POST', data, callback);
+      ajax(url + '/chara.json', 'POST', data, stopped?null:callback);
     };
     
     // update loop
     function fetchUpdates() {
       ajax(url + '/updates.json', 'GET', { updateCounter: updateCounter }, function(data, req) {
+        if (stopped) return;
         if (req.status === 200) processUpdates(data);
         setTimeout(fetchUpdates, 2000);
       });
@@ -115,7 +117,7 @@ var rp = (function() {
         .map(function(x){return new Chara(x);})
         .forEach(function(chara) {
           charas[chara.id] = chara;
-          onChara(chara);
+          onChara.call(this, chara);
         });
       // add new messages
       data.msgs
@@ -125,11 +127,14 @@ var rp = (function() {
         })
         .forEach(function(msg) {
           msgs.push(msg);
-          onMessage(msg);
+          onMessage.call(this, msg);
         });
       // update msg counter
       updateCounter = data.updateCounter;
     }
+    chat.stop = function() {
+      stopped = true;
+    };
     
     // load...
     ajax(url + '.json', 'GET', function(data) {
@@ -225,6 +230,7 @@ var rp = (function() {
         return $('<button/>', {
           text: this.name,
           'type': 'button',
+          'class': 'chara-button',
           'style': 'background-color:' + this.color + ';' + 'color:' + this.textColor
         }).click(callback);
       }}
