@@ -58,7 +58,7 @@ var rp = (function() {
         return new Message(msg);
       });
       // callback
-      callback({ msgs: msgs, charas: charas });
+      callback({ title: data.title, desc: data.desc, msgs: msgs, charas: charas });
     });
   };
 
@@ -123,7 +123,7 @@ var rp = (function() {
       data.msgs
         .map(function(msg){
           msg.chara = charas[msg.charaId];
-          return new Message(msg, charas);
+          return new Message(msg);
         })
         .forEach(function(msg) {
           msgs.push(msg);
@@ -164,6 +164,7 @@ var rp = (function() {
       'timestamp': {value: data.timestamp},
       'user': {value: new User(data.ipid)},
       'type': {value: data.type},
+      'chara': {value: data.chara},
       'createElement': {value: function(timeFormat) {
         // outer element with the appropriate class
         var el = $('<div/>', {
@@ -176,7 +177,7 @@ var rp = (function() {
         // character-specific
         if(this.type === 'chara') {
           // style
-          if(this.chara) el.css({'background-color':this.chara.color, 'color':this.chara.textColor});
+          el.css({'background-color':this.chara.color, 'color':this.chara.textColor});
           // nametag
           el.append($('<div/>', {
             'class': 'name',
@@ -230,7 +231,6 @@ var rp = (function() {
         return $('<button/>', {
           text: this.name,
           'type': 'button',
-          'class': 'chara-button',
           'style': 'background-color:' + this.color + ';' + 'color:' + this.textColor
         }).click(callback);
       }}

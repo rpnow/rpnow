@@ -91,7 +91,7 @@
   <div id="archive-page" class="rp-page" style="display: none">
     <div class="pages"></div>
     
-    <p id="no-archive-content">This RP has no content. Why not go back and <a href="#">start writing</a>?</p>
+    <p id="no-archive-content" style="display: none">This RP has no content. Why not go back and <a href="#">start writing</a>?</p>
     
     <div class="message-list"></div>
     
@@ -116,7 +116,12 @@
     /* global location localStorage $ rp */
     // load rp and attach events
     var url = location.pathname.split('/').reverse()[0].split('#')[0];
+    
     var titleText = document.title;
+    function setTitleText(newTitle) {
+      titleText = document.title = newTitle + ' - RPNow';
+      $('#rp-title').text(newTitle);
+    }
 
     /* var voice; */
     (function() {
@@ -276,11 +281,15 @@
       function changePage() {
         var hash = location.hash || '#';
         
-        if (removePageFunction) removePageFunction();
+        if (removePageFunction) {
+          removePageFunction();
+          removePageFunction = null;
+        }
         
-        if (location.hash === '#stats') removePageFunction = statsPage();
-        else if (location.hash === '#export') removePageFunction = exportPage();
-        else removePageFunction = chatPage();
+        if (location.hash === '#stats') statsPage();
+        else if (location.hash === '#export') exportPage();
+        else if (location.hash.match(/^#page-([1-9][0-9]*)$/)) archivePage(+location.hash.split('-')[1]);
+        else chatPage();
       }
       
       $(window).on('hashchange', changePage);
@@ -289,38 +298,56 @@
       
       function statsPage() {
         $('#stats-page').show();
-        return function() { $('#stats-page').hide(); };
+        setTitleText('RP Stats');
+        removePageFunction = function() { $('#stats-page').hide(); };
       }
       
       function exportPage() {
         $('#export-page').show();
-        return function() { $('#export-page').hide(); };
+        setTitleText('Export RP');
+        removePageFunction = function() { $('#export-page').hide(); };
       }
       
-      /*
-      function archivePage() {
-        $('#archive-page').show();
-      }
-      */
-      
-      function chatPage() {
+      function archivePage(pageNum) {
+        var cancelled = false;
+        $('#loading').show();
+        setTitleText('Loading...');
+        removePageFunction = function() {
+          $('#loading').hide();
+          cancelled = true;
+        }
         
-        var chat = null;
-        var removeChatPageFunction = function() {
-          if(chat === null) {
-            $('#loading').hide();
-            chat = 'canceled';
+        rp.fetchPage(url, pageNum, function(page) {
+          $('#loading').hide();
+          $('#archive-page').show();
+          setTitleText('[Page ' + pageNum + '] ' + page.title);
+          
+          if(page.msgs.length === 0) {
+            $('#no-archive-content').show();
           }
           else {
-            chat.stop();
-            $('#chat-page .message-list').empty();
-            $('#character-list').remove('.character-button');
-            chat = null;
+            $('#no-archive-content').hide();
+            page.msgs.forEach(function(msg) {
+              $('#archive-page .message-list').append(msg.createElement());
+            });
           }
-          $('#chat-page').hide();
-        };
-        
+          
+          removePageFunction = function() {
+            $('#archive-page .message-list').empty();
+            $('#archive-page').hide();
+          }
+        });
+      }
+      
+      function chatPage() {
+        var TEST = Math.floor(Math.random()*1000);
+        var chat = null;
         $('#loading').show();
+        setTitleText('Loading...');
+        removePageFunction = function() {
+          $('#loading').hide();
+          chat = 'canceled';
+        };
         
         rp.chat(url, function(c) {
           
@@ -328,12 +355,26 @@
             c.stop();
             return;
           }
+          removePageFunction = function() {
+            $('#send-button').off();
+            $('#change-character').off();
+            $('#narrator-button').off();
+            $('#ooc-button').off();
+            $('#new-character-button').off();
+            $('#cancel-character').off();
+            $('#new-character').off();
+            $('#message-box textarea').off();
+            chat.stop();
+            $('#chat-page .message-list').empty();
+            $('.chara-button').remove();
+            chat = 'removed';
+            $('#chat-page').hide();
+          };
           
           chat = c;
           $('#loading').hide();
           $('#chat-page').show();
-          titleText = document.title = chat.title + ' - RPNow';
-          $('#rp-title').text(chat.title);
+          setTitleText(chat.title);
           $('#rp-description p').text(chat.desc);
           chat.msgs.forEach(function(msg) {
             $('#chat-page .message-list').append(msg.createElement('relative'));
@@ -346,7 +387,7 @@
           }
           chat.charas.forEach(function(chara) {
             $('#character-list').append(
-              $('<li/>').append(
+              $('<li/>', {'class':'chara-button'}).append(
                 chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
               )
             );
@@ -373,13 +414,13 @@
           });
           chat.onChara(function(chara) {
             $('#character-list').append(
-              $('<li/>').append(
+              $('<li/>', {'class':'chara-button'}).append(
                 chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
               )
             );
           });
           // button functions
-          $('#message-box button#change-character').click(function(evt) {
+          $('#change-character').click(function(evt) {
             evt.preventDefault();
             showCharacterSelectMenu();
           });
@@ -428,9 +469,8 @@
               }
             });
           });
+          
         });
-        
-        return removeChatPageFunction;
       }
     });
     

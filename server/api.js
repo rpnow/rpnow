@@ -66,7 +66,7 @@ router.post('/rps.json', cleanParams({ 'title':30, 'desc':[255] }), (req, res, n
       msgs: [],
       charas: [],
       updateList: [],
-      addUpdateEntry: function() { console.log(this); this.updateList.push({ msgCount: this.msgs.length, charaCount: this.charas.length }); }
+      addUpdateEntry: function() { this.updateList.push({ msgCount: this.msgs.length, charaCount: this.charas.length }); }
    };
    rooms[rpCode].addUpdateEntry();
    
@@ -105,14 +105,13 @@ router.get('/rps/:rpCode/updates.json', (req, res, next) => {
 router.get('/rps/:rpCode/page/:pageNum.json', (req, res, next) => {
    var pageNum = req.params.pageNum;
    if (!(pageNum >= 0) || pageNum%0) return next(new Error('Bad page number'));
-   if (req.rp.msgs.length === 0) return next(new Error('RP has no content.'));
    var out = {
       title: req.rp.title,
       desc: req.rp.desc
    };
    var pageStart = (pageNum-1)*PAGE_SIZE;
    var msgs = req.rp.msgs.slice(pageStart, pageStart+PAGE_SIZE);
-   if (msgs.length === 0) {
+   if (msgs.length === 0 && pageNum > 1) {
       out.error = `Page not found: ${pageNum}`;
       return res.status(404).json(out);
    }
@@ -120,8 +119,9 @@ router.get('/rps/:rpCode/page/:pageNum.json', (req, res, next) => {
    out.charas = out.msgs
       .filter(m=>m.type==='chara')
       .map(m=>m.charaId)
-      .reduce((arr,id)=>{ if(id in arr) arr[id] = id; }, [])
+      .reduce((arr,id)=>{ if(!(id in arr)) arr[id] = id; return arr; }, [])
       .map(id=>req.rp.charas[id]);
+   
    res.status(200).json(out);
 });
 
