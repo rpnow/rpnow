@@ -328,12 +328,22 @@
           else {
             $('#no-archive-content').hide();
             page.msgs.forEach(function(msg) {
-              $('#archive-page .message-list').append(msg.createElement());
+              $('#archive-page .message-list').append(msg.createElement('absolute'));
             });
+          }
+          
+          for(var i = 1; i <= page.numPages; ++i) {
+            $('#archive-page .pages').append(
+              (i === 1) ? 'Page: ' : ' | ',
+              (i === pageNum)?
+                $('<b>', {'text': i}):
+                $('<a>', {'text': i, 'href':'#page-'+i})
+            );
           }
           
           removePageFunction = function() {
             $('#archive-page .message-list').empty();
+            $('#archive-page .pages').empty();
             $('#archive-page').hide();
           }
         });

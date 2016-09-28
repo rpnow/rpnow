@@ -58,7 +58,7 @@ var rp = (function() {
         return new Message(msg);
       });
       // callback
-      callback({ title: data.title, desc: data.desc, msgs: msgs, charas: charas });
+      callback({ title: data.title, desc: data.desc, msgs: msgs, charas: charas, numPages: data.numPages });
     });
   };
 

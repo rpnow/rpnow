@@ -105,17 +105,18 @@ router.get('/rps/:rpCode/updates.json', (req, res, next) => {
 router.get('/rps/:rpCode/page/:pageNum.json', (req, res, next) => {
    var pageNum = req.params.pageNum;
    if (!(pageNum >= 0) || pageNum%0) return next(new Error('Bad page number'));
+   var numPages = Math.max(Math.ceil(req.rp.msgs.length/PAGE_SIZE), 1);
    var out = {
       title: req.rp.title,
-      desc: req.rp.desc
+      desc: req.rp.desc,
+      numPages: numPages
    };
-   var pageStart = (pageNum-1)*PAGE_SIZE;
-   var msgs = req.rp.msgs.slice(pageStart, pageStart+PAGE_SIZE);
-   if (msgs.length === 0 && pageNum > 1) {
+   if (pageNum > numPages) {
       out.error = `Page not found: ${pageNum}`;
       return res.status(404).json(out);
    }
-   out.msgs = msgs;
+   var pageStart = (pageNum-1)*PAGE_SIZE;
+   out.msgs = req.rp.msgs.slice(pageStart, pageStart+PAGE_SIZE);
    out.charas = out.msgs
       .filter(m=>m.type==='chara')
       .map(m=>m.charaId)
