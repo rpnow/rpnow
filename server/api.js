@@ -12,6 +12,8 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 var crypto = require('crypto');
 
+var wordwrap = require('wordwrap');
+
 const PAGE_SIZE = 20;
 const REFRESH_MILLIS = 2000;
 
@@ -23,6 +25,7 @@ function rpMiddleware(req, res, next) {
    return next();
 }
 router.use('/rps/:rpCode.json', rpMiddleware);
+router.use('/rps/:rpCode.txt', rpMiddleware);
 router.use('/rps/:rpCode/*', rpMiddleware);
 
 function cleanParams(params) {
@@ -160,7 +163,30 @@ router.post('/rps/:rpCode/chara.json', cleanParams({ name: 30, color: /^#[0-9a-f
 });
 
 router.get('/rps/:rpCode.txt', (req, res, next) => {
-   // TODO
+   res.type('.txt');
+   res.attachment(req.rp.title + '.txt');
+   var out;
+   try {
+      out = req.rp.msgs.map(msg=>{
+         if(msg.type === 'narrator') {
+            return wordwrap(72)(msg.content);
+         }
+         else if(msg.type === 'ooc') {
+            return wordwrap(72)(`(( OOC: ${msg.content} ))`);
+         }
+         else if(msg.type === 'chara') {
+            return `${req.rp.charas[msg.charaId].name.toUpperCase()}:\n`
+               + wordwrap(2, 72)(msg.content);
+         }
+         else {
+            throw new Error(`Unexpected message type: ${msg.type}`);
+         }
+      });
+   } catch(ex) {
+      return next(ex);
+   }
+   out.unshift(`${req.rp.title}\n${req.rp.desc}\n----------`);
+   res.send(out.map(msg=>msg.replace('\n', '\r\n')).join('\r\n\r\n'));
 });
 
 router.all('*', (req, res, next) => {
