@@ -2,18 +2,21 @@
   "name": "rpnow",
   "version": "0.2.0",
   "description": "The Dead-Simple Roleplay Chatroom Service",
-  "main": "server/nodeserver.js",
+  "main": "server/app.js",
   "dependencies": {
     "morgan": "^1.7.0",
-    "jasmine": "^2.5.2",
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "express": "^4.14.0",
     "wordwrap": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jasmine": "^2.5.2",
+    "jasmine-ajax": "^3.2.0",
+    "sync-request": "^3.0.1"
+  },
   "scripts": {
-    "test": "node server/nodeserver.js"
+    "test": "jasmine"
   },
   "keywords": [
     "roleplay"
