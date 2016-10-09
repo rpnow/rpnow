@@ -165,26 +165,24 @@ router.post('/rps/:rpCode/chara.json', cleanParams({ name: 30, color: /^#[0-9a-f
 router.get('/rps/:rpCode.txt', (req, res, next) => {
    res.type('.txt');
    res.attachment(req.rp.title + '.txt');
-   var out;
-   try {
-      out = req.rp.msgs.map(msg=>{
-         if(msg.type === 'narrator') {
-            return wordwrap(72)(msg.content);
-         }
-         else if(msg.type === 'ooc') {
-            return wordwrap(72)(`(( OOC: ${msg.content} ))`);
-         }
-         else if(msg.type === 'chara') {
-            return `${req.rp.charas[msg.charaId].name.toUpperCase()}:\n`
-               + wordwrap(2, 72)(msg.content);
-         }
-         else {
-            throw new Error(`Unexpected message type: ${msg.type}`);
-         }
-      });
-   } catch(ex) {
-      return next(ex);
-   }
+   
+   var out = req.rp.msgs;
+   if (!req.query.ooc) out = out.filter(msg=>msg.type !== 'ooc');
+   out = out.map(msg=>{
+      if(msg.type === 'narrator') {
+         return wordwrap(72)(msg.content);
+      }
+      else if(msg.type === 'ooc') {
+         return wordwrap(72)(`(( OOC: ${msg.content} ))`);
+      }
+      else if(msg.type === 'chara') {
+         return `${req.rp.charas[msg.charaId].name.toUpperCase()}:\n`
+            + wordwrap(2, 72)(msg.content);
+      }
+      else {
+         throw new Error(`Unexpected message type: ${msg.type}`);
+      }
+   });
    out.unshift(`${req.rp.title}\n${req.rp.desc}\n----------`);
    res.send(out.map(msg=>msg.replace('\n', '\r\n')).join('\r\n\r\n'));
 });

@@ -16,7 +16,6 @@
       <ul id="title-links">
         <li><a href="#" title="Write RP"><span class="icon icon-pencil"></span></a>
         <li><a href="#page-1" title="Archive"><span class="icon icon-books"></span></a>
-        <li><a href="#stats" title="Statistics"><span class="icon icon-stats-bars"></span></a>
         <li><a href="#export" title="Export"><span class="icon icon-download3"></span></a>
         <li><a href="/terms" title="Terms & Conditions" target="_blank"><span class="icon icon-file-text2"></span></a>
       </ul>
@@ -98,12 +97,15 @@
     <div class="pages"></div>
   </div>
   
-  <div id="stats-page" class="rp-page" style="display: none">
-    STATS
-  </div>
-  
   <div id="export-page" class="rp-page" style="display: none">
-    EXPORT
+    <h3>Export Options</h3>
+    <form class="form-box" id="export-form" method="GET">
+      <input type="checkbox" name="ooc" value="true"> Include OOC Messages?
+      <button type="submit" class="btn-submit">Download .TXT</button>
+    </form>
+    <script>
+      document.getElementById('export-form').action = "/api/v1/rps/" + location.pathname.substr(location.pathname.lastIndexOf('/')+1) + '.txt';
+    </script>
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
@@ -286,8 +288,7 @@
           removePageFunction = null;
         }
         
-        if (location.hash === '#stats') statsPage();
-        else if (location.hash === '#export') exportPage();
+        if (location.hash === '#export') exportPage();
         else if (location.hash.match(/^#page-([1-9][0-9]*)$/)) archivePage(+location.hash.split('-')[1]);
         else chatPage();
       }
@@ -295,12 +296,6 @@
       $(window).on('hashchange', changePage);
       changePage();
       
-      
-      function statsPage() {
-        $('#stats-page').show();
-        setTitleText('RP Stats');
-        removePageFunction = function() { $('#stats-page').hide(); };
-      }
       
       function exportPage() {
         $('#export-page').show();
