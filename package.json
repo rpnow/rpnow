@@ -12,8 +12,7 @@
   },
   "devDependencies": {
     "jasmine": "^2.5.2",
-    "jasmine-ajax": "^3.2.0",
-    "sync-request": "^3.0.1"
+    "request": "^2.75.0"
   },
   "scripts": {
     "test": "jasmine"
