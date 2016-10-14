@@ -194,5 +194,4 @@ router.all('*', (req, res, next) => {
 // ERROR HANDLING
 router.use((err, req, res, next) => {
    res.status(400).json({ error: err.message });
-   console.error(err);
 });
