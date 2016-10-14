@@ -129,7 +129,7 @@ describe("v1 API", () => {
       });
    });
    
-   [undefined, '', ' ', '       ', 'NAME LONGER THAN THIRTY CHARACTERS'].forEach(badName => {
+   [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       ', 'NAME LONGER THAN THIRTY CHARACTERS'].forEach(badName => {
       it(`rejects chara with bad name: '${badName}'`, (done) => {
          request.post({ uri: `${api}/rps/${rpCode}/chara.json`, json: true, body: { name: badName, color: '#ca551e' } }, (err, res, body) => {
             expect(err).toBeFalsy();
@@ -139,7 +139,7 @@ describe("v1 API", () => {
       });
    });
    
-   [undefined, '', '#abc', '#abcdef1', 'abcd3f', '#abcdef#123456', 'rgba(0,0,0,0)', 'red'].forEach(badColor => {
+   [undefined, null, false, true, 0, 1, {}, [], '', '#abc', '#abcdef1', 'abcd3f', '#abcdef#123456', 'rgba(0,0,0,0)', 'red'].forEach(badColor => {
       it(`rejects chara with bad color: '${badColor}'`, (done) => {
          request.post({ uri: `${api}/rps/${rpCode}/chara.json`, json: true, body: { name: 'Cassie', color: badColor } }, (err, res, body) => {
             expect(err).toBeFalsy();
@@ -176,7 +176,7 @@ describe("v1 API", () => {
       });
    });
    
-   [undefined, '', ' ', '       '].forEach(badContent => {
+   [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       '].forEach(badContent => {
       it(`rejects message with bad content: '${badContent}'`, (done) => {
          request.post({ uri: `${api}/rps/${rpCode}/chara.json`, json: true, body: { type: 'narrator', content: badContent } }, (err, res, body) => {
             expect(err).toBeFalsy();
@@ -194,7 +194,7 @@ describe("v1 API", () => {
       });
    });
    
-   [undefined, '', ' ', 'oooc', 'oocc', 'ooc   ', 'OOC', 'oocnarrator'].forEach(badType => {
+   [undefined, null, false, true, 0, 1, {}, [], '', ' ', 'oooc', 'oocc', 'ooc   ', 'OOC', 'oocnarrator'].forEach(badType => {
       it(`rejects message with bad type: '${badType}'`, (done) => {
          request.post({ uri: `${api}/rps/${rpCode}/chara.json`, json: true, body: { type: badType, content: 'Hello' } }, (err, res, body) => {
             expect(err).toBeFalsy();
@@ -204,7 +204,7 @@ describe("v1 API", () => {
       });
    });
    
-   [undefined, false, '0', -1, 1, 0.5, -0.5].forEach(badCharaId => {
+   [undefined, null, false, true, {}, [], '0', -1, 1, 0.5, -0.5].forEach(badCharaId => {
       it(`rejects message with bad type: '${badCharaId}'`, (done) => {
          request.post({ uri: `${api}/rps/${rpCode}/chara.json`, json: true, body: { type: 'chara', charaId: badCharaId, content: 'Hello' } }, (err, res, body) => {
             expect(err).toBeFalsy();
