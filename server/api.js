@@ -58,22 +58,35 @@ function cleanParams(params) {
 }
 
 // REST API
+
 router.post('/rps.json', cleanParams({ 'title':30, 'desc':[255] }), (req, res, next) => {
    var rpCodeCharacters = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-   var rpCode = '........'.replace(/./g, ()=>rpCodeCharacters.charAt(Math.random() * rpCodeCharacters.length));
+   crypto.randomBytes(16, gotBytes);
    
-   rooms[rpCode] = {
-      rpCode: rpCode,
-      title: req.body.title,
-      desc: (req.body.desc || ""),
-      msgs: [],
-      charas: [],
-      updateList: [],
-      addUpdateEntry: function() { this.updateList.push({ msgCount: this.msgs.length, charaCount: this.charas.length }); }
-   };
-   rooms[rpCode].addUpdateEntry();
-   
-   res.status(201).json({ rpCode: rpCode });
+   function gotBytes(err, buffer) {
+      var token = buffer.toString('base64');
+      var rpCode = token.match(new RegExp(rpCodeCharacters.split('').join('|'), 'g')).join('').substr(0, 8);
+      console.log(token, rpCode);
+      
+      // if it generated a bad or duplicate rp code, try again
+      if (rpCode.length !== 8 || rooms[rpCode]) {
+         crypto.randomBytes(16, gotBytes);
+         return;
+      }
+      
+      rooms[rpCode] = {
+         rpCode: rpCode,
+         title: req.body.title,
+         desc: (req.body.desc || ""),
+         msgs: [],
+         charas: [],
+         updateList: [],
+         addUpdateEntry: function() { this.updateList.push({ msgCount: this.msgs.length, charaCount: this.charas.length }); }
+      };
+      rooms[rpCode].addUpdateEntry();
+      
+      res.status(201).json({ rpCode: rpCode });
+   }
 });
 
 router.get('/rps/:rpCode.json', (req, res, next) => {
