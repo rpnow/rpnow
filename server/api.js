@@ -66,7 +66,6 @@ router.post('/rps.json', cleanParams({ 'title':30, 'desc':[255] }), (req, res, n
    function gotBytes(err, buffer) {
       var token = buffer.toString('base64');
       var rpCode = token.match(new RegExp(rpCodeCharacters.split('').join('|'), 'g')).join('').substr(0, 8);
-      console.log(token, rpCode);
       
       // if it generated a bad or duplicate rp code, try again
       if (rpCode.length !== 8 || rooms[rpCode]) {
