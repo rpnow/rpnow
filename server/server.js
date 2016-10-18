@@ -12,7 +12,8 @@ const defaultOptions = {
    rpCodeLength: 8,
    pageSize: 20,
    refreshMs: 2000,
-   rateLimit: true
+   rateLimit: true,
+   trustProxy: false
 };
 
 
@@ -41,7 +42,7 @@ module.exports.start = function(runOptions, callback) {
    
    if (!this.options.quiet) console.log('Adding middleware.');
    if (!this.options.quiet) app.use(logger('dev'));
-   app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc) 
+   if (this.options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
    app.use(compression());
    // app.use(favicon(WEB + '/favicon.ico'));
    
