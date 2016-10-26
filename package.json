@@ -16,6 +16,7 @@
     "request": "^2.75.0"
   },
   "scripts": {
+    "start": "node server/app.js",
     "test": "jasmine"
   },
   "keywords": [
