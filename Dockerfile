@@ -1,8 +1,18 @@
+# Using Node v4 (LTS)
 FROM node:4
-WORKDIR /root
-ADD . .
+
+# Copy in source and install application
+WORKDIR /srv
+COPY package.json .
 RUN npm install
-ENV IP=0.0.0.0
-ENV PORT=80
+COPY . .
+
+# Create service user
+RUN groupadd -r rpnow && useradd -r -g rpnow rpnow
+USER rpnow
+
+# Expose HTTP (port 80)
 EXPOSE 80
+
+# Container runs node server
 CMD npm start
