@@ -7,7 +7,7 @@ const compression = require('compression');
 const defaultOptions = {
    ip: process.env.IP,
    port: process.env.PORT,
-   quiet: false,
+   logging: true,
    rpCodeCharacters: 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',
    rpCodeLength: 8,
    pageSize: 20,
@@ -16,58 +16,48 @@ const defaultOptions = {
    trustProxy: false
 };
 
+var server;
 
 // server start
-module.exports.start = function(runOptions, callback) {
-   if (!runOptions) {
-      this.options = defaultOptions;
-   }
-   else {
-      this.options = {};
-      for (var key in defaultOptions) {
-         if (key in runOptions) this.options[key] = runOptions[key];
-         else this.options[key] = defaultOptions[key];
-      }
-   }
-   
-   if (this.server) {
-      if (!this.options.quiet) console.log('Server already started.');
-      if (callback) callback();
+module.exports.start = function(customOptions, callback) {
+   if (server) {
+      if (callback) callback('Server already started.');
       return;
    }
    
+   server = {
+      listener: null,
+      options: JSON.parse(JSON.stringify(defaultOptions))
+   };
+   if (customOptions) {
+      for (var key in customOptions) server.options[key] = customOptions[key];
+   }
+    
    //create express app
-   if (!this.options.quiet) console.log('Starting RPNow server at '+__filename);
    var app = express();
    
-   if (!this.options.quiet) console.log('Adding middleware.');
-   if (!this.options.quiet) app.use(logger('dev'));
-   if (this.options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
+   if (server.options.logging) app.use(logger('dev'));
+   if (server.options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
    app.use(compression());
    // app.use(favicon(WEB + '/favicon.ico'));
    
-   if (!this.options.quiet) console.log('Setting up app behavior.');
    app.use(express.static(__dirname.replace('server','static'))); //express is serving static files as if it were Apache
-   app.use('/api/v1', require('./api')(this.options));
+   app.use('/api/v1', require('./api')(server.options));
    app.use('/', require('./serve-frontend'));
    
-   this.server = app.listen(this.options.port, this.options.ip, ()=>{
-      if (!this.options.quiet) console.log(`Running. (Listening on ${this.options.ip}:${this.options.port})`);
-      if (callback) callback();
+   server.listener = app.listen(server.options.port, server.options.ip, ()=>{
+      if (callback) callback(null, server.listener, server.options);
    });
 };
 
 module.exports.stop = function(reason, callback) {
-   if (!this.server) {
-      if (!this.options.quiet) console.log('No server to stop.');
-      if (callback) callback();
+   if (!server) {
+      if (callback) callback('No server to stop.');
       return;
    }
    
-   if (!this.options.quiet) console.log(`Attempting graceful shutdown: ${reason}`);
-   this.server.close(() => { 
-      if (!this.options.quiet) console.log('Shutdown complete.');
-      this.server = null;
+   server.listener.close(() => { 
+      server = null;
       if (callback) callback();
    });
 };

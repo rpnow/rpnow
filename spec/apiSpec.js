@@ -6,7 +6,7 @@ const host = `http://${process.env.IP}:${process.env.PORT}`;
 const api = `${host}/api/v1`;
 
 describe("web server", () => {
-   const options = { quiet: true, rateLimit: false };
+   const options = { logging: false, rateLimit: false };
    
    it("is not already running", (done) => {
       request(`${host}/`, (err, res, body) => {
