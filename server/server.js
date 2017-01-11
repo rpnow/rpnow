@@ -5,8 +5,8 @@ const compression = require('compression');
 // const favicon = require('serve-favicon');
 
 const defaultOptions = {
-   ip: process.env.IP,
-   port: process.env.PORT,
+   ip: process.env.IP || '0.0.0.0',
+   port: process.env.PORT || 80,
    logging: true,
    rpCodeCharacters: 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',
    rpCodeLength: 8,
