@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const wordwrap = require('wordwrap');
 const RateLimit = require('express-rate-limit');
+const mongojs = require('mongojs');
 
 module.exports = function(options) {
    var router = express.Router();
@@ -23,7 +24,16 @@ module.exports = function(options) {
    router.use('/rps/:rpCode.txt', rpMiddleware);
    router.use('/rps/:rpCode/*', rpMiddleware);
    
-   var rooms = {};
+   var rooms;
+   var db = mongojs('localhost/rpnow', ['rps']);
+   db.rps.findOne({ _id:'everyRP' }, function(err, doc) {
+      if (err) throw err;
+      rooms = doc? doc.rooms: {};
+      
+      setInterval(()=> {
+         db.rps.save({ _id: 'everyRP', rooms: JSON.parse(JSON.stringify(rooms)) });
+      }, 5*1000);
+   });
 
    function rpMiddleware(req, res, next) {
       req.rp = rooms[req.params.rpCode];
@@ -60,6 +70,10 @@ module.exports = function(options) {
       };
    }
    
+   function addUpdateEntry(rp) {
+      rp.updateList.push({ msgCount: rp.msgs.length, charaCount: rp.charas.length });
+   }
+   
    router.post('/rps.json', cleanParams({ 'title':30, 'desc':[255] }), (req, res, next) => {
       var numCryptoBytes = options.rpCodeLength * 2; // ample bytes just in case
       
@@ -82,9 +96,8 @@ module.exports = function(options) {
             msgs: [],
             charas: [],
             updateList: [],
-            addUpdateEntry: function() { this.updateList.push({ msgCount: this.msgs.length, charaCount: this.charas.length }); }
          };
-         rooms[rpCode].addUpdateEntry();
+         addUpdateEntry(rooms[rpCode]);
          
          res.status(201).json({ rpCode: rpCode });
       }
@@ -160,7 +173,7 @@ module.exports = function(options) {
          timestamp: Date.now() / 1000,
          ipid: crypto.createHash('md5').update(req.ip).digest('hex').substr(0,18)
       });
-      req.rp.addUpdateEntry();
+      addUpdateEntry(req.rp);
       res.status(201).json({ id: req.rp.msgs.length - 1 });
    });
    
@@ -172,7 +185,7 @@ module.exports = function(options) {
          color: chara.color,
          ipid: crypto.createHash('md5').update(req.ip).digest('hex').substr(0,18)
       });
-      req.rp.addUpdateEntry();
+      addUpdateEntry(req.rp);
       res.status(201).json({ id: req.rp.charas.length - 1 });
    });
    
