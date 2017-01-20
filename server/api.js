@@ -9,7 +9,7 @@ const wordwrap = require('wordwrap');
 const RateLimit = require('express-rate-limit');
 const mongojs = require('mongojs');
 
-module.exports = function(options) {
+module.exports = function(options, io) {
    var router = express.Router();
    
    router.use(bodyParser.json());
@@ -103,15 +103,33 @@ module.exports = function(options) {
       }
    });
    
-   router.get('/rps/:rpCode.json', (req, res, next) => {
-      res.status(200).json({
-         title: req.rp.title,
-         desc: req.rp.desc,
-         msgs: req.rp.msgs.slice(-options.pageSize),
-         charas: req.rp.charas,
-         pageSize: options.pageSize,
-         refreshMillis: options.refreshMs,
-         updateCounter: req.rp.updateList.length-1
+   // router.get('/rps/:rpCode.json', (req, res, next) => {
+   //    res.status(200).json({
+   //       title: req.rp.title,
+   //       desc: req.rp.desc,
+   //       msgs: req.rp.msgs.slice(-options.pageSize),
+   //       charas: req.rp.charas,
+   //       pageSize: options.pageSize,
+   //       refreshMillis: options.refreshMs,
+   //       updateCounter: req.rp.updateList.length-1
+   //    });
+   // });
+   
+   io.on('connection', (socket) => {
+      socket.on('join rp', (rpCode, callback) => {
+         var rp = rooms[rpCode];
+         if (!rp) return;
+         
+         socket.join(rpCode);
+         callback({
+            title: rp.title,
+            desc: rp.desc,
+            msgs: rp.msgs.slice(-options.pageSize),
+            charas: rp.charas,
+            pageSize: options.pageSize,
+            refreshMillis: options.refreshMs,
+            updateCounter: rp.updateList.length-1
+         })
       });
    });
    

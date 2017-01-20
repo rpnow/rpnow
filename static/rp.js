@@ -1,4 +1,4 @@
-/* global $ moment */
+/* global $ moment io */
 var rp = (function() {
   var rp = {};
   
@@ -85,6 +85,27 @@ var rp = (function() {
       'msgs': {get: function() { return msgs; }},
       'maxMsgs': {get: function() { return maxMsgs; }}
     });
+    
+    
+    
+    var socket = io();
+    socket.emit('join rp', url, (data) => {
+      // set variables
+      title = data.title;
+      desc = data.desc;
+      charas = data.charas.map(function(chara){ return new Chara(chara); });
+      msgs = data.msgs.map(function(msg){
+        msg.chara = charas[msg.charaId];
+        return new Message(msg);
+      });
+      updateCounter = data.updateCounter;
+      maxMsgs = data.postsPerPage;
+      // callback
+      if(onLoad) onLoad(chat);
+      // start updating
+      fetchUpdates();
+    });
+    
     // send message
     chat.sendMessage = function(content, voice, callback) {
       var data = { content: content };
@@ -136,24 +157,24 @@ var rp = (function() {
       stopped = true;
     };
     
-    // load...
-    ajax(url + '.json', 'GET', function(data) {
-      // set variables
-      title = data.title;
-      desc = data.desc;
-      charas = data.charas.map(function(chara){ return new Chara(chara); });
-      msgs = data.msgs.map(function(msg){
-        msg.chara = charas[msg.charaId];
-        return new Message(msg);
-      });
-      updateCounter = data.updateCounter;
-      maxMsgs = data.postsPerPage;
-      // callback
-      if(onLoad) onLoad(chat);
-      // start updating
-      fetchUpdates();
-    });
-    // done.
+    // // load...
+    // ajax(url + '.json', 'GET', function(data) {
+    //   // set variables
+    //   title = data.title;
+    //   desc = data.desc;
+    //   charas = data.charas.map(function(chara){ return new Chara(chara); });
+    //   msgs = data.msgs.map(function(msg){
+    //     msg.chara = charas[msg.charaId];
+    //     return new Message(msg);
+    //   });
+    //   updateCounter = data.updateCounter;
+    //   maxMsgs = data.postsPerPage;
+    //   // callback
+    //   if(onLoad) onLoad(chat);
+    //   // start updating
+    //   fetchUpdates();
+    // });
+    // // done.
   };
 
   // classes

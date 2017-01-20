@@ -1,5 +1,7 @@
 //load modules
 const express = require('express');
+const http = require('http');
+const io = require('socket.io');
 const logger = require('morgan');
 const compression = require('compression');
 // const favicon = require('serve-favicon');
@@ -16,48 +18,46 @@ const defaultOptions = {
    trustProxy: false
 };
 
-var server;
+var listener;
 
 // server start
 module.exports.start = function(customOptions, callback) {
-   if (server) {
+   if (listener) {
       if (callback) callback('Server already started.');
       return;
    }
    
-   server = {
-      listener: null,
-      options: JSON.parse(JSON.stringify(defaultOptions))
-   };
+   var options = JSON.parse(JSON.stringify(defaultOptions))
    if (customOptions) {
-      for (var key in customOptions) server.options[key] = customOptions[key];
+      for (var key in customOptions) options[key] = customOptions[key];
    }
     
    //create express app
    var app = express();
+   var server = http.Server(app);
    
-   if (server.options.logging) app.use(logger('dev'));
-   if (server.options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
+   if (options.logging) app.use(logger('dev'));
+   if (options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
    app.use(compression());
    // app.use(favicon(WEB + '/favicon.ico'));
    
    app.use(express.static(__dirname.replace('server','static'))); //express is serving static files as if it were Apache
-   app.use('/api/v1', require('./api')(server.options));
+   app.use('/api/v1', require('./api')(options, io(server)));
    app.use('/', require('./serve-frontend'));
    
-   server.listener = app.listen(server.options.port, server.options.ip, ()=>{
-      if (callback) callback(null, server.listener, server.options);
+   listener = server.listen(options.port, options.ip, ()=>{
+      if (callback) callback(null, listener, options);
    });
 };
 
 module.exports.stop = function(reason, callback) {
-   if (!server) {
+   if (!listener) {
       if (callback) callback('No server to stop.');
       return;
    }
    
-   server.listener.close(() => { 
-      server = null;
+   listener.close(() => { 
+      listener = null;
       if (callback) callback();
    });
 };
