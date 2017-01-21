@@ -86,10 +86,8 @@ var rp = (function() {
       'maxMsgs': {get: function() { return maxMsgs; }}
     });
     
-    
-    
     var socket = io();
-    socket.emit('join rp', url, (data) => {
+    socket.emit('join rp', url, function(data) {
       // set variables
       title = data.title;
       desc = data.desc;
@@ -102,79 +100,43 @@ var rp = (function() {
       maxMsgs = data.postsPerPage;
       // callback
       if(onLoad) onLoad(chat);
-      // start updating
-      fetchUpdates();
+    });
+    socket.on('add message', function(msg) {
+      msg.chara = charas[msg.charaId];
+      msg = new Message(msg);
+      msgs.push(msg);
+      onMessage.call(this, msg);
+    });
+    socket.on('add character', function(chara) {
+      chara = new Chara(chara);
+      charas[chara.id] = chara;
+      onChara.call(this, chara);
     });
     
     // send message
     chat.sendMessage = function(content, voice, callback) {
-      var data = { content: content };
+      var msg = { content: content };
       if(voice instanceof Chara) {
-        data['type'] = 'chara';
-        data.charaId = voice.id;
+        msg['type'] = 'chara';
+        msg.charaId = voice.id;
       }
       else {
-        data['type'] = voice;
+        msg['type'] = voice;
       }
-      ajax(url + '/msg.json', 'POST', data, stopped?null:callback);
+      socket.emit('add message', msg, function(receivedMsg) {
+        if (!stopped) callback(receivedMsg);
+      });
     };
     // send character
     chat.sendChara = function(name, color, callback) {
-      var data = { name: name, color: color };
-      ajax(url + '/chara.json', 'POST', data, stopped?null:callback);
-    };
-    
-    // update loop
-    function fetchUpdates() {
-      ajax(url + '/updates.json', 'GET', { updateCounter: updateCounter }, function(data, req) {
-        if (stopped) return;
-        if (req.status === 200) processUpdates(data);
-        setTimeout(fetchUpdates, 2000);
+      var chara = { name: name, color: color };
+      socket.emit('add character', chara, function(recievedChara) {
+        if (!stopped) callback(recievedChara);
       });
-    }
-    function processUpdates(data) {
-      // add new characters
-      data.charas
-        .map(function(x){return new Chara(x);})
-        .forEach(function(chara) {
-          charas[chara.id] = chara;
-          onChara.call(this, chara);
-        });
-      // add new messages
-      data.msgs
-        .map(function(msg){
-          msg.chara = charas[msg.charaId];
-          return new Message(msg);
-        })
-        .forEach(function(msg) {
-          msgs.push(msg);
-          onMessage.call(this, msg);
-        });
-      // update msg counter
-      updateCounter = data.updateCounter;
-    }
+    };
     chat.stop = function() {
       stopped = true;
     };
-    
-    // // load...
-    // ajax(url + '.json', 'GET', function(data) {
-    //   // set variables
-    //   title = data.title;
-    //   desc = data.desc;
-    //   charas = data.charas.map(function(chara){ return new Chara(chara); });
-    //   msgs = data.msgs.map(function(msg){
-    //     msg.chara = charas[msg.charaId];
-    //     return new Message(msg);
-    //   });
-    //   updateCounter = data.updateCounter;
-    //   maxMsgs = data.postsPerPage;
-    //   // callback
-    //   if(onLoad) onLoad(chat);
-    //   // start updating
-    //   fetchUpdates();
-    // });
-    // // done.
   };
 
   // classes

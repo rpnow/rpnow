@@ -103,21 +103,13 @@ module.exports = function(options, io) {
       }
    });
    
-   // router.get('/rps/:rpCode.json', (req, res, next) => {
-   //    res.status(200).json({
-   //       title: req.rp.title,
-   //       desc: req.rp.desc,
-   //       msgs: req.rp.msgs.slice(-options.pageSize),
-   //       charas: req.rp.charas,
-   //       pageSize: options.pageSize,
-   //       refreshMillis: options.refreshMs,
-   //       updateCounter: req.rp.updateList.length-1
-   //    });
-   // });
-   
    io.on('connection', (socket) => {
+      var rp;
+      var ip = socket.request.connection.remoteAddress;
       socket.on('join rp', (rpCode, callback) => {
-         var rp = rooms[rpCode];
+         if (rp) return;
+         
+         rp = rooms[rpCode];
          if (!rp) return;
          
          socket.join(rpCode);
@@ -129,24 +121,48 @@ module.exports = function(options, io) {
             pageSize: options.pageSize,
             refreshMillis: options.refreshMs,
             updateCounter: rp.updateList.length-1
-         })
+         });
       });
-   });
-   
-   router.get('/rps/:rpCode/updates.json', (req, res, next) => {
-      var updateCounter = +req.query.updateCounter;
-      if (!(updateCounter >= 0)) return next(new Error('Invalid updateCounter value'));
-      if (updateCounter > req.rp.updateList.length-1) return next(new Error('updatecounter larger than latest available update'));
-      if (updateCounter === req.rp.updateList.length-1) {
-         res.sendStatus(204);
-         return;
-      }
       
-      var lastClientUpdate = req.rp.updateList[updateCounter]
-      res.status(200).json({
-         msgs: req.rp.msgs.slice(lastClientUpdate.msgCount),
-         charas: req.rp.charas.slice(lastClientUpdate.charaCount),
-         updateCounter: req.rp.updateList.length-1
+      socket.on('add message', (msg, callback) => {
+         // message validation
+         if (msg.content.length > 10000) return (new Error('Message too long.'));
+         if (['narrator', 'chara', 'ooc'].indexOf(msg.type) === -1) return (new Error('Bad message type.'));
+         if (msg.type === 'chara') {
+            if (!(msg.charaId >= 0)) return (new Error('Bad or missing chara id.'));
+            if (!rp.charas[msg.charaId]) return (new Error('Invalid chara id.'));
+         }
+         // normalize message
+         msg = {
+            id: rp.msgs.length,
+            type: msg.type,
+            content: msg.content,
+            charaId: msg.charaId,
+            timestamp: Date.now() / 1000,
+            ipid: crypto.createHash('md5').update(ip).digest('hex').substr(0,18)
+         };
+         // store message
+         rp.msgs.push(msg);
+         // broadcast
+         callback(msg);
+         socket.to(rp.rpCode).broadcast.emit('add message', msg);
+      });
+      socket.on('add character', (chara, callback) => {
+         // validation
+         if (chara.name.length > 30) return (new Error('Name too long.'));
+         if (!(chara.color.match(/^#[0-9a-f]{6}$/gi))) return (new Error('Invalid color.'));
+         // noarmlaize
+         chara = {
+            id: rp.charas.length,
+            name: chara.name,
+            color: chara.color,
+            ipid: crypto.createHash('md5').update(ip).digest('hex').substr(0,18)
+         };
+         // store
+         rp.charas.push(chara);
+         // broadcast
+         callback(chara);
+         socket.to(rp.rpCode).broadcast.emit('add character', chara);
       });
    });
    
@@ -172,39 +188,6 @@ module.exports = function(options, io) {
          .map(id=>req.rp.charas[id]);
       
       res.status(200).json(out);
-   });
-   
-   router.post('/rps/:rpCode/msg.json', cleanParams({ content: 10000 }), (req, res, next) => {
-      var msg = req.body;
-      // message validation
-      if (['narrator', 'chara', 'ooc'].indexOf(msg.type) === -1) return next(new Error('Bad message type.'));
-      if (msg.type === 'chara') {
-         if (!(msg.charaId >= 0)) return next(new Error('Bad or missing chara id.'));
-         if (!req.rp.charas[msg.charaId]) return next(new Error('Invalid chara id.'));
-      }
-      // submit message
-      req.rp.msgs.push({
-         id: req.rp.msgs.length,
-         type: msg.type,
-         content: msg.content,
-         charaId: msg.charaId,
-         timestamp: Date.now() / 1000,
-         ipid: crypto.createHash('md5').update(req.ip).digest('hex').substr(0,18)
-      });
-      addUpdateEntry(req.rp);
-      res.status(201).json({ id: req.rp.msgs.length - 1 });
-   });
-   
-   router.post('/rps/:rpCode/chara.json', cleanParams({ name: 30, color: /^#[0-9a-f]{6}$/gi }), (req, res, next) => {
-      var chara = req.body;
-      req.rp.charas.push({
-         id: req.rp.charas.length,
-         name: chara.name,
-         color: chara.color,
-         ipid: crypto.createHash('md5').update(req.ip).digest('hex').substr(0,18)
-      });
-      addUpdateEntry(req.rp);
-      res.status(201).json({ id: req.rp.charas.length - 1 });
    });
    
    router.get('/rps/:rpCode.txt', (req, res, next) => {
