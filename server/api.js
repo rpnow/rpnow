@@ -70,10 +70,6 @@ module.exports = function(options, io) {
       };
    }
    
-   function addUpdateEntry(rp) {
-      rp.updateList.push({ msgCount: rp.msgs.length, charaCount: rp.charas.length });
-   }
-   
    router.post('/rps.json', cleanParams({ 'title':30, 'desc':[255] }), (req, res, next) => {
       var numCryptoBytes = options.rpCodeLength * 2; // ample bytes just in case
       
@@ -94,70 +90,84 @@ module.exports = function(options, io) {
             title: req.body.title,
             desc: (req.body.desc || ""),
             msgs: [],
-            charas: [],
-            updateList: [],
+            charas: []
          };
-         addUpdateEntry(rooms[rpCode]);
          
          res.status(201).json({ rpCode: rpCode });
       }
    });
    
+   function normalizeMessage(msg) {
+      // message validation
+      // TODO trim whitespace
+      if (msg.content.length > 10000) return { error: 'Message too long.' };
+      if (['narrator', 'chara', 'ooc'].indexOf(msg.type) === -1) return { error: 'Bad message type.' };
+      if (msg.type === 'chara') {
+         var chara = normalizeCharacter(msg.chara);
+         if (chara.error) return { error: chara.error };
+         msg.chara = chara;
+      }
+      // normalize message
+      return {
+         type: msg.type,
+         content: msg.content,
+         chara: msg.chara
+      };
+   }
+   
+   function normalizeCharacter(chara) {
+      // validation
+      // TODO trim whitespace
+      if (chara.name.length > 30) return { error: 'Name too long.' };
+      if (!(chara.color.match(/^#[0-9a-f]{6}$/gi))) return { error: 'Invalid color.' };
+      if (chara.textColor && !(chara.color.match(/^#[0-9a-f]{6}$/gi))) return { error: 'Invalid text color.' };
+      // noarmlaize
+      return {
+         name: chara.name,
+         color: chara.color,
+         textColor: chara.textColor || contrastColor(chara.color)
+      };
+   }
+   function contrastColor(color) {
+      //YIQ algorithm modified from:
+      // http://24ways.org/2010/calculating-color-contrast/
+      var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
+      var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
+      return (yiq >= 128) ? '#000000' : '#ffffff';
+   }
+   
    io.on('connection', (socket) => {
       var rp;
       var ip = socket.request.connection.remoteAddress;
+      var ipid = crypto.createHash('md5').update(ip).digest('hex').substr(0,18);
       socket.on('join rp', (rpCode, callback) => {
          if (rp) return;
          
          rp = rooms[rpCode];
          if (!rp) return;
          
+         console.log(rp);
          socket.join(rpCode);
-         callback({
-            title: rp.title,
-            desc: rp.desc,
-            msgs: rp.msgs.slice(-options.pageSize),
-            charas: rp.charas,
-            pageSize: options.pageSize,
-            refreshMillis: options.refreshMs,
-            updateCounter: rp.updateList.length-1
-         });
+         callback(rp);
       });
       
       socket.on('add message', (msg, callback) => {
-         // message validation
-         if (msg.content.length > 10000) return (new Error('Message too long.'));
-         if (['narrator', 'chara', 'ooc'].indexOf(msg.type) === -1) return (new Error('Bad message type.'));
-         if (msg.type === 'chara') {
-            if (!(msg.charaId >= 0)) return (new Error('Bad or missing chara id.'));
-            if (!rp.charas[msg.charaId]) return (new Error('Invalid chara id.'));
-         }
-         // normalize message
-         msg = {
-            id: rp.msgs.length,
-            type: msg.type,
-            content: msg.content,
-            charaId: msg.charaId,
-            timestamp: Date.now() / 1000,
-            ipid: crypto.createHash('md5').update(ip).digest('hex').substr(0,18)
-         };
-         // store message
+         msg = normalizeMessage(msg);
+         if (msg.error) return console.log(msg.error);
+         msg.timestamp = Date.now() / 1000,
+         msg.ipid = ipid;
+         
+         // store & broadcast
          rp.msgs.push(msg);
-         // broadcast
          callback(msg);
          socket.to(rp.rpCode).broadcast.emit('add message', msg);
       });
       socket.on('add character', (chara, callback) => {
-         // validation
-         if (chara.name.length > 30) return (new Error('Name too long.'));
-         if (!(chara.color.match(/^#[0-9a-f]{6}$/gi))) return (new Error('Invalid color.'));
-         // noarmlaize
-         chara = {
-            id: rp.charas.length,
-            name: chara.name,
-            color: chara.color,
-            ipid: crypto.createHash('md5').update(ip).digest('hex').substr(0,18)
-         };
+         chara = normalizeCharacter(chara);
+         if (chara.error) return console.log(chara.error);
+         chara.timestamp = Date.now() / 1000,
+         chara.ipid = ipid;
+         
          // store
          rp.charas.push(chara);
          // broadcast

@@ -132,15 +132,16 @@
       Object.defineProperty(window, 'voice', {
         get: function() { return voice; },
         set: function(v) {
-          voice = v;
-          if(voice === 'narrator') {
+          if(v === 'narrator') {
+            voice = { type: 'narrator' }
             $('#message-voice').text('Narrator');
             $('#message-box').removeClass('message-box-ooc message-box-chara').addClass('message-box-narrator');
             $('#message-box').css('background-color', '');
             $('#message-voice').css('color', '');
             localStorage.setItem(localStorageKey('last_voice'), 'narrator');
           }
-          else if(voice === 'ooc') {
+          else if(v === 'ooc') {
+            voice = { type: 'ooc' }
             $('#message-voice').text('Out of Character');
             $('#message-box').removeClass('message-box-narrator message-box-chara').addClass('message-box-ooc');
             $('#message-box').css('background-color', '');
@@ -148,10 +149,11 @@
             localStorage.setItem(localStorageKey('last_voice'), 'ooc');
           }
           else {
-            $('#message-voice').text(voice.name);
+            voice = { type: 'chara', chara: v };
+            $('#message-voice').text(voice.chara.name);
             $('#message-box').removeClass('message-box-narrator message-box-ooc').addClass('message-box-chara');
-            $('#message-box').css('background-color', voice.color);
-            $('#message-voice').css('color', voice.textColor);
+            $('#message-box').css('background-color', voice.chara.color);
+            $('#message-voice').css('color', voice.chara.textColor);
             localStorage.setItem(localStorageKey('last_voice'), voice.id);
           }
         }
@@ -221,29 +223,32 @@
       $('#new-character').hide();
     }
 
-    function formatSentMessage(content, voice) {
-      content = content.trim();
-
-      var oocRegex = [
-        /^\(\(\s*(.*[^\s])\s*\)\)$/g, // (( stuff ))
-        /^\{+\s*(.*?[^\s])\s*\}+$/g, // { stuff }, {{ stuff }}, ...
-        /^\/\/\s*(.*[^\s])\s*$/g // //stuff
-      ];
-      for(var i = 0; i < oocRegex.length; ++i) {
-        var r = oocRegex[i];
-        var match = r.exec(content);
-        if(match) {
-          content = match[1];
-          voice = 'ooc';
-          break;
-        }
+    function getSentMessageJSON() {
+      var msg = {
+        content: $('#message-box textarea').val()
+          .trim()
+          .replace(/(\\r\\n|\\n\\r|\\r|\\n|\&lt;br(?: ?\/)?\&gt;)/g, '\n'),
+        type: voice.type,
+        chara: voice.chara || undefined
       }
 
-      // replace linebreak codes with actual linebreak
-      content = content.replace(/(\\r\\n|\\n\\r|\\r|\\n|\&lt;br(?: ?\/)?\&gt;)/g, '\n');
-
-      if(!content) return;
-      return { content: content, voice: voice };
+      if (msg.type !== 'ooc') {
+        [
+          /^\(\(\s*(.*[^\s])\s*\)\)$/g, // (( stuff ))
+          /^\{+\s*(.*?[^\s])\s*\}+$/g, // { stuff }, {{ stuff }}, ...
+          /^\/\/\s*(.*[^\s])\s*$/g // //stuff
+        ].forEach(function(oocRegex) {
+          var match = oocRegex.exec(content);
+          if (match) {
+            msg.content = match[1];
+            msg.voice = 'ooc';
+            msg.chara = undefined;
+          }
+        })
+      }
+      
+      if(!msg.content) return;
+      return msg;
     }
 
 
@@ -324,7 +329,7 @@
           else {
             $('#no-archive-content').hide();
             page.msgs.forEach(function(msg) {
-              $('#archive-page .message-list').append(msg.createElement('absolute'));
+              $('#archive-page .message-list').append(rp.createMessageElement(msg, 'absolute'));
             });
           }
           
@@ -383,7 +388,7 @@
           setTitleText(chat.title);
           $('#rp-description p').text(chat.desc);
           chat.msgs.forEach(function(msg) {
-            $('#chat-page .message-list').append(msg.createElement('relative'));
+            $('#chat-page .message-list').append(rp.createMessageElement(msg, 'relative'));
           });
           if(chat.msgs.length === chat.maxMsgs) {
             $('#showing-latest').show();
@@ -391,17 +396,17 @@
           else if(chat.msgs.length === 0) {
             $('#empty-room').show();
           }
-          chat.charas.forEach(function(chara) {
+          chat.charas.forEach(function(chara, i) {
             $('#character-list').append(
               $('<li/>', {'class':'chara-button'}).append(
-                chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
+                rp.createCharacterButton(chara, function(evt) { clickVoiceButton(evt, chara, i); })
               )
             );
           });
           voice = chat.charas[+localStorage.getItem(localStorageKey('last_voice'))] || 'narrator';
           $('#message-box').slideDown(250);
           chat.onMessage(function(msg) {
-            $('#chat-page .message-list').append(msg.createElement('relative'));
+            $('#chat-page .message-list').append(rp.createMessageElement(msg, 'relative'));
             while($('#chat-page .message').length > this.maxMsgs) {
               $('#showing-latest').show();
               $('#empty-room').hide();
@@ -419,9 +424,10 @@
             }
           });
           chat.onChara(function(chara) {
+            var i = chat.charas.length-1;
             $('#character-list').append(
               $('<li/>', {'class':'chara-button'}).append(
-                chara.createButton(function(evt) { clickVoiceButton(evt, chara); })
+                rp.createCharacterButton(chara, function(evt) { clickVoiceButton(evt, chara, i); })
               )
             );
           });
@@ -435,16 +441,12 @@
           $('#new-character-button').click(showNewCharacterMenu);
           $('#cancel-character').click(hideNewCharacterMenu);
           function sendMessage() {
-            var msgData = formatSentMessage(
-              $('#message-box textarea').val(),
-              voice
-            );
-      
-            if(!msgData) return;
+            var msg = getSentMessageJSON();
+            if (!msg) return;
             
             createOverlay();
             
-            chat.sendMessage(msgData.content, msgData.voice, function() {
+            chat.sendMessage(msg, function() {
               destroyOverlay();
               $('#message-box textarea').val('');
             });
@@ -458,14 +460,16 @@
           });
           $('#new-character').submit(function(evt) {
             evt.preventDefault();
-    
-            var name = $('#new-character input[name=name]').val().trim();
-            if(!name) throw new Error('Please enter a name.');
-            var color = $('#new-character input[name=color]').val();
+            
+            var chara = {
+              name: $('#new-character input[name=name]').val().trim(),
+              color: $('#new-character input[name=color]').val()
+            }
+            if (!chara.name) throw new Error('Please enter a name.');
     
             $('#new-character').hide();
     
-            chat.sendChara(name, color, function() {
+            chat.sendChara(chara, function() {
               $('#new-character')[0].reset();
               if($(window).height() <= 600) {
                 createOverlay('#character-selector', hideCharacterSelectMenu);
