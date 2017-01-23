@@ -238,11 +238,11 @@
           /^\{+\s*(.*?[^\s])\s*\}+$/g, // { stuff }, {{ stuff }}, ...
           /^\/\/\s*(.*[^\s])\s*$/g // //stuff
         ].forEach(function(oocRegex) {
-          var match = oocRegex.exec(content);
+          var match = oocRegex.exec(msg.content);
           if (match) {
             msg.content = match[1];
-            msg.voice = 'ooc';
-            msg.chara = undefined;
+            msg.type = 'ooc';
+            delete msg.chara;
           }
         })
       }
@@ -396,16 +396,17 @@
           else if(chat.msgs.length === 0) {
             $('#empty-room').show();
           }
-          chat.charas.forEach(function(chara, i) {
+          function appendCharaButton(chara) {
             $('#character-list').append(
               $('<li/>', {'class':'chara-button'}).append(
-                rp.createCharacterButton(chara, function(evt) { clickVoiceButton(evt, chara, i); })
+                rp.createCharacterButton(chara, function(evt) { clickVoiceButton(evt, chara); })
               )
             );
-          });
+          }
+          chat.charas.forEach(appendCharaButton);
           voice = chat.charas[+localStorage.getItem(localStorageKey('last_voice'))] || 'narrator';
           $('#message-box').slideDown(250);
-          chat.onMessage(function(msg) {
+          function appendMessage(msg) {
             $('#chat-page .message-list').append(rp.createMessageElement(msg, 'relative'));
             while($('#chat-page .message').length > this.maxMsgs) {
               $('#showing-latest').show();
@@ -413,6 +414,9 @@
               $('#chat-page .message:first').remove();
             }
             scrollToBottom();
+          }
+          chat.onMessage(function(msg) {
+            appendMessage(msg);
             // do an alert if the tab isn't in focus
             if(document.visibilityState === 'hidden') {
               var alertText;
@@ -423,14 +427,7 @@
               alertNoise.play();
             }
           });
-          chat.onChara(function(chara) {
-            var i = chat.charas.length-1;
-            $('#character-list').append(
-              $('<li/>', {'class':'chara-button'}).append(
-                rp.createCharacterButton(chara, function(evt) { clickVoiceButton(evt, chara, i); })
-              )
-            );
-          });
+          chat.onChara(appendCharaButton);
           // button functions
           $('#change-character').click(function(evt) {
             evt.preventDefault();
@@ -446,8 +443,9 @@
             
             createOverlay();
             
-            chat.sendMessage(msg, function() {
+            chat.sendMessage(msg, function(msg) {
               destroyOverlay();
+              appendMessage(msg);
               $('#message-box textarea').val('');
             });
           }
@@ -469,7 +467,8 @@
     
             $('#new-character').hide();
     
-            chat.sendChara(chara, function() {
+            chat.sendChara(chara, function(chara) {
+              appendCharaButton(chara);
               $('#new-character')[0].reset();
               if($(window).height() <= 600) {
                 createOverlay('#character-selector', hideCharacterSelectMenu);
