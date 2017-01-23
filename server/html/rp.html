@@ -153,7 +153,7 @@
             $('#message-voice').text(voice.chara.name);
             $('#message-box').removeClass('message-box-narrator message-box-ooc').addClass('message-box-chara');
             $('#message-box').css('background-color', voice.chara.color);
-            $('#message-voice').css('color', voice.chara.textColor);
+            $('#message-voice').css('color', rp.contrastColor(voice.chara.color));
             localStorage.setItem(localStorageKey('last_voice'), voice.id);
           }
         }

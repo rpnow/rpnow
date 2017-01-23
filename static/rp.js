@@ -113,7 +113,7 @@ var rp = (function() {
     // character-specific
     if(msg.type === 'chara') {
       // style
-      el.css({'background-color':msg.chara.color, 'color':msg.chara.textColor});
+      el.css({'background-color':msg.chara.color, 'color':rp.contrastColor(msg.chara.color)});
       // nametag
       el.append($('<div/>', {
         'class': 'name',
@@ -147,7 +147,7 @@ var rp = (function() {
     return $('<button/>', {
       text: chara.name,
       'type': 'button',
-      'style': 'background-color:' + chara.color + ';' + 'color:' + chara.textColor
+      'style': 'background-color:' + chara.color + ';' + 'color:' + rp.contrastColor(chara.color)
     }).click(callback);
   };
   
@@ -162,6 +162,14 @@ var rp = (function() {
       .append($('<span/>', { 'style': 'background-color: ' + colors[1] }))
       .append($('<span/>', { 'style': 'background-color: ' + colors[2] }));
   };
+  
+  rp.contrastColor = function(color) {
+    //YIQ algorithm modified from:
+    // http://24ways.org/2010/calculating-color-contrast/
+    var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
+    var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
+    return (yiq >= 128) ? '#000000' : '#ffffff';
+  };
 
   // format message content
   function formatContentReceived(text, chara) {
@@ -175,7 +183,7 @@ var rp = (function() {
     );
     // actions
     if(chara) {
-      str = str.replace(/\*([^\r\n\*_]+)\*/g, '<span class="action" style="background-color:' + chara.color + ';' + 'color:' + chara.textColor + '">*$1*</span>');
+      str = str.replace(/\*([^\r\n\*_]+)\*/g, '<span class="action" style="background-color:' + chara.color + ';' + 'color:' + rp.contrastColor(chara.color) + '">*$1*</span>');
     }
     // bold
     str = str.replace(/(^|\s|(?:&quot;))__([^\r\n_]+)__([\s,\.\?!]|(?:&quot;)|$)/g, '$1<b>$2</b>$3');

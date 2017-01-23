@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const wordwrap = require('wordwrap');
 const RateLimit = require('express-rate-limit');
 const mongojs = require('mongojs');
+const normalize = require('./normalize-json');
 
 module.exports = function(options, io) {
    var router = express.Router();
@@ -41,38 +42,27 @@ module.exports = function(options, io) {
       return next();
    }
    
-   function cleanParams(params) {
-      return function(req, res, next) {
-         for (var x in params) {
-            var optional = Array.isArray(params[x]);
-            var requirement = optional? params[x][0]: params[x];
-            
-            var string = req.body[x];
-            if (string === undefined || string === null) {
-               if (optional) continue;
-               else return next(new Error(`Missing variable: ${x}`));
-            }
-            
-            if (typeof(string) !== 'string') return next(new Error(`${x} is not a string.`));
-            if (typeof(requirement) === 'number') {
-               if (string.length > requirement) return next(new Error(`${x} is longer than ${requirement} characters.`));
-               var trimmed = string.trim();
-               if (trimmed.length === 0 && !optional) return next(new Error(`${x} is empty or whitespace.`));
-               req.body[x] = trimmed;
-            }
-            else if (requirement instanceof RegExp) {
-               if (!string.match(requirement)) return next(new Error(`${x} is not in the correct format: ${requirement.toString()}`));
-               req.body[x] = string;
-            }
-            
-         }
-         return next();
-      };
-   }
+   var newRpSchema = {
+      'title': [ String, 30 ],
+      'desc': [ {$optional:String}, 255 ]
+   };
+   var charaSchema = {
+      'name': [ String, 30 ],
+      'color': /^#[0-9a-f]{6}$/gi
+   };
+   var messageSchema = {
+      'content': [ String, 10000 ],
+      'type': [ 'narrator', 'chara', 'ooc' ],
+      'chara': (msg)=> msg.type === 'chara' ? charaSchema : undefined
+   };
    
-   router.post('/rps.json', cleanParams({ 'title':30, 'desc':[255] }), (req, res, next) => {
-      var numCryptoBytes = options.rpCodeLength * 2; // ample bytes just in case
+   router.post('/rps.json', (req, res, next) => {
+      var room = { title: req.body.title };
+      if (req.body.desc) room.desc = req.body.desc;
+      var result = normalize(room, newRpSchema);
+      if (!result.valid) return next(new Error(result.error));
       
+      var numCryptoBytes = options.rpCodeLength * 2; // ample bytes just in case
       crypto.randomBytes(numCryptoBytes, gotBytes);
       
       function gotBytes(err, buffer) {
@@ -85,56 +75,14 @@ module.exports = function(options, io) {
             return;
          }
          
-         rooms[rpCode] = {
-            rpCode: rpCode,
-            title: req.body.title,
-            desc: (req.body.desc || ""),
-            msgs: [],
-            charas: []
-         };
+         room.rpCode = rpCode;
+         room.msgs = [];
+         room.charas = [];
+         rooms[rpCode] = room;
          
          res.status(201).json({ rpCode: rpCode });
       }
    });
-   
-   function normalizeMessage(msg) {
-      // message validation
-      // TODO trim whitespace
-      if (msg.content.length > 10000) return { error: 'Message too long.' };
-      if (['narrator', 'chara', 'ooc'].indexOf(msg.type) === -1) return { error: 'Bad message type.' };
-      if (msg.type === 'chara') {
-         var chara = normalizeCharacter(msg.chara);
-         if (chara.error) return { error: chara.error };
-         msg.chara = chara;
-      }
-      // normalize message
-      return {
-         type: msg.type,
-         content: msg.content,
-         chara: msg.chara
-      };
-   }
-   
-   function normalizeCharacter(chara) {
-      // validation
-      // TODO trim whitespace
-      if (chara.name.length > 30) return { error: 'Name too long.' };
-      if (!(chara.color.match(/^#[0-9a-f]{6}$/gi))) return { error: 'Invalid color.' };
-      if (chara.textColor && !(chara.color.match(/^#[0-9a-f]{6}$/gi))) return { error: 'Invalid text color.' };
-      // noarmlaize
-      return {
-         name: chara.name,
-         color: chara.color,
-         textColor: chara.textColor || contrastColor(chara.color)
-      };
-   }
-   function contrastColor(color) {
-      //YIQ algorithm modified from:
-      // http://24ways.org/2010/calculating-color-contrast/
-      var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
-      var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
-      return (yiq >= 128) ? '#000000' : '#ffffff';
-   }
    
    io.on('connection', (socket) => {
       var rp;
@@ -152,8 +100,9 @@ module.exports = function(options, io) {
       });
       
       socket.on('add message', (msg, callback) => {
-         msg = normalizeMessage(msg);
-         if (msg.error) return console.log(msg.error);
+         // validate & normalize
+         var result = normalize(msg, messageSchema);
+         if (!result.valid) return console.log(result.error);
          msg.timestamp = Date.now() / 1000,
          msg.ipid = ipid;
          
@@ -163,14 +112,12 @@ module.exports = function(options, io) {
          socket.to(rp.rpCode).broadcast.emit('add message', msg);
       });
       socket.on('add character', (chara, callback) => {
-         chara = normalizeCharacter(chara);
-         if (chara.error) return console.log(chara.error);
-         chara.timestamp = Date.now() / 1000,
-         chara.ipid = ipid;
+         // validate & normalize
+         var result = normalize(chara, charaSchema);
+         if (!result.valid) return console.log(result.error);
          
-         // store
+         // store & broadcast
          rp.charas.push(chara);
-         // broadcast
          callback(chara);
          socket.to(rp.rpCode).broadcast.emit('add character', chara);
       });
