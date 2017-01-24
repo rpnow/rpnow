@@ -12,6 +12,7 @@ const normalize = require('./normalize-json');
 
 module.exports = function(options, io) {
    var router = express.Router();
+   var db = mongojs('localhost/rpnow', ['rooms']);
    
    router.use(bodyParser.json());
    router.use(bodyParser.urlencoded({ extended: true }));
@@ -21,26 +22,17 @@ module.exports = function(options, io) {
       delayMs: 100,
       max: 0
    }));
+   
+   /*
    router.use('/rps/:rpCode.json', rpMiddleware);
    router.use('/rps/:rpCode.txt', rpMiddleware);
    router.use('/rps/:rpCode/*', rpMiddleware);
-   
-   var rooms;
-   var db = mongojs('localhost/rpnow', ['rps']);
-   db.rps.findOne({ _id:'everyRP' }, function(err, doc) {
-      if (err) throw err;
-      rooms = doc? doc.rooms: {};
-      
-      setInterval(()=> {
-         db.rps.save({ _id: 'everyRP', rooms: JSON.parse(JSON.stringify(rooms)) });
-      }, 5*1000);
-   });
-
    function rpMiddleware(req, res, next) {
       req.rp = rooms[req.params.rpCode];
       if (!req.rp) return res.status(404).json({ error: 'RP not found'});
       return next();
    }
+   */
    
    var newRpSchema = {
       'title': [ String, 30 ],
@@ -70,7 +62,7 @@ module.exports = function(options, io) {
          var rpCode = token.match(new RegExp(options.rpCodeCharacters.split('').join('|'), 'g')).join('').substr(0, options.rpCodeLength);
          
          // if it generated a bad or duplicate rp code, try again
-         if (rpCode.length !== options.rpCodeLength || rooms[rpCode]) {
+         if (rpCode.length !== options.rpCodeLength) { // TODO ensure it doesn't already exist
             crypto.randomBytes(numCryptoBytes, gotBytes);
             return;
          }
@@ -78,25 +70,30 @@ module.exports = function(options, io) {
          room.rpCode = rpCode;
          room.msgs = [];
          room.charas = [];
-         rooms[rpCode] = room;
          
-         res.status(201).json({ rpCode: rpCode });
+         db.rooms.insert(room, (err, r) => {
+            if (err) return; // TODO refire request
+            res.status(201).json({ rpCode: rpCode });
+         });
       }
    });
    
    io.on('connection', (socket) => {
-      var rp;
+      var rpCode;
       var ip = socket.request.connection.remoteAddress;
       var ipid = crypto.createHash('md5').update(ip).digest('hex').substr(0,18);
-      socket.on('join rp', (rpCode, callback) => {
-         if (rp) return;
+      socket.on('join rp', (rpCodeToJoin, callback) => {
+         if (rpCode) return;
          
-         rp = rooms[rpCode];
-         if (!rp) return;
-         
-         console.log(rp);
-         socket.join(rpCode);
-         callback(rp);
+         db.rooms.findOne({ rpCode: rpCodeToJoin }, (err, rp) => {
+            if (!rp) return;
+            
+            console.log(rp);
+            
+            rpCode = rpCodeToJoin;
+            socket.join(rpCode);
+            callback(rp);
+         });
       });
       
       socket.on('add message', (msg, callback) => {
@@ -107,9 +104,10 @@ module.exports = function(options, io) {
          msg.ipid = ipid;
          
          // store & broadcast
-         rp.msgs.push(msg);
-         callback(msg);
-         socket.to(rp.rpCode).broadcast.emit('add message', msg);
+         db.rooms.update({rpCode: rpCode}, {$push: {msgs: msg}}, (err, r) => {
+            callback(msg);
+            socket.to(rpCode).broadcast.emit('add message', msg);
+         });
       });
       socket.on('add character', (chara, callback) => {
          // validate & normalize
@@ -117,9 +115,10 @@ module.exports = function(options, io) {
          if (!result.valid) return console.log(result.error);
          
          // store & broadcast
-         rp.charas.push(chara);
-         callback(chara);
-         socket.to(rp.rpCode).broadcast.emit('add character', chara);
+         db.rooms.update({rpCode: rpCode}, {$push: {charas: chara}}, (err, r) => {
+            callback(chara);
+            socket.to(rpCode).broadcast.emit('add character', chara);
+         });
       });
    });
    
