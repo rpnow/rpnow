@@ -9,6 +9,7 @@ const compression = require('compression');
 const defaultOptions = {
    ip: process.env.IP || '0.0.0.0',
    port: process.env.PORT || 80,
+   db: process.env.DB_HOST || 'localhost',
    logging: true,
    rpCodeCharacters: 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',
    rpCodeLength: 8,

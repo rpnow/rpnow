@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  node:
+    depends_on:
+      - db
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      DB_HOST: db
+  
+  db:
+    image: "mongo:3.4"
+    volumes:
+      - db_data:/data/db
+
+volumes:
+  db_data:

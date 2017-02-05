@@ -12,7 +12,7 @@ const normalize = require('./normalize-json');
 
 module.exports = function(options, io) {
    var router = express.Router();
-   var db = mongojs('localhost/rpnow', ['rooms']);
+   var db = mongojs(`${options.db}/rpnow`, ['rooms']);
    
    router.use(bodyParser.json());
    router.use(bodyParser.urlencoded({ extended: true }));
