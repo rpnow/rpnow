@@ -40,7 +40,7 @@ module.exports.start = function(customOptions = {}, callback) {
    app.use(compression());
    // app.use(favicon(WEB + '/favicon.ico'));
    
-   app.use(express.static(__dirname.replace('server','static'))); //express is serving static files as if it were Apache
+   app.use(express.static(__dirname.replace('server','server/static'))); //express is serving static files as if it were Apache
    app.use('/api/v1', require('./api')(options, io(server)));
    app.use('/', require('./serve-frontend'));
    

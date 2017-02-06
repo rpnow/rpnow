@@ -13,7 +13,6 @@ USER node
 COPY package.json .
 RUN npm cache clean && npm install
 # COPY server server
-# COPY static static
 
 # Container runs node server
 CMD ["npm", "start"]

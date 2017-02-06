@@ -9,7 +9,6 @@ services:
       - "8080:8080"
     volumes:
       - ./server:/srv/server
-      - ./static:/srv/static
       - node_modules:/srv/node_modules
     environment:
       PORT: 8080
