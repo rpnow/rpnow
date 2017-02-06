@@ -7,6 +7,10 @@ services:
     build: .
     ports:
       - "8080:8080"
+    volumes:
+      - ./server:/srv/server
+      - ./static:/srv/static
+      - node_modules:/srv/node_modules
     environment:
       PORT: 8080
       DB_HOST: db
@@ -17,4 +21,5 @@ services:
       - db_data:/data/db
 
 volumes:
+  node_modules:
   db_data:
