@@ -11,5 +11,5 @@ process.on('SIGTERM', ()=> shutdown('SIGTERM') ); //kill (terminate)
 process.on('SIGINT', ()=> shutdown('SIGINT') ); //Ctrl+C (interrupt)
 function shutdown(reason) {
    console.log(`Attempting graceful shutdown: ${reason}`);
-   server.stop(reason, ()=> console.log("Shutdown complete.") );
+   server.stop(()=> console.log("Shutdown complete.") );
 }

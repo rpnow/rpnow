@@ -19,23 +19,21 @@ const defaultOptions = {
    trustProxy: false
 };
 
-var listener;
+let listener;
 
 // server start
-module.exports.start = function(customOptions, callback) {
+module.exports.start = function(customOptions = {}, callback) {
    if (listener) {
       if (callback) callback('Server already started.');
       return;
    }
    
-   var options = JSON.parse(JSON.stringify(defaultOptions))
-   if (customOptions) {
-      for (var key in customOptions) options[key] = customOptions[key];
-   }
+   let options = JSON.parse(JSON.stringify(defaultOptions))
+   for (let key in customOptions) options[key] = customOptions[key];
     
    //create express app
-   var app = express();
-   var server = http.Server(app);
+   let app = express();
+   let server = http.Server(app);
    
    if (options.logging) app.use(logger('dev'));
    if (options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
@@ -51,7 +49,7 @@ module.exports.start = function(customOptions, callback) {
    });
 };
 
-module.exports.stop = function(reason, callback) {
+module.exports.stop = function(callback) {
    if (!listener) {
       if (callback) callback('No server to stop.');
       return;

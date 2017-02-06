@@ -1,5 +1,5 @@
-# Using Node v4 (LTS)
-FROM node:4
+# Using Node v6 (LTS)
+FROM node:6
 
 # Copy in source and install application
 WORKDIR /srv
