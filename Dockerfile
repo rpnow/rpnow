@@ -1,8 +1,9 @@
 # Using Node v6 (LTS)
 FROM node:6
 
-# Expose HTTP (port 80)
-EXPOSE 80
+# Expose HTTP over port 8080
+EXPOSE 8080
+ENV PORT=8080
 
 # Use node user, give permissions to /srv
 RUN chown -R node:node /srv
