@@ -1,12 +1,12 @@
 function validateObject(obj, requirements) {
-   for (var propName in requirements) {
-      var value = obj[propName];
-      var requirement = requirements[propName];
+   for (let propName in requirements) {
+      let value = obj[propName];
+      let requirement = requirements[propName];
       
-      var error = validateProperty(propName, value, obj, requirement);
+      let error = validateProperty(propName, value, obj, requirement);
       if (error !== true) return { valid: false, error: error.message };
    }
-   for (var propName in obj) {
+   for (let propName in obj) {
       if (!requirements.hasOwnProperty(propName)) {
          return { valid: false, error: `Contains extra property: ${propName}` };
       }
@@ -17,8 +17,8 @@ module.exports = validateObject;
 
 function validateProperty(propName, value, obj, requirement) {
    // find the type of the requirement and if it is optional
-   var type = Array.isArray(requirement) ? requirement[0] : requirement;
-   var optional = false;
+   let type = Array.isArray(requirement) ? requirement[0] : requirement;
+   let optional = false;
    if (type && type.$optional) {
       optional = true;
       type = type.$optional;
@@ -26,7 +26,7 @@ function validateProperty(propName, value, obj, requirement) {
    
    // if it's a function, resolve it
    if ((typeof type) === 'function' && type !== String) {
-      var newRequirement = type(obj);
+      let newRequirement = type(obj);
       if (newRequirement === true || newRequirement instanceof Error) return newRequirement;
       return validateProperty(propName, value, obj, newRequirement);
    }
@@ -59,7 +59,7 @@ function validateProperty(propName, value, obj, requirement) {
    
    // non-array objects are some kind of inner schema. resolve recursively.
    if ((typeof type) === 'object' && !Array.isArray(type)) {
-      var validation = validateObject(value, type)
+      let validation = validateObject(value, type)
       return validation.valid || new Error(validation.error);
    }
    

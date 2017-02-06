@@ -11,8 +11,8 @@ const mongojs = require('mongojs');
 const normalize = require('./normalize-json');
 
 module.exports = function(options, io) {
-   var router = express.Router();
-   var db = mongojs(`${options.db}/rpnow`, ['rooms']);
+   let router = express.Router();
+   let db = mongojs(`${options.db}/rpnow`, ['rooms']);
    
    router.use(bodyParser.json());
    router.use(bodyParser.urlencoded({ extended: true }));
@@ -34,32 +34,32 @@ module.exports = function(options, io) {
    }
    */
    
-   var newRpSchema = {
+   let newRpSchema = {
       'title': [ String, 30 ],
       'desc': [ {$optional:String}, 255 ]
    };
-   var charaSchema = {
+   let charaSchema = {
       'name': [ String, 30 ],
       'color': /^#[0-9a-f]{6}$/gi
    };
-   var messageSchema = {
+   let messageSchema = {
       'content': [ String, 10000 ],
       'type': [ 'narrator', 'chara', 'ooc' ],
       'chara': (msg)=> msg.type === 'chara' ? charaSchema : undefined
    };
    
    router.post('/rps.json', (req, res, next) => {
-      var room = { title: req.body.title };
+      let room = { title: req.body.title };
       if (req.body.desc) room.desc = req.body.desc;
-      var result = normalize(room, newRpSchema);
+      let result = normalize(room, newRpSchema);
       if (!result.valid) return next(new Error(result.error));
       
-      var numCryptoBytes = options.rpCodeLength * 2; // ample bytes just in case
+      let numCryptoBytes = options.rpCodeLength * 2; // ample bytes just in case
       crypto.randomBytes(numCryptoBytes, gotBytes);
       
       function gotBytes(err, buffer) {
-         var token = buffer.toString('base64');
-         var rpCode = token.match(new RegExp(options.rpCodeCharacters.split('').join('|'), 'g')).join('').substr(0, options.rpCodeLength);
+         let token = buffer.toString('base64');
+         let rpCode = token.match(new RegExp(options.rpCodeCharacters.split('').join('|'), 'g')).join('').substr(0, options.rpCodeLength);
          
          // if it generated a bad or duplicate rp code, try again
          if (rpCode.length !== options.rpCodeLength) { // TODO ensure it doesn't already exist
@@ -79,9 +79,9 @@ module.exports = function(options, io) {
    });
    
    io.on('connection', (socket) => {
-      var rpCode;
-      var ip = socket.request.connection.remoteAddress;
-      var ipid = crypto.createHash('md5').update(ip).digest('hex').substr(0,18);
+      let rpCode;
+      let ip = socket.request.connection.remoteAddress;
+      let ipid = crypto.createHash('md5').update(ip).digest('hex').substr(0,18);
       socket.on('join rp', (rpCodeToJoin, callback) => {
          if (rpCode) return;
          
@@ -98,7 +98,7 @@ module.exports = function(options, io) {
       
       socket.on('add message', (msg, callback) => {
          // validate & normalize
-         var result = normalize(msg, messageSchema);
+         let result = normalize(msg, messageSchema);
          if (!result.valid) return console.log(result.error);
          msg.timestamp = Date.now() / 1000,
          msg.ipid = ipid;
@@ -111,7 +111,7 @@ module.exports = function(options, io) {
       });
       socket.on('add character', (chara, callback) => {
          // validate & normalize
-         var result = normalize(chara, charaSchema);
+         let result = normalize(chara, charaSchema);
          if (!result.valid) return console.log(result.error);
          
          // store & broadcast
@@ -123,10 +123,10 @@ module.exports = function(options, io) {
    });
    
    router.get('/rps/:rpCode/page/:pageNum.json', (req, res, next) => {
-      var pageNum = req.params.pageNum;
+      let pageNum = req.params.pageNum;
       if (!(pageNum >= 0) || pageNum%0) return next(new Error('Bad page number'));
-      var numPages = Math.max(Math.ceil(req.rp.msgs.length/options.pageSize), 1);
-      var out = {
+      let numPages = Math.max(Math.ceil(req.rp.msgs.length/options.pageSize), 1);
+      let out = {
          title: req.rp.title,
          desc: req.rp.desc,
          numPages: numPages
@@ -135,7 +135,7 @@ module.exports = function(options, io) {
          out.error = `Page not found: ${pageNum}`;
          return res.status(404).json(out);
       }
-      var pageStart = (pageNum-1)*options.pageSize;
+      let pageStart = (pageNum-1)*options.pageSize;
       out.msgs = req.rp.msgs.slice(pageStart, pageStart+options.pageSize);
       out.charas = out.msgs
          .filter(m=>m.type==='chara')
@@ -150,7 +150,7 @@ module.exports = function(options, io) {
       res.type('.txt');
       res.attachment(req.rp.title + '.txt');
       
-      var out = req.rp.msgs;
+      let out = req.rp.msgs;
       if (!req.query.ooc) out = out.filter(msg=>msg.type !== 'ooc');
       out = out.map(msg=>{
          if(msg.type === 'narrator') {
