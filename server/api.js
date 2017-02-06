@@ -88,8 +88,6 @@ module.exports = function(options, io) {
          db.rooms.findOne({ rpCode: rpCodeToJoin }, (err, rp) => {
             if (!rp) return;
             
-            console.log(rp);
-            
             rpCode = rpCodeToJoin;
             socket.join(rpCode);
             callback(rp);
