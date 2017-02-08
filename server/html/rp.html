@@ -1,490 +1,189 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <!-- Required meta tags -->
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  <title>Loading... - RPNow</title>
-  <link rel="stylesheet" type="text/css" href="/lib/icomoon.css">
-  <link rel="stylesheet" type="text/css" href="/rp.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+      integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+      
+  <!--FontAwesome icons-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <!--Custom styles -->
+  <style type="text/css">
+    .navbar {
+      background-color: inherit;
+    }
+    img {
+      background-color: pink;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px #777;
+    }
+    /* From Narrow Jumbotron template - make it narrow... */
+    /*@media (min-width: 48em) {*/
+    /*  .container {*/
+    /*    max-width: 46rem;*/
+    /*  }*/
+    /*}*/
+    /*.container-narrow > hr {*/
+    /*  margin: 2rem 0;*/
+    /*}*/
+
+  </style>
 </head>
-<body class="rp">
-  
-  <header class="rp-titlebar">
-    <div>
-      <a class="logo" href="/">RPNow</a><!--
-      --><h2><a href="#" id="rp-title"></a></h2>
-      <ul id="title-links">
-        <li><a href="#" title="Write RP"><span class="icon icon-pencil"></span></a>
-        <li><a href="#page-1" title="Archive"><span class="icon icon-books"></span></a>
-        <li><a href="#export" title="Export"><span class="icon icon-download3"></span></a>
-        <li><a href="/terms" title="Terms & Conditions" target="_blank"><span class="icon icon-file-text2"></span></a>
-      </ul>
-    </div>
-  </header>
-  <div id="rp-description">
-    <p></p>
-  </div>
-  
-  <div class="info" id="loading" style="display: none">
-    <p>Loading...</p>
-  </div>
-  
-  <div id="chat-page" class="rp-page" style="display: none">
-    <div class="info" id="showing-latest" style="display:none">
-      <p>
-        Showing latest posts.
-        <a href="#page-1">View Archive</a>
-      </p>
-    </div>
-    <div class="info" id="empty-room" style="display:none">
-      <p>Welcome! You can access this RP at any time from the following URL:</p>
-      <a id="friend-link"></a>
-      <p>To invite a friend, simply send them the link. Let the RP begin!</p>
-      <script>
-        document.getElementById('friend-link').innerHTML = window.location.href;
-        document.getElementById('friend-link').href = window.location.href;
-      </script>
-    </div>
-  
-    <div class="message-list"></div>
-  
-    <div id="character-selector" class="room-dialog" style="display:none">
-      <ul id="character-list">
-        <li><button type="button" id="narrator-button">Narrator</button></li>
-        <li><button type="button" id="ooc-button">Out of Character</button></li>
-        <li><button type="button" id="new-character-button">New Character...</button></li>
-      </ul>
-    </div>
-  
-    <form id="new-character" class="room-dialog" autocomplete="off" style="display:none">
-      <h3>New Character</h3>
-      <div class="input-section">
-        <div class="input-name">Name</div>
-        <div class="input-container"><input type="text" name="name" maxlength="30"></input></div>
-      </div>
-      <div class="input-section">
-        <div class="input-name">Color</div>
-        <div class="input-container"><input type="color" name="color" value="#DDDDDD"></input></div>
-      </div>
-      <input type="submit" value="Add"></input>
-      <button type="button" id="cancel-character">Cancel</button>
-    </form>
-  
-    <div id="message-box" autocomplete="off" style="display:none">
-      <div id="format-bar">
-        <div id="message-voice"></div>
-        <button type="button" id="change-character" class="btn-margin"><span>Change...</span></button>
-        <a type="button" id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
-      </div>
-      <div id="message-bar">
-        <div id="message-text">
-          <textarea name="content"></textarea>
-        </div>
-        <div id="message-button-container">
-          <button type="button" id="send-button">Send</button>
+<body>
+        
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 mt-md-3">
+        <h3>RPNow</h3>
+        <hr/>
+        <ul class="list-unstyled">
+          <li class="justify-content-between px-0 py-1">
+            <div class="row">
+              <div class="col">The Velvet Souls Carnival</div>
+              <div class="col-3 col-lg-2 text-right">
+                <span class="badge badge-default badge-pill">14</span>
+              </div>
+            </div>
+          </li>
+          <li class="justify-content-between px-0 py-1">
+            <div class="row">
+              <div class="col">The Endeavor</div>
+              <div class="col-3 col-lg-2 text-right">
+                <span class="badge badge-default badge-pill">1</span>
+              </div>
+            </div>
+          </li>
+          <li class="justify-content-between px-0 py-1">
+            <div class="row">
+              <div class="col">The Strong Formal Elephants</div>
+              <div class="col-3 col-lg-2 text-right">
+                <span class="badge badge-default badge-pill">2</span>
+              </div>
+            </div>
+          </li>
+          <li class="justify-content-between px-0 py-1">
+            <a href="#">
+            <i class="fa fa-fw fa-plus" aria-hidden="true"></i> New RP...
+            </a>
+          </li>
+        </ul>
+        <hr />
+        <div class="row">
+          <div class="col-md-12">
+            <a class="" data-toggle="collapse" href="#collapseExample"
+                aria-expanded="false" aria-controls="collapseExample">
+              <i class="fa fa-fw fa-cog" aria-hidden="true"></i> Preferences
+            </a>
+            <div class="collapse" id="collapseExample">
+              <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action p-1">
+                  <i class="fa fa-fw fa-moon-o mr-2" aria-hidden="true"></i> Night Mode: Off
+                </a>
+                <a href="#" class="list-group-item list-group-item-action p-1">
+                  <i class="fa fa-fw fa-font mr-2" aria-hidden="true"></i> Font Size: Normal
+                </a>
+                <a href="#" class="list-group-item list-group-item-action p-1">
+                  <i class="fa fa-fw fa-bell-slash-o mr-2" aria-hidden="true"></i> Notification Noise: Off
+                </a>
+                <a href="#" class="list-group-item list-group-item-action p-1">
+                  <i class="fa fa-fw fa-eye mr-2" aria-hidden="true"></i> Read Receipts: On
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <a class="" href="#">
+              <i class="fa fa-fw fa-support" aria-hidden="true"></i> Support
+            </a>
+          </div>
+          <div class="col-md-6">
+            <a class="" href="#">
+              <i class="fa fa-fw fa-smile-o" aria-hidden="true"></i> Donate
+            </a>
+          </div>
         </div>
       </div>
+      <div class="col">
+  <nav class="navbar navbar-toggleable-sm navbar-light bg-faded mb-3">
+    <button class="navbar-toggler navbar-toggler-right" type="button"
+        data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <ul class="nav navbar-nav navbar-logo">
+      <li class="navbar-item mx-auto">
+        <a class="navbar-brand mx-auto" href="#">The Grim Grotto</a>
+      </li>
+    </ul>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item ml-auto mr-1">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-envelope" aria-hidden="true"></i> Invite
+          </a>
+        </li>
+        <li class="nav-item ml-auto mr-1">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-book" aria-hidden="true"></i> Read
+          </a>
+        </li>
+        <!--<li class="nav-item ml-auto mr-1">-->
+        <!--  <a class="nav-link" href="#">-->
+        <!--    <i class="fa fa-fw fa-cloud-download" aria-hidden="true"></i> Download-->
+        <!--  </a>-->
+        <!--</li>-->
+        <li class="nav-item ml-auto mr-1">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-star" aria-hidden="true"></i> Admin
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+        <div class= "p-5">
+          <span class="faded">(an RP is happening here)</span>
+        </div>
+        <div class="p-1">
+          <div class="media">
+            <a href="#" class="btn p-1">
+              <img class="d-flex align-self-start" src="/icon.png" width="" alt="Character Icon">
+            </a>
+            <div class="media-body">
+              <textarea class="form-control mb-1" ></textarea>
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+                <i class="fa fa-fw fa-bold" aria-hidden="true"></i> <span class="sr-only">Bold</span>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+                <i class="fa fa-fw fa-italic" aria-hidden="true"></i> <span class="sr-only">Italic</span>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+                <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i> <span class="sr-only">Action</span>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+                <i class="fa fa-fw fa-paragraph" aria-hidden="true"></i> <span class="sr-only">Paragraph Break</span>
+              </button>
+              <button class="btn btn-outline-primary pull-right">
+                <i class="fa fa-fw fa-check" aria-hidden="true"></i> Send
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <div id="archive-page" class="rp-page" style="display: none">
-    <div class="pages"></div>
-    
-    <p id="no-archive-content" style="display: none">This RP has no content. Why not go back and <a href="#">start writing</a>?</p>
-    
-    <div class="message-list"></div>
-    
-    <div class="pages"></div>
-  </div>
-  
-  <div id="export-page" class="rp-page" style="display: none">
-    <h3>Export Options</h3>
-    <form class="form-box" id="export-form" method="GET">
-      <input type="checkbox" name="ooc" value="true"> Include OOC Messages?
-      <button type="submit" class="btn-submit">Download .TXT</button>
-    </form>
-    <script>
-      document.getElementById('export-form').action = "/api/v1/rps/" + location.pathname.substr(location.pathname.lastIndexOf('/')+1) + '.txt';
-    </script>
-  </div>
 
-  <script src="/lib/jquery-3.1.0.min.js"></script>
-  <script src="/lib/moment-2.10.6.min.js"></script>
-  <link rel='stylesheet' href='/lib/spectrum-1.6.1.min.css' />
-  <script src='/lib/spectrum-1.6.1.min.js'></script>
-  <script src="/lib/socket.io-1.4.5.min.js"></script>
-  <script src='/rp.js'></script>
-
-  <script>
-    /* global location localStorage $ rp */
-    // load rp and attach events
-    var url = location.pathname.split('/').reverse()[0].split('#')[0];
-    
-    var titleText = document.title;
-    function setTitleText(newTitle) {
-      titleText = document.title = newTitle + ' - RPNow';
-      $('#rp-title').text(newTitle);
-    }
-
-    /* var voice; */
-    (function() {
-      var voice;
-      Object.defineProperty(window, 'voice', {
-        get: function() { return voice; },
-        set: function(v) {
-          if(v === 'narrator') {
-            voice = { type: 'narrator' }
-            $('#message-voice').text('Narrator');
-            $('#message-box').removeClass('message-box-ooc message-box-chara').addClass('message-box-narrator');
-            $('#message-box').css('background-color', '');
-            $('#message-voice').css('color', '');
-            localStorage.setItem(localStorageKey('last_voice'), 'narrator');
-          }
-          else if(v === 'ooc') {
-            voice = { type: 'ooc' }
-            $('#message-voice').text('Out of Character');
-            $('#message-box').removeClass('message-box-narrator message-box-chara').addClass('message-box-ooc');
-            $('#message-box').css('background-color', '');
-            $('#message-voice').css('color', '');
-            localStorage.setItem(localStorageKey('last_voice'), 'ooc');
-          }
-          else {
-            voice = { type: 'chara', chara: v };
-            $('#message-voice').text(voice.chara.name);
-            $('#message-box').removeClass('message-box-narrator message-box-ooc').addClass('message-box-chara');
-            $('#message-box').css('background-color', voice.chara.color);
-            $('#message-voice').css('color', rp.contrastColor(voice.chara.color));
-            localStorage.setItem(localStorageKey('last_voice'), voice.id);
-          }
-        }
-      });
-    })();
-
-    function localStorageKey(name) {
-      return 'room_' + url + '_' +  name;
-    }
-
-    function createOverlay(under, clickFunc) {
-      if(!$('#overlay').length) {
-        $('<div/>', { id:'overlay' }).appendTo('body');
-        $('#overlay').css({
-          position: 'fixed',
-          'background-color': 'rgba(0,0,0, 0.5)',
-          top: 0,
-          bottom: 0,
-          right: 0,
-          left: 0
-        });
-        $('body').toggleClass('noscroll', true);
-      }
-      else {
-        $('#overlay').unbind('click');
-      }
-      $('#overlay').css({'z-index': $(under).css('zIndex') - 1});
-      if(clickFunc) $('#overlay').click(clickFunc);
-    }
-    function destroyOverlay() {
-      $('#overlay').remove();
-        $('body').toggleClass('noscroll', false);
-    }
-
-    function showCharacterSelectMenu() {
-      $('#character-selector').stop().slideDown(200);
-      if($(window).height() <= 600) {
-        createOverlay('#character-selector', hideCharacterSelectMenu);
-      }
-    }
-    function hideCharacterSelectMenu() {
-      $('#character-selector').slideUp(200);
-      destroyOverlay();
-      if($(window).height() > 600) {
-        $('#message-box textarea').focus();
-      }
-    }
-    function clickVoiceButton(evt, c) {
-      voice = c;
-      hideCharacterSelectMenu();
-      evt.preventDefault();
-    }
-
-    function showNewCharacterMenu() {
-      createOverlay('#new-character', hideNewCharacterMenu);
-      $('#new-character').show();
-      $('#new-character input[name=name]').focus();
-    }
-
-    function hideNewCharacterMenu() {
-      if($(window).height() <= 600) {
-        createOverlay('#character-selector', hideCharacterSelectMenu);
-      }
-      else {
-        destroyOverlay();
-      }
-      $('#new-character').hide();
-    }
-
-    function getSentMessageJSON() {
-      var msg = {
-        content: $('#message-box textarea').val()
-          .trim()
-          .replace(/(\\r\\n|\\n\\r|\\r|\\n|\&lt;br(?: ?\/)?\&gt;)/g, '\n'),
-        type: voice.type,
-        chara: voice.chara || undefined
-      }
-
-      if (msg.type !== 'ooc') {
-        [
-          /^\(\(\s*(.*[^\s])\s*\)\)$/g, // (( stuff ))
-          /^\{+\s*(.*?[^\s])\s*\}+$/g, // { stuff }, {{ stuff }}, ...
-          /^\/\/\s*(.*[^\s])\s*$/g // //stuff
-        ].forEach(function(oocRegex) {
-          var match = oocRegex.exec(msg.content);
-          if (match) {
-            msg.content = match[1];
-            msg.type = 'ooc';
-            delete msg.chara;
-          }
-        })
-      }
-      
-      if(!msg.content) return;
-      return msg;
-    }
-
-
-    function scrollToBottom() {
-      $('html, body').stop().animate({scrollTop: $(document).height()}, 500);
-    }
-
-    var alertNoise = new Audio('/alert.mp3');
-
-    var flashTitle = (function() {
-      var alertMsg = null;
-      var i = 0;
-      var informTimer = null;
-      function timerAction() {
-        if(i%2) document.title = titleText;
-        else document.title = alertMsg;
-        --i;
-        if(i >= 0) informTimer = setTimeout(timerAction, 500);
-      }
-      document.addEventListener('visibilitychange', function(evt) {
-        if(document.visibilityState === 'visible') {
-          clearTimeout(informTimer);
-          document.title = titleText;
-        }
-      });
-      return function(msg, flashes) {
-        if(document.visibilityState === 'visible') return;
-        i = (flashes===undefined? 1: flashes)*2;
-        if(informTimer) clearTimeout(informTimer);
-        alertMsg = msg;
-        timerAction(msg);
-      };
-    })();
-
-    $(document).ready(function() {
-      var removePageFunction = null;
-      
-      function changePage() {
-        var hash = location.hash || '#';
-        
-        if (removePageFunction) {
-          removePageFunction();
-          removePageFunction = null;
-        }
-        
-        if (location.hash === '#export') exportPage();
-        else if (location.hash.match(/^#page-([1-9][0-9]*)$/)) archivePage(+location.hash.split('-')[1]);
-        else chatPage();
-      }
-      
-      $(window).on('hashchange', changePage);
-      changePage();
-      
-      
-      function exportPage() {
-        $('#export-page').show();
-        setTitleText('Export RP');
-        removePageFunction = function() { $('#export-page').hide(); };
-      }
-      
-      function archivePage(pageNum) {
-        var cancelled = false;
-        $('#loading').show();
-        setTitleText('Loading...');
-        removePageFunction = function() {
-          $('#loading').hide();
-          cancelled = true;
-        }
-        
-        rp.fetchPage(url, pageNum, function(page) {
-          $('#loading').hide();
-          $('#archive-page').show();
-          setTitleText('[Page ' + pageNum + '] ' + page.title);
-          
-          if(page.msgs.length === 0) {
-            $('#no-archive-content').show();
-          }
-          else {
-            $('#no-archive-content').hide();
-            page.msgs.forEach(function(msg) {
-              $('#archive-page .message-list').append(rp.createMessageElement(msg, 'absolute'));
-            });
-          }
-          
-          for(var i = 1; i <= page.numPages; ++i) {
-            $('#archive-page .pages').append(
-              (i === 1) ? 'Page: ' : ' | ',
-              (i === pageNum)?
-                $('<b>', {'text': i}):
-                $('<a>', {'text': i, 'href':'#page-'+i})
-            );
-          }
-          
-          removePageFunction = function() {
-            $('#archive-page .message-list').empty();
-            $('#archive-page .pages').empty();
-            $('#archive-page').hide();
-          }
-        });
-      }
-      
-      function chatPage() {
-        var TEST = Math.floor(Math.random()*1000);
-        var chat = null;
-        $('#loading').show();
-        setTitleText('Loading...');
-        removePageFunction = function() {
-          $('#loading').hide();
-          chat = 'canceled';
-        };
-        
-        rp.chat(url, function(c) {
-          
-          if (chat === 'canceled') {
-            c.stop();
-            return;
-          }
-          removePageFunction = function() {
-            $('#send-button').off();
-            $('#change-character').off();
-            $('#narrator-button').off();
-            $('#ooc-button').off();
-            $('#new-character-button').off();
-            $('#cancel-character').off();
-            $('#new-character').off();
-            $('#message-box textarea').off();
-            chat.stop();
-            $('#chat-page .message-list').empty();
-            $('.chara-button').remove();
-            chat = 'removed';
-            $('#chat-page').hide();
-          };
-          
-          chat = c;
-          $('#loading').hide();
-          $('#chat-page').show();
-          setTitleText(chat.title);
-          $('#rp-description p').text(chat.desc);
-          chat.msgs.forEach(function(msg) {
-            $('#chat-page .message-list').append(rp.createMessageElement(msg, 'relative'));
-          });
-          if(chat.msgs.length === chat.maxMsgs) {
-            $('#showing-latest').show();
-          }
-          else if(chat.msgs.length === 0) {
-            $('#empty-room').show();
-          }
-          function appendCharaButton(chara) {
-            $('#character-list').append(
-              $('<li/>', {'class':'chara-button'}).append(
-                rp.createCharacterButton(chara, function(evt) { clickVoiceButton(evt, chara); })
-              )
-            );
-          }
-          chat.charas.forEach(appendCharaButton);
-          voice = chat.charas[+localStorage.getItem(localStorageKey('last_voice'))] || 'narrator';
-          $('#message-box').slideDown(250);
-          function appendMessage(msg) {
-            $('#chat-page .message-list').append(rp.createMessageElement(msg, 'relative'));
-            while($('#chat-page .message').length > this.maxMsgs) {
-              $('#showing-latest').show();
-              $('#empty-room').hide();
-              $('#chat-page .message:first').remove();
-            }
-            scrollToBottom();
-          }
-          chat.onMessage(function(msg) {
-            appendMessage(msg);
-            // do an alert if the tab isn't in focus
-            if(document.visibilityState === 'hidden') {
-              var alertText;
-              if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
-              else if(msg.type === 'narrator') alertText = '* The narrator says...';
-              else if(msg.type === 'ooc') alertText = '* OOC message...';
-              flashTitle(alertText, 3);
-              alertNoise.play();
-            }
-          });
-          chat.onChara(appendCharaButton);
-          // button functions
-          $('#change-character').click(function(evt) {
-            evt.preventDefault();
-            showCharacterSelectMenu();
-          });
-          $('#narrator-button').click(function(evt) { clickVoiceButton(evt, 'narrator'); });
-          $('#ooc-button').click(function(evt) { clickVoiceButton(evt, 'ooc'); });
-          $('#new-character-button').click(showNewCharacterMenu);
-          $('#cancel-character').click(hideNewCharacterMenu);
-          function sendMessage() {
-            var msg = getSentMessageJSON();
-            if (!msg) return;
-            
-            createOverlay();
-            
-            chat.sendMessage(msg, function(msg) {
-              destroyOverlay();
-              appendMessage(msg);
-              $('#message-box textarea').val('');
-            });
-          }
-          $('#send-button').click(sendMessage);
-          $('#message-box textarea').keypress(function(evt) {
-            if((evt.keyCode || evt.which) === 13 && !evt.shiftKey && !evt.ctrlKey) {
-              evt.preventDefault();
-              sendMessage();
-            }
-          });
-          $('#new-character').submit(function(evt) {
-            evt.preventDefault();
-            
-            var chara = {
-              name: $('#new-character input[name=name]').val().trim(),
-              color: $('#new-character input[name=color]').val()
-            }
-            if (!chara.name) throw new Error('Please enter a name.');
-    
-            $('#new-character').hide();
-    
-            chat.sendChara(chara, function(chara) {
-              appendCharaButton(chara);
-              $('#new-character')[0].reset();
-              if($(window).height() <= 600) {
-                createOverlay('#character-selector', hideCharacterSelectMenu);
-              }
-              else {
-                destroyOverlay();
-              }
-            });
-          });
-          
-        });
-      }
-    });
-    
-  </script>
-  
-  
+  <!-- jQuery first, then Tether, then Bootstrap JS. -->
+  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" crossorigin="anonymous"
+      integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" crossorigin="anonymous"
+      integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" crossorigin="anonymous"
+      integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"></script>
 </body>
 </html>

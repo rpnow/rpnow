@@ -1,0 +1,490 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Loading... - RPNow</title>
+  <link rel="stylesheet" type="text/css" href="/lib/icomoon.css">
+  <link rel="stylesheet" type="text/css" href="/rp.css">
+</head>
+<body class="rp">
+  
+  <header class="rp-titlebar">
+    <div>
+      <a class="logo" href="/">RPNow</a><!--
+      --><h2><a href="#" id="rp-title"></a></h2>
+      <ul id="title-links">
+        <li><a href="#" title="Write RP"><span class="icon icon-pencil"></span></a>
+        <li><a href="#page-1" title="Archive"><span class="icon icon-books"></span></a>
+        <li><a href="#export" title="Export"><span class="icon icon-download3"></span></a>
+        <li><a href="/terms" title="Terms & Conditions" target="_blank"><span class="icon icon-file-text2"></span></a>
+      </ul>
+    </div>
+  </header>
+  <div id="rp-description">
+    <p></p>
+  </div>
+  
+  <div class="info" id="loading" style="display: none">
+    <p>Loading...</p>
+  </div>
+  
+  <div id="chat-page" class="rp-page" style="display: none">
+    <div class="info" id="showing-latest" style="display:none">
+      <p>
+        Showing latest posts.
+        <a href="#page-1">View Archive</a>
+      </p>
+    </div>
+    <div class="info" id="empty-room" style="display:none">
+      <p>Welcome! You can access this RP at any time from the following URL:</p>
+      <a id="friend-link"></a>
+      <p>To invite a friend, simply send them the link. Let the RP begin!</p>
+      <script>
+        document.getElementById('friend-link').innerHTML = window.location.href;
+        document.getElementById('friend-link').href = window.location.href;
+      </script>
+    </div>
+  
+    <div class="message-list"></div>
+  
+    <div id="character-selector" class="room-dialog" style="display:none">
+      <ul id="character-list">
+        <li><button type="button" id="narrator-button">Narrator</button></li>
+        <li><button type="button" id="ooc-button">Out of Character</button></li>
+        <li><button type="button" id="new-character-button">New Character...</button></li>
+      </ul>
+    </div>
+  
+    <form id="new-character" class="room-dialog" autocomplete="off" style="display:none">
+      <h3>New Character</h3>
+      <div class="input-section">
+        <div class="input-name">Name</div>
+        <div class="input-container"><input type="text" name="name" maxlength="30"></input></div>
+      </div>
+      <div class="input-section">
+        <div class="input-name">Color</div>
+        <div class="input-container"><input type="color" name="color" value="#DDDDDD"></input></div>
+      </div>
+      <input type="submit" value="Add"></input>
+      <button type="button" id="cancel-character">Cancel</button>
+    </form>
+  
+    <div id="message-box" autocomplete="off" style="display:none">
+      <div id="format-bar">
+        <div id="message-voice"></div>
+        <button type="button" id="change-character" class="btn-margin"><span>Change...</span></button>
+        <a type="button" id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
+      </div>
+      <div id="message-bar">
+        <div id="message-text">
+          <textarea name="content"></textarea>
+        </div>
+        <div id="message-button-container">
+          <button type="button" id="send-button">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="archive-page" class="rp-page" style="display: none">
+    <div class="pages"></div>
+    
+    <p id="no-archive-content" style="display: none">This RP has no content. Why not go back and <a href="#">start writing</a>?</p>
+    
+    <div class="message-list"></div>
+    
+    <div class="pages"></div>
+  </div>
+  
+  <div id="export-page" class="rp-page" style="display: none">
+    <h3>Export Options</h3>
+    <form class="form-box" id="export-form" method="GET">
+      <input type="checkbox" name="ooc" value="true"> Include OOC Messages?
+      <button type="submit" class="btn-submit">Download .TXT</button>
+    </form>
+    <script>
+      document.getElementById('export-form').action = "/api/v1/rps/" + location.pathname.substr(location.pathname.lastIndexOf('/')+1) + '.txt';
+    </script>
+  </div>
+
+  <script src="/lib/jquery-3.1.0.min.js"></script>
+  <script src="/lib/moment-2.10.6.min.js"></script>
+  <link rel='stylesheet' href='/lib/spectrum-1.6.1.min.css' />
+  <script src='/lib/spectrum-1.6.1.min.js'></script>
+  <script src="/lib/socket.io-1.4.5.min.js"></script>
+  <script src='/rp.js'></script>
+
+  <script>
+    /* global location localStorage $ rp */
+    // load rp and attach events
+    var url = location.pathname.split('/').reverse()[0].split('#')[0];
+    
+    var titleText = document.title;
+    function setTitleText(newTitle) {
+      titleText = document.title = newTitle + ' - RPNow';
+      $('#rp-title').text(newTitle);
+    }
+
+    /* var voice; */
+    (function() {
+      var voice;
+      Object.defineProperty(window, 'voice', {
+        get: function() { return voice; },
+        set: function(v) {
+          if(v === 'narrator') {
+            voice = { type: 'narrator' }
+            $('#message-voice').text('Narrator');
+            $('#message-box').removeClass('message-box-ooc message-box-chara').addClass('message-box-narrator');
+            $('#message-box').css('background-color', '');
+            $('#message-voice').css('color', '');
+            localStorage.setItem(localStorageKey('last_voice'), 'narrator');
+          }
+          else if(v === 'ooc') {
+            voice = { type: 'ooc' }
+            $('#message-voice').text('Out of Character');
+            $('#message-box').removeClass('message-box-narrator message-box-chara').addClass('message-box-ooc');
+            $('#message-box').css('background-color', '');
+            $('#message-voice').css('color', '');
+            localStorage.setItem(localStorageKey('last_voice'), 'ooc');
+          }
+          else {
+            voice = { type: 'chara', chara: v };
+            $('#message-voice').text(voice.chara.name);
+            $('#message-box').removeClass('message-box-narrator message-box-ooc').addClass('message-box-chara');
+            $('#message-box').css('background-color', voice.chara.color);
+            $('#message-voice').css('color', rp.contrastColor(voice.chara.color));
+            localStorage.setItem(localStorageKey('last_voice'), voice.id);
+          }
+        }
+      });
+    })();
+
+    function localStorageKey(name) {
+      return 'room_' + url + '_' +  name;
+    }
+
+    function createOverlay(under, clickFunc) {
+      if(!$('#overlay').length) {
+        $('<div/>', { id:'overlay' }).appendTo('body');
+        $('#overlay').css({
+          position: 'fixed',
+          'background-color': 'rgba(0,0,0, 0.5)',
+          top: 0,
+          bottom: 0,
+          right: 0,
+          left: 0
+        });
+        $('body').toggleClass('noscroll', true);
+      }
+      else {
+        $('#overlay').unbind('click');
+      }
+      $('#overlay').css({'z-index': $(under).css('zIndex') - 1});
+      if(clickFunc) $('#overlay').click(clickFunc);
+    }
+    function destroyOverlay() {
+      $('#overlay').remove();
+        $('body').toggleClass('noscroll', false);
+    }
+
+    function showCharacterSelectMenu() {
+      $('#character-selector').stop().slideDown(200);
+      if($(window).height() <= 600) {
+        createOverlay('#character-selector', hideCharacterSelectMenu);
+      }
+    }
+    function hideCharacterSelectMenu() {
+      $('#character-selector').slideUp(200);
+      destroyOverlay();
+      if($(window).height() > 600) {
+        $('#message-box textarea').focus();
+      }
+    }
+    function clickVoiceButton(evt, c) {
+      voice = c;
+      hideCharacterSelectMenu();
+      evt.preventDefault();
+    }
+
+    function showNewCharacterMenu() {
+      createOverlay('#new-character', hideNewCharacterMenu);
+      $('#new-character').show();
+      $('#new-character input[name=name]').focus();
+    }
+
+    function hideNewCharacterMenu() {
+      if($(window).height() <= 600) {
+        createOverlay('#character-selector', hideCharacterSelectMenu);
+      }
+      else {
+        destroyOverlay();
+      }
+      $('#new-character').hide();
+    }
+
+    function getSentMessageJSON() {
+      var msg = {
+        content: $('#message-box textarea').val()
+          .trim()
+          .replace(/(\\r\\n|\\n\\r|\\r|\\n|\&lt;br(?: ?\/)?\&gt;)/g, '\n'),
+        type: voice.type,
+        chara: voice.chara || undefined
+      }
+
+      if (msg.type !== 'ooc') {
+        [
+          /^\(\(\s*(.*[^\s])\s*\)\)$/g, // (( stuff ))
+          /^\{+\s*(.*?[^\s])\s*\}+$/g, // { stuff }, {{ stuff }}, ...
+          /^\/\/\s*(.*[^\s])\s*$/g // //stuff
+        ].forEach(function(oocRegex) {
+          var match = oocRegex.exec(msg.content);
+          if (match) {
+            msg.content = match[1];
+            msg.type = 'ooc';
+            delete msg.chara;
+          }
+        })
+      }
+      
+      if(!msg.content) return;
+      return msg;
+    }
+
+
+    function scrollToBottom() {
+      $('html, body').stop().animate({scrollTop: $(document).height()}, 500);
+    }
+
+    var alertNoise = new Audio('/alert.mp3');
+
+    var flashTitle = (function() {
+      var alertMsg = null;
+      var i = 0;
+      var informTimer = null;
+      function timerAction() {
+        if(i%2) document.title = titleText;
+        else document.title = alertMsg;
+        --i;
+        if(i >= 0) informTimer = setTimeout(timerAction, 500);
+      }
+      document.addEventListener('visibilitychange', function(evt) {
+        if(document.visibilityState === 'visible') {
+          clearTimeout(informTimer);
+          document.title = titleText;
+        }
+      });
+      return function(msg, flashes) {
+        if(document.visibilityState === 'visible') return;
+        i = (flashes===undefined? 1: flashes)*2;
+        if(informTimer) clearTimeout(informTimer);
+        alertMsg = msg;
+        timerAction(msg);
+      };
+    })();
+
+    $(document).ready(function() {
+      var removePageFunction = null;
+      
+      function changePage() {
+        var hash = location.hash || '#';
+        
+        if (removePageFunction) {
+          removePageFunction();
+          removePageFunction = null;
+        }
+        
+        if (location.hash === '#export') exportPage();
+        else if (location.hash.match(/^#page-([1-9][0-9]*)$/)) archivePage(+location.hash.split('-')[1]);
+        else chatPage();
+      }
+      
+      $(window).on('hashchange', changePage);
+      changePage();
+      
+      
+      function exportPage() {
+        $('#export-page').show();
+        setTitleText('Export RP');
+        removePageFunction = function() { $('#export-page').hide(); };
+      }
+      
+      function archivePage(pageNum) {
+        var cancelled = false;
+        $('#loading').show();
+        setTitleText('Loading...');
+        removePageFunction = function() {
+          $('#loading').hide();
+          cancelled = true;
+        }
+        
+        rp.fetchPage(url, pageNum, function(page) {
+          $('#loading').hide();
+          $('#archive-page').show();
+          setTitleText('[Page ' + pageNum + '] ' + page.title);
+          
+          if(page.msgs.length === 0) {
+            $('#no-archive-content').show();
+          }
+          else {
+            $('#no-archive-content').hide();
+            page.msgs.forEach(function(msg) {
+              $('#archive-page .message-list').append(rp.createMessageElement(msg, 'absolute'));
+            });
+          }
+          
+          for(var i = 1; i <= page.numPages; ++i) {
+            $('#archive-page .pages').append(
+              (i === 1) ? 'Page: ' : ' | ',
+              (i === pageNum)?
+                $('<b>', {'text': i}):
+                $('<a>', {'text': i, 'href':'#page-'+i})
+            );
+          }
+          
+          removePageFunction = function() {
+            $('#archive-page .message-list').empty();
+            $('#archive-page .pages').empty();
+            $('#archive-page').hide();
+          }
+        });
+      }
+      
+      function chatPage() {
+        var TEST = Math.floor(Math.random()*1000);
+        var chat = null;
+        $('#loading').show();
+        setTitleText('Loading...');
+        removePageFunction = function() {
+          $('#loading').hide();
+          chat = 'canceled';
+        };
+        
+        rp.chat(url, function(c) {
+          
+          if (chat === 'canceled') {
+            c.stop();
+            return;
+          }
+          removePageFunction = function() {
+            $('#send-button').off();
+            $('#change-character').off();
+            $('#narrator-button').off();
+            $('#ooc-button').off();
+            $('#new-character-button').off();
+            $('#cancel-character').off();
+            $('#new-character').off();
+            $('#message-box textarea').off();
+            chat.stop();
+            $('#chat-page .message-list').empty();
+            $('.chara-button').remove();
+            chat = 'removed';
+            $('#chat-page').hide();
+          };
+          
+          chat = c;
+          $('#loading').hide();
+          $('#chat-page').show();
+          setTitleText(chat.title);
+          $('#rp-description p').text(chat.desc);
+          chat.msgs.forEach(function(msg) {
+            $('#chat-page .message-list').append(rp.createMessageElement(msg, 'relative'));
+          });
+          if(chat.msgs.length === chat.maxMsgs) {
+            $('#showing-latest').show();
+          }
+          else if(chat.msgs.length === 0) {
+            $('#empty-room').show();
+          }
+          function appendCharaButton(chara) {
+            $('#character-list').append(
+              $('<li/>', {'class':'chara-button'}).append(
+                rp.createCharacterButton(chara, function(evt) { clickVoiceButton(evt, chara); })
+              )
+            );
+          }
+          chat.charas.forEach(appendCharaButton);
+          voice = chat.charas[+localStorage.getItem(localStorageKey('last_voice'))] || 'narrator';
+          $('#message-box').slideDown(250);
+          function appendMessage(msg) {
+            $('#chat-page .message-list').append(rp.createMessageElement(msg, 'relative'));
+            while($('#chat-page .message').length > this.maxMsgs) {
+              $('#showing-latest').show();
+              $('#empty-room').hide();
+              $('#chat-page .message:first').remove();
+            }
+            scrollToBottom();
+          }
+          chat.onMessage(function(msg) {
+            appendMessage(msg);
+            // do an alert if the tab isn't in focus
+            if(document.visibilityState === 'hidden') {
+              var alertText;
+              if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
+              else if(msg.type === 'narrator') alertText = '* The narrator says...';
+              else if(msg.type === 'ooc') alertText = '* OOC message...';
+              flashTitle(alertText, 3);
+              alertNoise.play();
+            }
+          });
+          chat.onChara(appendCharaButton);
+          // button functions
+          $('#change-character').click(function(evt) {
+            evt.preventDefault();
+            showCharacterSelectMenu();
+          });
+          $('#narrator-button').click(function(evt) { clickVoiceButton(evt, 'narrator'); });
+          $('#ooc-button').click(function(evt) { clickVoiceButton(evt, 'ooc'); });
+          $('#new-character-button').click(showNewCharacterMenu);
+          $('#cancel-character').click(hideNewCharacterMenu);
+          function sendMessage() {
+            var msg = getSentMessageJSON();
+            if (!msg) return;
+            
+            createOverlay();
+            
+            chat.sendMessage(msg, function(msg) {
+              destroyOverlay();
+              appendMessage(msg);
+              $('#message-box textarea').val('');
+            });
+          }
+          $('#send-button').click(sendMessage);
+          $('#message-box textarea').keypress(function(evt) {
+            if((evt.keyCode || evt.which) === 13 && !evt.shiftKey && !evt.ctrlKey) {
+              evt.preventDefault();
+              sendMessage();
+            }
+          });
+          $('#new-character').submit(function(evt) {
+            evt.preventDefault();
+            
+            var chara = {
+              name: $('#new-character input[name=name]').val().trim(),
+              color: $('#new-character input[name=color]').val()
+            }
+            if (!chara.name) throw new Error('Please enter a name.');
+    
+            $('#new-character').hide();
+    
+            chat.sendChara(chara, function(chara) {
+              appendCharaButton(chara);
+              $('#new-character')[0].reset();
+              if($(window).height() <= 600) {
+                createOverlay('#character-selector', hideCharacterSelectMenu);
+              }
+              else {
+                destroyOverlay();
+              }
+            });
+          });
+          
+        });
+      }
+    });
+    
+  </script>
+  
+  
+</body>
+</html>
