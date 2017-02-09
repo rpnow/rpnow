@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html ng-app="rpnow">
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -33,6 +33,11 @@
     /*}*/
 
   </style>
+
+  <!--Angular-->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+  <script src="/rp.js"></script>
+  <link rel="stylesheet" href="/rp.css">
 </head>
 <body>
         
@@ -108,48 +113,61 @@
           </div>
         </div>
       </div>
-      <div class="col">
-  <nav class="navbar navbar-toggleable-sm navbar-light bg-faded mb-3">
-    <button class="navbar-toggler navbar-toggler-right" type="button"
-        data-toggle="collapse" data-target="#navbarSupportedContent"
-        aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <ul class="nav navbar-nav navbar-logo">
-      <li class="navbar-item mx-auto">
-        <a class="navbar-brand mx-auto" href="#">The Grim Grotto</a>
-      </li>
-    </ul>
-  
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item ml-auto mr-1">
-          <a class="nav-link" href="#">
-            <i class="fa fa-fw fa-envelope" aria-hidden="true"></i> Invite
-          </a>
-        </li>
-        <li class="nav-item ml-auto mr-1">
-          <a class="nav-link" href="#">
-            <i class="fa fa-fw fa-book" aria-hidden="true"></i> Read
-          </a>
-        </li>
-        <!--<li class="nav-item ml-auto mr-1">-->
-        <!--  <a class="nav-link" href="#">-->
-        <!--    <i class="fa fa-fw fa-cloud-download" aria-hidden="true"></i> Download-->
-        <!--  </a>-->
-        <!--</li>-->
-        <li class="nav-item ml-auto mr-1">
-          <a class="nav-link" href="#">
-            <i class="fa fa-fw fa-star" aria-hidden="true"></i> Admin
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-        <div class= "p-5">
-          <span class="faded">(an RP is happening here)</span>
+      <div class="col" ng-controller="RpController as rp">
+        <nav class="navbar navbar-toggleable-sm navbar-light bg-faded mb-3">
+          <button class="navbar-toggler navbar-toggler-right" type="button"
+              data-toggle="collapse" data-target="#navbarSupportedContent"
+              aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <ul class="nav navbar-nav navbar-logo">
+            <li class="navbar-item mx-auto">
+              <a class="navbar-brand mx-auto" href="#">{{rp.title}}</a>
+            </li>
+          </ul>
+        
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item ml-auto mr-1">
+                <a class="nav-link" href="#">
+                  <i class="fa fa-fw fa-envelope" aria-hidden="true"></i> Invite
+                </a>
+              </li>
+              <li class="nav-item ml-auto mr-1">
+                <a class="nav-link" href="#">
+                  <i class="fa fa-fw fa-book" aria-hidden="true"></i> Read
+                </a>
+              </li>
+              <!--<li class="nav-item ml-auto mr-1">-->
+              <!--  <a class="nav-link" href="#">-->
+              <!--    <i class="fa fa-fw fa-cloud-download" aria-hidden="true"></i> Download-->
+              <!--  </a>-->
+              <!--</li>-->
+              <li class="nav-item ml-auto mr-1">
+                <a class="nav-link" href="#">
+                  <i class="fa fa-fw fa-star" aria-hidden="true"></i> Admin
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <div class= "p-1 p-md-2 p-lg-5">
+          <div ng-repeat="msg in rp.msgs" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto'}">
+            <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
+            <div class="message-details">
+              <span class="color-ip-box">
+                <span ng-style="{'background-color':'#'+msg.ipid.substr(0,6)}"></span><!--
+                --><span ng-style="{'background-color':'#'+msg.ipid.substr(6,6)}"></span><!--
+                --><span ng-style="{'background-color':'#'+msg.ipid.substr(12,6)}"></span>
+              </span>
+              <span class="timestamp">{{msg.timestamp}}</span>
+            </div>
+            <div class="content">
+              {{msg.content | msgContent}}
+            </div>
+          </div>
         </div>
-        <div class="p-1">
+        <div class="p-0 p-lg-1">
           <div class="media">
             <a href="#" class="btn p-1">
               <img class="d-flex align-self-start" src="/icon.png" width="" alt="Character Icon">

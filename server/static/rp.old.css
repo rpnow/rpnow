@@ -1,0 +1,961 @@
+
+/**********************************************************
+ * BASIC ELEMENT STYLING
+ *
+ **********************************************************/
+@media (orientation: landscape) {
+  html {
+    -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape while allowing user zoom */
+  }
+}
+html {
+  height: 100%;
+}
+body {
+  background-color: #fafafa;
+  color: #3c3c3c;
+  font-size: 18px;
+  text-align: center;
+  margin: 0;
+}
+body.article {
+  margin: 40px auto;
+  padding: 0 10px;
+  max-width: 650px;
+  text-align: left;
+}
+h1 {
+  margin: 25px auto 10px;
+  letter-spacing: 3px;
+  word-spacing: 2px;
+}
+body > p,
+body > ul,
+body > ol {
+  margin: 18px auto;
+  max-width: 650px;
+  line-height: 1.6;
+}
+li {
+  text-align: left;
+}
+input, textarea, button {
+  font-family: serif;
+  vertical-align: middle;
+  -webkit-appearance: none;
+}
+input[type=text],
+textarea {
+  background-color: white;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 3px #aaa inset;
+  font-size: 16px;
+  padding: 3px;
+}
+input[type=submit], button {
+  font-size:18px;
+  color: #43033B;
+  font-weight: bold;
+  display: inline-block;
+  background-color: inherit;
+}
+input[type=submit]:not(.btn-margin), button:not(.btn-margin),
+.btn-margin > span {
+  border: solid 1px #555;
+  color: #555;
+  padding: 6px 12px;
+  background-color: inherit;
+  border-radius: 8px;
+}
+.btn-margin {
+  margin: -15px -15px;
+  padding: 15px 15px;
+  background: none;
+  border: none;
+}
+a.btn-margin {
+  text-decoration: none;
+  color: #222;
+}
+input[type=submit]:hover, button:hover {
+  cursor: pointer;
+}
+input[type=submit]:not(.btn-margin):hover, button:not(.btn-margin):hover,
+.btn-margin:hover > span {
+  border: 1px solid #3c3c3c;
+  background-color: #555;
+  color: #fafafa;
+}
+table, th, td {
+  border: 1px solid;
+}
+td {
+  padding: 4px;
+}
+.hidden { display: none; }
+
+
+
+
+/**********************************************************
+ * NEAT FORMS
+ *
+ **********************************************************/
+form.form-box {
+  margin: 18px auto;
+  border: solid 1px #555;
+  padding: 30px;
+  box-shadow: 0 1px 3px #aaa;
+}
+form.form-box .input-container input,
+form.form-box .input-container textarea {
+  width: 100%;
+  padding: 3px;
+  margin: -3px;
+}
+form.form-box .input-name,
+form.form-box .input-container {
+  padding: 6px;
+}
+form.form-box .input-name {
+  font-weight: bold;
+}
+form.form-box .input-name::after {
+  content: ":";
+}
+form.form-box input[type=submit],
+form.form-box button.btn-submit {
+  font-size: 18px;
+  margin-top: 20px;
+  background-color: #fff;
+  color: #222;
+  border: solid 1px #3c3c3c;
+  font-weight: bold;
+}
+form.form-box .input-button button {
+  border-radius: 0;
+  padding: 2px 2px;
+  font-size: 80%;
+}
+@media all and (max-width: 550px) {
+  form.form-box .input-name {
+    text-align: left;
+    padding: 5px 20px 0;
+  }
+  form.form-box .input-button {
+    text-align: right;
+    margin-right: 20px;
+  }
+}
+@media not all and (max-width: 550px) {
+  form.form-box {
+    width: 400px;
+  }
+  form.form-box .input-section {
+    display: table-row;
+  }
+  form.form-box .input-name,
+  form.form-box .input-container {
+    display: table-cell;
+  }
+  form.form-box .input-name {
+    padding-top: 6px;
+    padding-right: 10px;
+    vertical-align: top;
+    text-align: right;
+  }
+  form.form-box .input-container {
+    width: 100%;
+  }
+  form.form-box .input-button button {
+    letter-spacing: -1px;
+  }
+}
+
+
+
+
+/**********************************************************
+ * MOTD ALERT BOXES
+ *
+ **********************************************************/
+#motd {
+  position: fixed;
+  left: 4vw;
+  right: 4vw;
+  top: 2vh;
+  max-width: 600px;
+  margin: auto;
+  background-color: #E8EFFF;
+  box-shadow: 0 6px 10px #8899CC;
+  padding: 20px 10px 10px;
+  border: 2px solid #9AB3DC;
+  animation: fadein 0.2s;
+  z-index: 9999;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#motd #motd-content {
+  padding-bottom: 20px;
+}
+#motd #motd-close {
+  background-color: inherit;
+  box-shadow: none;
+  border: 2px solid #9AB3DC;
+  color: #9AB3DC;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 80%;
+  border-radius: 80px;
+  padding: 8px 20px;
+}
+#motd #motd-close:hover {
+  background-color: #9AB3DC;
+  color: white;
+}
+
+
+
+/**********************************************************
+ * homepage:
+ *   HOMEPAGE
+ *
+ **********************************************************/
+body.home {
+  margin: 0;
+  padding: 5px;
+  min-height: 100%;
+  position: relative;
+  box-sizing: border-box;
+  padding-bottom: 100px;
+}
+h1#home-title {
+  font-size: 80px;
+  margin: 10vmin 0;
+}
+form#new-rp {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+form#new-rp fieldset {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  position: relative;
+}
+form#new-rp input,
+form#new-rp textarea,
+form#new-rp button.btn-submit {
+  font-size: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 6px 0;
+  padding: 10px;
+}
+form#new-rp input:not([type=submit])
+form#new-rp textarea {
+
+}
+form#new-rp #rp-name {
+  font-size: 28px;
+}
+form#new-rp input:focus,
+form#new-rp textarea:focus {
+  box-shadow: 0 2px 2px #AF4FA3 inset;
+}
+
+
+
+form#new-rp input.input-with-button {
+  padding-right: 25%;
+}
+form#new-rp input.input-with-button + button {
+  color: #aaa;
+  position: absolute;
+  height: 100%;
+  right: 0;
+  top:0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+form#new-rp input.input-with-button + button:hover {
+  color: #DC22C3;
+}
+
+
+form#new-rp #begin-roleplay-btn {
+  margin-left: 0;
+  width: 49%;
+  margin-right: 1%;
+  color: #DC22C3;
+  border-color: #DC22C3;
+}
+form#new-rp input[type=submit]:hover {
+  background-color: #DC22C3;
+  color:white;
+}
+form#new-rp button.btn-submit {
+  width: 49%;
+  margin-left: 1%;
+}
+
+
+@media all and (max-width: 480px) {
+  h1#home-title {
+    font-size: 22vmin;
+  }
+  form#new-rp #rp-name {
+    font-size: 6vw;
+  }
+  form#new-rp textarea {
+    font-size: 16px;
+  }
+  form#new-rp input.input-with-button + button {
+    font-size: 5vw;
+  }
+  form#new-rp input[type=submit],
+  form#new-rp button.btn-submit {
+      font-size: 5vw;
+  }
+
+}
+
+p#terms-info {
+  opacity: 0.5;
+}
+p#terms-info:hover {
+  opacity: 1;
+}
+
+body.home footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  padding: 25px;
+  opacity: 0.5;
+}
+body.home footer:hover {
+  opacity: 1;
+}
+body.home footer ul { padding: 0; }
+body.home footer li {
+  display: inline-block;
+  padding: 0;
+}
+body.home footer li + li {
+  border-left: dotted 1px #444;
+  margin-left: 8px;
+  padding-left: 10px;
+}
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   HEADER
+ *
+ **********************************************************/
+body.rp {
+  padding-top: 85px;
+}
+header.rp-titlebar {
+  z-index: 50;
+  position:fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #3c3c3c;
+  color: #F5DFF5;
+  box-shadow: 0 0px 10px rgba(104,52,120,0.5);
+  font-size: 20px;
+  height: 50px;
+  line-height: 50px;
+  overflow: hidden;
+}
+header.rp-titlebar > div {
+  display: block;
+  height: 100%;
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+header.rp-titlebar a {
+  color: #F5DFF5;
+  text-decoration: none;
+  height: 50px;
+  display: inline-block;
+}
+header.rp-titlebar .logo {
+  float: left;
+  border-right: solid 2px white;
+  padding: 0 10px;
+  display: inline-block;
+}
+header.rp-titlebar h2 {
+  float: left;
+  font-weight: bold;
+  display: inline-block;
+  margin: 0;
+  color: white;
+  font-size: 140%;
+}
+header.rp-titlebar h2 a {
+  padding: 0 10px;
+}
+header.rp-titlebar #title-links {
+  float: right;
+  margin: 0;
+  padding: 0;
+  height: inherit;
+}
+header.rp-titlebar #title-links li {
+  float: left;
+  display: inline-block;
+  height: 100%;
+  font-size: 40px;
+}
+header.rp-titlebar #title-links a {
+  padding: 0 10px;
+  display: inline-block;
+}
+header.rp-titlebar #title-links .icon,
+header.rp-titlebar #title-links .icon::before {
+  display:-ms-flexbox;
+  -ms-flex-pack:center;
+  -ms-flex-align:center;
+  display:-moz-box;
+  -moz-box-pack:center;
+  -moz-box-align:center;
+  display:-webkit-box;
+  -webkit-box-pack:center;
+  -webkit-box-align:center;
+  display: flex;
+  box-pack: center;
+  box-align: center;
+
+  vertical-align: middle;
+  line-height: inherit;
+}
+header.rp-titlebar a:hover:not(:active){
+  background-color: #555;
+  color: white;
+}
+header.rp-titlebar #title-links .selected a {
+  background-color: white;
+  color: rgb(190,84,190);
+}
+#rp-description {
+  font-style: italic;
+  margin: -100px 0 30px;
+  padding: 80px 5px 10px;
+  color: #3c3c3c;
+  background-color: #ddd;
+  box-shadow: 0 0px 10px rgba(104,52,120,0.5);
+}
+#rp-description p {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+@media all and (max-width: 850px) {
+  body.rp {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  header.rp-titlebar {
+    position: inherit;
+    text-align: center;
+    height: auto;
+    font-size: 18px;
+    z-index: auto;
+  }
+  header.rp-titlebar .logo,
+  header.rp-titlebar h2 {
+    float: none;
+    vertical-align: top;
+  }
+  header.rp-titlebar #title-links {
+    float: none;
+    display: block;
+    padding: 5px 0;
+  }
+  header.rp-titlebar #title-links li {
+    float: none;
+    display: inline-block;
+    width: 18%;
+    padding: 0 1%;
+    max-width: 100px;
+    text-align: center;
+  }
+  header.rp-titlebar #title-links a {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+  header.rp-titlebar #title-links a:hover,
+  header.rp-titlebar #title-links .selected a {
+    border-radius: 20px;
+  }
+  header.rp-titlebar #title-links a .icon,
+  header.rp-titlebar #title-links a .icon::before {
+    display: inline;
+    vertical-align: top;
+  }
+  #rp-description {
+    margin: 0 0 30px;
+    padding: 10px;
+  }
+}
+@media all and (max-width: 500px) {
+  header.rp-titlebar {
+    font-size: 3.5vw;
+    height: 25vw;
+    line-height: 12vw;
+  }
+  header.rp-titlebar a {
+    height: 12vw;
+  }
+  header.rp-titlebar #title-links {
+    height: 12vw;
+    padding: 0.5vw 0;
+  }
+  header.rp-titlebar #title-links li {
+    font-size: 10vw;
+  }
+}
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MESSAGES
+ *
+ **********************************************************/
+.message-list {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 650px;
+  display: inline-block;
+  text-align: left;
+  word-wrap: break-word;
+}
+#chat-page .message-list {
+  margin-bottom: 135px;
+}
+.message{
+  word-wrap: break-word;
+}
+.message > .content {
+  line-height: 1.6;
+}
+.message .color-ip-box {
+  display: inline-block;
+  vertical-align: middle;
+  height: 10px;
+  border: solid 1px white;
+  margin-right: 5px;
+  margin-top: -2px;
+}
+.message .color-ip-box > span {
+  display: inline-block;
+  vertical-align: top;
+  width: 7px;
+  height: 10px;
+}
+.message .timestamp {
+  font-size: 90%;
+  opacity: 0.5;
+}
+.message-narrator {
+  background-color: #fff;
+  box-shadow: 0 1px 1px #bbb;
+  padding: 5px;
+  text-align: right;
+}
+.message-narrator > .content {
+  border: dotted 1px #bbb;
+  padding: 15px 20px;
+  text-align: left;
+}
+.message-narrator > .message-details {
+  margin: -5px 28px -2px;
+}
+.message-narrator .color-ip-box {
+  border-color: #555;
+}
+.message-ooc {
+  background-color: #707070;
+  box-shadow: 0 0 2px #555;
+  color: #eee;
+  margin: 0 15px;
+  padding: 0 5px;
+}
+.message-ooc:nth-of-type(2n+1) {
+  background-color: #7a7a7a;
+}
+.message-ooc + .message-narrator,
+.message-narrator + .message-ooc {
+  margin-top: 8px;
+}
+.message-ooc > .message-details {
+  display: inline;
+}
+.message-ooc .timestamp {
+  opacity: 0.66;
+  font-size: 80%;
+}
+.message-ooc .timestamp::before { content: '[ '; }
+.message-ooc .timestamp::after { content: ' ] '; }
+.message-ooc > .content {
+  display: inline;
+}
+.message-chara {
+  margin: 10px;
+  margin-top: 22px;
+  padding: 6px 8px 10px;
+  border-radius: 16px;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 2px 3px #555;
+  position: relative;
+  max-width: 100%;
+  text-align: right;
+}
+.message-chara > .name{
+  display: inline-block;
+  position: absolute;
+  left: 25px;
+  top: -13px;
+  z-index: 1;
+  background-color: inherit;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  word-spacing: 1px;
+  box-shadow: 0 1px 2px #555;
+}
+.message-chara > .content {
+  background-color: white;
+  color: black;
+  opacity: 0.9;
+  padding: 8px;
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 1px 2px #888 inset;
+  text-align: left;
+}
+.message-chara > .content span.action {
+  font-size: 80%;
+  padding: 0.3em;
+  border-radius: 4px;
+  opacity: 0.8;
+  box-shadow: 0 1px 1px #3c3c3c;
+}
+.message-chara > .message-details {
+  margin: -5px 15px -2px 5px;
+}
+.rp-page {
+  background-color: inherit;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MESSAGE STREAM INFO BOXES
+ *
+ **********************************************************/
+body.rp .info {
+  font-size: 16px;
+  text-align: center;
+  margin: 0 20px 20px;
+  padding: 5px 10px;
+  overflow-wrap: break-word;
+  color: #666;
+  max-width: 650px;
+  margin: auto;
+}
+body.rp .info ol {
+  display: inline-block;
+  text-align: left;
+}
+body.rp .info a {
+  color: #444;
+  font-weight: bold;
+  display: inline;
+  padding: 20px;
+}
+body.rp .info a:hover {
+  color: rgb(190,84,190);
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MESSAGE BOX
+ *
+ **********************************************************/
+#message-box {
+  position: fixed;
+  z-index: 200;
+  bottom: 0;
+  background-color: inherit;
+  border-spacing: 10px;
+  box-shadow: 0 0 20px #222;
+}
+#message-box.message-box-narrator {
+  background-color: #fff;
+  outline: dotted 1px #999;
+  outline-offset: -6px;
+  padding: 8px;
+  bottom: -6px;
+}
+#message-box.message-box-ooc {
+  background-color: #707070;
+  border: dotted 1px #eee;
+  border-bottom: none;
+}
+#message-box.message-box-ooc #message-text textarea {
+  background-color: #bbb;
+}
+#message-box.message-box-chara {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+#message-box.message-box-chara #message-text textarea {
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+}
+@media all and (max-width: 750px) {
+  #message-box {
+    left: 2px;
+    right: 2px;
+  }
+}
+@media not all and (max-width: 750px) {
+  #message-box {
+    left: 0;
+    right: 0;
+    width: 700px;
+    margin: auto;
+  }
+}
+#format-bar {
+  text-align: left;
+  padding-top: 5px;
+  margin-left: 6%;
+  margin-right: 16px;
+  background-color: inherit;
+}
+#format-bar #message-voice {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 2px 4%;
+}
+.message-box-narrator #message-voice {
+  color: #777;
+  border-bottom: solid 1px #ddd;
+  border-left: solid 1px #eee;
+  padding-top: 0;
+  letter-spacing: 2px;
+}
+.message-box-narrator #message-voice::first-letter {
+  font-size: 125%;
+}
+.message-box-ooc #message-voice {
+  font-size: 90%;
+  color: #ccc;
+}
+.message-box-ooc #message-voice::before { content: '[ '; font-size: 125%; }
+.message-box-ooc #message-voice::after { content: ' ]'; font-size: 125%; }
+.message-box-chara #message-voice {
+  box-shadow: 0 1px 4px #555;
+  border-radius: 4px;
+  margin-top: -15px;
+  margin-right: 2%;
+  background-color: inherit;
+  font-size: 115%;
+}
+#format-bar #change-character span {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 0;
+  padding: 2px 4px;
+  font-size: 80%;
+  letter-spacing: -1px;
+  margin-left: 0;
+}
+#format-bar #show-format-guide {
+  vertical-align: middle;
+  float: right;
+}
+#format-bar #show-format-guide span {
+  padding: 2px 8px;
+  border-radius: 100%;
+}
+#message-bar {
+  display: table;
+  border-spacing: 0;
+  border-collapse: separate;
+}
+#message-bar #message-text,
+#message-bar #message-button-container {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 5px;
+  margin: 0;
+}
+#message-box #message-text {
+  width: 100%;
+}
+#message-text textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 60px;
+}
+#message-box #send-button {
+  min-width: 80px;
+  height: 68px;
+  margin-left: 5px;
+  border-radius: 5px;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   CHARACTER SELECT/NEW CHARACTER MENU
+ *
+ **********************************************************/
+.noscroll {
+  overflow-y: hidden;
+}
+.room-dialog {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 700px;
+  background-color: inherit;
+  margin: 0 auto;
+  padding: 8px;
+  box-shadow: 0 0 20px #222;
+  box-sizing: border-box;
+}
+#character-selector {
+  z-index: 300;
+}
+#new-character {
+  z-index: 600;
+}
+@media all and (max-width: 750px) {
+  .room-dialog {
+    width: auto;
+    left: 2px;
+    right: 2px;
+  }
+}
+@media all and (max-height: 600px) {
+  .room-dialog {
+    top: 12vh;
+    bottom: 12vh;
+    left: 5vw;
+    right: 5vw;
+  }
+}
+ul#character-list {
+  display: block;
+  margin: 0 auto;
+  padding-left: 0;
+  max-width: 600px;
+  overflow-y: scroll;
+  height: 100%;
+}
+ul#character-list > li {
+  display: block;
+  box-sizing: border-box;
+  width: 31%;
+  height: 50px;
+  margin: 1%;
+  float: left;
+  line-height: 0.9;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+@media all and (max-width: 750px) {
+  ul#character-list > li {
+    width: 31%;
+  }
+  ul#character-list button {
+    font-size: 2.9vw;
+  }
+}
+@media all and (max-width: 450px) {
+  ul#character-list > li {
+    width: 31%;
+  }
+  ul#character-list button {
+    font-size: 4vw;
+  }
+}
+ul#character-list button {
+  display: block;
+  text-align: center;
+  line-height: 0.9;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px #888;
+  width: 100%;
+  height: 100%;
+  padding: 5%;
+}
+ul#character-list button:hover {
+  opacity: 0.5;
+}
+ul#character-list button#narrator-button {
+  color: #555;
+  border: dotted 1px #bbb;
+  border-radius: 0;
+  box-shadow: none;
+}
+ul#character-list button#ooc-button {
+  background-color: #3c3c3c;
+  font-size: 75%;
+  padding: 10px;
+  color: #bbb;
+}
+#new-character h3 {
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MISC PAGE ELEMENTS
+ *
+ **********************************************************/
+.pages {
+  margin: 20px;
+}
+ul#stats {
+  display: inline-block;
+  border: dotted 1px #555;
+  margin: 0;
+  padding: 20px;
+  padding-left: 40px;
+  max-width: 650px;
+}
