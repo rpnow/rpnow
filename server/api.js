@@ -84,13 +84,14 @@ module.exports = function(options, io) {
       let ipid = crypto.createHash('md5').update(ip).digest('hex').substr(0,18);
       socket.on('join rp', (rpCodeToJoin, callback) => {
          if (rpCode) return;
+         if (typeof rpCodeToJoin !== 'string') return;
          
          db.rooms.findOne({ rpCode: rpCodeToJoin }, (err, rp) => {
             if (!rp) return;
             
             rpCode = rpCodeToJoin;
             socket.join(rpCode);
-            callback(rp);
+            if (typeof callback === 'function') callback(rp);
          });
       });
       
@@ -103,7 +104,7 @@ module.exports = function(options, io) {
          
          // store & broadcast
          db.rooms.update({rpCode: rpCode}, {$push: {msgs: msg}}, (err, r) => {
-            callback(msg);
+            if (typeof callback === 'function') callback(msg);
             socket.to(rpCode).broadcast.emit('add message', msg);
          });
       });
@@ -114,7 +115,7 @@ module.exports = function(options, io) {
          
          // store & broadcast
          db.rooms.update({rpCode: rpCode}, {$push: {charas: chara}}, (err, r) => {
-            callback(chara);
+            if (typeof callback === 'function') callback(chara);
             socket.to(rpCode).broadcast.emit('add character', chara);
          });
       });
