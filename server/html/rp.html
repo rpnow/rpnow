@@ -34,8 +34,10 @@
 
   </style>
 
+  <!--Socket.io-->
+  <script src="/lib/socket.io-1.4.5.min.js"></script>
   <!--Angular-->
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
   <script src="/rp.js"></script>
   <link rel="stylesheet" href="/rp.css">
 </head>
@@ -152,7 +154,7 @@
           </div>
         </nav>
         <div class= "p-1 p-md-2 p-lg-5">
-          <div ng-repeat="msg in rp.msgs" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto'}">
+          <div ng-repeat="msg in rp.msgs" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
             <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
             <div class="message-details">
               <span class="color-ip-box">
@@ -173,7 +175,7 @@
               <img class="d-flex align-self-start" src="/icon.png" width="" alt="Character Icon">
             </a>
             <div class="media-body">
-              <textarea class="form-control mb-1" ></textarea>
+              <textarea class="form-control mb-1" ng-model="rp.msgBox.content"></textarea>
               <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
                 <i class="fa fa-fw fa-bold" aria-hidden="true"></i> <span class="sr-only">Bold</span>
               </button>
@@ -186,7 +188,7 @@
               <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
                 <i class="fa fa-fw fa-paragraph" aria-hidden="true"></i> <span class="sr-only">Paragraph Break</span>
               </button>
-              <button class="btn btn-outline-primary pull-right">
+              <button class="btn btn-outline-primary pull-right" ng-click="rp.sendMessage()">
                 <i class="fa fa-fw fa-check" aria-hidden="true"></i> Send
               </button>
             </div>

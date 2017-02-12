@@ -1,92 +1,55 @@
 (function() {
    var app = angular.module('rpnow', []);
-   app.controller('RpController', function() {
-      this.loading = false;
-      this.rpCode = "Tv9jdt7X";
-      this.title = "The Grim Grotto";
-      this.desc = "time for some fun";
-      this.timestamp = 1484768511.033;
-      this.ipid = "12a949960fcd587a33";
-      this.msgs = [
-         {  type: "narrator",
-            content: "Message!!!",
-            timestamp: 1484768525.751,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "chara",
-            content: "hello, /ya dingus/",
-            chara: {
-               name: "DAN",
-               color: "#dddddd"
-            },
-            timestamp: 1484768566.323,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "ooc",
-            content: "hey",
-            timestamp: 1484768525.751,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "ooc",
-            content: "hey",
-            timestamp: 1484768525.751,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "ooc",
-            content: "hey",
-            timestamp: 1484768525.751,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "chara",
-            content: "l8r",
-            chara: {
-               name: "GRAN",
-               color: "#ffeeaa"
-            },
-            timestamp: 1484768566.323,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "chara",
-            content: "goodbye, /ya dingus/",
-            chara: {
-               name: "MAN",
-               color: "#dd7733"
-            },
-            timestamp: 1484768566.323,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "narrator",
-            content: "ME AGAIN",
-            timestamp: 1484768525.751,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "narrator",
-            content: "OH NO",
-            timestamp: 1484768525.751,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "ooc",
-            content: "yep",
-            timestamp: 1484768525.751,
-            ipid: "12a949960fcd587a33"
-         },
-         {  type: "chara",
-            content: "i am the END",
-            chara: {
-               name: "THE END",
-               color: "#220011"
-            },
-            timestamp: 1484768566.323,
-            ipid: "12a949960fcd587a33"
-         },
-      ];
-      this.charas = [
-         {
-            name: "DAN",
-            color: "#dddddd"
-         }
-      ];
-   });
+   var socket = io();
+
+   app.controller('RpController', ['$rootScope', function($rootScope) {
+      var rp = this;
+      rp.loading = true;
+      rp.rpCode = location.pathname.split('/').pop().split('#')[0];
+      rp.msgBox = {
+         content: '',
+         type: 'narrator'
+      };
+
+      socket.emit('join rp', rp.rpCode, function(data) {
+         ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
+            .forEach(function(prop) {
+               if(data[prop] !== undefined) rp[prop] = JSON.parse(JSON.stringify(data[prop]));
+            });
+         rp.loading = false;
+         $rootScope.$apply();
+      });
+
+      socket.on('add message', function(msg) {
+         rp.msgs.push(msg);
+         $rootScope.$apply();
+      });
+      socket.on('add character', function(chara) {
+         rp.charas.push(chara);
+         $rootScope.$apply();
+      });
+
+      rp.sendMessage = function() {
+         var msg = JSON.parse(JSON.stringify(rp.msgBox));
+         socket.emit('add message', msg, function(receivedMsg) {
+            rp.msgs.splice(rp.msgs.indexOf(msg),1);
+            rp.msgs.push(receivedMsg);
+            $rootScope.$apply();
+         });
+         msg.sending = true;
+         rp.msgs.push(msg);
+         rp.msgBox.content = '';
+      };
+      // rp.sendChara = function(chara, callback) {
+      //    socket.emit('add character', chara, function(recievedChara) {
+      //       callback(recievedChara);
+      //    });
+      // };
+      // rp.stop = function() {
+      //    socket.close();
+      // };
+
+   }]);
 
    app.filter('msgContent', function() {
       return function(str) {
@@ -126,5 +89,5 @@
          var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
          return (yiq >= 128) ? '#000000' : '#ffffff';
       };
-   })
+   });
 })();
