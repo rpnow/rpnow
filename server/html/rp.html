@@ -45,7 +45,7 @@
         
   <div class="container">
     <div class="row">
-      <div class="col-md-4 mt-md-3">
+      <div class="col-md-4 mt-md-3 hidden-sm-down">
         <h3>RPNow</h3>
         <hr/>
         <ul class="list-unstyled">
@@ -157,7 +157,7 @@
           </div>
         </nav>
         <div class= "p-1 p-md-2 p-lg-5">
-          <div ng-repeat="msg in rp.msgs" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
+          <div ng-repeat="msg in rp.msgs.slice(-3)" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
             <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
             <div class="message-details">
               <span class="color-ip-box">
@@ -174,24 +174,26 @@
         </div>
         <div class="p-0 p-lg-1">
           <div class="media">
-            <a href="#" class="btn p-1">
+            <a href="#" class="btn p-1" ng-show="!rp.msgBox.selected || rp.msgBox.msg.chara && rp.msgBox.msg.face >= 0">
               <img class="d-flex align-self-start" src="/icon.png" width="" alt="Character Icon">
             </a>
             <div class="media-body">
-              <textarea class="form-control mb-1" ng-model="rp.msgBox.content"></textarea>
-              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+              <h5>Narrator</h5>
+              <textarea class="form-control" ng-model="rp.msgBox.msg.content"
+                  ng-focus="rp.msgBox.selected = true;" ng-blur="rp.msgBox.selected = false;"></textarea>
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1 mt-1">
                 <i class="fa fa-fw fa-bold" aria-hidden="true"></i> <span class="sr-only">Bold</span>
               </button>
-              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1 mt-1">
                 <i class="fa fa-fw fa-italic" aria-hidden="true"></i> <span class="sr-only">Italic</span>
               </button>
-              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1 mt-1">
                 <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i> <span class="sr-only">Action</span>
               </button>
-              <button class="btn btn-sm btn-outline-secondary p-1 mr-1">
+              <button class="btn btn-sm btn-outline-secondary p-1 mr-1 mt-1">
                 <i class="fa fa-fw fa-paragraph" aria-hidden="true"></i> <span class="sr-only">Paragraph Break</span>
               </button>
-              <button class="btn btn-outline-primary pull-right" ng-click="rp.sendMessage()">
+              <button class="btn btn-outline-primary pull-right mt-1 mb-3" ng-click="rp.sendMessage()">
                 <i class="fa fa-fw fa-check" aria-hidden="true"></i> Send
               </button>
             </div>

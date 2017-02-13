@@ -7,8 +7,11 @@
       rp.loading = true;
       rp.rpCode = location.pathname.split('/').pop().split('#')[0];
       rp.msgBox = {
-         content: '',
-         type: 'narrator'
+         msg: {
+            content: '',
+            type: 'narrator'
+         },
+         selected: false
       };
 
       socket.emit('join rp', rp.rpCode, function(data) {
@@ -30,7 +33,9 @@
       });
 
       rp.sendMessage = function() {
-         var msg = JSON.parse(JSON.stringify(rp.msgBox));
+         if (!rp.msgBox.msg.content.trim()) return;
+
+         var msg = JSON.parse(JSON.stringify(rp.msgBox.msg));
          socket.emit('add message', msg, function(receivedMsg) {
             rp.msgs.splice(rp.msgs.indexOf(msg),1);
             rp.msgs.push(receivedMsg);
@@ -38,7 +43,7 @@
          });
          msg.sending = true;
          rp.msgs.push(msg);
-         rp.msgBox.content = '';
+         rp.msgBox.msg.content = '';
       };
       // rp.sendChara = function(chara, callback) {
       //    socket.emit('add character', chara, function(recievedChara) {
