@@ -1,6 +1,12 @@
 (function() {
-   var app = angular.module('rpnow', []);
+   var app = angular.module('rpnow', ['ngMaterial']);
    var socket = io();
+
+   app.config(['$mdThemingProvider', function($mdThemingProvider) {
+      $mdThemingProvider.theme('default')
+         .primaryPalette('pink')
+         .accentPalette('amber');
+   }]);
 
    app.controller('RpController', ['$rootScope', function($rootScope) {
       var rp = this;
@@ -20,6 +26,10 @@
                if(data[prop] !== undefined) rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
          rp.loading = false;
+         rp.msgs = [{
+            'content': 'hello',
+            'type': 'narrator'
+         }]
          $rootScope.$apply();
       });
 
