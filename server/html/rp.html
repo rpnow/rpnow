@@ -13,40 +13,44 @@
 
 <body ng-cloak ng-controller="RpController as rp">
 
-  <md-toolbar class="md-hue-2" md-scroll-shrink="true">
-    <div class="md-toolbar-tools">
-      <md-button class="md-icon-button" aria-label="Preferences">
-        <md-icon>menu</md-icon>
-      </md-button>
-      <h1>
-        <span>The Grim Grotto</span>
-      </h1>
-      <span flex></span>
-      <md-button class="md-icon-button" aria-label="Invite">
-        <md-icon>mail</md-icon>
-      </md-button>
-      <md-button class="md-icon-button" aria-label="Read Archive">
-        <md-icon>import_contacts</md-icon>
-      </md-button>
-      <md-button class="md-icon-button" aria-label="More">
-        <md-icon>more_vert</md-icon>
-      </md-button>
-    </div>
-  </md-toolbar>
+  <div layout="column" style="height:100vh">
+    <md-toolbar class="md-hue-2" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28)">
+      <div class="md-toolbar-tools">
+        <md-button class="md-icon-button" aria-label="Preferences">
+          <md-icon>menu</md-icon>
+        </md-button>
+        <h1>
+          <span>The Grim Grotto</span>
+        </h1>
+        <span flex></span>
+        <md-button class="md-icon-button" aria-label="Invite">
+          <md-icon>mail</md-icon>
+        </md-button>
+        <md-button class="md-icon-button" aria-label="Read Archive">
+          <md-icon>import_contacts</md-icon>
+        </md-button>
+        <md-button class="md-icon-button" aria-label="More">
+          <md-icon>more_vert</md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
 
-  <div ng-repeat="msg in rp.msgs.slice(-3)" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
-    <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
-    <div class="message-details">
-      <span class="color-ip-box">
-        <span ng-style="{'background-color':'#'+msg.ipid.substr(0,6)}"></span><!--
-        --><span ng-style="{'background-color':'#'+msg.ipid.substr(6,6)}"></span><!--
-        --><span ng-style="{'background-color':'#'+msg.ipid.substr(12,6)}"></span>
-      </span>
-      <span class="timestamp">{{msg.timestamp}}</span>
-    </div>
-    <div class="content">
-      {{msg.content | msgContent}}
-    </div>
+    <md-content flex layout="column" layout-padding>
+      <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
+        <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
+        <div class="message-details">
+          <span class="color-ip-box">
+            <span ng-style="{'background-color':'#'+msg.ipid.substr(0,6)}"></span><!--
+            --><span ng-style="{'background-color':'#'+msg.ipid.substr(6,6)}"></span><!--
+            --><span ng-style="{'background-color':'#'+msg.ipid.substr(12,6)}"></span>
+          </span>
+          <span class="timestamp">{{msg.timestamp}}</span>
+        </div>
+        <div class="content">
+          {{msg.content | msgContent}}
+        </div>
+      </div>
+    </md-content>
   </div>
   
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.js"></script>

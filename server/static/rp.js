@@ -26,10 +26,16 @@
                if(data[prop] !== undefined) rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
          rp.loading = false;
-         rp.msgs = [{
-            'content': 'hello',
-            'type': 'narrator'
-         }]
+rp.msgs = [{
+'content': 'hello',
+'type': 'narrator',
+'ipid': '19018a9df9d7e9bca1',
+'timestamp': 1487794467385.234
+}]; for(var i = 0; i < 50; ++i) rp.msgs.push(JSON.parse(JSON.stringify(rp.msgs[0])));
+rp.msgs.forEach(msg=> {
+      if(Math.random()<.5) msg.type='ooc';
+      else if(Math.random()<.5) {msg.type='chara'; msg.chara={name:'dan',color:'#8b6312'}}
+})
          $rootScope.$apply();
       });
 

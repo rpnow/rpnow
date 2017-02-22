@@ -2,7 +2,10 @@
   word-wrap: break-word;
   padding: 5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-  margin: 0 0 20px;
+  margin: 0 auto 20px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
 }
 .message .content {
   line-height: 1.6;
@@ -20,7 +23,7 @@
   vertical-align: top;
   width: 7px;
   padding: 0; margin: 0;
-  height: 10px;
+  height: 12px;
 }
 .message .timestamp {
   font-size: 90%;
@@ -69,12 +72,11 @@
   display: inline;
 }
 .message-chara {
-  margin-top: 32px;
+  margin-top: 12px;
   padding: 6px 8px 10px;
   border-radius: 16px;
   border-bottom-left-radius: 0;
   position: relative;
-  max-width: 100%;
   text-align: right;
 }
 .message-chara .name{
