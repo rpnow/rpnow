@@ -8,11 +8,11 @@
          .accentPalette('amber');
    }]);
 
-   app.controller('RpController', ['$rootScope', function($rootScope) {
-      var rp = this;
-      rp.loading = true;
-      rp.rpCode = location.pathname.split('/').pop().split('#')[0];
-      rp.msgBox = {
+   app.controller('RpController', ['$scope', '$rootScope', function($scope, $rootScope) {
+      $scope.loading = true;
+      $scope.rp = { rpCode: location.pathname.split('/').pop().split('#')[0] };
+
+      $scope.msgBox = {
          msg: {
             content: '',
             type: 'narrator'
@@ -20,46 +20,46 @@
          selected: false
       };
 
-      socket.emit('join rp', rp.rpCode, function(data) {
+      socket.emit('join rp', $scope.rp.rpCode, function(data) {
          ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
             .forEach(function(prop) {
-               if(data[prop] !== undefined) rp[prop] = JSON.parse(JSON.stringify(data[prop]));
+               if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
-         rp.loading = false;
-rp.msgs = [{
-'content': 'hello',
+         $scope.loading = false;
+$scope.rp.msgs = [{
+'content': 'According to all known laws of aviation, bees are very bad and not in this cartoon. Thanks joe. no probl its nothing...... why is this so bad. its actually not terrible but you know when u just forget the cybersex Joe Biden.',
 'type': 'narrator',
 'ipid': '19018a9df9d7e9bca1',
 'timestamp': 1487794467385.234
-}]; for(var i = 0; i < 50; ++i) rp.msgs.push(JSON.parse(JSON.stringify(rp.msgs[0])));
-rp.msgs.forEach(msg=> {
-      if(Math.random()<.5) msg.type='ooc';
-      else if(Math.random()<.5) {msg.type='chara'; msg.chara={name:'dan',color:'#8b6312'}}
+}]; for(var i = 0; i < 50; ++i) $scope.rp.msgs.push(JSON.parse(JSON.stringify($scope.rp.msgs[0])));
+$scope.rp.msgs.forEach(msg=> {
+if(Math.random()<.5) msg.type='ooc';
+else if(Math.random()<.5) {msg.type='chara'; msg.chara={name:'dan',color:'#8b6312'}}
 })
          $rootScope.$apply();
       });
 
       socket.on('add message', function(msg) {
-         rp.msgs.push(msg);
+         $scope.rp.msgs.push(msg);
          $rootScope.$apply();
       });
       socket.on('add character', function(chara) {
-         rp.charas.push(chara);
+         $scope.rp.charas.push(chara);
          $rootScope.$apply();
       });
 
-      rp.sendMessage = function() {
-         if (!rp.msgBox.msg.content.trim()) return;
+      $scope.rp.sendMessage = function() {
+         if (!$scope.msgBox.msg.content.trim()) return;
 
-         var msg = JSON.parse(JSON.stringify(rp.msgBox.msg));
+         var msg = JSON.parse(JSON.stringify($scope.msgBox.msg));
          socket.emit('add message', msg, function(receivedMsg) {
-            rp.msgs.splice(rp.msgs.indexOf(msg),1);
-            rp.msgs.push(receivedMsg);
+            $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
+            $scope.rp.msgs.push(receivedMsg);
             $rootScope.$apply();
          });
          msg.sending = true;
-         rp.msgs.push(msg);
-         rp.msgBox.msg.content = '';
+         $scope.rp.msgs.push(msg);
+         $scope.msgBox.msg.content = '';
       };
       // rp.sendChara = function(chara, callback) {
       //    socket.emit('add character', chara, function(recievedChara) {
@@ -71,6 +71,12 @@ rp.msgs.forEach(msg=> {
       // };
 
    }]);
+
+   app.filter('momentAgo', function() {
+      return function(timestamp) {
+         return moment(timestamp).fromNow();
+      }
+   });
 
    app.filter('msgContent', function() {
       return function(str) {
