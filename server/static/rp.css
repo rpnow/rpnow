@@ -1,6 +1,5 @@
 .message{
   word-wrap: break-word;
-  padding: 5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.4);
   margin: 0 auto 20px;
   box-sizing: border-box;
@@ -13,17 +12,24 @@
 .message .color-ip-box {
   display: inline-block;
   vertical-align: middle;
-  height: 12px;
-  border: solid 1px white;
+  height: 8px;
+  width: 15px;
+  border: solid 1px #555;
   margin-right: 5px;
   margin-top: -2px;
+  position: relative;
+}
+.message-chara .message-details,
+.message-narrator .message-details {
+  margin: -5px 28px -2px 0;
 }
 .message .color-ip-box span {
   display: inline-block;
   vertical-align: top;
-  width: 7px;
-  padding: 0; margin: 0;
-  height: 12px;
+  padding: 0;
+  margin: 0;
+  width: 33%;
+  height: 100%;
 }
 .message .timestamp {
   font-size: 90%;
@@ -36,34 +42,29 @@
 .message-narrator {
   background-color: #fff;
   text-align: right;
+  padding: 8px;
 }
 .message-narrator .content {
   border: dotted 1px #bbb;
   padding: 15px 20px;
   text-align: left;
 }
-.message-narrator .message-details {
-  margin: -5px 28px -2px;
-}
-.message-narrator .color-ip-box {
-  border-color: #555;
-}
 .message-ooc {
-  background-color: #707070;
-  color: #eee;
-  padding: 0 5px;
+  padding: 0 8px;
+  box-shadow: none;
+  font-size: 80%;
 }
-.message-ooc:nth-of-type(2n+1) {
-  background-color: #7a7a7a;
+.message-ooc .content {
+  opacity: 0.5;
 }
 .message-ooc + .message-ooc {
-    margin-top: -20px;
+  margin-top: -20px;
 }
 .message-ooc .message-details {
   display: inline;
 }
 .message-ooc .timestamp {
-  opacity: 0.66;
+  opacity: 0.4;
   font-size: 80%;
 }
 .message-ooc .timestamp::before { content: '[ '; }
@@ -110,6 +111,6 @@
   opacity: 0.8;
   box-shadow: 0 1px 1px #3c3c3c;
 }
-.message-chara .message-details {
-  margin: -5px 15px -2px 5px;
+.message-chara .color-ip-box {
+  border-color: white;
 }
