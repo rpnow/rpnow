@@ -27,7 +27,7 @@
             });
          $scope.loading = false;
 $scope.rp.msgs = [{
-'content': 'According to all known laws of aviation, bees are very bad and not in this cartoon. Thanks joe. no probl its nothing...... why is this so bad. its actually not terrible but you know when u just forget the cybersex Joe Biden.',
+'content': 'Vero odit debitis vel nobis ut laudantium architecto similique. Aut velit possimus delectus assumenda sapiente. Laboriosam impedit quibusdam cum nulla voluptas explicabo. Omnis sint voluptatem earum omnis. Pariatur fuga amet alias sed quibusdam incidunt.',
 'type': 'narrator',
 'ipid': '19018a9df9d7e9bca1',
 'timestamp': 1487794467385.234
