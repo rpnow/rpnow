@@ -2,7 +2,9 @@
 <html ng-app="rpnow">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, height=device-height, maximum-scale=1, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>The Grim Grotto</title>
 
   <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
@@ -13,14 +15,14 @@
 
 <body ng-cloak ng-controller="RpController">
 
-  <div layout="column" style="height:100vh">
-    <md-toolbar class="md-hue-2" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28)">
-      <div class="md-toolbar-tools">
+  <div layout="column" style="height:100%">
+    <md-toolbar flex="none" class="md-hue-2" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28); ">
+      <div class="md-toolbar-tools noselect">
         <md-button class="md-icon-button" aria-label="Menu" title="Menu">
           <md-icon>menu</md-icon>
         </md-button>
         <h1>
-          <span title="{{rp.title}}">{{rp.title}}</span>
+          <span title="{{rp.title}}">{{rp.title.substr(0,10)}}</span>
         </h1>
         <span flex></span>
         <md-button class="md-icon-button" aria-label="Invite" title="Invite">
@@ -51,6 +53,15 @@
         </div>
       </div>
     </md-content>
+
+    <div flex="noshrink" layout="row" layout-align="center center" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28); z-index: 1; background-color:#eee;" >
+      <textarea rows="2" flex flex-gt-sm="60" style="border:none;background-color:inherit; color:inherit;margin:5px;padding:10px; line-height: 1.4" placeholder="Type your message."></textarea>
+      <div flex="none">
+        <md-button class="md-icon-button" aria-label="Send" title="Send">
+          <md-icon>send</md-icon>
+        </md-button>
+      </div>
+    </div>
   </div>
   
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.js"></script>
@@ -62,6 +73,5 @@
   <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 
   <script src="/rp.js"></script>
-  
 </body>
 </html>
