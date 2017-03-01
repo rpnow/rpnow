@@ -13,10 +13,8 @@
       $scope.rp = { rpCode: location.pathname.split('/').pop().split('#')[0] };
 
       $scope.msgBox = {
-         msg: {
-            content: '',
-            type: 'narrator'
-         },
+         content: '',
+         sender: 'narrator',
          selected: false
       };
 
@@ -26,16 +24,6 @@
                if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
          $scope.loading = false;
-$scope.rp.msgs = [{
-'content': 'Vero odit debitis vel nobis ut laudantium architecto similique. Aut velit possimus delectus assumenda sapiente. Laboriosam impedit quibusdam cum nulla voluptas explicabo. Omnis sint voluptatem earum omnis. Pariatur fuga amet alias sed quibusdam incidunt.',
-'type': 'narrator',
-'ipid': '19018a9df9d7e9bca1',
-'timestamp': 1487794467385.234
-}]; for(var i = 0; i < 50; ++i) $scope.rp.msgs.push(JSON.parse(JSON.stringify($scope.rp.msgs[0])));
-$scope.rp.msgs.forEach(msg=> {
-if(Math.random()<.5) msg.type='ooc';
-else if(Math.random()<.5) {msg.type='chara'; msg.chara={name:'dan',color:'#8b6312'}}
-})
          $rootScope.$apply();
       });
 
@@ -48,10 +36,13 @@ else if(Math.random()<.5) {msg.type='chara'; msg.chara={name:'dan',color:'#8b631
          $rootScope.$apply();
       });
 
-      $scope.rp.sendMessage = function() {
-         if (!$scope.msgBox.msg.content.trim()) return;
+      $scope.sendMessage = function() {
+         if (!$scope.msgBox.content.trim()) return;
 
-         var msg = JSON.parse(JSON.stringify($scope.msgBox.msg));
+         var msg = {
+            content: $scope.msgBox.content.trim(),
+            type: (Math.random()<.5)?'narrator':'ooc'
+         }
          socket.emit('add message', msg, function(receivedMsg) {
             $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
             $scope.rp.msgs.push(receivedMsg);
@@ -59,7 +50,7 @@ else if(Math.random()<.5) {msg.type='chara'; msg.chara={name:'dan',color:'#8b631
          });
          msg.sending = true;
          $scope.rp.msgs.push(msg);
-         $scope.msgBox.msg.content = '';
+         $scope.msgBox.content = '';
       };
       // rp.sendChara = function(chara, callback) {
       //    socket.emit('add character', chara, function(recievedChara) {
@@ -74,7 +65,7 @@ else if(Math.random()<.5) {msg.type='chara'; msg.chara={name:'dan',color:'#8b631
 
    app.filter('momentAgo', function() {
       return function(timestamp) {
-         return moment(timestamp).fromNow();
+         return moment(timestamp*1000).fromNow();
       }
    });
 
