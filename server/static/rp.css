@@ -118,6 +118,38 @@
 
 
 
+@media (max-width: 959px) {
+  .left-buttons button, .right-buttons button { margin-left: 0; }
+  .right-buttons button { margin-right: 0; }
+}
+@media (min-width: 960px) {
+  .left-buttons, .right-buttons { width:150px; }
+  .md-toolbar-tools h1 { max-width: 600px; }
+}
+#message-input {
+  border: none;
+  background-color: inherit;
+  color: inherit;
+  resize: none;
+  line-height: 1.4;
+
+  margin: 6px;
+  padding: 10px;
+  max-width: 616px;
+}
+@media (min-width: 960px) {
+  #message-input {
+    padding-left: 8px;
+    margin-left: 0;
+    margin-right: 14px;
+    box-sizing: border-box;
+    /*margin: 6px 0 6px 16px;*/
+    /*padding: 10px 0;*/
+  }
+}
+
+
+
 
 body, html {
   overflow: hidden;
