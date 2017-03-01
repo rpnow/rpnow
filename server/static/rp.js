@@ -1,6 +1,5 @@
 (function() {
    var app = angular.module('rpnow', ['ngMaterial']);
-   var socket = io();
 
    app.config(['$mdThemingProvider', function($mdThemingProvider) {
       $mdThemingProvider.theme('default')
@@ -8,7 +7,7 @@
          .accentPalette('amber');
    }]);
 
-   app.controller('RpController', ['$scope', '$rootScope', function($scope, $rootScope) {
+   app.controller('RpController', ['$scope', 'socket', function($scope, socket) {
       $scope.loading = true;
       $scope.rp = { rpCode: location.pathname.split('/').pop().split('#')[0] };
 
@@ -24,16 +23,13 @@
                if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
          $scope.loading = false;
-         $rootScope.$apply();
       });
 
       socket.on('add message', function(msg) {
          $scope.rp.msgs.push(msg);
-         $rootScope.$apply();
       });
       socket.on('add character', function(chara) {
          $scope.rp.charas.push(chara);
-         $rootScope.$apply();
       });
 
       $scope.sendMessage = function() {
@@ -46,7 +42,6 @@
          socket.emit('add message', msg, function(receivedMsg) {
             $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
             $scope.rp.msgs.push(receivedMsg);
-            $rootScope.$apply();
          });
          msg.sending = true;
          $scope.rp.msgs.push(msg);
@@ -61,6 +56,27 @@
       //    socket.close();
       // };
 
+      $scope.$on('$destroy', socket.close);
+   }]);
+
+   // https://stackoverflow.com/questions/14389049/
+   app.factory('socket', ['$rootScope', function($rootScope) {
+      var socket = io();
+      return {
+         emit: function(type, data, callback) {
+            socket.emit(type, data, function() {
+               if (callback) callback.apply(socket, arguments);
+               $rootScope.$apply();
+            })
+         },
+         on: function(type, callback) {
+            socket.on(type, function() {
+               callback.apply(socket, arguments);
+               $rootScope.$apply();
+            })
+         },
+         close: socket.close.bind(socket)
+      };
    }]);
 
    app.filter('momentAgo', function() {
