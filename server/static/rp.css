@@ -9,31 +9,31 @@
 .message .content {
   line-height: 1.6;
 }
+.message-chara .message-details,
+.message-narrator .message-details {
+  margin: -5px 28px -2px 0;
+}
+.message .timestamp {
+  margin-right: 4px;
+  font-size: 90%;
+  opacity: 0.5;
+}
 .message .color-ip-box {
   display: inline-block;
   vertical-align: middle;
   height: 8px;
-  width: 15px;
+  width: 18px;
   border: solid 1px #555;
-  margin-right: 5px;
   margin-top: -2px;
   position: relative;
-}
-.message-chara .message-details,
-.message-narrator .message-details {
-  margin: -5px 28px -2px 0;
 }
 .message .color-ip-box span {
   display: inline-block;
   vertical-align: top;
   padding: 0;
   margin: 0;
-  width: 33%;
+  width: 6px;
   height: 100%;
-}
-.message .timestamp {
-  font-size: 90%;
-  opacity: 0.5;
 }
 
 
@@ -62,13 +62,12 @@
 }
 .message-ooc .message-details {
   display: inline;
+  margin-right: 8px;
 }
 .message-ooc .timestamp {
   opacity: 0.4;
   font-size: 80%;
 }
-.message-ooc .timestamp::before { content: '[ '; }
-.message-ooc .timestamp::after { content: ' ] '; }
 .message-ooc .content {
   display: inline;
 }

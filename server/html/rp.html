@@ -46,13 +46,15 @@
     <md-content flex layout="column" layout-padding>
       <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
         <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
-        <div class="message-details">
+        <div class="message-details noselect">
+          <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}">
+            {{msg.timestamp | momentAgoShort}}
+          </span>
           <span class="color-ip-box" title="User color ID">
             <span ng-style="{'background-color':'#'+msg.ipid.substr(0,6)}"></span><!--
             --><span ng-style="{'background-color':'#'+msg.ipid.substr(6,6)}"></span><!--
             --><span ng-style="{'background-color':'#'+msg.ipid.substr(12,6)}"></span>
           </span>
-          <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}">{{msg.timestamp | momentAgo}}</span>
         </div>
         <div class="content">
           {{msg.content | msgContent}}

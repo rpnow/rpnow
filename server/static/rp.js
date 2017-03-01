@@ -79,9 +79,26 @@
       };
    }]);
 
+   moment.defineLocale('en-short', {
+      parentLocale: 'en',
+      relativeTime: {
+         past: "%s",
+         s: 'now',
+         m: '%dmin', mm: '%dmin',
+         h: '%dhr', hh: '%dhr',
+         d: '%dday', dd: '%dday',
+         M: '%dmo', MM: '%dmo',
+         y: '%dyr', yy: '%dyrs'
+      }
+   });
+   app.filter('momentAgoShort', function() {
+      return function(timestamp) {
+         return moment(timestamp*1000).locale('en-short').fromNow();
+      }
+   });
    app.filter('momentAgo', function() {
       return function(timestamp) {
-         return moment(timestamp*1000).fromNow();
+         return moment(timestamp*1000).locale('en').fromNow();
       }
    });
 
