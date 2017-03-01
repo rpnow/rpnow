@@ -65,7 +65,7 @@
     <div layout="row" layout-align="center center" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28); z-index: 1; background-color:#eee;" >
       <div class="left-buttons">
       </div>
-      <textarea id="message-input" rows="2" flex placeholder="Type your message." ng-model="msgBox.content"></textarea>
+      <textarea id="message-input" rows="2" flex placeholder="Type your message." ng-model="msgBox.content" on-press-enter="sendMessage()"></textarea>
       <div class="right-buttons">
         <md-button hide-gt-sm class="md-icon-button" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
           <md-icon>send</md-icon>

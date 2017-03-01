@@ -59,6 +59,20 @@
       $scope.$on('$destroy', socket.close);
    }]);
 
+   app.directive('onPressEnter', function() {
+      return function(scope, element, attrs) {
+         element.bind("keypress", function(evt) {
+            if ((evt.keyCode || evt.which) !== 13) return;
+            if (evt.shiftKey) return;
+
+            evt.preventDefault();
+            scope.$apply(function() {
+               scope.$eval(attrs.onPressEnter, {'event': evt});
+            });
+         })
+      }
+   });
+
    // https://stackoverflow.com/questions/14389049/
    app.factory('socket', ['$rootScope', function($rootScope) {
       var socket = io();
