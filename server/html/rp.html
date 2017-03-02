@@ -8,16 +8,27 @@
   <title>The Grim Grotto</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
   <link rel="stylesheet" href="/rp.css">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Playfair+Display" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Alice" />
+  <style>
+    div {
+      font-family: Alice;
+    }
+    h1, h2, h3 {
+      font-family: Playfair Display;
+    }
+  </style>
 </head>
 
-<body ng-cloak ng-controller="RpController">
+<body ng-cloak ng-controller="RpController" ng-class="nightMode?'dark':''">
 
   <section layout="row" flex style="height:100%" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
 
-    <md-sidenav class="md-sidenav-left noselect" md-component-id="left" md-whiteframe="8" layout="column">
+    <md-sidenav class="md-sidenav-left noselect" md-component-id="left" md-whiteframe="1" layout="column">
       <md-toolbar class="md-hue-2">
         <h2 ng-class="isDesktopMode ? 'md-display-3' : 'md-display-1'" style="text-align: center">RPNow</h2>
       </md-toolbar>
@@ -64,14 +75,14 @@
 
     <div flex layout="column">
 
-      <md-toolbar flex="none" class="md-hue-2" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28); ">
+      <md-toolbar flex="none" style="border-bottom: 1px solid #999; ">
         <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
           <div class="left-buttons">
             <md-button class="md-icon-button" aria-label="Main menu" title="Main menu" ng-click="toggleLeftDrawer()">
               <md-icon>menu</md-icon>
             </md-button>
           </div>
-          <h1 flex>
+          <h1 flex style="text-align: center">
             <span title="{{rp.title}}">{{rp.title}}</span>
           </h1>
           <div class="right-buttons" layout="row" layout-align="end center">
@@ -108,7 +119,7 @@
       </md-toolbar>
 
       <md-content flex layout="column" layout-padding>
-        <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-class="nightMode? 'dark':''" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
+        <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
           <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
           <div class="message-details noselect" ng-show="showMessageDetails || (msg.type === 'ooc')">
             <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-show="showMessageDetails">

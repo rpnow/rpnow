@@ -3,10 +3,10 @@
 
    app.config(['$mdThemingProvider', function($mdThemingProvider) {
       $mdThemingProvider.theme('default')
-         .primaryPalette('pink')
-         .accentPalette('amber');
+         .primaryPalette('grey')
+         .accentPalette('deep-purple');
       $mdThemingProvider.theme('dark')
-         .primaryPalette('pink')
+         .primaryPalette('grey')
          .accentPalette('amber')
          .dark();
       $mdThemingProvider.alwaysWatchTheme(true);
@@ -43,8 +43,11 @@
 
          var msg = {
             content: $scope.msgBox.content.trim(),
-            type: (Math.random()<.5)?'narrator':'ooc'
+            type: (Math.random()<.2)?'narrator':(Math.random()<.4)?'ooc':'chara'
          }
+         if(msg.type === 'chara') msg.chara = {name:'Copernicus', color:
+            (['#7BA84B', '#EED1D2', '#372715'])[Math.floor(Math.random()*3)]
+         };
          socket.emit('add message', msg, function(receivedMsg) {
             $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
             $scope.rp.msgs.push(receivedMsg);
