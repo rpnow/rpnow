@@ -6,6 +6,9 @@
   /*box-shadow: 0 2px 4px rgba(0,0,0,0.03);*/
   max-width: 600px;
 }
+.message-sending {
+  opacity: 0.5;
+}
 .message .content {
   line-height: 1.6;
 }
@@ -41,7 +44,7 @@
 
 
 .message-narrator {
-  background-color: #fff;
+  background-color: white;
   text-align: right;
   padding: 0;
   border: 1px solid #999;
@@ -66,7 +69,6 @@
   transform: translateY(12px);
 }
 .message-ooc {
-  background-color: transparent;
   box-shadow: none;
   padding: 0 16px;
 }
@@ -76,6 +78,9 @@
 }
 .message-ooc + .message-ooc {
   margin-top: -20px;
+}
+.message-ooc.message-slim .color-ip-box {
+  opacity: 0.4;
 }
 .message-ooc .message-details {
   display: inline;
@@ -131,6 +136,11 @@
   border-bottom-left-radius: 0;
   /*box-shadow: -8px 4px 20px rgba(0,0,0,0.05) inset;*/
   text-align: left;
+}
+.dark .message-chara .content {
+  background-color: black;
+  color: white;
+  opacity: 0.6;
 }
 .message-chara .content span.action {
   font-size: 80%;
@@ -191,14 +201,4 @@ body, html {
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
   cursor: default;
-}
-
-.md-toolbar-tools {
-  background-color: rgb(250, 250, 250);
-}
-.dark .md-toolbar-tools { 
-  background-color: rgb(48, 48, 48);
-}
-.dark .md-toolbar-tools * {
-  color: white !important;
 }

@@ -15,22 +15,37 @@
   <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Playfair+Display" />
   <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Alice" />
   <style>
-    div {
+    div, textarea {
       font-family: Alice;
     }
     h1, h2, h3 {
       font-family: Playfair Display;
     }
+    md-toolbar {
+      border-bottom: 1px solid #999;
+    }
+    md-toolbar h1, md-sidenav h2 {
+      text-align: center;
+    }
+    #message-input-panel {
+      box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28);
+      z-index: 1;
+      background-color:#eee;
+    }
+    #message-view {
+      padding: 40px 8px;
+    }
   </style>
 </head>
 
-<body ng-cloak ng-controller="RpController" ng-class="nightMode?'dark':''">
+<body ng-cloak ng-controller="RpController" ng-class="nightMode?'dark':''" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
 
-  <section layout="row" flex style="height:100%" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
+  <section layout="row" flex style="height:100%">
 
+    <!-- LEFT DRAWER -->
     <md-sidenav class="md-sidenav-left noselect" md-component-id="left" md-whiteframe="1" layout="column">
-      <md-toolbar class="md-hue-2">
-        <h2 ng-class="isDesktopMode ? 'md-display-3' : 'md-display-1'" style="text-align: center">RPNow</h2>
+      <md-toolbar>
+        <h2 ng-class="isDesktopMode ? 'md-display-3' : 'md-display-1'">RPNow</h2>
       </md-toolbar>
       <md-content flex>
         <md-list>
@@ -73,16 +88,18 @@
       </md-content>
     </md-sidenav>
 
+    <!-- MAIN PAGE BODY -->
     <div flex layout="column">
 
-      <md-toolbar flex="none" style="border-bottom: 1px solid #999; ">
+      <!-- APP BAR -->
+      <md-toolbar flex="none">
         <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
           <div class="left-buttons">
             <md-button class="md-icon-button" aria-label="Main menu" title="Main menu" ng-click="toggleLeftDrawer()">
               <md-icon>menu</md-icon>
             </md-button>
           </div>
-          <h1 flex style="text-align: center">
+          <h1 flex>
             <span title="{{rp.title}}">{{rp.title}}</span>
           </h1>
           <div class="right-buttons" layout="row" layout-align="end center">
@@ -118,26 +135,25 @@
         </div>
       </md-toolbar>
 
-      <md-content flex layout="column" layout-padding>
-        <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
+      <!-- MESSAGES PANE -->
+      <md-content flex layout="column" id="message-view">
+        <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'color': msg.chara?(msg.chara.color | contrastColor):'' }">
           <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
           <div class="message-details noselect" ng-show="showMessageDetails || (msg.type === 'ooc')">
             <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-show="showMessageDetails">
               {{msg.timestamp | momentAgoShort}}
             </span>
-            <span class="color-ip-box" title="User color ID" ng-style="{opacity: showMessageDetails?1:0.4}">
-              <span ng-style="{'background-color':'#'+msg.ipid.substr(0,6)}"></span><!--
-              --><span ng-style="{'background-color':'#'+msg.ipid.substr(6,6)}"></span><!--
-              --><span ng-style="{'background-color':'#'+msg.ipid.substr(12,6)}"></span>
+            <span class="color-ip-box" title="User color ID">
+              <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>
             </span>
           </div>
           <div class="content" ng-bind-html="msg.content | msgContent"></div>
         </div>
       </md-content>
 
-      <div layout="row" layout-align="center center" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28); z-index: 1; background-color:#eee;" >
-        <div class="left-buttons">
-        </div>
+      <!-- MESSAGE BOX -->
+      <div layout="row" layout-align="center center" id="message-input-panel">
+        <div class="left-buttons"></div>
         <textarea id="message-input" rows="2" flex placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
         <div class="right-buttons">
           <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
@@ -150,6 +166,7 @@
   
   </section>
 
+  <!-- INVITE DIALOG -->
   <div style="visibility: hidden">
     <div class="md-dialog-container" id="myDialog">
       <md-dialog>

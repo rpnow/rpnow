@@ -3,10 +3,14 @@
 
    app.config(['$mdThemingProvider', function($mdThemingProvider) {
       $mdThemingProvider.theme('default')
-         .primaryPalette('grey')
+         .primaryPalette('grey', {
+            'default': '50'
+         })
          .accentPalette('deep-purple');
       $mdThemingProvider.theme('dark')
-         .primaryPalette('grey')
+         .primaryPalette('grey', {
+            'default': '800'
+         })
          .accentPalette('amber')
          .dark();
       $mdThemingProvider.alwaysWatchTheme(true);
@@ -193,7 +197,7 @@
          // http://24ways.org/2010/calculating-color-contrast/
          var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
          var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
-         return (yiq >= 128) ? '#000000' : '#ffffff';
+         return (yiq >= 128) ? 'black' : 'white';
       };
    });
 
