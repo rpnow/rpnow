@@ -5,20 +5,16 @@
       $mdThemingProvider.theme('default')
          .primaryPalette('pink')
          .accentPalette('amber');
+      $mdThemingProvider.theme('dark')
+         .primaryPalette('pink')
+         .accentPalette('amber')
+         .dark();
+      $mdThemingProvider.alwaysWatchTheme(true);
    }]);
 
-   app.controller('RpController', ['$scope', '$mdMedia', 'socket', function($scope, $mdMedia, socket) {
+   app.controller('RpController', ['$scope', '$mdMedia', '$mdSidenav', 'socket', function($scope, $mdMedia, $mdSidenav, socket) {
       $scope.loading = true;
       $scope.rp = { rpCode: location.pathname.split('/').pop().split('#')[0] };
-
-      $scope.msgBox = {
-         content: '',
-         sender: 'narrator',
-         selected: false
-      };
-      $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
-         $scope.isDesktopMode = desktop;
-      })
 
       socket.emit('join rp', $scope.rp.rpCode, function(data) {
          ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
@@ -30,11 +26,17 @@
 
       socket.on('add message', function(msg) {
          $scope.rp.msgs.push(msg);
+         flashAlert('* New message!', $scope.notificationNoise);
       });
       socket.on('add character', function(chara) {
          $scope.rp.charas.push(chara);
       });
 
+      $scope.msgBox = {
+         content: '',
+         sender: 'narrator',
+         selected: false
+      };
       $scope.sendMessage = function() {
          if (!$scope.msgBox.content.trim()) return;
 
@@ -59,6 +61,18 @@
       //    socket.close();
       // };
 
+      $scope.pressEnterToSend = true;
+      $scope.notificationNoise = true;
+      $scope.showMessageDetails = true;
+      $scope.nightMode = false;
+
+      $scope.toggleLeftDrawer = function() {
+         $mdSidenav('left').toggle();
+      };
+      $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
+         $scope.isDesktopMode = desktop;
+      });
+
       $scope.$on('$destroy', socket.close);
    }]);
 
@@ -67,6 +81,8 @@
          element.bind("keypress", function(evt) {
             if ((evt.keyCode || evt.which) !== 13) return;
             if (evt.shiftKey) return;
+            var requireCtrlKey = scope.$eval(attrs.requireCtrlKey);
+            if (requireCtrlKey && !evt.ctrlKey) return;
 
             evt.preventDefault();
             scope.$apply(function() {
@@ -158,4 +174,33 @@
          return (yiq >= 128) ? '#000000' : '#ffffff';
       };
    });
+
+   var flashAlert = (function() {
+      var alertNoise = new Audio('/alert.mp3');
+      var alertMsg = null;
+      var i = 0;
+      var informTimer = null;
+      var oldTitleText;
+      function timerAction() {
+         if(i%2) document.title = oldTitleText;
+         else document.title = alertMsg;
+         --i;
+         if(i >= 0) informTimer = setTimeout(timerAction, 500);
+      }
+      document.addEventListener('visibilitychange', function(evt) {
+         if(document.visibilityState === 'visible') {
+            clearTimeout(informTimer);
+            document.title = oldTitleText;
+         }
+      });
+      return function(msg, noise) {
+         if(document.visibilityState === 'visible') return;
+         i = 6;
+         if(informTimer) clearTimeout(informTimer);
+         alertMsg = msg;
+         oldTitleText = document.title;
+         timerAction(msg);
+         if (noise) alertNoise.play();
+      };
+   })();
 })();

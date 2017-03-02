@@ -15,64 +15,115 @@
 
 <body ng-cloak ng-controller="RpController">
 
-  <div layout="column" style="height:100%">
-    <md-toolbar flex="none" class="md-hue-2" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28); ">
-      <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
+  <section layout="row" flex style="height:100%" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
+
+    <md-sidenav class="md-sidenav-left noselect" md-component-id="left" md-whiteframe="8" layout="column">
+      <md-toolbar class="md-hue-2">
+        <h2 ng-class="isDesktopMode ? 'md-display-3' : 'md-display-1'" style="text-align: center">RPNow</h2>
+      </md-toolbar>
+      <md-content flex>
+        <md-list>
+          <md-list-item>
+            <md-icon>send</md-icon>
+            <p>Press <kbd>Enter</kbd> to send</p>
+            <md-checkbox ng-model="pressEnterToSend"></md-checkbox>
+          </md-list-item>
+          <md-list-item disabled>
+            <md-icon>notifications</md-icon>
+            <p>Notification noise</p>
+            <md-checkbox ng-model="notificationNoise"></md-checkbox>
+          </md-list-item>
+          <md-list-item>
+            <md-icon>account_box</md-icon>
+            <p>Show message details</p>
+            <md-checkbox ng-model="showMessageDetails"></md-checkbox>
+          </md-list-item>
+          <md-list-item>
+            <md-icon>brightness_4</md-icon>
+            <p>Night mode</p>
+            <md-checkbox ng-model="nightMode"></md-checkbox>
+          </md-list-item>
+
+          <md-divider></md-divider>
+
+          <md-list-item href="/help" target="_blank">
+            <md-icon>help</md-icon>
+            <p>Help</p>
+          </md-list-item>
+          <md-list-item href="/donate" target="_blank">
+            <md-icon>favorite</md-icon>
+            <p>Donate</p>
+          </md-list-item>
+          <md-list-item href="/terms" target="_blank">
+            <md-icon>account_balance</md-icon>
+            <p>Terms &amp; Privacy</p>
+          </md-list-item>
+
+      </md-content>
+    </md-sidenav>
+
+    <div flex layout="column">
+
+      <md-toolbar flex="none" class="md-hue-2" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28); ">
+        <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
+          <div class="left-buttons">
+            <md-button class="md-icon-button" aria-label="Main menu" title="Main menu" ng-click="toggleLeftDrawer()">
+              <md-icon>menu</md-icon>
+            </md-button>
+          </div>
+          <h1 flex>
+            <span title="{{rp.title}}">{{rp.title}}</span>
+          </h1>
+          <div class="right-buttons" layout="row" layout-align="end center">
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite" title="Invite">
+              <md-icon>mail</md-icon>
+            </md-button>
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
+              <md-icon>import_contacts</md-icon>
+            </md-button>
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="More options" title="More options">
+              <md-icon>more_vert</md-icon>
+            </md-button>
+            <md-button hide-gt-xs class="md-icon-button" aria-hidden="true" title="RP options">
+              <md-icon>expand_more</md-icon>
+            </md-button>
+          </div>
+        </div>
+      </md-toolbar>
+
+      <md-content flex layout="column" layout-padding>
+        <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-class="nightMode? 'dark':''" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
+          <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
+          <div class="message-details noselect" ng-show="showMessageDetails || (msg.type === 'ooc')">
+            <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-show="showMessageDetails">
+              {{msg.timestamp | momentAgoShort}}
+            </span>
+            <span class="color-ip-box" title="User color ID" ng-style="{opacity: showMessageDetails?1:0.4}">
+              <span ng-style="{'background-color':'#'+msg.ipid.substr(0,6)}"></span><!--
+              --><span ng-style="{'background-color':'#'+msg.ipid.substr(6,6)}"></span><!--
+              --><span ng-style="{'background-color':'#'+msg.ipid.substr(12,6)}"></span>
+            </span>
+          </div>
+          <div class="content">
+            {{msg.content | msgContent}}
+          </div>
+        </div>
+      </md-content>
+
+      <div layout="row" layout-align="center center" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28); z-index: 1; background-color:#eee;" >
         <div class="left-buttons">
-          <md-button class="md-icon-button" aria-label="Main menu" title="Main menu">
-            <md-icon>menu</md-icon>
-          </md-button>
         </div>
-        <h1 flex>
-          <span title="{{rp.title}}">{{rp.title}}</span>
-        </h1>
-        <div class="right-buttons" layout="row" layout-align="end center">
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite" title="Invite">
-            <md-icon>mail</md-icon>
-          </md-button>
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
-            <md-icon>import_contacts</md-icon>
-          </md-button>
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="More options" title="More options">
-            <md-icon>more_vert</md-icon>
-          </md-button>
-          <md-button hide-gt-xs class="md-icon-button" aria-hidden="true" title="RP options">
-            <md-icon>expand_more</md-icon>
+        <textarea id="message-input" rows="2" flex placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
+        <div class="right-buttons">
+          <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
+            <md-icon>send</md-icon>
           </md-button>
         </div>
       </div>
-    </md-toolbar>
 
-    <md-content flex layout="column" layout-padding>
-      <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'opacity':msg.sending?0.5:1}">
-        <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
-        <div class="message-details noselect">
-          <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}">
-            {{msg.timestamp | momentAgoShort}}
-          </span>
-          <span class="color-ip-box" title="User color ID">
-            <span ng-style="{'background-color':'#'+msg.ipid.substr(0,6)}"></span><!--
-            --><span ng-style="{'background-color':'#'+msg.ipid.substr(6,6)}"></span><!--
-            --><span ng-style="{'background-color':'#'+msg.ipid.substr(12,6)}"></span>
-          </span>
-        </div>
-        <div class="content">
-          {{msg.content | msgContent}}
-        </div>
-      </div>
-    </md-content>
-
-    <div layout="row" layout-align="center center" style="box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28); z-index: 1; background-color:#eee;" >
-      <div class="left-buttons">
-      </div>
-      <textarea id="message-input" rows="2" flex placeholder="Type your message." ng-model="msgBox.content" on-press-enter="sendMessage()"></textarea>
-      <div class="right-buttons">
-        <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
-          <md-icon>send</md-icon>
-        </md-button>
-      </div>
     </div>
-  </div>
+  
+  </section>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-animate.js"></script>
