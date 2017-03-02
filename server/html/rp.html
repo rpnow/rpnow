@@ -67,11 +67,7 @@
       </div>
       <textarea id="message-input" rows="2" flex placeholder="Type your message." ng-model="msgBox.content" on-press-enter="sendMessage()"></textarea>
       <div class="right-buttons">
-        <md-button hide-gt-sm class="md-icon-button" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
-          <md-icon>send</md-icon>
-        </md-button>
-        <md-button hide show-gt-sm class="md-fab md-accent" aria-hidden="true" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
-
+        <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
           <md-icon>send</md-icon>
         </md-button>
       </div>

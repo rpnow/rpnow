@@ -7,7 +7,7 @@
          .accentPalette('amber');
    }]);
 
-   app.controller('RpController', ['$scope', 'socket', function($scope, socket) {
+   app.controller('RpController', ['$scope', '$mdMedia', 'socket', function($scope, $mdMedia, socket) {
       $scope.loading = true;
       $scope.rp = { rpCode: location.pathname.split('/').pop().split('#')[0] };
 
@@ -16,6 +16,9 @@
          sender: 'narrator',
          selected: false
       };
+      $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
+         $scope.isDesktopMode = desktop;
+      })
 
       socket.emit('join rp', $scope.rp.rpCode, function(data) {
          ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
