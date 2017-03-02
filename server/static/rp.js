@@ -1,5 +1,5 @@
 (function() {
-   var app = angular.module('rpnow', ['ngMaterial']);
+   var app = angular.module('rpnow', ['ngMaterial', 'ngSanitize']);
 
    app.config(['$mdThemingProvider', function($mdThemingProvider) {
       $mdThemingProvider.theme('default')
@@ -150,6 +150,15 @@
 
    app.filter('msgContent', function() {
       return function(str) {
+         // escape characters
+         var escapeMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+         };
+         str = str.replace(/[&<>"']/g, function(m) { return escapeMap[m]; });
          // urls
          // http://stackoverflow.com/a/3890175
          str = str.replace(
