@@ -12,9 +12,10 @@
       $mdThemingProvider.alwaysWatchTheme(true);
    }]);
 
-   app.controller('RpController', ['$scope', '$mdMedia', '$mdSidenav', 'socket', function($scope, $mdMedia, $mdSidenav, socket) {
+   app.controller('RpController', ['$scope', '$mdMedia', '$mdSidenav', '$mdDialog', 'socket', function($scope, $mdMedia, $mdSidenav, $mdDialog, socket) {
       $scope.loading = true;
-      $scope.rp = { rpCode: location.pathname.split('/').pop().split('#')[0] };
+      $scope.url = location.href.split('#')[0];
+      $scope.rp = { rpCode: $scope.url.split('/').pop() };
 
       socket.emit('join rp', $scope.rp.rpCode, function(data) {
          ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
@@ -69,6 +70,14 @@
       $scope.toggleLeftDrawer = function() {
          $mdSidenav('left').toggle();
       };
+      $scope.showInviteDialog = function(evt) {
+         $mdDialog.show({
+            contentElement: '#myDialog',
+            targetEvent: evt,
+            clickOutsideToClose: true
+         });
+      };
+      $scope.hideInviteDialog = function() { $mdDialog.hide(); };
       $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
          $scope.isDesktopMode = desktop;
       });

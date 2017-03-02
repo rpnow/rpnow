@@ -75,7 +75,7 @@
             <span title="{{rp.title}}">{{rp.title}}</span>
           </h1>
           <div class="right-buttons" layout="row" layout-align="end center">
-            <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite" title="Invite">
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite" title="Invite" id="inviteButton" ng-click="showInviteDialog($event)">
               <md-icon>mail</md-icon>
             </md-button>
             <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
@@ -124,6 +124,26 @@
     </div>
   
   </section>
+
+  <div style="visibility: hidden">
+    <div class="md-dialog-container" id="myDialog">
+      <md-dialog>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <h2><md-icon>mail</md-icon> Invite Friends</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="hideInviteDialog()">
+              <md-icon>close</md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+        <md-dialog-content class="md-dialog-content">
+          <p>To invite others to this RP, send them the following URL:</p>
+          <p><a href="{{url}}">{{url}}</a></p>
+        </md-dialog-content>
+      </md-dialog>
+    </div>
+  </div>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-animate.js"></script>
