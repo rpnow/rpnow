@@ -78,6 +78,7 @@
          });
       };
       $scope.hideInviteDialog = function() { $mdDialog.hide(); };
+      $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
       $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
          $scope.isDesktopMode = desktop;
       });

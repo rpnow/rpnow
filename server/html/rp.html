@@ -75,7 +75,7 @@
             <span title="{{rp.title}}">{{rp.title}}</span>
           </h1>
           <div class="right-buttons" layout="row" layout-align="end center">
-            <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite" title="Invite" id="inviteButton" ng-click="showInviteDialog($event)">
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" title="Invite friends" id="inviteButton" ng-click="showInviteDialog($event)">
               <md-icon>mail</md-icon>
             </md-button>
             <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
@@ -84,9 +84,25 @@
             <md-button hide show-gt-xs class="md-icon-button" aria-label="More options" title="More options">
               <md-icon>more_vert</md-icon>
             </md-button>
-            <md-button hide-gt-xs class="md-icon-button" aria-hidden="true" title="RP options">
-              <md-icon>expand_more</md-icon>
-            </md-button>
+            <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
+              <md-button class="md-icon-button" title="RP options" ng-click="viewMobileToolbarMenu($mdOpenMenu, $event)">
+                <md-icon md-menu-origin>expand_more</md-icon>
+              </md-button>
+              <md-menu-content>
+                <md-menu-item>
+                  <md-button ng-click="showInviteDialog($event)">
+                    <md-icon>mail</md-icon>
+                    Invite friends
+                  </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                  <md-button>
+                    <md-icon>import_contacts</md-icon>
+                    Read archive
+                  </md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
           </div>
         </div>
       </md-toolbar>
