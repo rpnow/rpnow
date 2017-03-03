@@ -109,7 +109,7 @@
             <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
               <md-icon>import_contacts</md-icon>
             </md-button>
-            <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" title="Download RP" ng-click="downloadTxt()">
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" title="Download RP" ng-click="showDownloadDialog($event)">
               <md-icon>cloud_download</md-icon>
             </md-button>
             <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
@@ -128,7 +128,7 @@
                   </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                  <md-button ng-click="downloadTxt()">
+                  <md-button ng-click="showDownloadDialog($event)">
                     <md-icon>cloud_download</md-icon> Download RP
                   </md-button>
                 </md-menu-item>
@@ -171,13 +171,13 @@
 
   <!-- INVITE DIALOG -->
   <div style="visibility: hidden">
-    <div class="md-dialog-container" id="myDialog">
+    <div class="md-dialog-container" id="inviteDialog">
       <md-dialog>
         <md-toolbar>
           <div class="md-toolbar-tools">
             <h2><md-icon>mail</md-icon> Invite Friends</h2>
             <span flex></span>
-            <md-button class="md-icon-button" ng-click="hideInviteDialog()">
+            <md-button class="md-icon-button" ng-click="hideDialog()">
               <md-icon>close</md-icon>
             </md-button>
           </div>
@@ -185,6 +185,38 @@
         <md-dialog-content class="md-dialog-content">
           <p>To invite others to this RP, send them the following URL:</p>
           <p><a href="{{url}}">{{url}}</a></p>
+        </md-dialog-content>
+      </md-dialog>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD DIALOG -->
+  <div style="visibility: hidden">
+    <div class="md-dialog-container" id="downloadDialog">
+      <md-dialog>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <h2><md-icon>cloud_download</md-icon> Download</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="hideDialog()">
+              <md-icon>close</md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+        <md-dialog-content class="md-dialog-content">
+          <md-checkbox ng-model="downloadOOC" aria-label="Include OOC messages" title="Include out-of-character messages">
+            Include OOC messages
+          </md-checkbox>
+          <md-dialog-actions layout="row">
+            <md-button class="md-raised md-accent" ng-click="downloadTxt()" title="A plain, unformatted text file">
+              <md-icon>file_download</md-icon>
+               .TXT
+            </md-button>
+            <md-button class="md-raised md-accent" disabled title="A document suitable for editing in a word processor, such as Microsoft Word or LibreOffice">
+              <md-icon>file_download</md-icon>
+               .DOCX
+            </md-button>
+          </md-dialog-actions>
         </md-dialog-content>
       </md-dialog>
     </div>

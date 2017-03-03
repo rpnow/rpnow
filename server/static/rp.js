@@ -68,9 +68,10 @@
       // rp.stop = function() {
       //    socket.close();
       // };
-      $scope.downloadTxt = function(noOOC) {
+      $scope.downloadOOC = true;
+      $scope.downloadTxt = function() {
          var out = $scope.rp.msgs;
-         if (noOOC) out = out.filter(function(msg) {return msg.type!=='ooc'});
+         if (!$scope.downloadOOC) out = out.filter(function(msg) {return msg.type!=='ooc'});
          out = out.map(function(msg){
             if(msg.type === 'narrator') {
                return wordwrap(msg.content, 72);
@@ -134,12 +135,19 @@
       };
       $scope.showInviteDialog = function(evt) {
          $mdDialog.show({
-            contentElement: '#myDialog',
+            contentElement: '#inviteDialog',
             targetEvent: evt,
             clickOutsideToClose: true
          });
       };
-      $scope.hideInviteDialog = function() { $mdDialog.hide(); };
+      $scope.showDownloadDialog = function(evt) {
+         $mdDialog.show({
+            contentElement: '#downloadDialog',
+            targetEvent: evt,
+            clickOutsideToClose: true
+         });
+      };
+      $scope.hideDialog = function() { $mdDialog.hide(); };
       $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
       $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
          $scope.isDesktopMode = desktop;
