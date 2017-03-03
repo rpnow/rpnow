@@ -49,22 +49,22 @@
       </md-toolbar>
       <md-content flex>
         <md-list>
-          <md-list-item>
+          <md-list-item title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
             <md-icon>send</md-icon>
             <p>Press <kbd>Enter</kbd> to send</p>
             <md-checkbox ng-model="pressEnterToSend"></md-checkbox>
           </md-list-item>
-          <md-list-item>
+          <md-list-item title="Toggle whether a notification noise will play when the tab is hidden">
             <md-icon>notifications</md-icon>
             <p>Notification noise</p>
             <md-checkbox ng-model="notificationNoise"></md-checkbox>
           </md-list-item>
-          <md-list-item>
+          <md-list-item title="Show or hide the timestamps and color-ID's on all messages">
             <md-icon>account_box</md-icon>
             <p>Show message details</p>
             <md-checkbox ng-model="showMessageDetails"></md-checkbox>
           </md-list-item>
-          <md-list-item>
+          <md-list-item title="Display the site in a darker color scheme">
             <md-icon>brightness_4</md-icon>
             <p>Night mode</p>
             <md-checkbox ng-model="nightMode"></md-checkbox>
@@ -72,15 +72,15 @@
 
           <md-divider></md-divider>
 
-          <md-list-item href="/help" target="_blank">
+          <md-list-item href="/support" target="_blank" title="Contact RPNow administration for help">
             <md-icon>help</md-icon>
-            <p>Help</p>
+            <p>Support</p>
           </md-list-item>
-          <md-list-item href="/donate" target="_blank">
+          <md-list-item href="/donate" target="_blank" title="Every dollar is appreciated  :D">
             <md-icon>favorite</md-icon>
             <p>Donate</p>
           </md-list-item>
-          <md-list-item href="/terms" target="_blank">
+          <md-list-item href="/terms" target="_blank" title="Terms, conditions, and privacy information for using RPNow">
             <md-icon>account_balance</md-icon>
             <p>Terms &amp; Privacy</p>
           </md-list-item>
