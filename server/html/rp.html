@@ -109,8 +109,8 @@
             <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
               <md-icon>import_contacts</md-icon>
             </md-button>
-            <md-button hide show-gt-xs class="md-icon-button" aria-label="More options" title="More options">
-              <md-icon>more_vert</md-icon>
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" title="Download RP" ng-click="downloadTxt()">
+              <md-icon>cloud_download</md-icon>
             </md-button>
             <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
               <md-button class="md-icon-button" title="RP options" ng-click="viewMobileToolbarMenu($mdOpenMenu, $event)">
@@ -119,14 +119,17 @@
               <md-menu-content>
                 <md-menu-item>
                   <md-button ng-click="showInviteDialog($event)">
-                    <md-icon>mail</md-icon>
-                    Invite friends
+                    <md-icon>mail</md-icon> Invite friends
                   </md-button>
                 </md-menu-item>
                 <md-menu-item>
                   <md-button>
-                    <md-icon>import_contacts</md-icon>
-                    Read archive
+                    <md-icon>import_contacts</md-icon> Read archive
+                  </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                  <md-button ng-click="downloadTxt()">
+                    <md-icon>cloud_download</md-icon> Download RP
                   </md-button>
                 </md-menu-item>
               </md-menu-content>

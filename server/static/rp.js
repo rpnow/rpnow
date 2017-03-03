@@ -68,6 +68,61 @@
       // rp.stop = function() {
       //    socket.close();
       // };
+      $scope.downloadTxt = function(noOOC) {
+         var out = $scope.rp.msgs;
+         if (noOOC) out = out.filter(function(msg) {return msg.type!=='ooc'});
+         out = out.map(function(msg){
+            if(msg.type === 'narrator') {
+               return wordwrap(msg.content, 72);
+            }
+            else if(msg.type === 'ooc') {
+               return wordwrap('(( OOC: '+msg.content+' ))', 72);
+            }
+            else if(msg.type === 'chara') {
+               return msg.chara.name.toUpperCase()+':\r\n'
+                  + wordwrap(msg.content, 70, '  ');
+            }
+            else {
+               throw new Error('Unexpected message type: '+msg.type);
+            }
+         });
+         out.unshift($scope.rp.title+'\r\n'+($scope.rp.desc||'')+'\r\n----------');
+         var str = out.join('\r\n\r\n');
+         download($scope.rp.title+'.txt', str);
+      };
+      function wordwrap(str, width, indent) {
+         return str.split('\n')
+            .map(function(paragraph) { return (paragraph
+               .match(/\S+\s*/g) || [])
+               .reduce(function(lines,word) {
+                     if ((lines[lines.length-1]+word).trimRight().length>width)
+                        word.match(new RegExp("\\S{1,"+width+"}\\s*",'g'))
+                            .forEach(function(wordPiece){ lines.push(wordPiece); })
+                     else
+                        lines[lines.length-1] += word;
+                     return lines;
+               }, [''])
+               .map(function(str) { return (indent||'')+str.trimRight(); })
+            })
+            .reduce(function(lines, paragraph) {
+               paragraph.forEach(function(line) { lines.push(line); });
+               return lines;
+            }, [])
+            .join('\r\n');
+      }
+      function download(filename, text) {
+         // https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server#18197341
+         var element = document.createElement('a');
+         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+         element.setAttribute('download', filename);
+
+         element.style.display = 'none';
+         document.body.appendChild(element);
+
+         element.click();
+
+         document.body.removeChild(element);
+      }
 
       $scope.pressEnterToSend = true;
       $scope.notificationNoise = true;
