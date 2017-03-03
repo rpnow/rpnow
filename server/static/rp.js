@@ -109,6 +109,31 @@
       }
    });
 
+   app.directive('autoResize', function() {
+      return function(scope, element, attrs) {
+         var maxHeight = null;
+         element.css('resize','none');
+
+         element.bind('input', resize);
+         window.onresize = function() {
+            maxHeight = null;
+            resize();
+         }
+         function resize() {
+            if (attrs.maxHeight && !maxHeight) {
+               element.css('overflow','hidden');
+               element.css('height', attrs.maxHeight);
+               maxHeight = element[0].clientHeight;
+            }
+            element.css('height','');
+            var newHeight = element[0].scrollHeight;
+            if (newHeight > maxHeight) newHeight = maxHeight;
+            element.css('overflow', newHeight === maxHeight? 'auto':'hidden')
+            element.css('height', newHeight + 'px');
+         }
+      }
+   })
+
    // https://stackoverflow.com/questions/14389049/
    app.factory('socket', ['$rootScope', function($rootScope) {
       var socket = io();
