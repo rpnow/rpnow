@@ -201,3 +201,16 @@ body, html {
                                   supported by Chrome and Opera */
   cursor: default;
 }
+a.link {
+  text-decoration: none;
+  border-bottom: 1px dotted rgb(124, 77, 255);
+  color: rgb(124, 77, 255);
+  opacity: 0.87;
+}
+.dark a.link {
+  color: rgb(255,193,7);
+  border-bottom-color: rgb(255,193,7);
+}
+a.link:hover {
+  opacity: 1;
+}

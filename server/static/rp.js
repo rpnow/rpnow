@@ -159,20 +159,13 @@
       $scope.toggleLeftDrawer = function() {
          $mdSidenav('left').toggle();
       };
-      $scope.showInviteDialog = function(evt) {
+      $scope.showDialog = function(id, evt) {
          $mdDialog.show({
-            contentElement: '#inviteDialog',
+            contentElement: id,
             targetEvent: evt,
             clickOutsideToClose: true
          });
-      };
-      $scope.showDownloadDialog = function(evt) {
-         $mdDialog.show({
-            contentElement: '#downloadDialog',
-            targetEvent: evt,
-            clickOutsideToClose: true
-         });
-      };
+      }
       $scope.hideDialog = function() { $mdDialog.hide(); };
       $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
       $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
@@ -281,7 +274,7 @@
          // http://stackoverflow.com/a/3890175
          str = str.replace(
             /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim,
-            '<a href="$1" target="_blank">$1</a>'
+            '<a href="$1" class="link" target="_blank">$1</a>'
          );
          // actions
          // if(chara) {

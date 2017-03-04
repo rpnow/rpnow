@@ -27,6 +27,10 @@
     md-toolbar h1, md-sidenav h2 {
       text-align: center;
     }
+    md-toolbar > a {
+      text-decoration: none;
+      color: inherit;
+    }
     #message-input-panel {
       box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28);
       z-index: 1;
@@ -45,7 +49,9 @@
     <!-- LEFT DRAWER -->
     <md-sidenav class="md-sidenav-left noselect" md-component-id="left" md-whiteframe="1" layout="column">
       <md-toolbar>
-        <h2 ng-class="isDesktopMode ? 'md-display-3' : 'md-display-1'">RPNow</h2>
+        <a href="/">
+          <h2 ng-class="isDesktopMode ? 'md-display-3' : 'md-display-1'">RPNow</h2>
+        </a>
       </md-toolbar>
       <md-content flex>
         <md-list>
@@ -72,15 +78,15 @@
 
           <md-divider></md-divider>
 
-          <md-list-item href="/support" target="_blank" title="Contact RPNow administration for help">
+          <md-list-item ng-click="showDialog('#contactDialog', $event)" target="_blank" title="Get in touch with RPNow administration and support">
             <md-icon>help</md-icon>
-            <p>Support</p>
+            <p>Contact RPNow</p>
           </md-list-item>
           <md-list-item href="/donate" target="_blank" title="Every dollar is appreciated  :D">
             <md-icon>favorite</md-icon>
             <p>Donate</p>
           </md-list-item>
-          <md-list-item href="/terms" target="_blank" title="Terms, conditions, and privacy information for using RPNow">
+          <md-list-item href="/terms" target="_blank" title="Terms of use and privacy information for using RPNow">
             <md-icon>account_balance</md-icon>
             <p>Terms &amp; Privacy</p>
           </md-list-item>
@@ -103,13 +109,13 @@
             <span title="{{rp.title}}">{{rp.title}}</span>
           </h1>
           <div class="right-buttons" layout="row" layout-align="end center">
-            <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" title="Invite friends" id="inviteButton" ng-click="showInviteDialog($event)">
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" title="Invite friends" id="inviteButton" ng-click="showDialog('#inviteDialog', $event)">
               <md-icon>mail</md-icon>
             </md-button>
             <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
               <md-icon>import_contacts</md-icon>
             </md-button>
-            <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" title="Download RP" ng-click="showDownloadDialog($event)">
+            <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" title="Download RP" ng-click="showDialog('#downloadDialog', $event)">
               <md-icon>cloud_download</md-icon>
             </md-button>
             <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
@@ -118,7 +124,7 @@
               </md-button>
               <md-menu-content>
                 <md-menu-item>
-                  <md-button ng-click="showInviteDialog($event)">
+                  <md-button ng-click="showDialog('#inviteDialog', $event)">
                     <md-icon>mail</md-icon> Invite friends
                   </md-button>
                 </md-menu-item>
@@ -128,7 +134,7 @@
                   </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                  <md-button ng-click="showDownloadDialog($event)">
+                  <md-button ng-click="showDialog('#downloadDialog', $event)">
                     <md-icon>cloud_download</md-icon> Download RP
                   </md-button>
                 </md-menu-item>
@@ -169,6 +175,30 @@
   
   </section>
 
+  <!-- CONTACT DIALOG-->
+  <div style="visibility: hidden">
+    <div class="md-dialog-container" id="contactDialog">
+      <md-dialog>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <h2><md-icon>help</md-icon> Contact RPNow</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="hideDialog()">
+              <md-icon>close</md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+        <md-dialog-content class="md-dialog-content">
+          <p>Feel free to e-mail us with any questions or comments!</p>
+          <p>
+            <md-icon>mail</md-icon>
+            <a class="link" href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>
+          </p>
+        </md-dialog-content>
+      </md-dialog>
+    </div>
+  </div>
+
   <!-- INVITE DIALOG -->
   <div style="visibility: hidden">
     <div class="md-dialog-container" id="inviteDialog">
@@ -184,7 +214,7 @@
         </md-toolbar>
         <md-dialog-content class="md-dialog-content">
           <p>To invite others to this RP, send them the following URL:</p>
-          <p><a href="{{url}}">{{url}}</a></p>
+          <p><a class="link" href="{{url}}">{{url}}</a></p>
         </md-dialog-content>
       </md-dialog>
     </div>
