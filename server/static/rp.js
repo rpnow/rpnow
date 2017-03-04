@@ -120,7 +120,7 @@
 
          var href;
          if (typeof data === 'string') {
-            href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+            href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(data);
          }
          else if (data instanceof Blob) {
             href = window.URL.createObjectURL(data);
