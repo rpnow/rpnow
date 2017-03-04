@@ -16,7 +16,7 @@
       $mdThemingProvider.alwaysWatchTheme(true);
    }]);
 
-   app.controller('RpController', ['$scope', '$mdMedia', '$mdSidenav', '$mdDialog', 'socket', function($scope, $mdMedia, $mdSidenav, $mdDialog, socket) {
+   app.controller('RpController', ['$scope', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'socket', function($scope, $http, $mdMedia, $mdSidenav, $mdDialog, socket) {
       $scope.loading = true;
       $scope.url = location.href.split('#')[0];
       $scope.rp = { rpCode: $scope.url.split('/').pop() };
@@ -111,18 +111,44 @@
             }, [])
             .join('\r\n');
       }
-      function download(filename, text) {
-         // https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server#18197341
+      function download(filename, data) {
+         // https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
+         // https://stackoverflow.com/questions/23451726/saving-binary-data-as-file-using-javascript-from-a-browser
          var element = document.createElement('a');
-         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+         element.style.display = 'none';
          element.setAttribute('download', filename);
 
-         element.style.display = 'none';
+         var href;
+         if (typeof data === 'string') {
+            href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+         }
+         else if (data instanceof Blob) {
+            href = window.URL.createObjectURL(data);
+         }
+         else {
+            throw new Error('unknown data type.');
+         }
+         element.setAttribute('href', href);
+
+
          document.body.appendChild(element);
-
          element.click();
-
          document.body.removeChild(element);
+      }
+      $scope.downloadDocx = function() {
+         $http.get('/template.docx', {responseType: 'arraybuffer'})
+            .then(function(res) {
+               var rp = JSON.parse(JSON.stringify($scope.rp));
+
+               var doc = new Docxtemplater().loadZip(new JSZip(res.data));
+               doc.setData(rp);
+               doc.render();
+               var out = doc.getZip().generate({
+                  type: 'blob',
+                  mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+               });
+               download($scope.rp.title+'.docx', out)
+            });
       }
 
       $scope.pressEnterToSend = true;
