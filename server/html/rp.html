@@ -15,16 +15,24 @@
   <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Playfair+Display" />
   <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Alice" />
   <style>
+    body, html {
+      overflow: hidden;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
     div, textarea {
       font-family: Alice;
     }
     h1, h2, h3 {
       font-family: Playfair Display;
     }
+    #appBar .md-toolbar-tools {
+      padding: 0;
+    }
     md-toolbar {
       border-bottom: 1px solid #999;
     }
-    md-toolbar h1, md-sidenav h2 {
+    #appBar h1, md-sidenav h2 {
       text-align: center;
     }
     md-toolbar > a {
@@ -32,9 +40,8 @@
       color: inherit;
     }
     #message-input-panel {
-      box-shadow: 0 0 4px rgba(0,0,0,.14),0 -4px 8px rgba(0,0,0,.28);
-      z-index: 1;
-      background-color:#eee;
+      border-top: 1px solid #999;
+      z-index: 3;
     }
     #message-view {
       padding: 40px 8px;
@@ -102,7 +109,7 @@
     <div flex layout="column">
 
       <!-- APP BAR -->
-      <md-toolbar flex="none">
+      <md-toolbar flex="none" id="appBar">
         <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
           <div class="left-buttons">
             <md-button class="md-icon-button" aria-label="Main menu" title="Main menu" ng-click="toggleLeftDrawer()">
@@ -165,9 +172,9 @@
       </md-content>
 
       <!-- MESSAGE BOX -->
-      <div layout="row" layout-align="center center" id="message-input-panel">
+      <div layout="row" layout-align="center center" id="message-input-panel" md-colors="{background: 'primary'}">
         <div class="left-buttons"></div>
-        <textarea id="message-input" rows="2" flex placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}" auto-resize max-height="30vh"></textarea>
+        <textarea id="message-input" rows="3" flex placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}" auto-resize max-height="30vh"></textarea>
         <div class="right-buttons">
           <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
             <md-icon>send</md-icon>
