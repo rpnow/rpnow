@@ -1,5 +1,5 @@
 (function() {
-   var app = angular.module('rpnow', ['ngMaterial', 'ngSanitize']);
+   var app = angular.module('rpnow', ['ngMaterial']);
 
    app.config(['$mdThemingProvider', function($mdThemingProvider) {
       $mdThemingProvider.theme('default')
@@ -262,7 +262,7 @@ $scope.rp.charas=[{name:'Copernicus',color:'#7BA84B'},{name:'Harmony',color:'#EE
       }
    });
 
-   app.filter('msgContent', function() {
+   app.filter('msgContent', ['$sce', function($sce) {
       return function(str) {
          // escape characters
          var escapeMap = {
@@ -297,9 +297,9 @@ $scope.rp.charas=[{name:'Copernicus',color:'#7BA84B'},{name:'Harmony',color:'#EE
          str = str.replace(/--/g, '&mdash;');
 
          // done.
-         return str;
+         return $sce.trustAsHtml(str);
       }
-   });
+   }]);
 
    app.filter('contrastColor', function() {
       return function(color) {
