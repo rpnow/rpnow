@@ -27,6 +27,7 @@
                if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
          $scope.loading = false;
+$scope.rp.charas=[{name:'Copernicus',color:'#7BA84B'},{name:'Harmony',color:'#EED1D2'},{name:'Enrique',color:'#372715'}]
       });
 
       socket.on('add message', function(msg) {
@@ -39,7 +40,7 @@
 
       $scope.msgBox = {
          content: '',
-         sender: 'narrator',
+         voice: 'narrator',
          selected: false
       };
       $scope.sendMessage = function() {
@@ -47,11 +48,13 @@
 
          var msg = {
             content: $scope.msgBox.content.trim(),
-            type: (Math.random()<.2)?'narrator':(Math.random()<.4)?'ooc':'chara'
+            type: (+$scope.msgBox.voice >= 0) ? 'chara' : $scope.msgBox.voice
          }
-         if(msg.type === 'chara') msg.chara = {name:'Copernicus', color:
-            (['#7BA84B', '#EED1D2', '#372715'])[Math.floor(Math.random()*3)]
-         };
+         if (msg.type === 'chara') {
+            msg.chara = $scope.rp.charas[+$scope.msgBox.voice];
+            delete msg.chara.$$hashKey;
+         }
+
          socket.emit('add message', msg, function(receivedMsg) {
             $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
             $scope.rp.msgs.push(receivedMsg);

@@ -181,6 +181,10 @@ a.link:hover {
 
 
 
+#message-input-panel {
+  border-top: 1px solid #999;
+  z-index: 3;
+}
 @media (max-width: 959px) {
   .left-buttons button, .right-buttons button { margin-left: 0; }
   .right-buttons button { margin-right: 0; }
@@ -189,15 +193,21 @@ a.link:hover {
   .left-buttons, .right-buttons { width:150px; }
   .md-toolbar-tools h1 { max-width: 600px; }
 }
+.message-input-column {
+  max-width: 616px;
+  margin: 6px;
+}
+#voice-selector {
+  margin: 0;
+  padding: 0 10px;
+}
 #message-input {
   border: none;
   background-color: inherit;
   color: inherit;
   line-height: 1.4;
 
-  margin: 6px;
   padding: 10px;
-  max-width: 616px;
 }
 @media (min-width: 960px) {
   #message-input {
