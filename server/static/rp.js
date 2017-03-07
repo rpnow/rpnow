@@ -153,12 +153,19 @@
          document.body.removeChild(element);
       }
       $scope.downloadDocx = function() {
+         var rpData = JSON.parse(JSON.stringify($scope.rp));
+         rpData.hasDesc = !!rpData.desc;
+         rpData.msgs.forEach(function(msg) {
+            msg.isNarrator = msg.type === 'narrator';
+            msg.isOOC = msg.type === 'ooc';
+            msg.isChara = msg.type === 'chara';
+            if (msg.isChara) msg.name = msg.chara.name.toUpperCase();
+         });
          $http.get('/template.docx', {responseType: 'arraybuffer'})
             .then(function(res) {
-               var rp = JSON.parse(JSON.stringify($scope.rp));
 
                var doc = new Docxtemplater().loadZip(new JSZip(res.data));
-               doc.setData(rp);
+               doc.setData(rpData);
                doc.render();
                var out = doc.getZip().generate({
                   type: 'blob',
