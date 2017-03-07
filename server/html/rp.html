@@ -20,7 +20,7 @@
       max-width: 100vw;
       max-height: 100vh;
     }
-    div, textarea {
+    div, textarea, input {
       font-family: Alice;
     }
     h1, h2, h3 {
@@ -179,6 +179,8 @@
             <md-option value="ooc">Out-of-Character</md-option>
             <md-divider></md-divider>
             <md-option ng-repeat="chara in rp.charas" ng-value="$index">{{chara.name}}</md-option>
+            <md-divider></md-divider>
+            <md-option value="_addnew" ng-click="showCharacterDialog($event)">New Character...</md-option>
           </md-select>
           <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}" auto-resize max-height="30vh"></textarea>
         </div>
@@ -192,6 +194,41 @@
     </div>
   
   </section>
+
+  <!-- CHARACTER CREATOR DIALOG-->
+  <div style="visibility: hidden">
+    <div class="md-dialog-container" id="characterCreatorDialog">
+      <md-dialog>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <h2><md-icon>person_add</md-icon> New Character</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-hide="addCharaBox.sending" ng-click="hideDialog()">
+              <md-icon>close</md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+        <md-dialog-content ng-show="addCharaBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
+          <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
+        </md-dialog-content>
+        <md-dialog-content ng-hide="addCharaBox.sending" class="md-dialog-content">
+          <md-input-container class="md-accent">
+            <label>Name</label>
+            <input ng-model="addCharaBox.name">
+          </md-input-container>
+          <div>
+            <input type="color" ng-model="addCharaBox.color">
+          </div>
+          <md-dialog-actions layout="row">
+            <md-button class="md-raised md-accent" ng-click="sendChara()" title="Finish creating this character">
+              <md-icon>check</md-icon>
+               OK
+            </md-button>
+          </md-dialog-actions>
+        </md-dialog-content>
+      </md-dialog>
+    </div>
+  </div>
 
   <!-- CONTACT DIALOG-->
   <div style="visibility: hidden">

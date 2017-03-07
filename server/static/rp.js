@@ -27,7 +27,6 @@
                if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
          $scope.loading = false;
-$scope.rp.charas=[{name:'Copernicus',color:'#7BA84B'},{name:'Harmony',color:'#EED1D2'},{name:'Enrique',color:'#372715'}]
       });
 
       socket.on('add message', function(msg) {
@@ -63,11 +62,26 @@ $scope.rp.charas=[{name:'Copernicus',color:'#7BA84B'},{name:'Harmony',color:'#EE
          $scope.rp.msgs.push(msg);
          $scope.msgBox.content = '';
       };
-      // rp.sendChara = function(chara, callback) {
-      //    socket.emit('add character', chara, function(recievedChara) {
-      //       callback(recievedChara);
-      //    });
-      // };
+      $scope.addCharaBox = {
+         lastVoice: null,
+         name: '',
+         color: '',
+         sending: false
+      };
+      $scope.sendChara = function() {
+         var chara = {
+            name: $scope.addCharaBox.name,
+            color: $scope.addCharaBox.color
+         }
+
+         socket.emit('add character', chara, function(receivedChara) {
+            $scope.rp.charas.push(receivedChara);
+            $mdDialog.hide($scope.rp.charas.length-1);
+         });
+         $scope.addCharaBox.sending = true;
+         $scope.addCharaBox.name = '';
+         $scope.addCharaBox.color = '';
+      };
       // rp.stop = function() {
       //    socket.close();
       // };
@@ -163,13 +177,23 @@ $scope.rp.charas=[{name:'Copernicus',color:'#7BA84B'},{name:'Harmony',color:'#EE
          $mdSidenav('left').toggle();
       };
       $scope.showDialog = function(id, evt) {
-         $mdDialog.show({
+         return $mdDialog.show({
             contentElement: id,
             targetEvent: evt,
             clickOutsideToClose: true
          });
       }
-      $scope.hideDialog = function() { $mdDialog.hide(); };
+      $scope.hideDialog = function() { $mdDialog.cancel(); };
+      $scope.showCharacterDialog = function(evt) {
+         $scope.addCharaBox.lastVoice = $scope.msgBox.voice;
+         $scope.showDialog('#characterCreatorDialog', evt)
+         .then(function(charaId) { 
+            $scope.addCharaBox.sending = false;
+            $scope.msgBox.voice = charaId
+         }, function() {
+            $scope.msgBox.voice = $scope.addCharaBox.lastVoice;
+         })
+      }
       $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
       $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
          $scope.isDesktopMode = desktop;
