@@ -32,12 +32,16 @@
     md-toolbar {
       border-bottom: 1px solid #999;
     }
-    #appBar h1, md-sidenav h2 {
+    #appBar h1, #leftDrawer h2 {
       text-align: center;
     }
-    md-toolbar > a {
+    #leftDrawer md-toolbar a {
       text-decoration: none;
       color: inherit;
+    }
+    #leftDrawer md-checkbox {
+      margin-right: 0;
+      width: auto;
     }
     .md-toolbar-tools h2 md-icon {
       margin-right: 5px;
@@ -53,7 +57,7 @@
   <section layout="row" flex style="height:100%">
 
     <!-- LEFT DRAWER -->
-    <md-sidenav class="md-sidenav-left noselect" md-component-id="left" md-whiteframe="1" layout="column">
+    <md-sidenav class="md-sidenav-left noselect" md-component-id="left" md-whiteframe="1" layout="column" id="leftDrawer">
       <md-toolbar>
         <a href="/">
           <h2 ng-class="isDesktopMode ? 'md-display-3' : 'md-display-1'">RPNow</h2>
