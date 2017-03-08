@@ -47,12 +47,23 @@
          selected: false
       };
       $scope.sendMessage = function() {
-         if (!$scope.msgBox.content.trim()) return;
-
          var msg = {
             content: $scope.msgBox.content.trim(),
             type: (+$scope.msgBox.voice >= 0) ? 'chara' : $scope.msgBox.voice
          }
+         if (msg.type !== 'ooc') {
+            [  /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( stuff ))
+               /^\{+\s*(.*?[^\s])\s*\}*$/g, // { stuff }, {{ stuff }}, ...
+               /^\/\/\s*(.*[^\s])\s*$/g // //stuff
+            ].forEach(function(oocRegex) {
+               var match = oocRegex.exec(msg.content);
+               if (match) {
+                  msg.content = match[1];
+                  msg.type = 'ooc';
+               }
+            });
+         }
+         if (!msg.content) return;
          if (msg.type === 'chara') {
             msg.chara = $scope.rp.charas[+$scope.msgBox.voice];
             delete msg.chara.$$hashKey;
