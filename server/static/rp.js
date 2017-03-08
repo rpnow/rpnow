@@ -16,7 +16,7 @@
       $mdThemingProvider.alwaysWatchTheme(true);
    }]);
 
-   app.controller('RpController', ['$scope', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'socket', function($scope, $http, $mdMedia, $mdSidenav, $mdDialog, socket) {
+   app.controller('RpController', ['$scope', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', function($scope, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket) {
       $scope.loading = true;
       $scope.url = location.href.split('#')[0];
       $scope.rp = { rpCode: $scope.url.split('/').pop() };
@@ -31,7 +31,11 @@
 
       socket.on('add message', function(msg) {
          $scope.rp.msgs.push(msg);
-         flashAlert('* New message!', $scope.notificationNoise);
+         var alertText;
+         if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
+         else if(msg.type === 'narrator') alertText = '* The narrator says...';
+         else if(msg.type === 'ooc') alertText = '* OOC message...';
+         pageAlerts.alert(alertText, $scope.notificationNoise);
       });
       socket.on('add character', function(chara) {
          $scope.rp.charas.push(chara);
@@ -342,32 +346,48 @@
       };
    });
 
-   var flashAlert = (function() {
+   app.service('pageAlerts', function() {
+      var pageAlerts = this;
+
       var alertNoise = new Audio('/alert.mp3');
-      var alertMsg = null;
-      var i = 0;
-      var informTimer = null;
-      var oldTitleText;
-      function timerAction() {
-         if(i%2) document.title = oldTitleText;
-         else document.title = alertMsg;
-         --i;
-         if(i >= 0) informTimer = setTimeout(timerAction, 500);
-      }
-      document.addEventListener('visibilitychange', function(evt) {
-         if(document.visibilityState === 'visible') {
-            clearTimeout(informTimer);
-            document.title = oldTitleText;
-         }
-      });
-      return function(msg, noise) {
-         if(document.visibilityState === 'visible') return;
-         i = 6;
-         if(informTimer) clearTimeout(informTimer);
-         alertMsg = msg;
-         oldTitleText = document.title;
-         timerAction(msg);
-         if (noise) alertNoise.play();
+      
+      var alertText = null;
+      var oldText = null;
+      var flashesLeft = 0;
+      var timer = null;
+      
+      this.alert = function(text, playSound) {
+         if (document.visibilityState === 'visible') return;
+
+         clearTimeout(timer);
+         if (document.title === alertText) document.title = oldText;
+
+         alertText = text;
+         flashesLeft = 3;
+         timerAction();
+         if (playSound) alertNoise.play();
       };
-   })();
+
+      function timerAction() {
+         if(document.title === alertText) {
+            document.title = oldText;
+         }
+         else {
+            oldText = document.title;
+            document.title = alertText;
+
+            if (flashesLeft <= 0) return;
+            --flashesLeft;
+         }
+         timer = setTimeout(timerAction, 1000);
+      }
+
+      document.addEventListener('visibilitychange', function(evt) {
+         if(document.visibilityState !== 'visible') return;
+
+         if (document.title === alertText) document.title = oldText;
+         clearTimeout(timer);
+      })
+   });
+
 })();
