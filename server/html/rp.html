@@ -170,11 +170,12 @@
         <div id="message-container">
           <div ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'color': msg.chara?(msg.chara.color | contrastColor):'' }">
             <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
-            <div class="message-details noselect" ng-show="showMessageDetails || (msg.type === 'ooc')">
-              <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-show="showMessageDetails">
+            <div class="message-details noselect" ng-show="msg.sending || showMessageDetails || (msg.type === 'ooc')">
+              <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(msg.chara? ((msg.chara.color | contrastColor) === 'white') : (nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
+              <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-if="!msg.sending" ng-show="showMessageDetails">
                 {{msg.timestamp | momentAgoShort}}
               </span>
-              <span class="color-ip-box" title="User color ID">
+              <span class="color-ip-box" title="User color ID" ng-if="!msg.sending">
                 <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>
               </span>
             </div>
