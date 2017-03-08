@@ -17,6 +17,9 @@
    }]);
 
    app.controller('RpController', ['$scope', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', function($scope, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket) {
+      var RECENT_MSG_COUNT = 100;
+      var MAX_RECENT_MSG_COUNT = 200;
+
       $scope.loading = true;
       $scope.url = location.href.split('#')[0];
       $scope.rp = { rpCode: $scope.url.split('/').pop() };
@@ -26,11 +29,19 @@
             .forEach(function(prop) {
                if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
+         $scope.recentMsgs = $scope.rp.msgs.slice(-RECENT_MSG_COUNT);
          $scope.loading = false;
       });
 
-      socket.on('add message', function(msg) {
+      $scope.isStoryGlued = true;
+      function addMessage(msg) {
          $scope.rp.msgs.push(msg);
+         $scope.recentMsgs.push(msg);
+         $scope.recentMsgs.splice(0, $scope.recentMsgs.length - ($scope.isStoryGlued ? RECENT_MSG_COUNT : MAX_RECENT_MSG_COUNT) );
+      }
+
+      socket.on('add message', function(msg) {
+         addMessage(msg);
          var alertText;
          if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
          else if(msg.type === 'narrator') alertText = '* The narrator says...';
@@ -70,11 +81,12 @@
          }
 
          socket.emit('add message', msg, function(receivedMsg) {
-            $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
-            $scope.rp.msgs.push(receivedMsg);
+            msg.timestamp = receivedMsg.timestamp;
+            msg.ipid = receivedMsg.ipid;
+            delete msg.sending;
          });
          msg.sending = true;
-         $scope.rp.msgs.push(msg);
+         addMessage(msg);
          $scope.msgBox.content = '';
       };
       $scope.addCharaBox = {
