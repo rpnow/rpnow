@@ -1,5 +1,5 @@
 (function() {
-   var app = angular.module('rpnow', ['ngMaterial']);
+   var app = angular.module('rpnow', ['ngMaterial', 'luegg.directives']);
 
    app.config(['$mdThemingProvider', function($mdThemingProvider) {
       $mdThemingProvider.theme('default')

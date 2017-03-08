@@ -166,7 +166,7 @@
       </md-toolbar>
 
       <!-- MESSAGES PANE -->
-      <md-content flex layout="column">
+      <md-content flex layout="column" scroll-glue>
         <div id="message-container">
           <div ng-repeat="msg in rp.msgs.slice(-20)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'color': msg.chara?(msg.chara.color | contrastColor):'' }">
             <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
@@ -195,7 +195,7 @@
             <md-divider></md-divider>
             <md-option value="_addnew" ng-click="showCharacterDialog($event)">New Character...</md-option>
           </md-select>
-          <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}" auto-resize max-height="30vh"></textarea>
+          <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
         </div>
         <div class="right-buttons">
           <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
@@ -329,6 +329,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.6.1/jszip.js"></script>
   <script src="/lib/docxtemplater-3.0.3.min.js"></script>
+  <script src="/lib/scrollglue-2.1.0.js"></script>
 
   <script src="/rp.js"></script>
 </body>
