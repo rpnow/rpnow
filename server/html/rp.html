@@ -168,7 +168,7 @@
       <!-- MESSAGES PANE -->
       <md-content flex layout="column" scroll-glue="isStoryGlued">
         <div id="message-container">
-          <div ng-repeat="msg in recentMsgs" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'color': msg.chara?(msg.chara.color | contrastColor):'' }">
+          <div ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'color': msg.chara?(msg.chara.color | contrastColor):'' }">
             <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
             <div class="message-details noselect" ng-show="showMessageDetails || (msg.type === 'ooc')">
               <span class="timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-show="showMessageDetails">

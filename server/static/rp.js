@@ -29,19 +29,11 @@
             .forEach(function(prop) {
                if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
             });
-         $scope.recentMsgs = $scope.rp.msgs.slice(-RECENT_MSG_COUNT);
          $scope.loading = false;
       });
 
-      $scope.isStoryGlued = true;
-      function addMessage(msg) {
-         $scope.rp.msgs.push(msg);
-         $scope.recentMsgs.push(msg);
-         $scope.recentMsgs.splice(0, $scope.recentMsgs.length - ($scope.isStoryGlued ? RECENT_MSG_COUNT : MAX_RECENT_MSG_COUNT) );
-      }
-
       socket.on('add message', function(msg) {
-         addMessage(msg);
+         $scope.rp.msgs.push(msg);
          var alertText;
          if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
          else if(msg.type === 'narrator') alertText = '* The narrator says...';
@@ -81,12 +73,11 @@
          }
 
          socket.emit('add message', msg, function(receivedMsg) {
-            msg.timestamp = receivedMsg.timestamp;
-            msg.ipid = receivedMsg.ipid;
-            delete msg.sending;
+            $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
+            $scope.rp.msgs.push(receivedMsg);
          });
          msg.sending = true;
-         addMessage(msg);
+         $scope.rp.msgs.push(msg);
          $scope.msgBox.content = '';
       };
       $scope.addCharaBox = {
@@ -229,6 +220,16 @@
          })
       }
       $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
+
+      $scope.isStoryGlued = true;
+      $scope.numMsgsToShow = RECENT_MSG_COUNT;
+      $scope.$watch('rp.msgs.length', function(length, oldLength) {
+         if (!(length > oldLength)) return;
+
+         if ($scope.isStoryGlued) $scope.numMsgsToShow = RECENT_MSG_COUNT;
+         else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
+      });
+
       $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
          $scope.isDesktopMode = desktop;
       });
