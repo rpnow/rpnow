@@ -310,14 +310,39 @@
          y: '%dyr', yy: '%dyrs'
       }
    });
-   app.filter('momentAgoShort', function() {
-      return function(timestamp) {
-         return moment(timestamp*1000).locale('en-short').fromNow();
+   // https://stackoverflow.com/questions/18006334/updating-time-ago-values-in-angularjs-and-momentjs
+   app.factory('timestampUpdateService', ['$rootScope', function($rootScope) {
+      function timeAgoTick() {
+         $rootScope.$broadcast('e:timeAgo');
       }
-   });
+      setInterval(function() {
+         timeAgoTick();
+         $rootScope.$apply();
+      }, 1000*60);
+      return {
+         timeAgoTick: timeAgoTick,
+         onTimeAgo: function($scope, handler) {
+            $scope.$on('e:timeAgo', handler);
+         }
+      };
+   }]);
+   app.directive('momentAgoShort', ['timestampUpdateService', function(timestampUpdateService) {
+      return {
+         template: '<span>{{momentAgoShort}}</span>',
+         replace: true,
+         link: function(scope, el, attrs) {
+            function updateTime() {
+               var timestamp = scope.$eval(attrs.momentAgoShort);
+               scope.momentAgoShort = moment(timestamp*1000).locale('en-short').fromNow();
+            }
+            timestampUpdateService.onTimeAgo(scope, updateTime);
+            updateTime();
+         }
+      }
+   }]);
    app.filter('momentAgo', function() {
       return function(timestamp) {
-         return moment(timestamp*1000).locale('en').fromNow();
+         return moment(timestamp*1000).calendar();
       }
    });
 
