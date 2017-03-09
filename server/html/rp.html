@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/rp.css">
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
   <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Playfair+Display" />
   <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Alice" />
@@ -45,6 +46,15 @@
     #leftDrawer md-checkbox {
       margin-right: 0;
       width: auto;
+    }
+    md-icon.fa {
+      width: 24px;
+      line-height: 22px;
+      vertical-align: middle;
+      text-align: center;
+    }
+    md-icon.fa::before {
+      font-size: 22px;
     }
     /* misc page style tweaks */
     #leftDrawer md-toolbar a {
@@ -256,10 +266,22 @@
           </div>
         </md-toolbar>
         <md-dialog-content class="md-dialog-content">
-          <p>Feel free to e-mail us with any questions or comments!</p>
+          <p>Feel free to contact us with any questions or comments!</p>
           <p>
             <md-icon>mail</md-icon>
-            <a class="link" href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>
+            <a class="link" href="mailto:rpnow.net@gmail.com" target="_blank">rpnow.net@gmail.com</a>
+          </p>
+          <p>
+            <md-icon md-font-set="fa" class="fa-facebook-official"></md-icon>
+            <a class="link" href="https://fb.me/rpnow.net" target="_blank">@rpnow.net</a>
+          </p>
+          <p>
+            <md-icon md-font-set="fa" class="fa-twitter"></md-icon>
+            <a class="link" href="https://twitter.com/rpnow_net" target="_blank">@rpnow_net</a>
+          </p>
+          <p>
+            <md-icon md-font-set="fa" class="fa-tumblr"></md-icon>
+            <a class="link" href="https://rpnow.tumblr.com/" target="_blank">@rpnow</a>
           </p>
         </md-dialog-content>
       </md-dialog>
