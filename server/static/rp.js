@@ -1,4 +1,4 @@
-angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker'])
+angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'LocalStorageModule'])
 
 .config(['$mdThemingProvider', function($mdThemingProvider) {
    $mdThemingProvider.theme('default')
@@ -15,7 +15,13 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker'])
    $mdThemingProvider.alwaysWatchTheme(true);
 }])
 
-.controller('RpController', ['$scope', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', function($scope, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket) {
+.config(['localStorageServiceProvider', function(localStorageServiceProvider) {
+   localStorageServiceProvider
+      .setPrefix('rpnow')
+      .setDefaultToCookie(false)
+}])
+
+.controller('RpController', ['$scope', '$timeout', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', function($scope, $timeout, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService) {
    var RECENT_MSG_COUNT = 100;
    var MAX_RECENT_MSG_COUNT = 200;
 
@@ -45,8 +51,7 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker'])
 
    $scope.msgBox = {
       content: '',
-      voice: 'narrator',
-      selected: false
+      voice: 'narrator'
    };
    $scope.sendMessage = function() {
       var msg = {
@@ -80,7 +85,6 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker'])
       $scope.msgBox.content = '';
    };
    $scope.addCharaBox = {
-      lastVoice: null,
       name: '',
       color: '#ff0000',
       sending: false
@@ -208,13 +212,11 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker'])
    }
    $scope.hideDialog = function() { $mdDialog.cancel(); };
    $scope.showCharacterDialog = function(evt) {
-      $scope.addCharaBox.lastVoice = $scope.msgBox.voice;
+      $timeout(function(x){$scope.msgBox.voice=x;},0,true,$scope.msgBox.voice);
       $scope.showDialog('#characterCreatorDialog', evt)
       .then(function(charaId) { 
          $scope.addCharaBox.sending = false;
          $scope.msgBox.voice = charaId
-      }, function() {
-         $scope.msgBox.voice = $scope.addCharaBox.lastVoice;
       })
    }
    $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
@@ -231,6 +233,21 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker'])
    $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
       $scope.isDesktopMode = desktop;
    });
+
+   // recall these values if they have been saved in localStorage
+   // otherwise use the defaults defined earlier in the controller
+   if (localStorageService.isSupported) {
+      ['downloadOOC', 'pressEnterToSend', 'notificationNoise', 'showMessageDetails', 'nightMode', 'addCharaBox.color']
+      .forEach(function(option) {
+         var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
+         localStorageService.bind($scope, option, initVal);
+      });
+      ['msgBox.content', 'msgBox.voice']
+      .forEach(function(option) {
+         var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
+         localStorageService.bind($scope, option, initVal, $scope.rp.rpCode+'.'+option);
+      });
+   }
 
    $scope.$on('$destroy', socket.close);
 }])
