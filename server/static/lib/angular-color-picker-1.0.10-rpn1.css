@@ -1,0 +1,100 @@
+.angular-color-picker {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    display: inline-block;
+}
+.angular-color-picker > ._variations {
+    border: 1px solid #808080;
+    width: 100px;
+    height: 100px;
+    float: left;
+}
+.angular-color-picker > ._variations > ._whites {
+    width: 100px;
+    height: 100px;
+    background: -webkit-linear-gradient(left, #fff 0, transparent 100%);
+    background: -moz-linear-gradient(left, #fff 0, transparent 100%);
+    background: -ms-linear-gradient(left, #fff 0, transparent 100%);
+    background: linear-gradient(to right, #fff 0, transparent 100%);
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#00ffffff', GradientType='1')";
+}
+.angular-color-picker > ._variations > ._whites > ._blacks {
+    width: 100px;
+    height: 100px;
+    background: -webkit-linear-gradient(top, transparent 0, #000 100%);
+    background: -moz-linear-gradient(top, transparent 0, #000 100%);
+    background: -ms-linear-gradient(top, transparent 0, #000 100%);
+    background: linear-gradient(to bottom, transparent 0, #000 100%);
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#ff000000')";
+    position: relative;
+}
+.angular-color-picker > ._variations > ._whites > ._blacks > ._cursor {
+    position: absolute;
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border: 1px solid #fff;
+    border-right-color: #000;
+    border-left-color: #000;
+    border-radius: 5px;
+}
+.angular-color-picker > ._variations > ._whites > ._blacks > ._mouse-trap {
+    position: relative;
+    z-index: 1;
+    width: 100px;
+    height: 100px;
+}
+.angular-color-picker > ._hues {
+    border: 1px solid #808080;
+    position: relative;
+    margin-left: 110px;
+    height: 100px;
+    width: 45px;
+    background: -webkit-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    background: -moz-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    background: -ms-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    background: linear-gradient(to bottom, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+}
+.angular-color-picker > ._hues > ._cursor {
+    position: absolute;
+    left: -7px;
+    width: 48px;
+    height: 0;
+    border: 5px solid transparent;
+    border-left-color: #808080;
+    border-right-color: #808080;
+}
+.angular-color-picker > ._hues > ._mouse-trap {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 45px;
+    height: 100px;
+}
+/* Heavily based on: http://jsfiddle.net/bgrins/Whc6Z/ */
+.angular-color-picker > ._hues > ._ie-1 {
+    height: 17%;
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0000', endColorstr='#ffff00')";
+}
+.angular-color-picker > ._hues > ._ie-2 {
+    height: 16%;
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffff00', endColorstr='#00ff00')";
+}
+.angular-color-picker > ._hues > ._ie-3 {
+    height: 17%;
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ff00', endColorstr='#00ffff')";
+}
+.angular-color-picker > ._hues > ._ie-4 {
+    height: 17%;
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffff', endColorstr='#0000ff')";
+}
+.angular-color-picker > ._hues > ._ie-5 {
+    height: 16%;
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#0000ff', endColorstr='#ff00ff')";
+}
+.angular-color-picker > ._hues > ._ie-6 {
+    height: 17%;
+    filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff00ff', endColorstr='#ff0000')";
+}

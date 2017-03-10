@@ -1,4 +1,4 @@
-angular.module('rpnow', ['ngMaterial', 'luegg.directives'])
+angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker'])
 
 .config(['$mdThemingProvider', function($mdThemingProvider) {
    $mdThemingProvider.theme('default')
@@ -82,7 +82,7 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives'])
    $scope.addCharaBox = {
       lastVoice: null,
       name: '',
-      color: '',
+      color: '#ff0000',
       sending: false
    };
    $scope.sendChara = function() {
@@ -97,7 +97,6 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives'])
       });
       $scope.addCharaBox.sending = true;
       $scope.addCharaBox.name = '';
-      $scope.addCharaBox.color = '';
    };
    // rp.stop = function() {
    //    socket.close();
