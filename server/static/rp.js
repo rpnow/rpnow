@@ -206,6 +206,34 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
    $scope.toggleLeftDrawer = function() {
       $mdSidenav('left').toggle();
    };
+
+   // all this complicated logic ends up creating intuitive behavior
+   // for the right sidedrawer when resizing window, and opening/closing
+   // sidedrawer within different window sizes.
+   $scope.charaListDocked = false;
+   $scope.toggleRightDrawer = function() {
+      // if clicked from select menu, set it back to old chara
+      $timeout(function(x){$scope.msgBox.voice=x;},0,true,$scope.msgBox.voice);
+
+      // change behavior based on if we're on a large screen or not
+      if ($mdMedia('gt-md')) {
+         if ($scope.charaListDocked) {
+            $mdSidenav('right').close();
+            $timeout(function() { $scope.charaListDocked = false; },100);
+         }         
+         else {
+            $scope.charaListDocked = true;
+         }
+      }
+      else {
+         $mdSidenav('right').toggle();
+      }
+   }
+   $scope.$watch(function() { return $scope.charaListDocked || $mdSidenav('right').isOpen(); }, function(isRightDrawerLockedOpen) {
+      $scope.isRightDrawerLockedOpen = isRightDrawerLockedOpen;
+      console.log(isRightDrawerLockedOpen);
+   });
+
    $scope.showDialog = function(id, evt) {
       return $mdDialog.show({
          contentElement: id,
@@ -240,7 +268,7 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
    // recall these values if they have been saved in localStorage
    // otherwise use the defaults defined earlier in the controller
    if (localStorageService.isSupported) {
-      ['downloadOOC', 'pressEnterToSend', 'notificationNoise', 'showMessageDetails', 'nightMode', 'addCharaBox.color']
+      ['downloadOOC', 'pressEnterToSend', 'notificationNoise', 'showMessageDetails', 'nightMode', 'addCharaBox.color', 'charaListDocked']
       .forEach(function(option) {
          var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
          localStorageService.bind($scope, option, initVal);

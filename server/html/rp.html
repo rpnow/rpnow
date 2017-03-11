@@ -68,8 +68,15 @@
       text-decoration: none;
       color: inherit;
     }
-    .md-toolbar-tools h2 md-icon,
-    md-select-menu md-icon {
+    @media (min-width: 1280px) {
+      #rightDrawer {
+        z-index: 58;
+      }
+    }
+    md-dialog h2 md-icon,
+    #rightDrawer md-toolbar h2 md-icon,
+    md-select-menu md-icon,
+    md-select-value md-icon {
       margin-right: 5px;
     }
     #message-container {
@@ -223,17 +230,23 @@
               <md-option value="ooc">
                 <md-icon>chat</md-icon> Out of character
               </md-option>
-              <md-divider></md-divider>
+              <md-divider ng-show="rp.charas.length > 0"></md-divider>
               <md-option ng-repeat="chara in rp.charas" ng-value="$index">
                 <md-icon ng-style="{'color':chara.color,'text-shadow':'0px 0px 2px '+(chara.color|contrastColor)}">person</md-icon> {{chara.name}}
               </md-option>
               <md-divider hide-gt-xs></md-divider>
+              <md-option hide-gt-xs value="_showall" ng-click="toggleRightDrawer()" aria-hidden="true">
+                <md-icon>group</md-icon> All Characters...
+              </md-option>
               <md-option hide-gt-xs value="_addnew" ng-click="showCharacterDialog($event)" aria-hidden="true">
                 <md-icon>person_add</md-icon> New Character...
               </md-option>
             </md-select>
-            <md-button class="md-raised md-primary"hide-xs title="Create new character" ng-click="showCharacterDialog($event)">
+            <md-button class="md-raised md-primary" hide-xs title="Create new character" ng-click="showCharacterDialog($event)">
               <md-icon>person_add</md-icon> New
+            </md-button>
+            <md-button class="md-raised md-primary" hide-xs title="Show all characters for this RP" ng-click="toggleRightDrawer()">
+              <md-icon>group</md-icon> Show All
             </md-button>
           </div>
           <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
@@ -246,6 +259,22 @@
       </div>
 
     </div>
+
+    <!-- RIGHT DRAWER (FOR CHARACTERS) -->
+    <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && isRightDrawerLockedOpen" layout="column" id="rightDrawer">
+      <md-toolbar md-colors="{background:nightMode?'background-900':'background-200'}">
+        <div class="md-toolbar-tools" layout="row">
+          <h2 md-truncate><md-icon>group</md-icon> All Characters</h2>
+          <span flex></span>
+          <md-button class="md-icon-button" ng-click="toggleRightDrawer()" title="Close">
+            <md-icon>close</md-icon>
+          </md-button>
+        </div>
+      </md-toolbar>
+      <md-content flex md-colors="{background:nightMode?'background-900':'background-200'}">
+
+      </md-content>
+    </md-sidenav>
   
   </section>
 
