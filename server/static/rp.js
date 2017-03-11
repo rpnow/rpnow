@@ -22,6 +22,9 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
 }])
 
 .controller('RpController', ['$scope', '$timeout', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', function($scope, $timeout, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService) {
+   $scope.MAX_CHARA_NAME_LENGTH  = 30;
+   $scope.MAX_MSG_CONTENT_LENGTH = 10000;
+
    var RECENT_MSG_COUNT = 100;
    var MAX_RECENT_MSG_COUNT = 200;
 

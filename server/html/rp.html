@@ -216,7 +216,7 @@
             <md-divider></md-divider>
             <md-option value="_addnew" ng-click="showCharacterDialog($event)">New Character...</md-option>
           </md-select>
-          <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
+          <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
         </div>
         <div class="right-buttons">
           <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
@@ -248,7 +248,7 @@
         <md-dialog-content ng-hide="addCharaBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
           <md-input-container ng-class="nightMode? 'md-hue-3':'md-hue-2'">
             <label>Name this character:</label>
-            <input ng-model="addCharaBox.name" md-autofocus>
+            <input ng-model="addCharaBox.name" maxlength="{{MAX_CHARA_NAME_LENGTH}}" md-autofocus>
           </md-input-container>
           <div>
             <color-picker ng-model="addCharaBox.color"></color-picker>
