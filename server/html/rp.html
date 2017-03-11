@@ -57,12 +57,19 @@
     md-icon.fa::before {
       font-size: 22px;
     }
+    md-select-menu.md-dark-theme md-icon {
+      color: rgba(0,0,0,0.54);
+    }
+    md-select-menu.md-dark-theme md-divider {
+      border-color: rgba(0,0,0, 0.12);
+    }
     /* misc page style tweaks */
     #leftDrawer md-toolbar a {
       text-decoration: none;
       color: inherit;
     }
-    .md-toolbar-tools h2 md-icon {
+    .md-toolbar-tools h2 md-icon,
+    md-select-menu md-icon {
       margin-right: 5px;
     }
     #message-container {
@@ -208,14 +215,27 @@
       <div layout="row" layout-align="center center" id="message-input-panel" md-colors="{background: 'primary'}">
         <div class="left-buttons"></div>
         <div class="message-input-column" flex layout="column">
-          <md-select id="voice-selector" class="md-accent" ng-model="msgBox.voice">
-            <md-option value="narrator">Narrator</md-option>
-            <md-option value="ooc">Out-of-Character</md-option>
-            <md-divider></md-divider>
-            <md-option ng-repeat="chara in rp.charas" ng-value="$index">{{chara.name}}</md-option>
-            <md-divider></md-divider>
-            <md-option value="_addnew" ng-click="showCharacterDialog($event)">New Character...</md-option>
-          </md-select>
+          <div layout="row">
+            <md-select id="voice-selector" class="md-accent" ng-model="msgBox.voice" flex>
+              <md-option value="narrator">
+                <md-icon>create</md-icon> Narrator
+              </md-option>
+              <md-option value="ooc">
+                <md-icon>chat</md-icon> Out of character
+              </md-option>
+              <md-divider></md-divider>
+              <md-option ng-repeat="chara in rp.charas" ng-value="$index">
+                <md-icon ng-style="{'color':chara.color,'text-shadow':'0px 0px 2px '+(chara.color|contrastColor)}">person</md-icon> {{chara.name}}
+              </md-option>
+              <md-divider hide-gt-xs></md-divider>
+              <md-option hide-gt-xs value="_addnew" ng-click="showCharacterDialog($event)" aria-hidden="true">
+                <md-icon>person_add</md-icon> New Character...
+              </md-option>
+            </md-select>
+            <md-button class="md-raised md-primary"hide-xs title="Create new character" ng-click="showCharacterDialog($event)">
+              <md-icon>person_add</md-icon> New
+            </md-button>
+          </div>
           <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
         </div>
         <div class="right-buttons">
