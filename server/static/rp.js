@@ -61,8 +61,29 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
 
    $scope.msgBox = {
       content: '',
-      voice: 'narrator'
+      voice: 'narrator',
+      recentVoices: function() { return $scope.msgBox.recentVoicesString? $scope.msgBox.recentVoicesString.split(',').map(function(x) { return (+x >= 0)? +x: x;}): undefined; },
+      recentVoicesString: 'narrator,ooc' // stored in a string so it can be easily bound to localStorage
    };
+   $scope.$watch('msgBox.voice', function(newVoice) {
+      if (typeof newVoice === 'string' && newVoice.startsWith('_')) return;
+
+      var rv = $scope.msgBox.recentVoices();
+      if (!rv) return;
+      // add to 'recent' list if it isn't already there
+      if (rv.indexOf(newVoice) === -1) rv.unshift(newVoice);
+      // or move it to the top
+      else {
+         rv.splice(rv.indexOf(newVoice),1);
+         rv.unshift(newVoice);
+      }
+      if(rv.length > 5) {
+         rv.splice(5, rv.length);
+      }
+      $scope.msgBox.recentVoicesString = rv.join(',');
+      console.log($scope.msgBox.voice);
+      console.log($scope.msgBox.recentVoicesString);
+   })
    $scope.sendMessage = function() {
       var msg = {
          content: $scope.msgBox.content.trim(),
@@ -285,7 +306,7 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
          var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
          localStorageService.bind($scope, option, initVal);
       });
-      ['msgBox.content', 'msgBox.voice']
+      ['msgBox.content', 'msgBox.voice', 'msgBox.recentVoicesString']
       .forEach(function(option) {
          var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
          localStorageService.bind($scope, option, initVal, $scope.rp.rpCode+'.'+option);
