@@ -63,6 +63,9 @@
     md-select-menu.md-dark-theme md-divider {
       border-color: rgba(0,0,0, 0.12);
     }
+    .md-subheader.md-default-theme, .md-subheader.md-dark-theme {
+      background-color: inherit;
+    }
     /* misc page style tweaks */
     #leftDrawer md-toolbar a {
       text-decoration: none;
@@ -234,8 +237,9 @@
                 <md-icon>chat</md-icon> Out of character
               </md-option>
               <md-divider ng-show="rp.charas.length > 0"></md-divider>
-              <md-option ng-repeat="chara in rp.charas" ng-value="$index">
-                <md-icon ng-style="{'color':chara.color,'text-shadow':'0px 0px 2px '+(chara.color|contrastColor)}">person</md-icon> {{chara.name}}
+              <md-option ng-repeat="chara in rp.charas" ng-value="id(chara)">
+                <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
+                {{chara.name}}
               </md-option>
               <md-divider hide-gt-xs></md-divider>
               <md-option hide-gt-xs value="_showall" ng-click="toggleRightDrawer()" aria-hidden="true">
@@ -245,11 +249,8 @@
                 <md-icon>person_add</md-icon> New Character...
               </md-option>
             </md-select>
-            <md-button class="md-raised md-primary" hide-xs title="Create new character" ng-click="showCharacterDialog($event)">
-              <md-icon>person_add</md-icon> New
-            </md-button>
             <md-button class="md-raised md-primary" hide-xs title="Show all characters for this RP" ng-click="toggleRightDrawer()">
-              <md-icon>group</md-icon> Show All
+              <md-icon>group</md-icon> All Characters
             </md-button>
           </div>
           <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
@@ -275,7 +276,27 @@
         </div>
       </md-toolbar>
       <md-content flex md-colors="{background:nightMode?'background-900':'background-200'}">
-
+        <md-list>
+          <md-list-item ng-click="setVoice('narrator')">
+            <md-icon>create</md-icon> <p>Narrator</p>
+            <md-icon ng-show="msgBox.voice === 'narrator'">check</md-icon>
+          </md-list-item>
+          <md-list-item ng-click="setVoice('ooc')">
+            <md-icon>chat</md-icon> <p>Out of character</p>
+            <md-icon ng-show="msgBox.voice === 'ooc'">check</md-icon>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item ng-click="showCharacterDialog($event)" aria-hidden="true">
+            <md-icon>person_add</md-icon> <p>New Character...</p>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-subheader class="md-no-sticky">All Characters</md-subheader>
+          <md-list-item ng-repeat="chara in rp.charas | orderBy:'name'" ng-click="setVoice(id(chara))">
+            <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
+            <p>{{chara.name}}</p>
+            <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
+          </md-list-item>
+        </md-list>
       </md-content>
     </md-sidenav>
   

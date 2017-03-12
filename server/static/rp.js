@@ -40,6 +40,13 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
       $scope.loading = false;
    });
 
+   $scope.id = function(item) {
+      var index;
+      if ((index = $scope.rp.charas.indexOf(item)) >= 0) return index;
+      if ((index = $scope.rp.msgs.indexOf(item)) >= 0) return index;
+      return null;
+   }
+
    socket.on('add message', function(msg) {
       $scope.rp.msgs.push(msg);
       var alertText;
@@ -75,7 +82,7 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
       }
       if (!msg.content) return;
       if (msg.type === 'chara') {
-         msg.chara = $scope.rp.charas[+$scope.msgBox.voice];
+         msg.chara = JSON.parse(JSON.stringify($scope.rp.charas[+$scope.msgBox.voice]));
          delete msg.chara.$$hashKey;
       }
 
@@ -100,6 +107,7 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
 
       socket.emit('add character', chara, function(receivedChara) {
          $scope.rp.charas.push(receivedChara);
+         $timeout(function() { $mdSidenav('right').close(); },100);
          $mdDialog.hide($scope.rp.charas.length-1);
       });
       $scope.addCharaBox.sending = true;
@@ -228,6 +236,10 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
       else {
          $mdSidenav('right').toggle();
       }
+   }
+   $scope.setVoice = function(voice) {
+      $scope.msgBox.voice = voice;
+      $mdSidenav('right').close();
    }
    $scope.$watch(function() { return $scope.charaListDocked || $mdSidenav('right').isOpen(); }, function(isRightDrawerLockedOpen) {
       $scope.isRightDrawerLockedOpen = isRightDrawerLockedOpen;
@@ -420,12 +432,26 @@ angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'Lo
 }])
 
 .filter('contrastColor', function() {
+   return function(color, opacity) {
+      //YIQ algorithm modified from:
+      // http://24ways.org/2010/calculating-color-contrast/
+      var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
+      var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
+      if (opacity) {
+         var i = (yiq >= 128)? 0:255;
+         return 'rgba('+i+','+i+','+i+','+opacity+')';
+      }
+      return (yiq >= 128) ? 'black' : 'white';
+   };
+})
+
+.filter('needsContrastColor', function() {
    return function(color) {
       //YIQ algorithm modified from:
       // http://24ways.org/2010/calculating-color-contrast/
       var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
       var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
-      return (yiq >= 128) ? 'black' : 'white';
+      return yiq > 200 || yiq < 60;
    };
 })
 
