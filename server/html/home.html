@@ -8,35 +8,37 @@
 
   <title>RPNow</title>
   <meta name="description" content="RPNow is a roleplay site where small groups of friends can instantly create private roleplaying chatrooms.">
+
+  <base href="/">
 </head>
 
-<body ng-controller="NewRpController">
-  <h1>RPNow</h1>
-  <form ng-hide="submitted" ng-submit="submit()">
-    <fieldset>
-      <input type="text" ng-model="title" maxlength="30" placeholder="Type a Title..." required autocomplete="off">
-      <button type="button" ng-click="spinTitle()">Random</button>
-    </fieldset>
-    <fieldset ng-show="showMoreOptions">
-      <textarea ng-model="desc" maxlength="255" placeholder="Enter a Description... (Optional)" autocomplete=off></textarea>
-    </fieldset>
-    <fieldset>
-      <input type="submit" value="Begin Roleplay"></input>
-      <button type="button" ng-hide="showMoreOptions" ng-click="showMoreOptions = true">More options</button>
-    </fieldset>
-  </form>
+<body>
 
-  <div ng-show="submitted">
-    <span ng-hide="rpCode">Creating RP...</span>
-    <span ng-show="rpCode">RP Created: {{rpCode}}</span>
-  </div>
+  <div ng-view ng-cloak></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-route.js"></script>
   <script src="rprandom.js"></script>
   <script>
-    angular.module('rpnow', [])
+    angular.module('rpnow', ['ngRoute']);
 
-    .controller('NewRpController', ['$scope', '$timeout', '$http', function($scope, $timeout, $http) {
+    angular.module('rpnow')
+
+    .config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
+      $locationProvider.html5Mode(true);
+
+      $routeProvider
+        .when('/', {
+          templateUrl: '/app/home.template.html',
+          controller: 'NewRpController'
+        })
+        .when('/rp/:rpCode', {
+          template: 'RP page here...'
+        })
+        .otherwise('/');
+    }])
+
+    .controller('NewRpController', ['$scope', '$timeout', '$http', '$location', function($scope, $timeout, $http, $location) {
       var spinTimer = null;
       function tick(millis) {
         $scope.title = RPRandom.shortTitle(25);
@@ -52,7 +54,7 @@
         $http.post('/api/v1/rps.json', {title: $scope.title, desc: $scope.desc})
           .then(function(res) {
             $scope.rpCode = res.data.rpCode;
-            window.location.href = 'rp/'+$scope.rpCode;
+            $location.url('/rp/'+$scope.rpCode);
           })
       }
     }])

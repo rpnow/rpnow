@@ -1,0 +1,19 @@
+<h1>RPNow</h1>
+<form ng-hide="submitted" ng-submit="submit()">
+<fieldset>
+    <input type="text" ng-model="title" maxlength="30" placeholder="Type a Title..." required autocomplete="off">
+    <button type="button" ng-click="spinTitle()">Random</button>
+</fieldset>
+<fieldset ng-show="showMoreOptions">
+    <textarea ng-model="desc" maxlength="255" placeholder="Enter a Description... (Optional)" autocomplete=off></textarea>
+</fieldset>
+<fieldset>
+    <input type="submit" value="Begin Roleplay"></input>
+    <button type="button" ng-hide="showMoreOptions" ng-click="showMoreOptions = true">More options</button>
+</fieldset>
+</form>
+
+<div ng-show="submitted">
+<span ng-hide="rpCode">Creating RP...</span>
+<span ng-show="rpCode">RP Created: {{rpCode}}</span>
+</div>

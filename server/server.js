@@ -42,7 +42,7 @@ module.exports.start = function(customOptions = {}, callback) {
    
    app.use(express.static(__dirname.replace('server','server/static'))); //express is serving static files as if it were Apache
    app.use('/api/v1', require('./api')(options, io(server)));
-   app.use('/', require('./serve-frontend'));
+   app.get('*', (req, res) => res.sendFile(`${__dirname}/html/home.html`));
    
    listener = server.listen(options.port, options.ip, ()=>{
       if (callback) callback(null, listener, options);
