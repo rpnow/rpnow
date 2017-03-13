@@ -5,10 +5,12 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 
    $routeProvider
       .when('/', {
+         title: 'RPNow',
          templateUrl: '/app/home.template.html',
          controller: 'NewRpController'
       })
       .when('/rp/:rpCode', {
+         title: 'Loading RP... | RPNow',
          templateUrl: '/app/rp.template.html',
          controller: 'RpController',
          css: [
@@ -44,6 +46,13 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    localStorageServiceProvider
       .setPrefix('rpnow')
       .setDefaultToCookie(false)
+}])
+
+.run(['$rootScope', '$route', function($rootScope, $route) {
+   // https://stackoverflow.com/questions/26308020/how-to-change-page-title-in-angular-using-routeprovider
+   $rootScope.$on('$routeChangeSuccess', function() {
+      document.title = $route.current.title;
+   });
 }])
 
 .controller('NewRpController', ['$scope', '$timeout', '$http', '$location', function($scope, $timeout, $http, $location) {
@@ -83,6 +92,7 @@ $scope.submit = function() {
          .forEach(function(prop) {
             if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
          });
+      document.title = $scope.rp.title + ' | RPNow';
       $scope.loading = false;
    });
 
