@@ -13,7 +13,7 @@ USER node
 # Copy in source and install application
 COPY package.json .
 RUN npm cache clean && npm install
-# COPY server server
+# COPY src src
 
 # Container runs node server
 CMD ["npm", "start"]

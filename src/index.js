@@ -1,6 +1,6 @@
 console.log('Starting RPNow server.');
 
-const server = require('./server');
+const server = require('./server/server');
 
 server.start({ trustProxy: true }, (err, server, options) => {
    if (err) return console.error(err);

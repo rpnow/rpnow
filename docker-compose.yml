@@ -8,7 +8,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./server:/srv/server
+      - ./src:/srv/src
     environment:
       DB_HOST: db
   

@@ -40,9 +40,10 @@ module.exports.start = function(customOptions = {}, callback) {
    app.use(compression());
    // app.use(favicon(WEB + '/favicon.ico'));
    
-   app.use(express.static(__dirname.replace('server','server/static'))); //express is serving static files as if it were Apache
+   var srcRoot = __dirname.replace('src/server','src');
+   app.use(express.static(`${srcRoot}/www`)); //express is serving static files as if it were Apache
    app.use('/api/v1', require('./api')(options, io(server)));
-   app.get('*', (req, res) => res.sendFile(`${__dirname}/index.html`));
+   app.get('*', (req, res) => res.sendFile(`${srcRoot}/index.html`));
    
    listener = server.listen(options.port, options.ip, ()=>{
       if (callback) callback(null, listener, options);
