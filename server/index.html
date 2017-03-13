@@ -29,57 +29,6 @@
   <script src="/lib/angular-color-picker-1.0.10-rpn1.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-local-storage/0.5.2/angular-local-storage.js"></script>
   <script src="/rprandom.js"></script>
-  <script>
-    angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directives', 'mp.colorPicker', 'LocalStorageModule'])
-
-    angular.module('rpnow')
-
-    .config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
-      $locationProvider.html5Mode(true);
-
-      $routeProvider
-        .when('/', {
-          templateUrl: '/app/home.template.html',
-          controller: 'NewRpController'
-        })
-        .when('/rp/:rpCode', {
-          templateUrl: '/app/rp.template.html',
-          controller: 'RpController',
-          css: [
-            'https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.min.css',
-            '/lib/angular-color-picker-1.0.10-rpn1.css',
-            'https://fonts.googleapis.com/icon?family=Material+Icons',
-            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
-            '//fonts.googleapis.com/css?family=Playfair+Display',
-            '//fonts.googleapis.com/css?family=Alice',
-            '/rp.css',
-            '/app/rp.template.css'
-          ]
-        })
-        .otherwise('/');
-    }])
-
-    .controller('NewRpController', ['$scope', '$timeout', '$http', '$location', function($scope, $timeout, $http, $location) {
-      var spinTimer = null;
-      function tick(millis) {
-        $scope.title = RPRandom.shortTitle(25);
-        if (millis < 200.0) spinTimer = $timeout(tick, millis, true, millis * 1.2);
-      }
-      $scope.spinTitle = function() {
-        if (spinTimer) $timeout.cancel(spinTimer);
-        tick(1.0);
-      };
-
-      $scope.submit = function() {
-        $scope.submitted = true;
-        $http.post('/api/v1/rps.json', {title: $scope.title, desc: $scope.desc})
-          .then(function(res) {
-            $scope.rpCode = res.data.rpCode;
-            $location.url('/rp/'+$scope.rpCode);
-          })
-      }
-    }])
-  </script>
-  <script src="/rp.js"></script>
+  <script src="/app/app.js"></script>
 </body>
 </html>
