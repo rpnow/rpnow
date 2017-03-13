@@ -55,25 +55,27 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    });
 }])
 
-.controller('NewRpController', ['$scope', '$timeout', '$http', '$location', function($scope, $timeout, $http, $location) {
-var spinTimer = null;
-function tick(millis) {
-   $scope.title = RPRandom.shortTitle(25);
-   if (millis < 200.0) spinTimer = $timeout(tick, millis, true, millis * 1.2);
-}
-$scope.spinTitle = function() {
-   if (spinTimer) $timeout.cancel(spinTimer);
-   tick(1.0);
-};
-
-$scope.submit = function() {
-   $scope.submitted = true;
-   $http.post('/api/v1/rps.json', {title: $scope.title, desc: $scope.desc})
-      .then(function(res) {
-      $scope.rpCode = res.data.rpCode;
-      $location.url('/rp/'+$scope.rpCode);
+.controller('NewRpController', ['$scope', '$timeout', '$http', '$location', 'RPRandom', function($scope, $timeout, $http, $location, RPRandom) {
+   var spinTimer = null;
+   function tick(millis) {
+      RPRandom.roll('title', 25).then(function(title) {
+         $scope.title = title;
+         if (millis < 200.0) spinTimer = $timeout(tick, millis, true, millis * 1.2);
       })
-}
+   }
+   $scope.spinTitle = function() {
+      if (spinTimer) $timeout.cancel(spinTimer);
+      tick(1.0);
+   };
+
+   $scope.submit = function() {
+      $scope.submitted = true;
+      $http.post('/api/v1/rps.json', {title: $scope.title, desc: $scope.desc})
+         .then(function(res) {
+            $scope.rpCode = res.data.rpCode;
+            $location.url('/rp/'+$scope.rpCode);
+         })
+   }
 }])
 
 .controller('RpController', ['$scope', '$timeout', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', function($scope, $timeout, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService) {
@@ -413,8 +415,44 @@ $scope.submit = function() {
    }
 })
 
+.factory('RPRandom', ['$http', function($http) {
+   var types = {
+      'title': ':Title'
+   };
+   var dictPromises = {
+      'title': $http.get('/titles.json')
+   };
+
+   function resolve(str, dict) {
+      do {
+         var lastStr = str;
+         str = str.replace(/:([a-zA-Z]+):?/, dictRep);
+      } while(str !== lastStr);
+      function dictRep(match, inner) {
+         var x = dict[inner];
+         if(x) return x[Math.floor(Math.random()*x.length)];
+         else return inner.toUpperCase() + '?';
+      }
+      return str.trim().replace(/\s+/g, ' ');
+   }
+   return {
+      roll: function(template, maxLength) {
+         return new Promise(function(success, fail) {
+            dictPromises[template].then(function(res) {
+               while (true) {
+                  var str = resolve(types[template], res.data);
+                  if (maxLength && str.length > maxLength) continue;
+                  return success(str);
+               }
+            })
+         })
+      }
+   }
+}])
+
 // https://stackoverflow.com/questions/14389049/
 .factory('socket', ['$rootScope', function($rootScope) {
+      console.log('socket created');
    var socket = io();
    return {
       emit: function(type, data, callback) {
