@@ -41,7 +41,7 @@ module.exports.start = function(customOptions = {}, callback) {
    // app.use(favicon(WEB + '/favicon.ico'));
    
    var srcRoot = __dirname.replace('src/server','src');
-   app.use(express.static(`${srcRoot}/www`)); //express is serving static files as if it were Apache
+   app.use(express.static(`${srcRoot}/www`));
    app.use('/api/v1', require('./api')(options, io(server)));
    app.get('*', (req, res) => res.sendFile(`${srcRoot}/index.html`));
    
