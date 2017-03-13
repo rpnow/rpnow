@@ -1,58 +1,61 @@
 <!doctype html>
-<html>
+<html ng-app="rpnow">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, height=device-height, maximum-scale=1, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
   <title>RPNow</title>
   <meta name="description" content="RPNow is a roleplay site where small groups of friends can instantly create private roleplaying chatrooms.">
-  <link rel="stylesheet" type="text/css" href="rp.css">
 </head>
-<body class="home">
-  <form id="new-rp" action="create" method="post">
-    <h1 id="home-title">RPNow</h1>
+
+<body ng-controller="NewRpController">
+  <h1>RPNow</h1>
+  <form ng-hide="submitted" ng-submit="submit()">
     <fieldset>
-      <input type="text" id="rp-name" class="input-with-button" name="title" maxlength="30" placeholder="Type a Title..." required autocomplete=off>
-      <button type="button" id="random-title-button" class="dice">Random</button>
+      <input type="text" ng-model="title" maxlength="30" placeholder="Type a Title..." required autocomplete="off">
+      <button type="button" ng-click="spinTitle()">Random</button>
     </fieldset>
-    <fieldset class="hidden">
-      <textarea name="desc" rows="5" maxlength="255" placeholder="Enter a Description... (Optional)" autocomplete=off></textarea>
+    <fieldset ng-show="showMoreOptions">
+      <textarea ng-model="desc" maxlength="255" placeholder="Enter a Description... (Optional)" autocomplete=off></textarea>
     </fieldset>
     <fieldset>
-      <button type="button" class="btn-submit" id="begin-roleplay-btn">Begin Roleplay</button><!--
-      --><button type="button" class="btn-submit" id="more-options-btn">More options</button>
+      <input type="submit" value="Begin Roleplay"></input>
+      <button type="button" ng-hide="showMoreOptions" ng-click="showMoreOptions = true">More options</button>
     </fieldset>
   </form>
-  <script src="/lib/jquery-3.1.0.min.js"></script>
+
+  <div ng-show="submitted">
+    <span ng-hide="rpCode">Creating RP...</span>
+    <span ng-show="rpCode">RP Created: {{rpCode}}</span>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js"></script>
   <script src="rprandom.js"></script>
   <script>
-    /*global $ RPRandom*/
-    function randoo(time) {
-      document.getElementById('rp-name').value = RPRandom.shortTitle(25);
-      if(time < 200.0) setTimeout(function() { randoo(time*1.2); }, time);
-    }
-    document.getElementById('random-title-button').addEventListener('click', function() { randoo(1.0); });
-    
-    $('#more-options-btn').click(function(evt) {
-      $("#more-options-btn").hide();
-      $("#begin-roleplay-btn").css('width', '100%');
-      $("fieldset.hidden").show();
-    });
-    
-    $('#begin-roleplay-btn').click(function(evt) {
-      $.ajax({
-        method: 'POST',
-        url: '/api/v1/rps.json',
-        data: {
-          title: $('#rp-name').val(),
-          desc: $('textarea[name=desc]').val() || undefined
-        },
-        success: function(data) {
-          $('body').text(`Created RP: ${data.rpCode}`);
-          window.location.href = `rp/${data.rpCode}`;
-        }
-      });
-      $('body').text('Creating RP...');
-    });
+    angular.module('rpnow', [])
+
+    .controller('NewRpController', ['$scope', '$timeout', '$http', function($scope, $timeout, $http) {
+      var spinTimer = null;
+      function tick(millis) {
+        $scope.title = RPRandom.shortTitle(25);
+        if (millis < 200.0) spinTimer = $timeout(tick, millis, true, millis * 1.2);
+      }
+      $scope.spinTitle = function() {
+        if (spinTimer) $timeout.cancel(spinTimer);
+        tick(1.0);
+      };
+
+      $scope.submit = function() {
+        $scope.submitted = true;
+        $http.post('/api/v1/rps.json', {title: $scope.title, desc: $scope.desc})
+          .then(function(res) {
+            $scope.rpCode = res.data.rpCode;
+            window.location.href = 'rp/'+$scope.rpCode;
+          })
+      }
+    }])
   </script>
 </body>
 </html>
