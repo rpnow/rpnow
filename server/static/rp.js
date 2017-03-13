@@ -1,4 +1,4 @@
-angular.module('rpnow', ['ngMaterial', 'luegg.directives', 'mp.colorPicker', 'LocalStorageModule'])
+angular.module('rpnow')
 
 .config(['$mdThemingProvider', function($mdThemingProvider) {
    $mdThemingProvider.theme('default')

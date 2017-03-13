@@ -12,15 +12,25 @@
   <base href="/">
 </head>
 
-<body>
-
-  <div ng-view ng-cloak></div>
+<body ng-view ng-cloak ng-class="nightMode?'dark':''" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-animate.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-aria.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-messages.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-route.js"></script>
-  <script src="rprandom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-css/1.0.8/angular-css.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.6.1/jszip.js"></script>
+  <script src="/lib/docxtemplater-3.0.3.min.js"></script>
+  <script src="/lib/scrollglue-2.1.0.js"></script>
+  <script src="/lib/angular-color-picker-1.0.10-rpn1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-local-storage/0.5.2/angular-local-storage.js"></script>
+  <script src="/rprandom.js"></script>
   <script>
-    angular.module('rpnow', ['ngRoute']);
+    angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directives', 'mp.colorPicker', 'LocalStorageModule'])
 
     angular.module('rpnow')
 
@@ -33,7 +43,18 @@
           controller: 'NewRpController'
         })
         .when('/rp/:rpCode', {
-          template: 'RP page here...'
+          templateUrl: '/app/rp.template.html',
+          controller: 'RpController',
+          css: [
+            'https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.min.css',
+            '/lib/angular-color-picker-1.0.10-rpn1.css',
+            'https://fonts.googleapis.com/icon?family=Material+Icons',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
+            '//fonts.googleapis.com/css?family=Playfair+Display',
+            '//fonts.googleapis.com/css?family=Alice',
+            '/rp.css',
+            '/app/rp.template.css'
+          ]
         })
         .otherwise('/');
     }])
@@ -59,5 +80,6 @@
       }
     }])
   </script>
+  <script src="/rp.js"></script>
 </body>
 </html>
