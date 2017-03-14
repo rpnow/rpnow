@@ -153,8 +153,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          rv.splice(5, rv.length);
       }
       $scope.msgBox.recentVoicesString = rv.join(',');
-      console.log($scope.msgBox.voice);
-      console.log($scope.msgBox.recentVoicesString);
    })
    $scope.sendMessage = function() {
       var msg = {
@@ -336,7 +334,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    }
    $scope.$watch(function() { return $scope.charaListDocked || $mdSidenav('right').isOpen(); }, function(isRightDrawerLockedOpen) {
       $scope.isRightDrawerLockedOpen = isRightDrawerLockedOpen;
-      console.log(isRightDrawerLockedOpen);
    });
 
    $scope.showDialog = function(id, evt) {
@@ -466,7 +463,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 
 // https://stackoverflow.com/questions/14389049/
 .factory('socket', ['$rootScope', function($rootScope) {
-      console.log('socket created');
    var socket = io();
    return {
       emit: function(type, data, callback) {
