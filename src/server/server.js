@@ -43,7 +43,7 @@ module.exports.start = function(customOptions = {}, callback) {
    var srcRoot = __dirname.replace('src/server','src');
    app.use(express.static(`${srcRoot}/www`));
    app.use('/api/v1', require('./api')(options, io(server)));
-   app.get('*', (req, res) => res.sendFile(`${srcRoot}/index.html`));
+   app.get('*', (req, res) => res.sendFile(`${srcRoot}/www/app/index.html`));
    
    listener = server.listen(options.port, options.ip, ()=>{
       if (callback) callback(null, listener, options);
