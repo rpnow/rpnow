@@ -24,6 +24,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          '/app/rp.template.css'
          ]
       })
+      .when('/terms', {
+         title: 'Terms of Use | RPNow',
+         templateUrl: '/app/terms.template.html'
+      })
       .otherwise('/');
 }])
 
