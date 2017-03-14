@@ -1,6 +1,6 @@
 /* global describe it expect */
 const request = require('request');
-const rpnow = require('../server/server');
+const rpnow = require('../src/server/server');
 
 const host = `http://${process.env.IP}:${process.env.PORT}`;
 const api = `${host}/api/v1`;
@@ -20,7 +20,7 @@ describe("web server", () => {
          request(`${host}/`, (err, res, body) => {
             expect(err).toBeFalsy();
             expect(res).toBeDefined();
-            expect(res.statusCode).toBe(200);
+            expect(res && res.statusCode).toBe(200);
             done();
          });
       });
