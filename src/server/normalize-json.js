@@ -1,4 +1,5 @@
 function validateObject(obj, requirements) {
+   if (!obj || typeof obj !== 'object') return { valid: false, error: `Not an object` };
    for (let propName in requirements) {
       let value = obj[propName];
       let requirement = requirements[propName];
@@ -7,7 +8,10 @@ function validateObject(obj, requirements) {
       if (error !== true) return { valid: false, error: error.message };
    }
    for (let propName in obj) {
-      if (!requirements.hasOwnProperty(propName)) {
+      if (obj[propName] === undefined) {
+         delete obj[propName];
+      }
+      else if (!requirements.hasOwnProperty(propName)) {
          return { valid: false, error: `Contains extra property: ${propName}` };
       }
    }
@@ -34,12 +38,11 @@ function validateProperty(propName, value, obj, requirement) {
    // undefined means the property should NOT be there. if it is there and undefined, it still shouldn't work.
    if (type === undefined) {
       if (value !== undefined) return new Error(`${propName} should not be present.`);
-      delete obj[propName];
       return true;
    }
    if (value === undefined) {
-      if (optional) return true;
-      else return new Error(`Missing property: ${propName}`);
+      if (!optional) return new Error(`Missing property: ${propName}`);
+      return true;
    }
    
    // if type is the literal String, it will accept a string of max length (number).
