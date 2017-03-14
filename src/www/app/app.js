@@ -28,7 +28,13 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          title: 'Terms of Use | RPNow',
          templateUrl: '/app/terms.template.html'
       })
-      .otherwise('/');
+      .otherwise({
+         title: 'Not Found | RPNow',
+         templateUrl: '/app/404.template.html',
+         controller: ['$scope', '$location', function($scope, $location) {
+            $scope.url = $location.url();
+         }]
+      });
 }])
 
 .config(['$mdThemingProvider', function($mdThemingProvider) {
