@@ -48,6 +48,7 @@ function validateProperty(propName, value, obj, requirement) {
       if (value.length === 0 && !optional) return new Error(`${propName} is empty.`);
       obj[propName] = value = value.trim();
       if (value.length === 0 && !optional) return new Error(`${propName} is only whitespace.`);
+      if (value.length > requirement[1]) return new Error(`${propName} is longer than ${requirement[1]} characters.`);
       return true;
    }
    
