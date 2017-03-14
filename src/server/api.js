@@ -5,7 +5,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const wordwrap = require('wordwrap');
 const RateLimit = require('express-rate-limit');
 const mongojs = require('mongojs');
 const normalize = require('./normalize-json');

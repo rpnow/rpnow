@@ -10,8 +10,7 @@
     "express-rate-limit": "^2.5.0",
     "mongojs": "^2.4.0",
     "morgan": "^1.7.0",
-    "socket.io": "^1.7.2",
-    "wordwrap": "^1.0.0"
+    "socket.io": "^1.7.2"
   },
   "devDependencies": {
     "jasmine": "^2.5.2",
