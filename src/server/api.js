@@ -121,55 +121,6 @@ module.exports = function(options, io) {
       });
    });
    
-   router.get('/rps/:rpCode/page/:pageNum.json', (req, res, next) => {
-      let pageNum = req.params.pageNum;
-      if (!(pageNum >= 0) || pageNum%0) return next(new Error('Bad page number'));
-      let numPages = Math.max(Math.ceil(req.rp.msgs.length/options.pageSize), 1);
-      let out = {
-         title: req.rp.title,
-         desc: req.rp.desc,
-         numPages: numPages
-      };
-      if (pageNum > numPages) {
-         out.error = `Page not found: ${pageNum}`;
-         return res.status(404).json(out);
-      }
-      let pageStart = (pageNum-1)*options.pageSize;
-      out.msgs = req.rp.msgs.slice(pageStart, pageStart+options.pageSize);
-      out.charas = out.msgs
-         .filter(m=>m.type==='chara')
-         .map(m=>m.charaId)
-         .reduce((arr,id)=>{ if(!(id in arr)) arr[id] = id; return arr; }, [])
-         .map(id=>req.rp.charas[id]);
-      
-      res.status(200).json(out);
-   });
-   
-   router.get('/rps/:rpCode.txt', (req, res, next) => {
-      res.type('.txt');
-      res.attachment(req.rp.title + '.txt');
-      
-      let out = req.rp.msgs;
-      if (!req.query.ooc) out = out.filter(msg=>msg.type !== 'ooc');
-      out = out.map(msg=>{
-         if(msg.type === 'narrator') {
-            return wordwrap(72)(msg.content);
-         }
-         else if(msg.type === 'ooc') {
-            return wordwrap(72)(`(( OOC: ${msg.content} ))`);
-         }
-         else if(msg.type === 'chara') {
-            return `${req.rp.charas[msg.charaId].name.toUpperCase()}:\n`
-               + wordwrap(2, 72)(msg.content);
-         }
-         else {
-            throw new Error(`Unexpected message type: ${msg.type}`);
-         }
-      });
-      out.unshift(`${req.rp.title}\n${req.rp.desc}\n----------`);
-      res.send(out.map(msg=>msg.replace('\n', '\r\n')).join('\r\n\r\n'));
-   });
-   
    router.all('*', (req, res, next) => {
       next(new Error('unknown API call'));
    });
