@@ -9,6 +9,8 @@ const RateLimit = require('express-rate-limit');
 const mongojs = require('mongojs');
 const normalize = require('./normalize-json');
 
+const noop = function(){};
+
 module.exports = function(options, io) {
    let router = express.Router();
    let db = mongojs(`${options.db}/rpnow`, ['rooms']);
@@ -81,40 +83,42 @@ module.exports = function(options, io) {
       let rpCode;
       let ip = socket.request.connection.remoteAddress;
       let ipid = crypto.createHash('md5').update(ip).digest('hex').substr(0,18);
-      socket.on('join rp', (rpCodeToJoin, callback) => {
-         if (rpCode) return;
-         if (typeof rpCodeToJoin !== 'string') return;
+
+      socket.on('join rp', (rpCodeToJoin, callback = noop) => {
+         if (rpCode) return callback({error: 'already joined an rp'});
+         if (typeof rpCodeToJoin !== 'string') return callback({error: 'invalid rpCode'});
          
          db.rooms.findOne({ rpCode: rpCodeToJoin }, (err, rp) => {
-            if (!rp) return;
+            if (!rp) return callback({error: 'no rp found'});
             
             rpCode = rpCodeToJoin;
             socket.join(rpCode);
-            if (typeof callback === 'function') callback(rp);
+            callback(rp);
          });
       });
       
-      socket.on('add message', (msg, callback) => {
+      socket.on('add message', (msg, callback = noop) => {
          // validate & normalize
          let result = normalize(msg, messageSchema);
-         if (!result.valid) return console.log(result.error);
-         msg.timestamp = Date.now() / 1000,
+         if (!result.valid) return callback({error: result.error});
+         msg.timestamp = Date.now() / 1000;
          msg.ipid = ipid;
          
          // store & broadcast
          db.rooms.update({rpCode: rpCode}, {$push: {msgs: msg}}, (err, r) => {
-            if (typeof callback === 'function') callback(msg);
+            callback(msg);
             socket.to(rpCode).broadcast.emit('add message', msg);
          });
       });
-      socket.on('add character', (chara, callback) => {
+
+      socket.on('add character', (chara, callback = noop) => {
          // validate & normalize
          let result = normalize(chara, charaSchema);
-         if (!result.valid) return console.log(result.error);
+         if (!result.valid) return callback({error: result.error});
          
          // store & broadcast
          db.rooms.update({rpCode: rpCode}, {$push: {charas: chara}}, (err, r) => {
-            if (typeof callback === 'function') callback(chara);
+            callback(chara);
             socket.to(rpCode).broadcast.emit('add character', chara);
          });
       });

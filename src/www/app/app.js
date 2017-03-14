@@ -104,6 +104,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    $scope.rp = { rpCode: $scope.url.split('/').pop() };
 
    socket.emit('join rp', $scope.rp.rpCode, function(data) {
+      if (data.error) {
+         console.log(data.error);
+
+         return;
+      }
       ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
          .forEach(function(prop) {
             if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
