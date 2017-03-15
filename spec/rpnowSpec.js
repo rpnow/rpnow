@@ -269,7 +269,6 @@ xdescribe("POST constraints within an RP", () => {
 
 describe("web server (after running all tests)", () => {
    it("can be stopped", (done) => {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
       rpnow.stop(() => {
          request(`${host}/`, (err, res, body) => {
             expect(err).toBeTruthy();
