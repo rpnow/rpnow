@@ -5,6 +5,7 @@ const io = require('socket.io');
 const logger = require('morgan');
 const compression = require('compression');
 // const favicon = require('serve-favicon');
+const noop = function(){};
 
 const defaultOptions = {
    ip: process.env.IP || '0.0.0.0',
@@ -22,9 +23,9 @@ const defaultOptions = {
 let listener;
 
 // server start
-module.exports.start = function(customOptions = {}, callback) {
+module.exports.start = function(customOptions = {}, callback = noop) {
    if (listener) {
-      if (callback) callback('Server already started.');
+      callback('Server already started.');
       return;
    }
    
@@ -47,18 +48,18 @@ module.exports.start = function(customOptions = {}, callback) {
    require('./api')(options, io(server));
    
    listener = server.listen(options.port, options.ip, ()=>{
-      if (callback) callback(null, listener, options);
+      callback(null, listener, options);
    });
 };
 
-module.exports.stop = function(callback) {
+module.exports.stop = function(callback = noop) {
    if (!listener) {
-      if (callback) callback('No server to stop.');
+      callback('No server to stop.');
       return;
    }
    
    listener.close(() => { 
       listener = null;
-      if (callback) callback();
+      callback();
    });
 };
