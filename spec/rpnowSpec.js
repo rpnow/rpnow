@@ -1,12 +1,12 @@
 /* global describe it expect */
+const PORT_NUM = 8282;
+const host = `http://localhost:${PORT_NUM}`;
+
 const request = require('request');
 const rpnow = require('../src/server/server');
 
-const host = `http://${process.env.IP}:${process.env.PORT}`;
-const api = `${host}/api/v1`;
-
 describe("web server", () => {
-   const options = { logging: false, rateLimit: false };
+   const options = { port: PORT_NUM, logging: false, rateLimit: false };
    
    it("is not already running", (done) => {
       request(`${host}/`, (err, res, body) => {
@@ -27,7 +27,7 @@ describe("web server", () => {
    });
    
    it("can be stopped", (done) => {
-      rpnow.stop("test stopping server", () => {
+      rpnow.stop(() => {
          request(`${host}/`, (err, res, body) => {
             expect(err).toBeTruthy();
             done();
@@ -47,23 +47,55 @@ describe("web server", () => {
    });
 });
 
-describe("invalid API calls", () => {
-   var methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
-   var urls = [`${api}/`, `${api}`, `${api}/badcall`, `${api}/badcall/1`];
-   methods.forEach(method => {
-      urls.forEach(url => {
-         it(`will give a 400 call for a bad api ${method} call to ${url}`, (done) => {
-            request({ uri: url, method: method }, (err, res, body) => {
+describe("single-page app file serving", () => {
+   var badMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+   var pageUrls = [`/`, `/rp/aaaaaaaa`, `/about`, `/terms`, `/invalid`];
+   var resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/alert.mp3`, `/robots.txt`];
+   var pageResponses = {};
+
+   pageUrls.concat(resourceUrls).forEach(url => {
+      it(`will give a 200 status for GET-ing the resource: ${url}`, (done) => {
+         request({ uri: `${host}${url}`, method: 'GET'}, (err, res, body) => {
+            expect(err).toBeFalsy();
+            expect(res.statusCode).toBe(200);
+            pageResponses[url] = body;
+            done();
+         });
+      });
+      badMethods.forEach(method => {
+         it(`will give a 404 status for other HTTP request type "${method}" for ${url}`, (done) => {
+            request({ uri: `${host}${url}`, method: method }, (err, res, body) => {
                expect(err).toBeFalsy();
-               expect(res.statusCode).toBe(400);
+               expect(res.statusCode).toBe(404);
                done();
             });
          });
       });
    });
+   it(`will not respond to invalid HTTP request types`, (done) => {
+      request({ uri: `${host}/`, method: 'INVALID'}, (err, res, body) => {
+         expect(err).toBeTruthy();
+         done();
+      });
+   });
+
+   it(`will give the same page body for each SPA url`, () => {
+      pageUrls.forEach(url => {
+         expect(pageResponses[url]).toEqual(pageResponses['/app/index.html']);
+      })
+   });
+   it('will not serve the SPA index for static resources', () => {
+      resourceUrls.forEach(url => {
+         if (url !== '/app/index.html') {
+            expect(pageResponses[url]).not.toEqual(pageResponses['/app/index.html']);
+         }
+      })
+   })
+
 });
 
-describe("API basic coverage", () => {
+/*
+xdescribe("API basic coverage", () => {
    var rpCode = null;
    
    it("will give the rp code when created", (done) => {
@@ -186,7 +218,7 @@ describe("API basic coverage", () => {
    });
 });
 
-describe("POST constraints within an RP", () => {
+xdescribe("POST constraints within an RP", () => {
    var rpCode = null;
    
    it("will create a new RP for message testing", (done) => {
@@ -257,10 +289,11 @@ describe("POST constraints within an RP", () => {
    });
    
 });
+*/
 
 describe("web server (after running all tests)", () => {
    it("can be stopped", (done) => {
-      rpnow.stop("test stopping server", () => {
+      rpnow.stop(() => {
          request(`${host}/`, (err, res, body) => {
             expect(err).toBeTruthy();
             done();
