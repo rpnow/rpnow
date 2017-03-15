@@ -64,7 +64,6 @@ module.exports = function(options, io) {
             room.msgs = [];
             room.charas = [];
             db.rooms.insert(room, (err, rp) => {
-               console.log(rp);
                if (err) callback({ error: err });
                callback({ rpCode: rpCode });
             });
@@ -80,6 +79,7 @@ module.exports = function(options, io) {
             
             currentRpCode = rpCode;
             socket.join(rpCode);
+            delete rp._id;
             callback(rp);
          });
       });
@@ -90,7 +90,7 @@ module.exports = function(options, io) {
 
          currentRpCode = null;
          socket.leave(rpCode);
-         callback();
+         callback({});
       });
       
       socket.on('add message', (msg, callback = noop) => {

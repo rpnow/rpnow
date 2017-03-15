@@ -3,6 +3,7 @@ const PORT_NUM = 8282;
 const host = `http://localhost:${PORT_NUM}`;
 
 const request = require('request');
+const io = require('socket.io-client');
 const rpnow = require('../src/server/server');
 
 describe("web server", () => {
@@ -94,130 +95,105 @@ describe("single-page app file serving", () => {
 
 });
 
-/*
-xdescribe("API basic coverage", () => {
+describe("basic socket.io message coverage", () => {
    var rpCode = null;
+   var socket;
+
+   socket = io(host);
    
    it("will give the rp code when created", (done) => {
-      request.post({ uri: `${api}/rps.json`, json: true, body: { title: "Test RP" } }, (err, res, body) => {
-         expect(err).toBeFalsy();
-         rpCode = body.rpCode;
-         expect(res.statusCode).toBe(201);
-         expect(rpCode).toMatch(/^[a-zA-Z0-9]{8}$/);
+      socket.emit('create rp', { title: 'Test RP'}, (data) => {
+         expect(data.error).not.toBeDefined();
+         expect(data.rpCode).toBeDefined();
+         rpCode = data.rpCode;
+         done();
+      })
+   });
+   
+   it("will give an error when an invalid rpCode is requested", (done) => {
+      socket.emit('enter rp', 'badcode1', (data) => {
+         expect(data.error).toBeDefined();
+         expect(data._id).not.toBeDefined();
+         expect(data.title).not.toBeDefined();
          done();
       });
    });
    
    it("will give the blank rp when requested", (done) => {
-      request.get(`${api}/rps/${rpCode}.json`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(200);
+      socket.emit('enter rp', rpCode, (data) => {
+         expect(data.error).not.toBeDefined();
+         expect(data._id).not.toBeDefined();
+         expect(data.title).toBe('Test RP');
+         expect(data.msgs.length).toBe(0);
+         expect(data.charas.length).toBe(0);
          done();
       });
    });
    
-   it("will give a 404 for an invalid RP", (done) => {
-      var badRpCode = 'noRPhere';
-      request.get(`${api}/rps/${badRpCode}.json`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(404);
+   it("accepts new chara", (done) => {
+      let chara = { name: 'Cassie', color: '#ca551e' };
+      socket.emit('add character', chara, (data) => {
+         expect(data.error).not.toBeDefined();
+         expect(data._id).not.toBeDefined();
+         expect(data.name).toBe('Cassie');
+         expect(data.color).toBe('#ca551e');
          done();
       });
    });
-   
-   it("will give a blank page for page 1", (done) => {
-      request.get(`${api}/rps/${rpCode}/page/1.json`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(200);
-         done();
-      });
-   });
-   it("will give a 404 for page 2", (done) => {
-      request.get(`${api}/rps/${rpCode}/page/2.json`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(404);
-         done();
-      });
-   });
-   it("will give a 204 no content when checking for updates", (done) => {
-      request.get(`${api}/rps/${rpCode}/updates.json?updateCounter=0`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(204);
-         done();
-      });
-   });
-   it("will give an error when checking for updates that don't exist yet", (done) => {
-      request.get(`${api}/rps/${rpCode}/updates.json?updateCounter=1`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(400);
-         done();
-      });
-   });
-   
-   it("accepts new chara and gives an id", (done) => {
-      request.post({ uri: `${api}/rps/${rpCode}/chara.json`, json: true, body: { name: 'Cassie', color: '#ca551e' } }, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(201);
-         expect(body.id).toBe(0);
-         done();
-      });
-   });
-   
    
    it("accepts narrator message", (done) => {
-      request.post({ uri: `${api}/rps/${rpCode}/msg.json`, json: true, body: { type: 'narrator', content: 'Narrator message text.' } }, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(201);
-         expect(body.id).toBe(0);
+      let msg = { type: 'narrator', content: 'Narrator message text.' };
+      socket.emit('add message', msg, (data) => {
+         expect(data.error).not.toBeDefined();
+         expect(data._id).not.toBeDefined();
+         expect(data.type).toBe('narrator');
+         expect(data.content).toEqual(msg.content);
+         expect(data.chara).not.toBeDefined();
          done();
       });
    });
    
    it("accepts ooc message", (done) => {
-      request.post({ uri: `${api}/rps/${rpCode}/msg.json`, json: true, body: { type: 'ooc', content: 'OOC message text.' } }, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(201);
-         expect(body.id).toBe(1);
+      let msg = { type: 'ooc', content: 'OOC message text.' };
+      socket.emit('add message', msg, (data) => {
+         expect(data.error).not.toBeDefined();
+         expect(data._id).not.toBeDefined();
+         expect(data.type).toBe('ooc');
+         expect(data.content).toEqual(msg.content);
+         expect(data.chara).not.toBeDefined();
          done();
       });
    });
    
    it("accepts chara message", (done) => {
-      request.post({ uri: `${api}/rps/${rpCode}/msg.json`, json: true, body: { type: 'chara', charaId: 0, content: 'OOC message text.' } }, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(201);
-         expect(body.id).toBe(2);
+      let msg = { type: 'chara', content: 'Hello!', chara: {name:'Cassie',color:'#ca551e'} };
+      socket.emit('add message', msg, (data) => {
+         expect(data.error).not.toBeDefined();
+         expect(data._id).not.toBeDefined();
+         expect(data.type).toBe('chara');
+         expect(data.content).toEqual(msg.content);
+         expect(data.chara.name).toBe('Cassie');
+         expect(data.chara.color).toBe('#ca551e');
          done();
       });
    });
-   
-   [0, 1, 2, 3].forEach(updateCounter => {
-      it(`gives 200 when there are chat updates (update counter = ${updateCounter})`, (done) => {
-         request.get(`${api}/rps/${rpCode}/updates.json?updateCounter=${updateCounter}`, (err, res, body) => {
-            expect(err).toBeFalsy();
-            expect(res.statusCode).toBe(200);
-            done();
-         });
-      });
-   });
-   
-   it("gives 204 after reaching the end of chat updates", (done) => {
-      request.get(`${api}/rps/${rpCode}/updates.json?updateCounter=4`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(204);
+
+   it("leaves the room succesfully", (done) => {
+      socket.emit('exit rp', rpCode, (data) => {
+         expect(data.error).not.toBeDefined();
          done();
       });
    });
-   
-   it("outputs a text document of the RP", (done) => {
-      request.get(`${api}/rps/${rpCode}.txt`, (err, res, body) => {
-         expect(err).toBeFalsy();
-         expect(res.statusCode).toBe(200);
+
+   it("closes its connection", (done) => {
+      socket.on('disconnect', () => {
          done();
       });
+      socket.close();
    });
 });
 
+/*
 xdescribe("POST constraints within an RP", () => {
    var rpCode = null;
    
@@ -293,6 +269,7 @@ xdescribe("POST constraints within an RP", () => {
 
 describe("web server (after running all tests)", () => {
    it("can be stopped", (done) => {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
       rpnow.stop(() => {
          request(`${host}/`, (err, res, body) => {
             expect(err).toBeTruthy();
