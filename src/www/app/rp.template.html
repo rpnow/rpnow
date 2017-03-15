@@ -122,7 +122,7 @@
       <div class="left-buttons"></div>
       <div class="message-input-column" flex layout="column">
         <div layout="row">
-          <md-select id="voice-selector" class="md-accent" ng-model="msgBox.voice" flex>
+          <md-select id="voice-selector" class="md-accent" ng-model="msgBox.voice" flex aria-label="Current character">
             <md-option ng-if="rp.charas" ng-repeat="voice in msgBox.recentVoices()" ng-value="voice">
               <span ng-if="voice === 'narrator'">
                 <md-icon>create</md-icon> Narrator
