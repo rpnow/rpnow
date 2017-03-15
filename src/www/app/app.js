@@ -91,7 +91,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    };
 }])
 
-.controller('RpController', ['$scope', '$timeout', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', function($scope, $timeout, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService) {
+.controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService, saveRpService) {
    $scope.MAX_CHARA_NAME_LENGTH  = 30;
    $scope.MAX_MSG_CONTENT_LENGTH = 10000;
 
@@ -213,93 +213,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    // };
    $scope.downloadOOC = true;
    $scope.downloadTxt = function() {
-      var out = $scope.rp.msgs;
-      if (!$scope.downloadOOC) out = out.filter(function(msg) {return msg.type!=='ooc'});
-      out = out.map(function(msg){
-         if(msg.type === 'narrator') {
-            return wordwrap(msg.content, 72);
-         }
-         else if(msg.type === 'ooc') {
-            return wordwrap('(( OOC: '+msg.content+' ))', 72);
-         }
-         else if(msg.type === 'chara') {
-            return msg.chara.name.toUpperCase()+':\r\n'
-               + wordwrap(msg.content, 70, '  ');
-         }
-         else {
-            throw new Error('Unexpected message type: '+msg.type);
-         }
-      });
-      out.unshift($scope.rp.title+'\r\n'+($scope.rp.desc||'')+'\r\n----------');
-      var str = out.join('\r\n\r\n');
-      download($scope.rp.title+'.txt', str);
+      saveRpService.saveTxt($scope.rp, $scope.downloadOOC);
    };
-   function wordwrap(str, width, indent) {
-      return str.split('\n')
-         .map(function(paragraph) { return (paragraph
-            .match(/\S+\s*/g) || [])
-            .reduce(function(lines,word) {
-                  if ((lines[lines.length-1]+word).trimRight().length>width)
-                     word.match(new RegExp("\\S{1,"+width+"}\\s*",'g'))
-                           .forEach(function(wordPiece){ lines.push(wordPiece); })
-                  else
-                     lines[lines.length-1] += word;
-                  return lines;
-            }, [''])
-            .map(function(str) { return (indent||'')+str.trimRight(); })
-         })
-         .reduce(function(lines, paragraph) {
-            paragraph.forEach(function(line) { lines.push(line); });
-            return lines;
-         }, [])
-         .join('\r\n');
-   }
-   function download(filename, data) {
-      // https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
-      // https://stackoverflow.com/questions/23451726/saving-binary-data-as-file-using-javascript-from-a-browser
-      var element = document.createElement('a');
-      element.style.display = 'none';
-      element.setAttribute('download', filename);
-
-      var href;
-      if (typeof data === 'string') {
-         href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(data);
-      }
-      else if (data instanceof Blob) {
-         href = window.URL.createObjectURL(data);
-      }
-      else {
-         throw new Error('unknown data type.');
-      }
-      element.setAttribute('href', href);
-
-
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-   }
    $scope.downloadDocx = function() {
-      var rpData = JSON.parse(JSON.stringify($scope.rp));
-      rpData.hasDesc = !!rpData.desc;
-      rpData.msgs.forEach(function(msg) {
-         msg.isNarrator = msg.type === 'narrator';
-         msg.isOOC = msg.type === 'ooc';
-         msg.isChara = msg.type === 'chara';
-         if (msg.isChara) msg.name = msg.chara.name.toUpperCase();
-      });
-      $http.get('/template.docx', {responseType: 'arraybuffer'})
-         .then(function(res) {
-
-            var doc = new Docxtemplater().loadZip(new JSZip(res.data));
-            doc.setData(rpData);
-            doc.render();
-            var out = doc.getZip().generate({
-               type: 'blob',
-               mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            });
-            download($scope.rp.title+'.docx', out)
-         });
-   }
+      saveRpService.saveDocx($scope.rp, $scope.downloadOOC);
+   };
 
    $scope.pressEnterToSend = true;
    $scope.notificationNoise = true;
@@ -389,6 +307,107 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    $scope.$on('$destroy', function() {
       socket.emit('exit rp', $scope.rp.rpCode);
    });
+}])
+
+.factory('saveRpService', ['$http', function($http) {
+   function saveFile(filename, data) {
+      // https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
+      // https://stackoverflow.com/questions/23451726/saving-binary-data-as-file-using-javascript-from-a-browser
+      var element = document.createElement('a');
+      element.style.display = 'none';
+      element.setAttribute('download', filename);
+
+      var href;
+      if (typeof data === 'string') {
+         href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(data);
+      }
+      else if (data instanceof Blob) {
+         href = window.URL.createObjectURL(data);
+      }
+      else {
+         throw new Error('unknown data type.');
+      }
+      element.setAttribute('href', href);
+
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+   }
+   function saveTxt(rp, includeOOC) {
+      var out = rp.msgs;
+      if (!includeOOC) out = out.filter(function(msg) {return msg.type!=='ooc'});
+      out = out.map(function(msg) {
+         if(msg.type === 'narrator') {
+            return wordwrap(msg.content, 72);
+         }
+         else if(msg.type === 'ooc') {
+            return wordwrap('(( OOC: '+msg.content+' ))', 72);
+         }
+         else if(msg.type === 'chara') {
+            return msg.chara.name.toUpperCase()+':\r\n'
+               + wordwrap(msg.content, 70, '  ');
+         }
+         else {
+            throw new Error('Unexpected message type: '+msg.type);
+         }
+      });
+      out.unshift(rp.title+'\r\n'+(rp.desc||'')+'\r\n----------');
+      var str = out.join('\r\n\r\n');
+      saveFile(rp.title+'.txt', str);
+   }
+   function wordwrap(str, width, indent) {
+      return str.split('\n')
+         .map(function(paragraph) { return (paragraph
+            .match(/\S+\s*/g) || [])
+            .reduce(function(lines,word) {
+                  if ((lines[lines.length-1]+word).trimRight().length>width)
+                     word.match(new RegExp("\\S{1,"+width+"}\\s*",'g'))
+                           .forEach(function(wordPiece){ lines.push(wordPiece); })
+                  else
+                     lines[lines.length-1] += word;
+                  return lines;
+            }, [''])
+            .map(function(str) { return (indent||'')+str.trimRight(); })
+         })
+         .reduce(function(lines, paragraph) {
+            paragraph.forEach(function(line) { lines.push(line); });
+            return lines;
+         }, [])
+         .join('\r\n');
+   }
+
+   var docxTemplateRequest;
+
+   function saveDocx(rp, includeOOC) {
+      var rpData = JSON.parse(JSON.stringify(rp));
+      rpData.hasDesc = !!rpData.desc;
+      if (!includeOOC) rpData.msgs = rpData.msgs.filter(function(msg) {return msg.type!=='ooc'});
+      rpData.msgs.forEach(function(msg) {
+         msg.isNarrator = msg.type === 'narrator';
+         msg.isOOC = msg.type === 'ooc';
+         msg.isChara = msg.type === 'chara';
+         if (msg.isChara) msg.name = msg.chara.name.toUpperCase();
+      });
+      if (!docxTemplateRequest) {
+         docxTemplateRequest = $http.get('/template.docx', {responseType: 'arraybuffer'});
+      }
+      docxTemplateRequest.then(function(res) {
+         var doc = new Docxtemplater().loadZip(new JSZip(res.data));
+         doc.setData(rpData);
+         doc.render();
+         var out = doc.getZip().generate({
+            type: 'blob',
+            mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+         });
+         saveFile(rp.title+'.docx', out)
+      })
+   }
+
+   return {
+      saveTxt: saveTxt,
+      saveDocx: saveDocx
+   };
+
 }])
 
 .directive('onPressEnter', function() {
