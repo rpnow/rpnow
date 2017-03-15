@@ -69,7 +69,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    });
 }])
 
-.controller('NewRpController', ['$scope', '$timeout', '$http', '$location', 'RPRandom', function($scope, $timeout, $http, $location, RPRandom) {
+.controller('NewRpController', ['$scope', '$timeout', '$location', 'RPRandom', 'socket', function($scope, $timeout, $location, RPRandom, socket) {
    var spinTimer = null;
    function tick(millis) {
       RPRandom.roll('title', 25).then(function(title) {
@@ -84,12 +84,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 
    $scope.submit = function() {
       $scope.submitted = true;
-      $http.post('/api/v1/rps.json', {title: $scope.title, desc: $scope.desc})
-         .then(function(res) {
-            $scope.rpCode = res.data.rpCode;
-            $location.url('/rp/'+$scope.rpCode);
-         })
-   }
+      socket.emit('create rp', {title: $scope.title, desc: $scope.desc}, function(data) {
+         $scope.rpCode = data.rpCode;
+         $location.url('/rp/'+$scope.rpCode);
+      });
+   };
 }])
 
 .controller('RpController', ['$scope', '$timeout', '$http', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', function($scope, $timeout, $http, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService) {
@@ -103,7 +102,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    $scope.url = location.href.split('#')[0];
    $scope.rp = { rpCode: $scope.url.split('/').pop() };
 
-   socket.emit('join rp', $scope.rp.rpCode, function(data) {
+   socket.emit('enter rp', $scope.rp.rpCode, function(data) {
       if (data.error) {
          console.log(data.error);
 
@@ -387,7 +386,9 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       });
    }
 
-   $scope.$on('$destroy', socket.close);
+   $scope.$on('$destroy', function() {
+      socket.emit('exit rp', $scope.rp.rpCode);
+   });
 }])
 
 .directive('onPressEnter', function() {
@@ -481,8 +482,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             callback.apply(socket, arguments);
             $rootScope.$apply();
          })
-      },
-      close: socket.close.bind(socket)
+      }
    };
 }])
 
