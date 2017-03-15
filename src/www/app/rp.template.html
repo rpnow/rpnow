@@ -63,7 +63,7 @@
             <md-icon>menu</md-icon>
           </md-button>
         </div>
-        <h1 md-truncate flex title="{{rp.title}}">{{rp.title}}</h1>
+        <h1 md-truncate flex title="{{rp.desc || rp.title}}">{{rp.title}}</h1>
         <div class="right-buttons" layout="row" layout-align="end center">
           <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" title="Invite friends" id="inviteButton" ng-click="showDialog('#inviteDialog', $event)">
             <md-icon>mail</md-icon>
