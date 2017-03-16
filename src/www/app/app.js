@@ -14,14 +14,14 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          templateUrl: '/app/rp.template.html',
          controller: 'RpController',
          css: [
-         'https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.min.css',
-         '/lib/angular-color-picker-1.0.10-rpn1.css',
-         'https://fonts.googleapis.com/icon?family=Material+Icons',
-         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
-         '//fonts.googleapis.com/css?family=Playfair+Display',
-         '//fonts.googleapis.com/css?family=Alice',
-         '/rp.css',
-         '/app/rp.template.css'
+            '/lib/angular-material.min.css',
+            '/lib/angular-color-picker-1.0.10-rpn1.css',
+            'https://fonts.googleapis.com/icon?family=Material+Icons',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
+            '//fonts.googleapis.com/css?family=Playfair+Display',
+            '//fonts.googleapis.com/css?family=Alice',
+            '/rp.css',
+            '/app/rp.template.css'
          ]
       })
       .when('/terms', {
