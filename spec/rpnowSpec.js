@@ -49,10 +49,10 @@ describe("web server", () => {
 });
 
 describe("single-page app file serving", () => {
-   var badMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-   var pageUrls = [`/`, `/rp/aaaaaaaa`, `/about`, `/terms`, `/invalid`];
-   var resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/alert.mp3`, `/robots.txt`];
-   var pageResponses = {};
+   const badMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+   const pageUrls = [`/`, `/rp/aaaaaaaa`, `/about`, `/terms`, `/invalid`];
+   const resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/alert.mp3`, `/robots.txt`];
+   let pageResponses = {};
 
    pageUrls.concat(resourceUrls).forEach(url => {
       it(`will give a 200 status for GET-ing the resource: ${url}`, (done) => {
@@ -96,10 +96,8 @@ describe("single-page app file serving", () => {
 });
 
 describe("basic socket.io message coverage", () => {
-   var rpCode = null;
-   var socket;
-
-   socket = io(host);
+   const socket = io(host);
+   let rpCode = null;
    
    it("will give the rp code when created", (done) => {
       socket.emit('create rp', { title: 'Test RP'}, (data) => {
