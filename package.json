@@ -18,7 +18,7 @@
   "scripts": {
     "start": "node src/index.js",
     "pretest": "mkdir -p /tmp/rptestdb && mongod --dbpath /tmp/rptestdb --fork --logpath /dev/null --smallfiles",
-    "test": "jasmine",
+    "test": "jasmine JASMINE_CONFIG_PATH=tests/support/jasmine.json",
     "posttest": "mongo admin --eval 'db.shutdownServer()' > /dev/null && rm -rf /tmp/rptestdb"
   },
   "keywords": [
