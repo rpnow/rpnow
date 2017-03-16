@@ -153,6 +153,115 @@ describe("normalize-json", () => {
         checkString('still too long', false);
     });
 
+    it('should validate numbers', () => {
+        let schema = {
+            'someNumber': [ Number ]
+        };
+        function check(num, expectedResult) {
+            expect( normalize({'someNumber': num}, schema).valid )
+                .toBe(expectedResult);
+        }
+
+        check(0, true);
+        check(1, true);
+        check(0.00001, true);
+        check(9999999999, true);
+        check(-1, true);
+
+        check(Infinity, false);
+        check(-Infinity, false);
+        check(NaN, false);
+        check('0', false);
+        check('1', false);
+        check(true, false);
+        check(false, false);
+        check(undefined, false);
+        check(null, false);
+        check([], false);
+        check({}, false);
+        check(function(){}, false);
+    });
+
+    it('should validate integers', () => {
+        let schema = {
+            'someInt': [ Number.isInteger ]
+        }
+        function check(num, expectedResult) {
+            expect( normalize({'someInt': num}, schema).valid )
+                .toBe(expectedResult);
+        }
+
+        check(0, true);
+        check(1, true);
+        check(-1, true);
+        check(Math.pow(2,31)-1, true);
+        check(-Math.pow(2,31), true);
+
+        check(0.1, false);
+        check(-0.1, false);
+        check(400.5, false);
+        check(Infinity, false);
+        check(-Infinity, false);
+        check(NaN, false);
+        check('0', false);
+        check('1', false);
+        check(true, false);
+        check(false, false);
+        check(undefined, false);
+        check(null, false);
+        check([], false);
+        check({}, false);
+        check(function(){}, false);
+    });
+
+    it('should validate maximums', () => {
+        let schema = {
+            'someNumber': [ Number, 10]
+        };
+        function check(num, expectedResult) {
+            expect( normalize({'someNumber': num}, schema).valid )
+                .toBe(expectedResult);
+        }
+
+        check(0, true);
+        check(1, true);
+        check(9, true);
+        check(9.99999, true);
+        check(10, true);
+
+        check(-1, false);
+        check(-0.0001, false);
+        check(10.0001, false);
+        check(11, false);
+    });
+
+    it('should validate minimums/maximums', () => {
+        let schema = {
+            'someNumber': [ Number, -12, -3]
+        };
+        function check(num, expectedResult) {
+            expect( normalize({'someNumber': num}, schema).valid )
+                .toBe(expectedResult);
+        }
+
+        check(-12, true);
+        check(-11.9999, true);
+        check(-11, true);
+        check(-4, true);
+        check(-3.0001, true);
+        check(-3, true);
+
+        check(-13, false);
+        check(-12.0001, false);
+        check(-2.9999, false);
+        check(-2, false);
+        check(1, false);
+        check(0, false);
+        check(-1, false);
+        check(12, false);
+        check(3, false);
+    });
+
     it('should validate enumerations', () => {
         let schema = {
             'someEnum': [ 'string', '0', 'false', '', 'null', 'undefined' ]
