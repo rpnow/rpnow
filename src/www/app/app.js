@@ -16,10 +16,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          css: [
             '/lib/angular-material.min.css',
             '/lib/angular-color-picker-1.0.10-rpn1.css',
-            'https://fonts.googleapis.com/icon?family=Material+Icons',
+            'https://fonts.googleapis.com/css?family=Alice|Playfair+Display|Material+Icons',
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
-            '//fonts.googleapis.com/css?family=Playfair+Display',
-            '//fonts.googleapis.com/css?family=Alice',
             '/rp.css',
             '/app/rp.template.css'
          ]
