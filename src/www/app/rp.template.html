@@ -103,10 +103,10 @@
     <!-- MESSAGES PANE -->
     <md-content flex layout="column" scroll-glue="isStoryGlued">
       <div id="message-container">
-        <div ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails}" ng-style="{'background-color': msg.chara?msg.chara.color:'auto', 'color': msg.chara?(msg.chara.color | contrastColor):'' }">
-          <div ng-if="msg.type === 'chara'" class="name">{{msg.chara.name}}</div>
+        <div ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails}" ng-style="{'background-color': chara(msg)?chara(msg).color:'auto', 'color': chara(msg)?(chara(msg).color | contrastColor):'' }">
+          <div ng-if="msg.type === 'chara'" class="name">{{chara(msg).name}}</div>
           <div class="message-details noselect" ng-show="msg.sending || showMessageDetails || (msg.type === 'ooc')">
-            <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(msg.chara? ((msg.chara.color | contrastColor) === 'white') : (nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
+            <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(chara(msg)? ((chara(msg).color | contrastColor) === 'white') : (nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
             <span class="timestamp" moment-ago-short="msg.timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-if="!msg.sending" ng-show="showMessageDetails"></span>
             <span class="color-ip-box" title="User color ID" ng-if="!msg.sending">
               <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>

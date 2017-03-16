@@ -15,7 +15,7 @@ let charaSchema = {
 let messageSchema = {
    'content': [ String, 10000 ],
    'type': [ 'narrator', 'chara', 'ooc' ],
-   'chara': (msg)=> msg.type === 'chara' ? charaSchema : undefined
+   'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined
 };
 
 module.exports = function(options, io) {
@@ -101,17 +101,30 @@ module.exports = function(options, io) {
          msg.ipid = ipid;
          
          // store & broadcast
-         db.rooms.update({rpCode: currentRpCode}, {$push: {msgs: msg}}, (err, r) => {
-            callback(msg);
-            socket.to(currentRpCode).broadcast.emit('add message', msg);
-         });
+         if (msg.type === 'chara') {
+            // charas must be in the chara list
+            db.rooms.findOne({ rpCode: currentRpCode }, { charas: 1 }, (err, rp) => {
+               if (msg.charaId >= rp.charas.length) return callback({error: `no character with id ${msg.charaId}`});
+
+               storeAndBroadcast();
+            });
+         }
+         else {
+            storeAndBroadcast();
+         }
+         function storeAndBroadcast() {
+            db.rooms.update({rpCode: currentRpCode}, {$push: {msgs: msg}}, (err, r) => {
+                callback(msg);
+                socket.to(currentRpCode).broadcast.emit('add message', msg);
+            });
+         }
       });
 
       socket.on('add character', (chara, callback = noop) => {
          // validate & normalize
          let result = normalize(chara, charaSchema);
          if (!result.valid) return callback({error: result.error});
-         
+
          // store & broadcast
          db.rooms.update({rpCode: currentRpCode}, {$push: {charas: chara}}, (err, r) => {
             callback(chara);

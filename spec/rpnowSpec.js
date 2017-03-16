@@ -166,14 +166,13 @@ describe("basic socket.io message coverage", () => {
    });
    
    it("accepts chara message", (done) => {
-      let msg = { type: 'chara', content: 'Hello!', chara: {name:'Cassie',color:'#ca551e'} };
+      let msg = { type: 'chara', content: 'Hello!', charaId: 0 };
       socket.emit('add message', msg, (data) => {
          expect(data.error).not.toBeDefined();
          expect(data._id).not.toBeDefined();
          expect(data.type).toBe('chara');
          expect(data.content).toEqual(msg.content);
-         expect(data.chara.name).toBe('Cassie');
-         expect(data.chara.color).toBe('#ca551e');
+         expect(data.charaId).toBe(0);
          done();
       });
    });

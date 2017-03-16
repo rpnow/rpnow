@@ -119,12 +119,15 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       if ((index = $scope.rp.charas.indexOf(item)) >= 0) return index;
       if ((index = $scope.rp.msgs.indexOf(item)) >= 0) return index;
       return null;
-   }
+   };
+   var chara = $scope.chara = function(msg) {
+      return msg.type === 'chara' ? $scope.rp.charas[msg.charaId] : null;
+   };
 
    socket.on('add message', function(msg) {
       $scope.rp.msgs.push(msg);
       var alertText;
-      if(msg.type === 'chara') alertText = '* ' + msg.chara.name + ' says...';
+      if(msg.type === 'chara') alertText = '* ' + chara(msg).name + ' says...';
       else if(msg.type === 'narrator') alertText = '* The narrator says...';
       else if(msg.type === 'ooc') alertText = '* OOC message...';
       pageAlerts.alert(alertText, $scope.notificationNoise);
@@ -175,8 +178,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       }
       if (!msg.content) return;
       if (msg.type === 'chara') {
-         msg.chara = JSON.parse(JSON.stringify($scope.rp.charas[+$scope.msgBox.voice]));
-         delete msg.chara.$$hashKey;
+         msg.charaId = +$scope.msgBox.voice;
       }
 
       socket.emit('add message', msg, function(receivedMsg) {
@@ -342,7 +344,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             return wordwrap('(( OOC: '+msg.content+' ))', 72);
          }
          else if(msg.type === 'chara') {
-            return msg.chara.name.toUpperCase()+':\r\n'
+            return rp.charas[msg.charaId].name.toUpperCase()+':\r\n'
                + wordwrap(msg.content, 70, '  ');
          }
          else {
@@ -384,7 +386,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          msg.isNarrator = msg.type === 'narrator';
          msg.isOOC = msg.type === 'ooc';
          msg.isChara = msg.type === 'chara';
-         if (msg.isChara) msg.name = msg.chara.name.toUpperCase();
+         if (msg.isChara) msg.name = rpData.charas[msg.charaId].name.toUpperCase();
       });
       if (!docxTemplateRequest) {
          docxTemplateRequest = $http.get('/template.docx', {responseType: 'arraybuffer'});
