@@ -17,7 +17,9 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "test": "jasmine"
+    "pretest": "mkdir -p /tmp/rptestdb && mongod --dbpath /tmp/rptestdb --fork --logpath /dev/null --smallfiles",
+    "test": "jasmine",
+    "posttest": "mongo admin --eval 'db.shutdownServer()' > /dev/null && rm -rf /tmp/rptestdb"
   },
   "keywords": [
     "roleplay"
