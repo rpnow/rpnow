@@ -7,8 +7,6 @@ services:
     build: .
     ports:
       - "8080:8080"
-    volumes:
-      - ./src:/srv/src
     environment:
       DB_HOST: db
   
