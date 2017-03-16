@@ -49,7 +49,7 @@ module.exports = function(options, io) {
    }
    
    io.on('connection', (socket) => {
-      let currentRpCode;
+      let currentRp;
       let ipid = crypto.createHash('md5')
          .update(socket.request.connection.remoteAddress)
          .digest('hex')
@@ -71,25 +71,24 @@ module.exports = function(options, io) {
       });
 
       socket.on('enter rp', (rpCode, callback = noop) => {
-         if (currentRpCode) return callback({error: 'already joined an rp'});
+         if (currentRp) return callback({error: 'already joined an rp'});
          if (typeof rpCode !== 'string') return callback({error: 'invalid rpCode'});
          
          db.rooms.findOne({ rpCode: rpCode }, (err, rp) => {
             if (!rp) return callback({error: 'no rp found'});
             
-            currentRpCode = rpCode;
-            socket.join(rpCode);
+            currentRp = rp._id;
+            socket.join(currentRp);
             delete rp._id;
             callback(rp);
          });
       });
 
       socket.on('exit rp', (rpCode, callback = noop) => {
-         if (!currentRpCode) return callback({error: 'not in an rp yet'});
-         if (rpCode !== currentRpCode) return callback({error: `not in rp ${rpCode}`});
+         if (!currentRp) return callback({error: 'not in an rp yet'});
 
-         currentRpCode = null;
-         socket.leave(rpCode);
+         socket.leave(currentRp);
+         currentRp = null;
          callback({});
       });
       
@@ -103,7 +102,7 @@ module.exports = function(options, io) {
          // store & broadcast
          if (msg.type === 'chara') {
             // charas must be in the chara list
-            db.rooms.findOne({ rpCode: currentRpCode }, { charas: 1 }, (err, rp) => {
+            db.rooms.findOne({ _id: currentRp }, { charas: 1 }, (err, rp) => {
                if (msg.charaId >= rp.charas.length) return callback({error: `no character with id ${msg.charaId}`});
 
                storeAndBroadcast();
@@ -113,9 +112,9 @@ module.exports = function(options, io) {
             storeAndBroadcast();
          }
          function storeAndBroadcast() {
-            db.rooms.update({rpCode: currentRpCode}, {$push: {msgs: msg}}, (err, r) => {
+            db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
                 callback(msg);
-                socket.to(currentRpCode).broadcast.emit('add message', msg);
+                socket.to(currentRp).broadcast.emit('add message', msg);
             });
          }
       });
@@ -126,9 +125,9 @@ module.exports = function(options, io) {
          if (!result.valid) return callback({error: result.error});
 
          // store & broadcast
-         db.rooms.update({rpCode: currentRpCode}, {$push: {charas: chara}}, (err, r) => {
+         db.rooms.update({ _id: currentRp }, {$push: {charas: chara}}, (err, r) => {
             callback(chara);
-            socket.to(currentRpCode).broadcast.emit('add character', chara);
+            socket.to(currentRp).broadcast.emit('add character', chara);
          });
       });
    });
