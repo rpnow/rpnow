@@ -17,7 +17,7 @@ let newRpSchema = {
 };
 let charaSchema = {
    'name': [ String, 30 ],
-   'color': /^#[0-9a-f]{6}$/gi
+   'color': /^#[0-9a-f]{6}$/g
 };
 let messageSchema = {
    'content': [ String, 10000 ],
