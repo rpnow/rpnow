@@ -331,7 +331,7 @@ describe("Malformed data resistance", () => {
 
 describe("multiple clients", () => {
    let sockets = [];
-   for(let i = 0; i < 3; ++i) sockets.push(io(host));
+   for(let i = 0; i < 4; ++i) sockets.push(io(host));
 
    let rpCode;
    let chat;
@@ -366,13 +366,29 @@ describe("multiple clients", () => {
       });
    });
 
-   it("send and receive many messages in order", (done) => {
+   it("have someone else create a separate room", (done) => {
+      sockets[3].emit('create rp', { title: 'Other RP'}, (data) => {
+         expect(data).toFitSchema({ rpCode: [String] });
+         sockets[3].emit('enter rp', data.rpCode, (data) => {
+            expect(data).toFitSchema({
+               title: [ String ],
+               desc: [ {$optional:String} ],
+               msgs: [ Array, false ],
+               charas: [ Array, false ]
+            });
+            done();
+         });
+      });
+   });
+
+   it("send and receive many messages in order, but only within the same room", (done) => {
       let waiters = 2;
 
-      let chat1 = startMockClient(sockets[0]);
-      let chat2 = startMockClient(sockets[1]);
+      let chat1 = startMockClient(sockets[0], true);
+      let chat2 = startMockClient(sockets[1], true);
+      let chatOtherRoom = startMockClient(sockets[3], false);
 
-      function startMockClient(socket) {
+      function startMockClient(socket, active) {
          let msgs = [];
 
          function sendOne() {
@@ -388,7 +404,7 @@ describe("multiple clients", () => {
             msgs.push(msg);
          })
 
-         sendOne();
+         if (active) sendOne();
 
          return msgs;
       }
@@ -396,6 +412,7 @@ describe("multiple clients", () => {
       function check() {
          expect(chat1.length).toBeGreaterThan(20-1);
          expect(chat2.length).toBeGreaterThan(20-1);
+         expect(chatOtherRoom.length).toBe(0);
          expect(JSON.stringify(chat1)).toEqual(JSON.stringify(chat2));
          chat = chat1;
          done();
