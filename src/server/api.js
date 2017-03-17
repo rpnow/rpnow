@@ -2,7 +2,14 @@ const crypto = require('crypto');
 const mongojs = require('mongojs');
 const normalize = require('./normalize-json');
 
-const noop = function(){};
+const safecall = function(callback) {
+   return function() {
+      try {
+         callback.apply(callback, arguments);
+      }
+      catch(ex) {}
+   }
+};
 
 let newRpSchema = {
    'title': [ String, 30 ],
@@ -55,9 +62,10 @@ module.exports = function(options, io) {
          .digest('hex')
          .substr(0,18);
 
-      socket.on('create rp', (room, callback = noop) => {
+      socket.on('create rp', (room, callback) => {
+         callback = safecall(callback);
          let result = normalize(room, newRpSchema);
-         if (!result.valid) return next(new Error(result.error));
+         if (!result.valid) return callback({error: result.error});
 
          generateRpCode((err, rpCode) => {
             room.rpCode = rpCode;
@@ -70,7 +78,8 @@ module.exports = function(options, io) {
          });
       });
 
-      socket.on('enter rp', (rpCode, callback = noop) => {
+      socket.on('enter rp', (rpCode, callback) => {
+         callback = safecall(callback);
          if (currentRp) return callback({error: 'already joined an rp'});
          if (typeof rpCode !== 'string') return callback({error: 'invalid rpCode'});
          
@@ -85,7 +94,8 @@ module.exports = function(options, io) {
          });
       });
 
-      socket.on('exit rp', (rpCode, callback = noop) => {
+      socket.on('exit rp', (rpCode, callback) => {
+         callback = safecall(callback);
          if (!currentRp) return callback({error: 'not in an rp yet'});
 
          socket.leave(currentRp);
@@ -93,7 +103,8 @@ module.exports = function(options, io) {
          callback({});
       });
       
-      socket.on('add message', (msg, callback = noop) => {
+      socket.on('add message', (msg, callback) => {
+         callback = safecall(callback);
          // validate & normalize
          let result = normalize(msg, messageSchema);
          if (!result.valid) return callback({error: result.error});
@@ -120,7 +131,8 @@ module.exports = function(options, io) {
          }
       });
 
-      socket.on('add character', (chara, callback = noop) => {
+      socket.on('add character', (chara, callback) => {
+         callback = safecall(callback);
          // validate & normalize
          let result = normalize(chara, charaSchema);
          if (!result.valid) return callback({error: result.error});

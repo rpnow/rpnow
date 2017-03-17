@@ -210,19 +210,45 @@ describe("basic socket.io message coverage", () => {
    });
 });
 
-/*
-xdescribe("POST constraints within an RP", () => {
-   var rpCode = null;
-   
-   it("will create a new RP for message testing", (done) => {
-      request.post({ uri: `${api}/rps.json`, json: true, body: { title: "Test RP" } }, (err, res, body) => {
-         expect(err).toBeFalsy();
-         rpCode = body.rpCode;
-         expect(res.statusCode).toBe(201);
+describe("Malformed data resistance", () => {
+   const socket = io(host);
+
+   beforeEach(() => jasmine.addMatchers(customMatchers));
+
+   it("will reject malformed socket.io requests", (done) => {
+      socket.emit(1);
+      socket.emit('hi');
+      socket.emit(false);
+      socket.emit(function(){});
+
+      ['create rp', 'enter rp', 'exit rp', 'add message', 'add character'].forEach(msgType => {
+         socket.emit('create rp', { title: 'Kill Server'}, 'not a function');
+         socket.emit('create rp', 'Kill Server');
+         socket.emit('create rp', undefined);
+      })
+
+      socket.emit('create rp', { title: 'Are you still alive'}, (data) => {
+         expect(data).toFitSchema({ rpCode: [String] });
          done();
       });
-   });
+   })
    
+   it("will create and join an RP for testing", (done) => {
+      socket.emit('create rp', { title: 'Test RP'}, (data) => {
+         expect(data).toFitSchema({ rpCode: [String] });
+         socket.emit('enter rp', data.rpCode, (data) => {
+            expect(data).toFitSchema({
+               title: [ String ],
+               desc: [ {$optional:String} ],
+               msgs: [ Array, false ],
+               charas: [ Array, false ]
+            });
+            done();
+         });
+      });
+   });
+
+   /*
    [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       ', 'NAME LONGER THAN THIRTY CHARACTERS'].forEach(badName => {
       it(`rejects chara with bad name: '${badName}'`, (done) => {
          request.post({ uri: `${api}/rps/${rpCode}/chara.json`, json: true, body: { name: badName, color: '#ca551e' } }, (err, res, body) => {
@@ -280,9 +306,16 @@ xdescribe("POST constraints within an RP", () => {
          });
       });
    });
+   */
+
+   it("closes its connection without leaving the room", (done) => {
+      socket.on('disconnect', () => {
+         done();
+      });
+      socket.close();
+   });
    
 });
-*/
 
 describe("web server (after running all tests)", () => {
    it("can be stopped", (done) => {
