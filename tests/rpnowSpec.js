@@ -222,9 +222,9 @@ describe("Malformed data resistance", () => {
       socket.emit(function(){});
 
       ['create rp', 'enter rp', 'exit rp', 'add message', 'add character'].forEach(msgType => {
-         socket.emit('create rp', { title: 'Kill Server'}, 'not a function');
-         socket.emit('create rp', 'Kill Server');
-         socket.emit('create rp', undefined);
+         socket.emit(msgType, { title: 'Kill Server'}, 'not a function');
+         socket.emit(msgType, 'Kill Server');
+         socket.emit(msgType, undefined);
       })
 
       socket.emit('create rp', { title: 'Are you still alive'}, (data) => {
