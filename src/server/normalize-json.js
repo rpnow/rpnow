@@ -29,7 +29,7 @@ function validateProperty(propName, value, obj, requirement) {
    }
    
    // if it's a function, resolve it
-   if ((typeof type) === 'function' && ![String, Number, Number.isInteger].includes(type)) {
+   if ((typeof type) === 'function' && ![String, Number, Number.isInteger, Array].includes(type)) {
       let newRequirement = type(obj);
       if (newRequirement === true || newRequirement instanceof Error) return newRequirement;
       return validateProperty(propName, value, obj, newRequirement);
@@ -46,12 +46,13 @@ function validateProperty(propName, value, obj, requirement) {
    }
    
    // if type is the literal String, it will accept a string of max length (number).
-   if ((type === String) && (typeof requirement[1]) === 'number') {
+   if (type === String) {
+      let max = ((typeof requirement[1]) === 'number') ? requirement[1] : Infinity;
       if (typeof(value) !== 'string') return new Error(`${propName} is not a string.`);
       if (value.length === 0 && !optional) return new Error(`${propName} is empty.`);
       obj[propName] = value = value.trim();
       if (value.length === 0 && !optional) return new Error(`${propName} is only whitespace.`);
-      if (value.length > requirement[1]) return new Error(`${propName} is longer than ${requirement[1]} characters.`);
+      if (value.length > max) return new Error(`${propName} is longer than ${max} characters.`);
       return true;
    }
 
@@ -81,6 +82,14 @@ function validateProperty(propName, value, obj, requirement) {
       if (!value.match(type)) return new Error(`"${value}" is not a valid format for ${propName}: ${requirement.toString()}`);
       return true;
    }
+
+   // Array literal means that it's an array of some requirement.
+   if (type === Array) {
+      if (!Array.isArray(value)) return new Error(`${propName} is not an array.`);
+      let problemIndex = value.findIndex((v,i)=>validateProperty(i, v, value, requirement.slice(1)) !== true);
+      if (problemIndex !== -1) return new Error(`"${propName}" is invalid.`);
+      return true;
+   }
    
    // non-array objects are some kind of inner schema. resolve recursively.
    if ((typeof type) === 'object' && !Array.isArray(type)) {
@@ -89,8 +98,8 @@ function validateProperty(propName, value, obj, requirement) {
    }
    
    // if type is a string (not the literal String), it's an enum
-   if ((typeof type) === 'string') {
-      if (requirement.indexOf(value) === -1) return new Error(`"${value}" is not valid for ${propName}`);
+   if (['string', 'number', 'boolean'].includes(typeof type)) {
+      if (!requirement.includes(value)) return new Error(`"${value}" is not valid for ${propName}`);
       return true;
    }
    
