@@ -4,7 +4,23 @@ const host = `http://localhost:${PORT_NUM}`;
 
 const request = require('request');
 const io = require('socket.io-client');
+const normalize = require('../src/server/normalize-json');
 const rpnow = require('../src/server/server');
+
+const customMatchers = {
+   toFitSchema: () => ({
+      compare: (obj, schema) => {
+         var test = normalize(obj, schema);
+
+         return {
+            pass: test.valid,
+            message: test.valid? 
+                `Expected ${JSON.stringify(obj) || obj} to fail the spec`:
+                `Expected ${JSON.stringify(obj) || obj} to pass: nJ says "${test.error}"`
+         };
+      }
+   }),
+};
 
 describe("web server", () => {
    const options = { port: PORT_NUM, logging: false, rateLimit: false };
@@ -98,11 +114,12 @@ describe("single-page app file serving", () => {
 describe("basic socket.io message coverage", () => {
    const socket = io(host);
    let rpCode = null;
+
+   beforeEach(() => jasmine.addMatchers(customMatchers));
    
    it("will give the rp code when created", (done) => {
       socket.emit('create rp', { title: 'Test RP'}, (data) => {
-         expect(data.error).not.toBeDefined();
-         expect(data.rpCode).toBeDefined();
+         expect(data).toFitSchema({ rpCode: [String] });
          rpCode = data.rpCode;
          done();
       })
@@ -110,20 +127,19 @@ describe("basic socket.io message coverage", () => {
    
    it("will give an error when an invalid rpCode is requested", (done) => {
       socket.emit('enter rp', 'badcode1', (data) => {
-         expect(data.error).toBeDefined();
-         expect(data._id).not.toBeDefined();
-         expect(data.title).not.toBeDefined();
+         expect(data).toFitSchema({ error: [String] });
          done();
       });
    });
    
    it("will give the blank rp when requested", (done) => {
       socket.emit('enter rp', rpCode, (data) => {
-         expect(data.error).not.toBeDefined();
-         expect(data._id).not.toBeDefined();
-         expect(data.title).toBe('Test RP');
-         expect(data.msgs.length).toBe(0);
-         expect(data.charas.length).toBe(0);
+         expect(data).toFitSchema({
+            title: [ String ],
+            desc: [ {$optional:String} ],
+            msgs: [ Array, false ],
+            charas: [ Array, false ]
+         });
          done();
       });
    });
@@ -131,10 +147,10 @@ describe("basic socket.io message coverage", () => {
    it("accepts new chara", (done) => {
       let chara = { name: 'Cassie', color: '#ca551e' };
       socket.emit('add character', chara, (data) => {
-         expect(data.error).not.toBeDefined();
-         expect(data._id).not.toBeDefined();
-         expect(data.name).toBe('Cassie');
-         expect(data.color).toBe('#ca551e');
+         expect(data).toFitSchema({
+            name: ['Cassie'],
+            color: ['#ca551e']
+         })
          done();
       });
    });
@@ -142,11 +158,12 @@ describe("basic socket.io message coverage", () => {
    it("accepts narrator message", (done) => {
       let msg = { type: 'narrator', content: 'Narrator message text.' };
       socket.emit('add message', msg, (data) => {
-         expect(data.error).not.toBeDefined();
-         expect(data._id).not.toBeDefined();
-         expect(data.type).toBe('narrator');
-         expect(data.content).toEqual(msg.content);
-         expect(data.chara).not.toBeDefined();
+         expect(data).toFitSchema({
+            type: ['narrator'],
+            content: [msg.content],
+            timestamp: [Number],
+            ipid: [String]
+         })
          done();
       });
    });
@@ -154,11 +171,12 @@ describe("basic socket.io message coverage", () => {
    it("accepts ooc message", (done) => {
       let msg = { type: 'ooc', content: 'OOC message text.' };
       socket.emit('add message', msg, (data) => {
-         expect(data.error).not.toBeDefined();
-         expect(data._id).not.toBeDefined();
-         expect(data.type).toBe('ooc');
-         expect(data.content).toEqual(msg.content);
-         expect(data.chara).not.toBeDefined();
+         expect(data).toFitSchema({
+            type: ['ooc'],
+            content: [msg.content],
+            timestamp: [Number],
+            ipid: [String]
+         })
          done();
       });
    });
@@ -166,18 +184,20 @@ describe("basic socket.io message coverage", () => {
    it("accepts chara message", (done) => {
       let msg = { type: 'chara', content: 'Hello!', charaId: 0 };
       socket.emit('add message', msg, (data) => {
-         expect(data.error).not.toBeDefined();
-         expect(data._id).not.toBeDefined();
-         expect(data.type).toBe('chara');
-         expect(data.content).toEqual(msg.content);
-         expect(data.charaId).toBe(0);
+         expect(data).toFitSchema({
+            type: ['chara'],
+            content: [msg.content],
+            charaId: [0],
+            timestamp: [Number],
+            ipid: [String]
+         })
          done();
       });
    });
 
    it("leaves the room succesfully", (done) => {
       socket.emit('exit rp', rpCode, (data) => {
-         expect(data.error).not.toBeDefined();
+         expect(data).toFitSchema({ })
          done();
       });
    });

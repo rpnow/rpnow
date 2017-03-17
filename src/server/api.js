@@ -80,6 +80,7 @@ module.exports = function(options, io) {
             currentRp = rp._id;
             socket.join(currentRp);
             delete rp._id;
+            delete rp.rpCode;
             callback(rp);
          });
       });
