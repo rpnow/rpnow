@@ -329,6 +329,109 @@ describe("Malformed data resistance", () => {
    
 });
 
+describe("multiple clients", () => {
+   let sockets = [];
+   for(let i = 0; i < 3; ++i) sockets.push(io(host));
+
+   let rpCode;
+   let chat;
+
+   beforeEach(() => jasmine.addMatchers(customMatchers));
+
+   it("initiates and enters a room", (done) => {
+      sockets[0].emit('create rp', { title: 'Test RP'}, (data) => {
+         expect(data).toFitSchema({ rpCode: [String] });
+         rpCode = data.rpCode;
+         sockets[0].emit('enter rp', rpCode, (data) => {
+            expect(data).toFitSchema({
+               title: [ String ],
+               desc: [ {$optional:String} ],
+               msgs: [ Array, false ],
+               charas: [ Array, false ]
+            });
+            done();
+         });
+      });
+   });
+
+   it("have a friend join the same room", (done) => {
+      sockets[1].emit('enter rp', rpCode, (data) => {
+         expect(data).toFitSchema({
+            title: [ String ],
+            desc: [ {$optional:String} ],
+            msgs: [ Array, false ],
+            charas: [ Array, false ]
+         });
+         done();
+      });
+   });
+
+   it("send and receive many messages in order", (done) => {
+      let waiters = 2;
+
+      let chat1 = startMockClient(sockets[0]);
+      let chat2 = startMockClient(sockets[1]);
+
+      function startMockClient(socket) {
+         let msgs = [];
+
+         function sendOne() {
+            let message = {'type': 'narrator', 'content': 'hello'+Math.floor(Math.random()*1000)+'!'};
+            socket.emit('add message', message, (data) => {
+               msgs.push(data);
+               if (msgs.length < 20) setTimeout(sendOne, Math.random() * 100);
+               else if (!--waiters) setTimeout(check, 1000);
+            })
+         }
+
+         socket.on('add message', (msg) => {
+            msgs.push(msg);
+         })
+
+         sendOne();
+
+         return msgs;
+      }
+
+      function check() {
+         expect(chat1.length).toBeGreaterThan(20-1);
+         expect(chat2.length).toBeGreaterThan(20-1);
+         expect(JSON.stringify(chat1)).toEqual(JSON.stringify(chat2));
+         chat = chat1;
+         done();
+      }
+
+   });
+
+   it("have a third friend join and get the whole rp", (done) => {
+      sockets[2].emit('enter rp', rpCode, (data) => {
+         expect(data).toFitSchema({
+            title: [ String ],
+            desc: [ {$optional:String} ],
+            msgs: [ Array, {
+               type: ['narrator'],
+               content: [String],
+               timestamp: [Number],
+               ipid: [String]
+            }],
+            charas: [ Array, false ]
+         })
+         expect(JSON.stringify(data.msgs)).toEqual(JSON.stringify(chat));
+         done();
+      });
+   });
+   
+   it("close all the sockets", (done) => {
+      let remainingClients = sockets.length;
+      sockets.forEach(socket => {
+         socket.on('disconnect', () => {
+            if (!--remainingClients) done();
+         })
+         socket.close();
+      });
+   });
+});
+
 describe("web server (after running all tests)", () => {
    it("can be stopped", (done) => {
       rpnow.stop(() => {
