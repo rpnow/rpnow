@@ -14,10 +14,14 @@
           <p>Press <kbd>Enter</kbd> to send</p>
           <md-checkbox ng-model="pressEnterToSend"></md-checkbox>
         </md-list-item>
-        <md-list-item title="Toggle whether a notification noise will play when the tab is hidden">
+        <md-list-item title="Change the notification noise which will play when the tab is hidden, or just turn it off">
           <md-icon>notifications</md-icon>
           <p>Notification noise</p>
-          <md-checkbox ng-model="notificationNoise"></md-checkbox>
+          <md-select id="noiseSelector" ng-model="notificationNoise" class="md-no-underline">
+            <md-option ng-repeat="noise in allNoises" ng-value="noise.url" ng-click="testNoise(noise.url)">
+              {{noise.name}}
+            </md-option>
+          </md-select>
         </md-list-item>
         <md-list-item title="Show or hide the timestamps and color-ID's on all messages">
           <md-icon>account_box</md-icon>

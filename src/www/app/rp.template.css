@@ -26,6 +26,14 @@ md-toolbar {
     text-decoration: none;
     color: inherit;
 }
+#noiseSelector {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    margin-left: 3px;
+}
+#noiseSelector md-select-value .md-text {
+    display: none;
+}
 @media (min-width: 1280px) {
     #rightDrawer {
         z-index: 58;

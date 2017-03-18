@@ -223,8 +223,21 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       saveRpService.saveDocx($scope.rp, $scope.downloadOOC);
    };
 
+   $scope.allNoises = [
+      {'name':'Off', 'url':null},
+      {'name':'Typewriter', 'url':'/sounds/typewriter.mp3'},
+      {'name':'Page turn', 'url':'/sounds/pageturn.mp3'},
+      {'name':'Chimes', 'url':'/sounds/chimes.mp3'},
+      {'name':'Woosh', 'url':'/sounds/woosh.mp3'},
+      {'name':'Frog block', 'url':'/sounds/frogblock.mp3'},
+      {'name':'Classic alert', 'url':'/sounds/alert.mp3'},
+   ];
+   $scope.testNoise = function(url) {
+      new Audio(url).play();
+   }
+
    $scope.pressEnterToSend = true;
-   $scope.notificationNoise = true;
+   $scope.notificationNoise = $scope.allNoises[1].url;
    $scope.showMessageDetails = true;
    $scope.nightMode = false;
 
@@ -611,14 +624,15 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 .service('pageAlerts', function() {
    var pageAlerts = this;
 
-   var alertNoise = new Audio('/sounds/typewriter.mp3');
+   var alertUrl = null;
+   var alertNoise = null;
    
    var alertText = null;
    var oldText = null;
    var flashesLeft = 0;
    var timer = null;
    
-   this.alert = function(text, playSound) {
+   this.alert = function(text, url) {
       if (document.visibilityState === 'visible') return;
 
       clearTimeout(timer);
@@ -627,7 +641,12 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       alertText = text;
       flashesLeft = 3;
       timerAction();
-      if (playSound) alertNoise.play();
+
+      if (url !== alertUrl) {
+         alertNoise = url ? new Audio(url) : null;
+         alertUrl = url;
+      }
+      if (alertNoise) alertNoise.play();
    };
 
    function timerAction() {
