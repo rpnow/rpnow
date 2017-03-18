@@ -1,4 +1,3 @@
-/* latin */
 @font-face {
   font-family: 'Alice';
   font-style: normal;
@@ -8,7 +7,6 @@
        url(/fonts/Alice-Regular.woff2) format('woff2'),
        url(/fonts/Alice-Regular.ttf) format('truetype');
 }
-/* fallback */
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
@@ -20,7 +18,6 @@
        url(/fonts/MaterialIcons-Regular.woff) format('woff'),
        url(/fonts/MaterialIcons-Regular.ttf) format('truetype');
 }
-/* latin */
 @font-face {
   font-family: 'Playfair Display';
   font-style: normal;
