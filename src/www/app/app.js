@@ -65,7 +65,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    });
 }])
 
-.controller('NewRpController', ['$scope', '$timeout', '$location', 'RPRandom', 'socket', function($scope, $timeout, $location, RPRandom, socket) {
+.controller('NewRpController', ['$scope', '$timeout', '$location', '$mdMedia', 'RPRandom', 'socket', function($scope, $timeout, $location, $mdMedia, RPRandom, socket) {
    var spinTimer = null;
    function tick(millis) {
       RPRandom.roll('title', 25).then(function(title) {
@@ -87,6 +87,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          $location.url('/rp/'+$scope.rpCode);
       });
    };
+
+   $scope.$watch(function() { return $mdMedia('xs'); }, function(result) {
+      $scope.isXs = result;
+   });
 }])
 
 .controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService, saveRpService) {

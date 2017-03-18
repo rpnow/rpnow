@@ -3,8 +3,8 @@
   <span style="height:10vh"></span>
 
   <header title="Let's RPNow">
-    <aside class="md-display-1" style="display:inline-block;transform:rotate(-10deg)">Let's</aside>
-    <h1 class="md-display-4" style="margin:0;text-align:center">RPNow</h1>
+    <aside class="md-display-1" style="max-width:150px;transform:rotate(-10deg)">Let's</aside>
+    <h1 ng-class="isXs ? 'md-display-3' : 'md-display-4'" style="margin:0;text-align:center">RPNow</h1>
   </header>
 
   <span style="height:10vh"></span>
@@ -26,11 +26,11 @@
       <div layout="row" layout-align="space-around center">
         <md-button class="md-raised md-accent" ng-disabled="!title.trim()" type="submit">
           <md-icon>check</md-icon>
-          Begin Roleplay
+          {{isXs ? "Begin RP" : "Begin Roleplay"}}
         </md-button>
         <md-button type="button" ng-hide="showMoreOptions" ng-click="showMoreOptions = true">
           <md-icon>more_horiz</md-icon>
-          More options
+          {{isXs ? "Options" : "More options"}}
         </md-button>
       </div>
     </form>
