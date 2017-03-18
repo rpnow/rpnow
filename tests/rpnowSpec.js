@@ -23,7 +23,7 @@ const customMatchers = {
 };
 
 describe("web server", () => {
-   const options = { port: PORT_NUM, logging: false, rateLimit: false };
+   const options = { port: PORT_NUM, logging: false };
    
    it("is not already running", (done) => {
       request(`${host}/`, (err, res, body) => {

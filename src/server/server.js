@@ -14,9 +14,6 @@ const defaultOptions = {
    logging: true,
    rpCodeCharacters: 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',
    rpCodeLength: 8,
-   pageSize: 20,
-   refreshMs: 2000,
-   rateLimit: true,
    trustProxy: false
 };
 
