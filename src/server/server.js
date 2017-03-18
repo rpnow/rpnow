@@ -4,7 +4,7 @@ const http = require('http');
 const io = require('socket.io');
 const logger = require('morgan');
 const compression = require('compression');
-// const favicon = require('serve-favicon');
+const favicon = require('serve-favicon');
 const noop = function(){};
 
 const defaultOptions = {
@@ -32,13 +32,14 @@ module.exports.start = function(customOptions = {}, callback = noop) {
    //create express app
    let app = express();
    let server = http.Server(app);
+
+   let srcRoot = __dirname.replace('src/server','src');
    
+   app.use(favicon(`${srcRoot}/www/favicon.ico`));
    if (options.logging) app.use(logger('dev'));
    if (options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
    app.use(compression());
-   // app.use(favicon(WEB + '/favicon.ico'));
    
-   var srcRoot = __dirname.replace('src/server','src');
    app.use(express.static(`${srcRoot}/www`));
    app.get('*', (req, res) => res.sendFile(`${srcRoot}/www/app/index.html`));
 
