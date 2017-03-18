@@ -222,22 +222,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    $scope.downloadDocx = function() {
       saveRpService.saveDocx($scope.rp, $scope.downloadOOC);
    };
-
-   $scope.allNoises = [
-      {'name':'Off', 'url':null},
-      {'name':'Typewriter', 'url':'/sounds/typewriter.mp3'},
-      {'name':'Page turn', 'url':'/sounds/pageturn.mp3'},
-      {'name':'Chimes', 'url':'/sounds/chimes.mp3'},
-      {'name':'Woosh', 'url':'/sounds/woosh.mp3'},
-      {'name':'Frog block', 'url':'/sounds/frogblock.mp3'},
-      {'name':'Classic alert', 'url':'/sounds/alert.mp3'},
-   ];
-   $scope.testNoise = function(url) {
-      new Audio(url).play();
-   }
+   
+   $scope.allNoises = pageAlerts.allNoises;
 
    $scope.pressEnterToSend = true;
-   $scope.notificationNoise = $scope.allNoises[1].url;
+   $scope.notificationNoise = 1;
    $scope.showMessageDetails = true;
    $scope.nightMode = false;
 
@@ -624,15 +613,22 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 .service('pageAlerts', function() {
    var pageAlerts = this;
 
-   var alertUrl = null;
-   var alertNoise = null;
-   
    var alertText = null;
    var oldText = null;
    var flashesLeft = 0;
    var timer = null;
+
+   this.allNoises = [
+      {'name':'Off', 'audio':null},
+      {'name':'Typewriter', 'audio': new Audio('/sounds/typewriter.mp3')},
+      {'name':'Page turn', 'audio': new Audio('/sounds/pageturn.mp3')},
+      {'name':'Chimes', 'audio': new Audio('/sounds/chimes.mp3')},
+      {'name':'Woosh', 'audio': new Audio('/sounds/woosh.mp3')},
+      {'name':'Frog block', 'audio': new Audio('/sounds/frogblock.mp3')},
+      {'name':'Classic alert', 'audio': new Audio('/sounds/alert.mp3')},
+   ];
    
-   this.alert = function(text, url) {
+   this.alert = function(text, noiseIdx) {
       if (document.visibilityState === 'visible') return;
 
       clearTimeout(timer);
@@ -642,11 +638,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       flashesLeft = 3;
       timerAction();
 
-      if (url !== alertUrl) {
-         alertNoise = url ? new Audio(url) : null;
-         alertUrl = url;
-      }
-      if (alertNoise) alertNoise.play();
+      if (noise[noiseIdx].audio) noise[noiseIdx].audio.play();
    };
 
    function timerAction() {

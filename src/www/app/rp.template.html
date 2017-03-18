@@ -18,7 +18,7 @@
           <md-icon>notifications</md-icon>
           <p>Notification noise</p>
           <md-select id="noiseSelector" ng-model="notificationNoise" class="md-no-underline">
-            <md-option ng-repeat="noise in allNoises" ng-value="noise.url" ng-click="testNoise(noise.url)">
+            <md-option ng-repeat="noise in allNoises" ng-value="$index" ng-click="noise.audio.play()">
               {{noise.name}}
             </md-option>
           </md-select>
