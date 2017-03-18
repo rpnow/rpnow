@@ -68,7 +68,7 @@
           <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" title="Invite friends" id="inviteButton" ng-click="showDialog('#inviteDialog', $event)">
             <md-icon>mail</md-icon>
           </md-button>
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive">
+          <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive" ng-click="showDialog('#readerNotDoneDialog', $event)">
             <md-icon>import_contacts</md-icon>
           </md-button>
           <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" title="Download RP" ng-click="showDialog('#downloadDialog', $event)">
@@ -85,7 +85,7 @@
                 </md-button>
               </md-menu-item>
               <md-menu-item>
-                <md-button>
+                <md-button ng-click="showDialog('#readerNotDoneDialog', $event)">
                   <md-icon>import_contacts</md-icon> Read archive
                 </md-button>
               </md-menu-item>
@@ -315,5 +315,26 @@
         </md-dialog-actions>
       </md-dialog-content>
     </md-dialog>
+  </div>
+
+  <!-- READER NOT YET AVAILABLE DIALOG -->
+  <div style="visibility: hidden">
+    <div class="md-dialog-container" id="readerNotDoneDialog">
+      <md-dialog>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <h2><md-icon>import_contacts</md-icon> Read archive</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="hideDialog()" title="Close">
+              <md-icon>close</md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+        <md-dialog-content class="md-dialog-content">
+          <p>Sorry! The archive reader isn't ready yet.</p>
+          <p>Until it is, you can always download and read a file containing the entire RP.</p>
+        </md-dialog-content>
+      </md-dialog>
+    </div>
   </div>
 </div>
