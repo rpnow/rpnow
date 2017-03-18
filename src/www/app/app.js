@@ -14,12 +14,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          templateUrl: '/app/rp.template.html',
          controller: 'RpController',
          css: [
-            '/lib/angular-material.min.css',
+            '/app/rp.template.css',
+            '/app/message.css',
             '/lib/angular-color-picker-1.0.10-rpn1.css',
-            '/google-fonts-rpnow.css',
-            '/lib/font-awesome.min.css',
-            '/rp.css',
-            '/app/rp.template.css'
+            '/lib/font-awesome.min.css'
          ]
       })
       .when('/terms', {
@@ -71,13 +69,15 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    var spinTimer = null;
    function tick(millis) {
       RPRandom.roll('title', 25).then(function(title) {
-         $scope.title = title;
-         if (millis < 200.0) spinTimer = $timeout(tick, millis, true, millis * 1.2);
+         $scope.$apply(function() {
+            $scope.title = title;
+         });
+         if (millis < 200.0) spinTimer = $timeout(tick, millis, true, millis * 1.15);
       })
    }
    $scope.spinTitle = function() {
       if (spinTimer) $timeout.cancel(spinTimer);
-      tick(1.0);
+      tick(10.0);
    };
 
    $scope.submit = function() {

@@ -1,0 +1,85 @@
+/* font styles */
+@font-face {
+    font-family: 'Alice';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Alice Regular'),
+         local('Alice-Regular'),
+         url(/fonts/Alice-Regular.woff2) format('woff2'),
+         url(/fonts/Alice-Regular.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Playfair Display'),
+         local('PlayfairDisplay-Regular'),
+         url(/fonts/PlayfairDisplay-Regular.woff2) format('woff2'),
+         url(/fonts/PlayfairDisplay-Regular.ttf) format('truetype');
+}
+
+body, textarea, input {
+    font-family: Alice;
+}
+h1, h2, h3 {
+    font-family: Playfair Display;
+}
+
+/* override some angular-material defaults */
+a.link {
+  text-decoration: none;
+  border-bottom: 1px dotted rgb(124, 77, 255);
+  color: rgb(124, 77, 255);
+  opacity: 0.87;
+}
+.dark a.link {
+  color: rgb(255,193,7);
+  border-bottom-color: rgb(255,193,7);
+}
+a.link:hover {
+  opacity: 1;
+}
+md-toolbar {
+    min-height: 48px;
+}
+.md-toolbar-tools {
+    height: 48px;
+}
+md-select-menu, md-select-menu md-content {
+    max-height: 80vh;
+}
+md-select-menu.md-dark-theme md-icon {
+    color: rgba(0,0,0,0.54);
+}
+md-select-menu.md-dark-theme md-divider {
+    border-color: rgba(0,0,0, 0.12);
+}
+.md-subheader.md-default-theme, .md-subheader.md-dark-theme {
+    background-color: inherit;
+}
+md-dialog a.link {
+    word-break:break-all;
+}
+/* better fontawesome styling in md-icon */
+md-icon.fa {
+    width: 24px;
+    line-height: 22px;
+    vertical-align: middle;
+    text-align: center;
+}
+md-icon.fa::before {
+    font-size: 22px;
+}
+
+/* misc helper styles */
+.noselect {
+  /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css#4407335 */
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+  cursor: default;
+}
