@@ -105,6 +105,7 @@ module.exports = function(options, io) {
       
       socket.on('add message', (msg, callback) => {
          callback = safecall(callback);
+         if (!currentRp) return callback({error: 'not in an rp yet'});
          // validate & normalize
          let result = normalize(msg, messageSchema);
          if (!result.valid) return callback({error: result.error});
@@ -133,6 +134,7 @@ module.exports = function(options, io) {
 
       socket.on('add character', (chara, callback) => {
          callback = safecall(callback);
+         if (!currentRp) return callback({error: 'not in an rp yet'});
          // validate & normalize
          let result = normalize(chara, charaSchema);
          if (!result.valid) return callback({error: result.error});

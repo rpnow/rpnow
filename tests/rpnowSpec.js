@@ -67,7 +67,7 @@ describe("web server", () => {
 describe("single-page app file serving", () => {
    const badMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
    const pageUrls = [`/`, `/rp/aaaaaaaa`, `/about`, `/terms`, `/invalid`];
-   const resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/alert.mp3`, `/robots.txt`];
+   const resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/sounds/alert.mp3`, `/robots.txt`];
    let pageResponses = {};
 
    pageUrls.concat(resourceUrls).forEach(url => {
@@ -446,6 +446,71 @@ describe("multiple clients", () => {
          })
          socket.close();
       });
+   });
+});
+
+describe("bad event order handling", () => {
+   const socket = io(host);
+   let rpCode = null;
+
+   beforeEach(() => jasmine.addMatchers(customMatchers));
+
+   it("sends an error when exiting an rp before entering it", (done) => {
+      socket.emit('create rp', { title: 'Test RP'}, (data) => {
+         expect(data).toFitSchema({ rpCode: [String] });
+         rpCode = data.rpCode;
+         socket.emit('exit rp', rpCode, (data) => {
+            expect(data).toFitSchema({ error: [String] });
+            done();
+         });
+      });
+   });
+
+   it("sends an error when sending a message before entering an rp", (done) => {
+      socket.emit('add message', {type:'ooc', content:'hello'}, (data) => {
+         expect(data).toFitSchema({ error: [String] });
+         done();
+      });
+   });
+
+   it("sends an error when sending a character message before entering an rp", (done) => {
+      socket.emit('add message', {type:'chara', content:'hello', charaId: 0}, (data) => {
+         expect(data).toFitSchema({ error: [String] });
+         done();
+      });
+   });
+
+   it("sends an error when adding a chara before entering an rp", (done) => {
+      socket.emit('add character', {name:'buddy', color:'#123456'}, (data) => {
+         expect(data).toFitSchema({ error: [String] });
+         done();
+      });
+   });
+
+   it("sends an error when entering the same RP twice", (done) => {
+      socket.emit('enter rp', rpCode, (data) => {
+         socket.emit('enter rp', rpCode, (data) => {
+            expect(data).toFitSchema({ error: [String] });
+            done();
+         });
+      });
+   });
+
+   it("sends an error when trying to join a second RP", (done) => {
+      socket.emit('create rp', { title: 'Test RP 2'}, (data) => {
+         expect(data).toFitSchema({ rpCode: [String] });
+         socket.emit('enter rp', data.rpCode, (data) => {
+            expect(data).toFitSchema({ error: [String] });
+            done();
+         });
+      });
+   })
+
+   it("closes its connection without leaving the room", (done) => {
+      socket.on('disconnect', () => {
+         done();
+      });
+      socket.close();
    });
 });
 
