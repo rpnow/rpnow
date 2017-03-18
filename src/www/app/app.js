@@ -78,7 +78,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    $scope.spinTitle = function() {
       if (spinTimer) $timeout.cancel(spinTimer);
       tick(10.0);
-   };
+   }
 
    $scope.submit = function() {
       $scope.submitted = true;
@@ -611,7 +611,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 .service('pageAlerts', function() {
    var pageAlerts = this;
 
-   var alertNoise = new Audio('/alert.mp3');
+   var alertNoise = new Audio('/sounds/typewriter.mp3');
    
    var alertText = null;
    var oldText = null;
