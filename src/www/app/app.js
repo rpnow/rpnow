@@ -224,6 +224,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    };
    
    $scope.allNoises = pageAlerts.allNoises;
+   $scope.openNoiseSelector = function() {
+      $timeout(function() {
+         angular.element(document.getElementById('noiseSelector')).triggerHandler('click');
+      })
+   }
 
    $scope.pressEnterToSend = true;
    $scope.notificationNoise = 1;
