@@ -4,6 +4,9 @@
   "description": "The Dead-Simple Roleplay Chatroom Service",
   "main": "src/index.js",
   "dependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.2.2",
     "compression": "^1.6.2",
     "express": "^4.14.0",
     "mongojs": "^2.4.0",
@@ -17,6 +20,8 @@
     "socket.io-client": "^1.7.2"
   },
   "scripts": {
+    "prebuild": "rm -rf build",
+    "build": "babel src/www/app -d build/www/app",
     "start": "node src/index.js",
     "pretest": "mkdir -p /tmp/rptestdb && mongod --dbpath /tmp/rptestdb --fork --logpath /dev/null --smallfiles",
     "test": "jasmine JASMINE_CONFIG_PATH=tests/support/jasmine.json; npm run-script cleanup-test",

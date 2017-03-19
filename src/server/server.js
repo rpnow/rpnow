@@ -34,13 +34,19 @@ module.exports.start = function(customOptions = {}, callback = noop) {
    let server = http.Server(app);
 
    let srcRoot = __dirname.replace('src/server','src');
+   let buildRoot = __dirname.replace('src/server','build');
    
    app.use(favicon(`${srcRoot}/www/favicon.ico`));
    if (options.logging) app.use(logger('dev'));
    if (options.trustProxy) app.enable('trust proxy'); // useful for reverse proxies
    app.use(compression());
    
+   app.use(express.static(`${buildRoot}/www`));
    app.use(express.static(`${srcRoot}/www`));
+   app.get('/app/*', (req,res) => res.sendStatus(404));
+   app.get('/fonts/*', (req,res) => res.sendStatus(404));
+   app.get('/lib/*', (req,res) => res.sendStatus(404));
+   app.get('/sounds/*', (req,res) => res.sendStatus(404));
    app.get('*', (req, res) => res.sendFile(`${srcRoot}/www/app/index.html`));
 
    require('./api')(options, io(server));

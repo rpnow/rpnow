@@ -9,6 +9,7 @@ services:
       - "8080:8080"
     volumes:
       - ./src:/srv/src
+      - ./build:/srv/build
     environment:
       DB_HOST: db
   
