@@ -52,7 +52,7 @@
           <md-icon>account_balance</md-icon>
           <p>Terms &amp; Privacy</p>
         </md-list-item>
-
+      </md-list>
     </md-content>
   </md-sidenav>
 
@@ -151,7 +151,7 @@
             <md-icon>group</md-icon> All Characters
           </md-button>
         </div>
-        <textarea id="message-input" rows="3" placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
+        <textarea id="message-input" rows="3" ng-attr-placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
       </div>
       <div class="right-buttons">
         <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
