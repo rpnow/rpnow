@@ -87,7 +87,7 @@ md-select-value md-icon:first-child {
 }
 #message-input {
     border: none;
-    background-color: inherit;
+    background-color: transparent;
     color: inherit;
     line-height: 1.4;
 
