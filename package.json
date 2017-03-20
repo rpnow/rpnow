@@ -4,9 +4,6 @@
   "description": "The Dead-Simple Roleplay Chatroom Service",
   "main": "src/index.js",
   "dependencies": {
-    "babel-cli": "^6.24.0",
-    "babel-polyfill": "^6.23.0",
-    "babel-preset-env": "^1.2.2",
     "compression": "^1.6.2",
     "express": "^4.14.0",
     "mongojs": "^2.4.0",
@@ -15,6 +12,9 @@
     "socket.io": "^1.7.2"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.2.2",
     "jasmine": "^2.5.2",
     "request": "^2.75.0",
     "socket.io-client": "^1.7.2"
