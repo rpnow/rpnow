@@ -643,7 +643,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       flashesLeft = 3;
       timerAction();
 
-      if (noise[noiseIdx].audio) noise[noiseIdx].audio.play();
+      var noise = this.allNoises[noiseIdx];
+      if (noise.audio) noise.audio.play();
    };
 
    function timerAction() {
