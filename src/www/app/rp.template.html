@@ -116,7 +116,7 @@
               <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>
             </span>
           </div>
-          <div class="content" ng-bind-html="msg.content | msgContent"></div>
+          <div class="content" ng-bind-html="msg.content | msgContent:(chara(msg)&&chara(msg).color)"></div>
         </div>
       </div>
     </md-content>

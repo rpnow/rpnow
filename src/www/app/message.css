@@ -152,9 +152,13 @@
   opacity: 0.6;
 }
 .message-chara .content span.action {
-  font-size: 80%;
-  padding: 0.3em;
-  border-radius: 4px;
-  opacity: 0.8;
-  box-shadow: 0 1px 1px #3c3c3c;
+  padding: 0.1em 0.3em;
+  border-radius: 8px;
+  opacity: 0.7;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
+}
+.dark .message-chara .content span.action {
+  opacity: 0.9;
+  border: 1px solid rgba(255,255,255,0.3);
 }

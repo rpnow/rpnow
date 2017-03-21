@@ -556,8 +556,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    }
 })
 
-.filter('msgContent', ['$sce', function($sce) {
-   return function(str) {
+.filter('msgContent', ['$sce', '$filter', function($sce, $filter) {
+   return function(str, color) {
       // escape characters
       var escapeMap = {
          '&': '&amp;',
@@ -574,9 +574,9 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          '<a href="$1" class="link" target="_blank">$1</a>'
       );
       // actions
-      // if(chara) {
-      //    str = str.replace(/\*([^\r\n\*_]+)\*/g, '<span class="action" style="background-color:' + chara.color + ';' + 'color:' + rp.contrastColor(chara.color) + '">*$1*</span>');
-      // }
+      if(color) {
+         str = str.replace(/\*([^\r\n\*_]+)\*/g, '<span class="action" style="background-color:' + color + ';' + 'color:' + $filter('contrastColor')(color) + '">*$1*</span>');
+      }
       // bold
       str = str.replace(/(^|\s|(?:&quot;))__([^\r\n_]+)__([\s,\.\?!]|(?:&quot;)|$)/g, '$1<b>$2</b>$3');
       // italix
