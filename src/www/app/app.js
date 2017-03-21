@@ -340,29 +340,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 }])
 
 .factory('saveRpService', ['$http', function($http) {
-   function saveFile(filename, data) {
-      // https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
-      // https://stackoverflow.com/questions/23451726/saving-binary-data-as-file-using-javascript-from-a-browser
-      var element = document.createElement('a');
-      element.style.display = 'none';
-      element.setAttribute('download', filename);
-
-      var href;
-      if (typeof data === 'string') {
-         href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(data);
-      }
-      else if (data instanceof Blob) {
-         href = window.URL.createObjectURL(data);
-      }
-      else {
-         throw new Error('unknown data type.');
-      }
-      element.setAttribute('href', href);
-
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-   }
    function saveTxt(rp, includeOOC) {
       var out = rp.msgs;
       if (!includeOOC) out = out.filter(function(msg) {return msg.type!=='ooc'});
@@ -383,7 +360,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
       });
       out.unshift(rp.title+'\r\n'+(rp.desc||'')+'\r\n----------');
       var str = out.join('\r\n\r\n');
-      saveFile(rp.title+'.txt', str);
+      var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, rp.title + ".txt");
    }
    function wordwrap(str, width, indent) {
       return str.split('\n')
@@ -425,11 +403,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
          var doc = new Docxtemplater().loadZip(new JSZip(res.data));
          doc.setData(rpData);
          doc.render();
-         var out = doc.getZip().generate({
+         var blob = doc.getZip().generate({
             type: 'blob',
             mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
          });
-         saveFile(rp.title+'.docx', out)
+         saveAs(blob, rp.title + ".docx");
       })
    }
 
