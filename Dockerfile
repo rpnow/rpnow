@@ -8,7 +8,7 @@ USER node
 
 # Copy in source and install application
 COPY package.json .
-RUN npm cache clean && npm install
+RUN npm install --production
 # COPY src src
 
 # Expose HTTP over port 8080
