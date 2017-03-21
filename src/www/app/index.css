@@ -27,17 +27,17 @@ h1, h2, h3 {
 
 /* override some angular-material defaults */
 a.link {
-  text-decoration: none;
-  border-bottom: 1px dotted rgb(124, 77, 255);
-  color: rgb(124, 77, 255);
-  opacity: 0.87;
+    text-decoration: none;
+    border-bottom: 1px dotted rgb(124, 77, 255);
+    color: rgb(124, 77, 255);
+    opacity: 0.87;
 }
 .dark a.link {
-  color: rgb(255,193,7);
-  border-bottom-color: rgb(255,193,7);
+    color: rgb(255,193,7);
+    border-bottom-color: rgb(255,193,7);
 }
 a.link:hover {
-  opacity: 1;
+    opacity: 1;
 }
 md-toolbar {
     min-height: 48px;
@@ -74,12 +74,12 @@ md-icon.fa::before {
 /* misc helper styles */
 .noselect {
   /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css#4407335 */
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
-  cursor: default;
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+    cursor: default;
 }
