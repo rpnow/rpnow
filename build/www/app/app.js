@@ -101,6 +101,15 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    var chara = $scope.chara = function (msg) {
       return msg.type === 'chara' ? $scope.rp.charas[msg.charaId] : null;
    };
+   $scope.color = function (voice) {
+      if (voice === 'narrator') return $scope.nightMode ? '#444444' : '#ffffff';
+      if (voice === 'ooc') return $scope.nightMode ? '#303030' : '#fafafa';
+      if (voice >= 0) {
+         if (!$scope.rp.charas) return '';
+         voice = $scope.rp.charas[voice];
+      }
+      return voice.color;
+   };
 
    socket.on('add message', function (msg) {
       $scope.rp.msgs.push(msg);
@@ -120,7 +129,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             return +x >= 0 ? +x : x;
          }) : undefined;
       },
-      recentVoicesString: 'narrator,ooc' // stored in a string so it can be easily bound to localStorage
+      recentVoicesString: 'narrator,ooc', // stored in a string so it can be easily bound to localStorage
+      isValid: function isValid() {
+         return $scope.msgBox.content.trim().length > 0;
+      }
    };
    $scope.$watch('msgBox.voice', function (newVoice) {
       if (typeof newVoice === 'string' && newVoice.startsWith('_')) return;
@@ -253,6 +265,9 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    }, function (isRightDrawerLockedOpen) {
       $scope.isRightDrawerLockedOpen = isRightDrawerLockedOpen;
    });
+   $scope.hasManyCharacters = function () {
+      return $scope.rp.charas && $scope.rp.charas.length > 10;
+   };
 
    $scope.showDialog = function (id, evt) {
       return $mdDialog.show({
@@ -578,6 +593,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    };
 }).filter('needsContrastColor', function () {
    return function (color) {
+      if (!color) return false;
       //YIQ algorithm modified from:
       // http://24ways.org/2010/calculating-color-contrast/
       var components = [1, 3, 5].map(function (i) {

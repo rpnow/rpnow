@@ -83,10 +83,9 @@
 }
 .message-ooc .content {
   opacity: 0.66;
-  font-size: 90%;
 }
 .message-ooc + .message-ooc {
-  margin-top: -20px;
+  margin-top: -10px;
 }
 .message-ooc.message-slim .color-ip-box {
   opacity: 0.4;

@@ -121,12 +121,12 @@
       </div>
     </md-content>
 
-    <!-- MESSAGE BOX -->
-    <div layout="row" layout-align="center center" id="message-input-panel" md-colors="{background: 'primary'}">
-      <div class="left-buttons"></div>
-      <div class="message-input-column" flex layout="column">
-        <div layout="row">
-          <md-select id="voice-selector" class="md-accent" ng-model="msgBox.voice" flex aria-label="Current character">
+    <div layout="column" id="message-input-box" ng-style="{'background-color': color(msgBox.voice) || 'auto', 'color':((color(msgBox.voice) || '#ffffff') | contrastColor:0.7) }">
+
+      <!-- MESSAGE BOX TITLE -->
+      <header>
+        <div layout="row" class="message-box-inner-row">
+          <md-select id="voice-selector" ng-model="msgBox.voice" flex title="Current character">
             <md-option ng-if="rp.charas" ng-repeat="voice in msgBox.recentVoices()" ng-value="voice">
               <span ng-if="voice === 'narrator'">
                 <md-icon>create</md-icon> Narrator
@@ -151,12 +151,16 @@
             <md-icon>group</md-icon> All Characters
           </md-button>
         </div>
-        <textarea id="message-input" rows="3" ng-attr-placeholder="Type your message. {{pressEnterToSend? '(Press Shift+Enter for a paragraph break)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
-      </div>
-      <div class="right-buttons">
-        <md-button ng-class="isDesktopMode ? 'md-fab md-accent' :  'md-icon-button'" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="msgBox.content.trim().length === 0">
-          <md-icon>send</md-icon>
-        </md-button>
+      </header>
+
+      <!-- MESSAGE BOX BODY -->
+      <div ng-style="{'color': nightMode? 'white':'black', 'background-color':nightMode?'#303030':'white', opacity:0.7}">
+        <div layout="row" layout-align="center center" class="message-box-inner-row">
+          <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
+          <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="(msgBox.isValid() && isDesktopMode)?{'background-color': color(msgBox.voice), 'color': (color(msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="!msgBox.isValid()">
+            <md-icon>send</md-icon>
+          </md-button>
+        </div>
       </div>
     </div>
 
@@ -188,7 +192,20 @@
           <md-icon>person_add</md-icon> <p>New Character...</p>
         </md-list-item>
         <md-divider></md-divider>
-        <md-subheader class="md-no-sticky">All Characters</md-subheader>
+        <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">Recent</md-subheader>
+        <md-list-item ng-show="hasManyCharacters()" ng-repeat="voice in msgBox.recentVoices()" ng-click="setVoice(voice)">
+          <md-icon ng-if="voice === 'narrator'">create</md-icon>
+          <md-icon ng-if="voice === 'ooc'">chat</md-icon>
+          <md-icon ng-if="voice >= 0" ng-style="{'color':rp.charas[voice].color,'text-shadow':(rp.charas[voice].color|needsContrastColor)?'1px 1px 0px '+(rp.charas[voice].color|contrastColor:0.3) : ''}">person</md-icon>
+
+          <p ng-if="voice === 'narrator'">Narrator</p>
+          <p ng-if="voice === 'ooc'">Out of character</p>
+          <p ng-if="voice >= 0">{{rp.charas[voice].name}}</p>
+
+          <md-icon ng-show="msgBox.voice === voice">check</md-icon>
+        </md-list-item>
+        <md-divider ng-show="hasManyCharacters()"></md-divider>
+        <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">All Characters</md-subheader>
         <md-list-item ng-repeat="chara in rp.charas | orderBy:'name'" ng-click="setVoice(id(chara))">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
           <p>{{chara.name}}</p>

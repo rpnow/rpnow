@@ -50,8 +50,7 @@ md-select-value md-icon:first-child {
     margin-right: 10px;
 }
 #message-container {
-    padding: 10px;
-    padding-top: 30px
+    padding: 30px 10px 0;
 }
 #characterCreatorDialog .md-errors-spacer {
     display: none;
@@ -70,9 +69,51 @@ md-select-value md-icon:first-child {
     transition: none;
 }
 
-#message-input-panel {
-    border-top: 1px solid #999;
+#message-input-box {
     z-index: 3;
+}
+#message-input-box header {
+    border-top: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+}
+.dark #message-input-box header {
+    border-color: rgba(255,255,255,0.3);
+}
+#message-input-box header .message-box-inner-row {
+    height: 36px;
+}
+@media (min-width: 600px) {
+    #message-input-box header .message-box-inner-row {
+        height: 48px;
+    }
+}
+#message-input-box md-select {
+    /*padding: 4px;*/
+}
+#message-input-box md-icon,
+#message-input-box .md-select-icon {
+    color: inherit;
+}
+#message-input-box md-select-value,
+#message-input-box md-select-value:focus {
+    border-bottom: none;
+    color: inherit;
+}
+#message-input-box md-select-value span:first-child {
+    flex-grow: 0;
+    max-width: initial;
+    margin-right: 20px;
+    font-size: 110%;
+}
+#message-input-box md-select-value md-icon {
+    /*display: none;*/
+    color: inherit !important;
+    text-shadow: none !important;
+}
+.message-box-inner-row {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
 }
 @media (max-width: 959px) {
     .left-buttons button, .right-buttons button { margin-left: 0; }
@@ -81,10 +122,6 @@ md-select-value md-icon:first-child {
 @media (min-width: 960px) {
     .left-buttons, .right-buttons { width:150px; }
     .md-toolbar-tools h1 { max-width: 600px; }
-}
-.message-input-column {
-    max-width: 616px;
-    margin: 6px;
 }
 #voice-selector {
     margin: 0;
@@ -96,16 +133,6 @@ md-select-value md-icon:first-child {
     color: inherit;
     line-height: 1.4;
 
-    padding: 10px;
+    padding: 9px 15px;
     resize: none;
-}
-@media (min-width: 960px) {
-    #message-input {
-        padding-left: 8px;
-        margin-left: 0;
-        margin-right: 14px;
-        box-sizing: border-box;
-        /*margin: 6px 0 6px 16px;*/
-        /*padding: 10px 0;*/
-    }
 }
