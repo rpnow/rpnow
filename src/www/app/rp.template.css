@@ -58,8 +58,13 @@ md-select-value md-icon:first-child {
 }
 #characterCreatorDialog .angular-color-picker {
     background-color: inherit;
-    padding-top: 0;
+    padding: 0;
     border: none;
+}
+#characterCreatorDialog .angular-color-picker + md-input-container {
+    margin: 0;
+    padding: 0 0 20px;
+    width: 157px;
 }
 #characterCreatorDialog md-dialog-content button.md-button {
     transition: none;

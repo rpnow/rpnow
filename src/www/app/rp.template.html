@@ -221,10 +221,12 @@
           <label>Name this character:</label>
           <input ng-model="addCharaBox.name" maxlength="{{MAX_CHARA_NAME_LENGTH}}" md-autofocus>
         </md-input-container>
-        <div>
-          <color-picker ng-model="addCharaBox.color"></color-picker>
-        </div>
-        <md-button class="md-raised" ng-click="sendChara()" ng-disabled="addCharaBox.name.trim().length === 0" title="Finish creating this character" ng-style="addCharaBox.name.trim().length > 0 ? {'background-color': addCharaBox.color, 'color': (addCharaBox.color | contrastColor) }: {}">
+        <color-picker ng-model="addCharaBox.color"></color-picker>
+        <md-input-container ng-class="nightMode? 'md-hue-3':'md-hue-2'">
+          <input ng-model="addCharaBox.color" maxlength="7">
+        </md-input-container>
+
+        <md-button class="md-raised" ng-click="sendChara()" ng-disabled="!addCharaBox.isValid()" title="Finish creating this character" ng-style="addCharaBox.isValid() ? {'background-color': addCharaBox.color, 'color': (addCharaBox.color | contrastColor) }: {}">
           <md-icon style="color:inherit">check</md-icon>
             OK
         </md-button>

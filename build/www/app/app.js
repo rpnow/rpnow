@@ -172,7 +172,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
    $scope.addCharaBox = {
       name: '',
       color: '#ff0000',
-      sending: false
+      sending: false,
+      isValid: function isValid() {
+         return $scope.addCharaBox.name.trim().length > 0 && /^#[0-9a-f]{6}$/g.test($scope.addCharaBox.color);
+      }
    };
    $scope.sendChara = function () {
       var chara = {
