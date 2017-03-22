@@ -1,17 +1,24 @@
 version: '2'
 
 services:
+
   node:
     depends_on:
       - db
-    build: .
+    image: "node:6"
     ports:
       - "8080:8080"
-    volumes:
-      - ./src:/srv/src
-      - ./build:/srv/build
+    user: node
     environment:
+      PORT: '8080'
       DB_HOST: db
+    volumes:
+      - ./package.json:/home/node/rpnow2/package.json:ro
+      - ./src:/home/node/rpnow2/src:ro
+      - ./build:/home/node/rpnow2/build:ro
+      - node_modules:/home/node/rpnow2/node_modules
+    working_dir: /home/node/rpnow2
+    command: npm run docker-compose-runner
   
   db:
     image: "mongo:3.4"
@@ -19,4 +26,5 @@ services:
       - db_data:/data/db
 
 volumes:
+  node_modules:
   db_data:
