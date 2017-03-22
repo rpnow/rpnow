@@ -2,10 +2,9 @@
 const PORT_NUM = 8282;
 const host = `http://localhost:${PORT_NUM}`;
 
-const request = require('request');
 const io = require('socket.io-client');
 const normalize = require('../src/server/normalize-json');
-const rpnow = require('../src/server/server');
+const api = require('../src/server/api');
 
 const customMatchers = {
     toFitSchema: () => ({
@@ -26,90 +25,90 @@ describe("web server", () => {
     const options = { port: PORT_NUM, logging: false };
     
     it("is not already running", (done) => {
-        request(`${host}/`, (err, res, body) => {
-            expect(err).toBeTruthy();
+        let socket = io(host);
+        socket.on('connect_error', (error) => {
             done();
+            socket.close();
         });
     });
     
     it("can be started", (done) => {
-        rpnow.start(options, () => {
-            request(`${host}/`, (err, res, body) => {
-                expect(err).toBeFalsy();
-                expect(res).toBeDefined();
-                expect(res && res.statusCode).toBe(200);
+        api.start(options, () => {
+            let socket = io(host);
+            socket.on('connect', () => {
                 done();
+                socket.close();
             });
         });
     });
     
     it("can be stopped", (done) => {
-        rpnow.stop(() => {
-            request(`${host}/`, (err, res, body) => {
-                expect(err).toBeTruthy();
+        api.stop(() => {
+            let socket = io(host);
+            socket.on('connect_error', (error) => {
                 done();
+                socket.close();
             });
         });
     });
     
     it("can be started again", (done) => {
-        rpnow.start(options, () => {
-            request(`${host}/`, (err, res, body) => {
-                expect(err).toBeFalsy();
-                expect(res).toBeDefined();
-                expect(res.statusCode).toBe(200);
+        api.start(options, () => {
+            let socket = io(host);
+            socket.on('connect', () => {
                 done();
+                socket.close();
             });
         });
     });
 });
 
-describe("single-page app file serving", () => {
-    const badMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-    const pageUrls = [`/`, `/rp/aaaaaaaa`, `/about`, `/terms`, `/invalid`];
-    const resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/sounds/alert.mp3`, `/robots.txt`];
-    let pageResponses = {};
+// describe("single-page app file serving", () => {
+//     const badMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+//     const pageUrls = [`/`, `/rp/aaaaaaaa`, `/about`, `/terms`, `/invalid`];
+//     const resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/sounds/alert.mp3`, `/robots.txt`];
+//     let pageResponses = {};
 
-    pageUrls.concat(resourceUrls).forEach(url => {
-        it(`will give a 200 status for GET-ing the resource: ${url}`, (done) => {
-            request({ uri: `${host}${url}`, method: 'GET'}, (err, res, body) => {
-                expect(err).toBeFalsy();
-                expect(res.statusCode).toBe(200);
-                pageResponses[url] = body;
-                done();
-            });
-        });
-        badMethods.forEach(method => {
-            it(`will give a 404 status for other HTTP request type "${method}" for ${url}`, (done) => {
-                request({ uri: `${host}${url}`, method: method }, (err, res, body) => {
-                    expect(err).toBeFalsy();
-                    expect(res.statusCode).toBe(404);
-                    done();
-                });
-            });
-        });
-    });
-    it(`will not respond to invalid HTTP request types`, (done) => {
-        request({ uri: `${host}/`, method: 'INVALID'}, (err, res, body) => {
-            expect(err).toBeTruthy();
-            done();
-        });
-    });
+//     pageUrls.concat(resourceUrls).forEach(url => {
+//         it(`will give a 200 status for GET-ing the resource: ${url}`, (done) => {
+//             request({ uri: `${host}${url}`, method: 'GET'}, (err, res, body) => {
+//                 expect(err).toBeFalsy();
+//                 expect(res.statusCode).toBe(200);
+//                 pageResponses[url] = body;
+//                 done();
+//             });
+//         });
+//         badMethods.forEach(method => {
+//             it(`will give a 404 status for other HTTP request type "${method}" for ${url}`, (done) => {
+//                 request({ uri: `${host}${url}`, method: method }, (err, res, body) => {
+//                     expect(err).toBeFalsy();
+//                     expect(res.statusCode).toBe(404);
+//                     done();
+//                 });
+//             });
+//         });
+//     });
+//     it(`will not respond to invalid HTTP request types`, (done) => {
+//         request({ uri: `${host}/`, method: 'INVALID'}, (err, res, body) => {
+//             expect(err).toBeTruthy();
+//             done();
+//         });
+//     });
 
-    it(`will give the same page body for each SPA url`, () => {
-        pageUrls.forEach(url => {
-            expect(pageResponses[url]).toEqual(pageResponses['/app/index.html']);
-        })
-    });
-    it('will not serve the SPA index for static resources', () => {
-        resourceUrls.forEach(url => {
-            if (url !== '/app/index.html') {
-                expect(pageResponses[url]).not.toEqual(pageResponses['/app/index.html']);
-            }
-        })
-    })
+//     it(`will give the same page body for each SPA url`, () => {
+//         pageUrls.forEach(url => {
+//             expect(pageResponses[url]).toEqual(pageResponses['/app/index.html']);
+//         })
+//     });
+//     it('will not serve the SPA index for static resources', () => {
+//         resourceUrls.forEach(url => {
+//             if (url !== '/app/index.html') {
+//                 expect(pageResponses[url]).not.toEqual(pageResponses['/app/index.html']);
+//             }
+//         })
+//     })
 
-});
+// });
 
 describe("basic socket.io message coverage", () => {
     const socket = io(host);
@@ -516,10 +515,11 @@ describe("bad event order handling", () => {
 
 describe("web server (after running all tests)", () => {
     it("can be stopped", (done) => {
-        rpnow.stop(() => {
-            request(`${host}/`, (err, res, body) => {
-                expect(err).toBeTruthy();
+        api.stop(() => {
+            let socket = io(host);
+            socket.on('connect_error', (error) => {
                 done();
+                socket.close();
             });
         });
     });
