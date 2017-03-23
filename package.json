@@ -8,20 +8,28 @@
     "socket.io": "^1.7.2"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.0",
-    "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.2.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-cli": "^1.2.2",
+    "gulp-css-condense": "^1.1.2",
     "jasmine": "^2.5.2",
     "socket.io-client": "^1.7.2"
   },
   "scripts": {
-    "prebuild": "rm -rf build",
-    "build": "babel src/www/app -d build/www/app",
+    "prebuild": "rm -rf build/*",
+    "build": "gulp",
+
     "start": "node src/index.js",
+    
     "pretest": "mkdir -p /tmp/rptestdb && mongod --dbpath /tmp/rptestdb --fork --logpath /dev/null --smallfiles",
     "test": "jasmine JASMINE_CONFIG_PATH=tests/support/jasmine.json; npm run-script cleanup-test",
     "cleanup-test": "mongo admin --eval 'db.shutdownServer()' > /dev/null && rm -rf /tmp/rptestdb",
-    "docker-compose-runner": "npm cache clean && npm install && npm start"
+
+    "predocker-compose-build": "npm cache clean && npm install",
+    "docker-compose-build": "npm run build",
+    "predocker-compose-runner": "npm cache clean && npm install --prod",
+    "docker-compose-runner": "npm start"
   },
   "keywords": [
     "roleplay"
