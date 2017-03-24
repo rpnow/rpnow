@@ -25,7 +25,7 @@ services:
     working_dir: /root/rpnow2
     volumes:
       - ./package.json:/root/rpnow2/package.json:ro
-      - ./src:/root/rpnow2/src:ro
+      - ./server:/root/rpnow2/server:ro
       - node_modules_prod:/root/rpnow2/node_modules
     command: npm run docker-compose-runner
 
@@ -35,7 +35,7 @@ services:
     volumes:
       - ./package.json:/root/rpnow2/package.json:ro
       - ./gulpfile.js:/root/rpnow2/gulpfile.js:ro
-      - ./src:/root/rpnow2/src:ro
+      - ./client:/root/rpnow2/client:ro
       - build_www:/root/rpnow2/build
       - node_modules_dev:/root/rpnow2/node_modules
     command: npm run docker-compose-build

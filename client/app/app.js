@@ -397,7 +397,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             if (msg.isChara) msg.name = rpData.charas[msg.charaId].name.toUpperCase();
         });
         if (!docxTemplateRequest) {
-            docxTemplateRequest = $http.get('/template.docx', {responseType: 'arraybuffer'});
+            docxTemplateRequest = $http.get('/assets/template.docx', {responseType: 'arraybuffer'});
         }
         docxTemplateRequest.then(function(res) {
             var doc = new Docxtemplater().loadZip(new JSZip(res.data));
@@ -464,7 +464,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         'title': ':Title'
     };
     var dictPromises = {
-        'title': $http.get('/titles.json')
+        'title': $http.get('/assets/titles.json')
     };
 
     function resolve(str, dict) {
@@ -621,14 +621,15 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     var flashesLeft = 0;
     var timer = null;
 
+    var noiseDir = '/assets/sounds';
     this.allNoises = [
         {'name':'Off', 'audio':null},
-        {'name':'Typewriter', 'audio': new Audio('/sounds/typewriter.mp3')},
-        {'name':'Page turn', 'audio': new Audio('/sounds/pageturn.mp3')},
-        {'name':'Chimes', 'audio': new Audio('/sounds/chimes.mp3')},
-        {'name':'Woosh', 'audio': new Audio('/sounds/woosh.mp3')},
-        {'name':'Frog block', 'audio': new Audio('/sounds/frogblock.mp3')},
-        {'name':'Classic alert', 'audio': new Audio('/sounds/alert.mp3')},
+        {'name':'Typewriter', 'audio': new Audio(noiseDir+'/typewriter.mp3')},
+        {'name':'Page turn', 'audio': new Audio(noiseDir+'/pageturn.mp3')},
+        {'name':'Chimes', 'audio': new Audio(noiseDir+'/chimes.mp3')},
+        {'name':'Woosh', 'audio': new Audio(noiseDir+'/woosh.mp3')},
+        {'name':'Frog block', 'audio': new Audio(noiseDir+'/frogblock.mp3')},
+        {'name':'Classic alert', 'audio': new Audio(noiseDir+'/alert.mp3')},
     ];
     
     this.alert = function(text, noiseIdx) {

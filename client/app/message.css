@@ -104,8 +104,7 @@
 .message-chara {
     margin-top: 12px;
     border: 1px solid rgba(0,0,0,0.2);
-    border-radius: 16px;
-    border-bottom-left-radius: 0;
+    border-radius: 16px 16px 16px 0;
     padding: 0;
     position: relative;
     text-align: right;
@@ -140,8 +139,7 @@
     opacity: 0.8;
     margin: 12px 8px;
     padding: 8px;
-    border-radius: 12px;
-    border-bottom-left-radius: 0;
+    border-radius: 12px 12px 12px 0;
     /*box-shadow: -8px 4px 20px rgba(0,0,0,0.05) inset;*/
     text-align: left;
 }

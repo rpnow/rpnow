@@ -3,8 +3,8 @@ const PORT_NUM = 8282;
 const host = `http://localhost:${PORT_NUM}`;
 
 const io = require('socket.io-client');
-const normalize = require('../src/server/normalize-json');
-const api = require('../src/server/api');
+const normalize = require('../normalize-json');
+const api = require('../api');
 
 const customMatchers = {
     toFitSchema: () => ({

@@ -1,5 +1,5 @@
 /* global describe it expect */
-const normalize = require('../src/server/normalize-json');
+const normalize = require('../normalize-json');
 
 let currentSchema = null;
 const customMatchers = {

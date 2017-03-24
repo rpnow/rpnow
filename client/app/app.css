@@ -5,8 +5,8 @@
     font-weight: 400;
     src: local('Alice Regular'),
          local('Alice-Regular'),
-         url(/fonts/Alice-Regular.woff2) format('woff2'),
-         url(/fonts/Alice-Regular.ttf) format('truetype');
+         url(/assets/fonts/Alice-Regular.woff2) format('woff2'),
+         url(/assets/fonts/Alice-Regular.ttf) format('truetype');
 }
 @font-face {
     font-family: 'Playfair Display';
@@ -14,8 +14,8 @@
     font-weight: 400;
     src: local('Playfair Display'),
          local('PlayfairDisplay-Regular'),
-         url(/fonts/PlayfairDisplay-Regular.woff2) format('woff2'),
-         url(/fonts/PlayfairDisplay-Regular.ttf) format('truetype');
+         url(/assets/fonts/PlayfairDisplay-Regular.woff2) format('woff2'),
+         url(/assets/fonts/PlayfairDisplay-Regular.ttf) format('truetype');
 }
 
 body, textarea, input {

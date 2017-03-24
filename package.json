@@ -20,10 +20,10 @@
     "prebuild": "rm -rf build/*",
     "build": "gulp",
 
-    "start": "node src/index.js",
+    "start": "node server/index.js",
     
     "pretest": "mkdir -p /tmp/rptestdb && mongod --dbpath /tmp/rptestdb --fork --logpath /dev/null --smallfiles",
-    "test": "jasmine JASMINE_CONFIG_PATH=tests/support/jasmine.json; npm run-script cleanup-test",
+    "test": "jasmine JASMINE_CONFIG_PATH=server/tests/support/jasmine.json; npm run-script cleanup-test",
     "cleanup-test": "mongo admin --eval 'db.shutdownServer()' > /dev/null && rm -rf /tmp/rptestdb",
 
     "predocker-compose-build": "npm cache clean && npm install",
