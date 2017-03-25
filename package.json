@@ -12,7 +12,10 @@
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-cli": "^1.2.2",
+    "gulp-concat": "^2.6.1",
     "gulp-css-condense": "^1.1.2",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-order": "^1.1.1",
     "jasmine": "^2.5.2",
     "socket.io-client": "^1.7.2"
   },
@@ -21,7 +24,7 @@
     "build": "gulp",
 
     "start": "node server/index.js",
-    
+
     "pretest": "mkdir -p /tmp/rptestdb && mongod --dbpath /tmp/rptestdb --fork --logpath /dev/null --smallfiles",
     "test": "jasmine JASMINE_CONFIG_PATH=server/tests/support/jasmine.json; npm run-script cleanup-test",
     "cleanup-test": "mongo admin --eval 'db.shutdownServer()' > /dev/null && rm -rf /tmp/rptestdb",

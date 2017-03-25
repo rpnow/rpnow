@@ -16,8 +16,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             css: [
                 '/app/rp.template.css',
                 '/app/message.css',
-                '/lib/angular-color-picker-1.0.10-rpn1.css',
-                '/lib/font-awesome.min.css'
             ]
         })
         .when('/terms', {
