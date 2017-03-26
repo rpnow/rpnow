@@ -1,56 +1,24 @@
 /* global describe it expect */
 const normalize = require('../normalize-json');
-
-let currentSchema = null;
-const customMatchers = {
-    toFitSchema: () => ({
-        compare: (obj) => {
-            var test = normalize(obj, currentSchema);
-
-            return {
-                pass: test.valid,
-                message: test.valid? 
-                    `Expected ${JSON.stringify(obj) || obj} to fail the spec`:
-                    `Expected ${JSON.stringify(obj) || obj} to pass: nJ says "${test.error}"`
-            };
-        }
-    }),
-    toNormalizeTo: (util, customEqualityTesters) => ({
-        compare: (obj, expectedObj) => {
-            var test = normalize(obj, currentSchema);
-
-            if (!test.valid) return {
-                pass: false,
-                message: `Expected ${JSON.stringify(obj) || obj} to pass: nJ says "${test.error}"`
-            };
-
-            var success = JSON.stringify(obj) === JSON.stringify(expectedObj)
-            return {
-                pass: success,
-                message: success ? `Didn't expect the tester to negate this schema`: `Expected ${JSON.stringify(obj)} to be ${JSON.stringify(expectedObj)}`
-            };
-        }
-    })
-};
+const schemaMatchers = require('./support/schemaMatchers');
 
 describe("normalize-json", () => {
 
-    beforeEach(() => jasmine.addMatchers(customMatchers));
+    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
 
     it('should reject non-objects', () => {
-        currentSchema = { 'field': [ String ] };
         let nonObjects = [undefined, null, 0, 1, true, false, 'just a string', '', [], function(){}];
 
         for (obj of nonObjects) {
-            expect(obj).not.toFitSchema()
+            expect(obj).not.toFitSchema({ 'field': [ String ] })
         }
     })
 
     it('should require all fields', () => {
-        currentSchema = {
+        schemaMatchers.setSchema({
             'first': [ String ],
             'second': [ {$optional:String} ]
-        }
+        });
         expect({'first': 'here'}).toFitSchema();
         expect({'first': 'here', 'second': 'here'}).toFitSchema();
 
@@ -59,9 +27,8 @@ describe("normalize-json", () => {
     });
 
     it('should strip undefined values from fields not in the schema', () => {
-        currentSchema = {
-            first: [ String ]
-        };
+        schemaMatchers.setSchema({ first: [ String ] });
+
         let obj = { first: 'should be here', second: undefined };
         expect(obj.hasOwnProperty('second')).toBe(true);
         expect(obj).toNormalizeTo({ first: 'should be here' });
@@ -69,10 +36,10 @@ describe("normalize-json", () => {
     });
 
     it('should strip undefined values from $optional fields', () => {
-        currentSchema = {
+        schemaMatchers.setSchema({
             first: [ String ],
             second: [ {$optional:String} ]
-        };
+        });
         let obj = { first: 'should be here', second: undefined };
         expect(obj.hasOwnProperty('second')).toBe(true);
         expect(obj).toNormalizeTo({ first: 'should be here' });
@@ -80,10 +47,10 @@ describe("normalize-json", () => {
     });
 
     it('should strip undefined values from fields resolved as undefined', () => {
-        currentSchema = {
+        schemaMatchers.setSchema({
             first: [ String ],
             second: () => undefined
-        }
+        });
         let obj = { first: 'should be here', second: undefined };
         expect(obj.hasOwnProperty('second')).toBe(true);
         expect(obj).toNormalizeTo({ first: 'should be here' });
@@ -91,12 +58,12 @@ describe("normalize-json", () => {
     });
 
     it('should reject unexpected fields', () => {
-        currentSchema = { 'good': [ String ] }
+        schemaMatchers.setSchema({ 'good': [ String ] });
         expect({'good': 'present', 'extra': 'also here'}).not.toFitSchema();
     });
 
     it('should validate strings', () => {
-        currentSchema = { 'str': [ String ] };
+        schemaMatchers.setSchema({ 'str': [ String ] });
 
         expect({'str': 'hello'}).toFitSchema();
         expect({'str': 'a'}).toFitSchema();
@@ -126,7 +93,7 @@ describe("normalize-json", () => {
     });
 
     it('should validate strings with a maximum length', () => {
-        currentSchema = { 'str': [ String, 10 ] }
+        schemaMatchers.setSchema({ 'str': [ String, 10 ] });
 
         expect({'str': 'hello'}).toFitSchema();
         expect({'str': 'a'}).toFitSchema();
@@ -145,7 +112,7 @@ describe("normalize-json", () => {
     });
 
     it('should validate Optional strings too', () => {
-        currentSchema = { 'str': [ {$optional:String}, 10 ] }
+        schemaMatchers.setSchema({ 'str': [ {$optional:String}, 10 ] });
 
         expect({'str': 'hello'}).toFitSchema();
         expect({'str': 'a string'}).toFitSchema()
@@ -164,7 +131,7 @@ describe("normalize-json", () => {
     });
 
     it('should validate numbers', () => {
-        currentSchema = { 'num': [ Number ] };
+        schemaMatchers.setSchema({ 'num': [ Number ] });
 
         expect({'num': 0}).toFitSchema()
         expect({'num': 1}).toFitSchema()
@@ -187,7 +154,7 @@ describe("normalize-json", () => {
     });
 
     it('should validate integers', () => {
-        currentSchema =  { 'num': [ Number.isInteger ] }
+        schemaMatchers.setSchema({ 'num': [ Number.isInteger ] });
 
         expect({'num': 0}).toFitSchema()
         expect({'num': 1}).toFitSchema()
@@ -213,7 +180,7 @@ describe("normalize-json", () => {
     });
 
     it('should validate maximums', () => {
-        currentSchema =  { 'num': [ Number, 10] };
+        schemaMatchers.setSchema({ 'num': [ Number, 10] });
 
         expect({'num': 0}).toFitSchema()
         expect({'num': 1}).toFitSchema()
@@ -228,7 +195,7 @@ describe("normalize-json", () => {
     });
 
     it('should validate minimums/maximums', () => {
-        currentSchema =  { 'num': [ Number, -12, -3] };
+        schemaMatchers.setSchema({ 'num': [ Number, -12, -3] });
 
         expect({'num': -12}).toFitSchema()
         expect({'num': -11.9999}).toFitSchema()
@@ -249,9 +216,9 @@ describe("normalize-json", () => {
     });
 
     it('should validate string enumerations', () => {
-        currentSchema =  {
+        schemaMatchers.setSchema({
             'someEnum': [ 'string', '0', 'false', '', 'null', 'undefined' ]
-        }
+        });
 
         expect({'someEnum': 'string'}).toFitSchema()
         expect({'someEnum': '0'}).toFitSchema()
@@ -271,9 +238,9 @@ describe("normalize-json", () => {
     });
 
     it('should validate numerical enumerations', () => {
-        currentSchema =  {
+        schemaMatchers.setSchema({
             'someEnum': [0, 2, -4]
-        }
+        });
 
         expect({'someEnum': 0}).toFitSchema();
         expect({'someEnum': 2}).toFitSchema();
@@ -291,9 +258,9 @@ describe("normalize-json", () => {
     });
 
     it('should validate mixed enumerations', () => {
-        currentSchema =  {
+        schemaMatchers.setSchema({
             'someEnum': [7, '9', true, 'false']
-        }
+        });
 
         expect({'someEnum': 7}).toFitSchema();
         expect({'someEnum': '9'}).toFitSchema();
@@ -314,9 +281,9 @@ describe("normalize-json", () => {
     });
 
     it('should validate regular expressions', () => {
-        currentSchema =  {
+        schemaMatchers.setSchema({
             'field': [ /^a*$/g ]
-        }
+        });
 
         expect({'field': ''}).toFitSchema()
         expect({'field': 'a'}).toFitSchema()
@@ -334,10 +301,10 @@ describe("normalize-json", () => {
     });
 
     it('should validate functions', () => {
-        currentSchema = {
+        schemaMatchers.setSchema({
             'state': ['full', 'empty'],
             'contents': (obj)=> obj.state === 'full' ? [String,10] : undefined
-        }
+        });
 
         expect({state:'empty'}).toFitSchema()
         expect({state:'full', contents:'water'}).toFitSchema()
@@ -347,9 +314,9 @@ describe("normalize-json", () => {
     });
 
     it('should validate arrays', () => {
-        currentSchema = {
+        schemaMatchers.setSchema({
             'words': [Array, String, 10]
-        }
+        });
 
         expect({words:[]}).toFitSchema()
         expect({words:['hi']}).toFitSchema()
@@ -364,12 +331,12 @@ describe("normalize-json", () => {
     });
 
     it('should validate inner schemas', () => {
-        currentSchema =  {
+        schemaMatchers.setSchema({
             'name': {
                 'first': [String, 30],
                 'last': [String, 30]
             }
-        }
+        });
 
         expect({name:{first:'John',last:'Doe'}} ).toFitSchema()
 

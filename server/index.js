@@ -1,15 +1,12 @@
-console.log('Starting RPNow server.');
+const api = require('./api');
 
-const server = require('./api');
-
-server.start({ trustProxy: true }, (err, server, options) => {
-    if (err) return console.error(err);
-    console.log(`RPNow is running. (Listening on ${options.ip}:${options.port})`);
+api.start((err) => {
+    console.error(err || 'RPNow API: ready.');
 });
 
 process.on('SIGTERM', ()=> shutdown('SIGTERM') ); //kill (terminate)
 process.on('SIGINT', ()=> shutdown('SIGINT') ); //Ctrl+C (interrupt)
 function shutdown(reason) {
-    console.log(`Attempting graceful shutdown: ${reason}`);
-    server.stop(()=> console.log("Shutdown complete.") );
+    console.log(`RPNow API: Attempting graceful shutdown: ${reason}`);
+    api.stop((err)=> console.log(err || 'RPNow API: Shutdown complete.') );
 }

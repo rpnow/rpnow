@@ -1,29 +1,12 @@
 /* global describe it expect */
-const PORT_NUM = 8282;
-const host = `http://localhost:${PORT_NUM}`;
+const port = require('../constants').port;
+const host = `http://localhost:${port}`;
 
 const io = require('socket.io-client');
-const normalize = require('../normalize-json');
 const api = require('../api');
-
-const customMatchers = {
-    toFitSchema: () => ({
-        compare: (obj, schema) => {
-            var test = normalize(obj, schema);
-
-            return {
-                pass: test.valid,
-                message: test.valid? 
-                     `Expected ${JSON.stringify(obj) || obj} to fail the spec`:
-                     `Expected ${JSON.stringify(obj) || obj} to pass: nJ says "${test.error}"`
-            };
-        }
-    }),
-};
+const schemaMatchers = require('./support/schemaMatchers');
 
 describe("web server", () => {
-    const options = { port: PORT_NUM, logging: false };
-    
     it("is not already running", (done) => {
         let socket = io(host);
         socket.on('connect_error', (error) => {
@@ -33,7 +16,7 @@ describe("web server", () => {
     });
     
     it("can be started", (done) => {
-        api.start(options, () => {
+        api.start(() => {
             let socket = io(host);
             socket.on('connect', () => {
                 done();
@@ -53,7 +36,7 @@ describe("web server", () => {
     });
     
     it("can be started again", (done) => {
-        api.start(options, () => {
+        api.start(() => {
             let socket = io(host);
             socket.on('connect', () => {
                 done();
@@ -114,7 +97,7 @@ describe("basic socket.io message coverage", () => {
     const socket = io(host);
     let rpCode = null;
 
-    beforeEach(() => jasmine.addMatchers(customMatchers));
+    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
     
     it("will give the rp code when created", (done) => {
         socket.emit('create rp', { title: 'Test RP'}, (data) => {
@@ -212,7 +195,7 @@ describe("basic socket.io message coverage", () => {
 describe("Malformed data resistance", () => {
     const socket = io(host);
 
-    beforeEach(() => jasmine.addMatchers(customMatchers));
+    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
 
     it("will reject malformed socket.io requests", (done) => {
         socket.emit(1);
@@ -335,7 +318,7 @@ describe("multiple clients", () => {
     let rpCode;
     let chat;
 
-    beforeEach(() => jasmine.addMatchers(customMatchers));
+    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
 
     it("initiates and enters a room", (done) => {
         sockets[0].emit('create rp', { title: 'Test RP'}, (data) => {
@@ -452,7 +435,7 @@ describe("bad event order handling", () => {
     const socket = io(host);
     let rpCode = null;
 
-    beforeEach(() => jasmine.addMatchers(customMatchers));
+    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
 
     it("sends an error when exiting an rp before entering it", (done) => {
         socket.emit('create rp', { title: 'Test RP'}, (data) => {

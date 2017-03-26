@@ -3,6 +3,7 @@ const socketio = require('socket.io');
 const crypto = require('crypto');
 const mongojs = require('mongojs');
 const normalize = require('./normalize-json');
+const rpnow = require('./constants');
 const noop = (function(){});
 
 const safecall = function(callback) {
@@ -16,65 +17,51 @@ const safecall = function(callback) {
 };
 
 const newRpSchema = {
-    'title': [ String, 30 ],
-    'desc': [ {$optional:String}, 255 ]
+    'title': [ String, rpnow.maxTitleLength ],
+    'desc': [ {$optional:String}, rpnow.maxDescLength ]
 };
 const charaSchema = {
-    'name': [ String, 30 ],
+    'name': [ String, rpnow.maxCharaNameLength ],
     'color': /^#[0-9a-f]{6}$/g
 };
 const messageSchema = {
-    'content': [ String, 10000 ],
+    'content': [ String, rpnow.maxMessageContentLength ],
     'type': [ 'narrator', 'chara', 'ooc' ],
     'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined
-};
-
-const defaultOptions = {
-    ip: process.env.IP || '0.0.0.0',
-    port: process.env.PORT || 80,
-    db: process.env.DB_HOST || 'localhost',
-    logging: true,
 };
 
 let listener;
 let db;
 
-module.exports.start = function(customOptions = {}, callback = noop) {
-    if (listener) {
-        callback('Server already started.');
-        return;
-    }
-
-    let options = JSON.parse(JSON.stringify(defaultOptions));
-    for (let key in customOptions) options[key] = customOptions[key];
+module.exports.start = function(callback = noop) {
+    if (listener) return callback('Server already started.');
 
     let server = http.createServer();
     let io = socketio(server, { serveClient: false });
     io.on('connection', clientHandler);
 
-    db = mongojs(`${options.db}/rpnow`, ['rooms']);
+    db = mongojs(`${rpnow.dbHost}/rpnow`, ['rooms']);
 
-    listener = server.listen(options.port, options.ip, ()=>{
-        callback(null, listener, options);
+    listener = server.listen(rpnow.port, (err)=>{
+        callback(err || null);
     });
 }
 
 module.exports.stop = function(callback = noop) {
-    if (!listener) {
-        callback('No server to stop.');
-        return;
-    }
+    if (!listener) return callback('No server to stop.');
 
-    listener.close(() => { 
-        db.close();
+    listener.close((err) => { 
+        if (err) return callback(err);
         listener = null;
-        callback();
+        db.close();
+        db = null;
+        callback(null);
     });
 }
 
 function generateRpCode(callback) {
-    let length = 8;
-    let characters = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let length = rpnow.rpCodeLength;
+    let characters = rpnow.rpCodeChars;
 
     let numCryptoBytes = length * 2; // ample bytes just in case
     crypto.randomBytes(numCryptoBytes, gotBytes);
