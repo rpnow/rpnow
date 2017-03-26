@@ -34,6 +34,7 @@ let listener;
 let db;
 
 module.exports.logging = true;
+module.exports.trustProxy = false;
 
 module.exports.start = function(callback = noop) {
     if (listener) return callback('Server already started.');
@@ -90,13 +91,22 @@ function generateRpCode(callback) {
 
 function clientHandler(socket) {
     let currentRp;
+    let currentRpCode;
+    let ip = module.exports.trustProxy
+        && socket.handshake.headers['x-forwarded-for']
+        || socket.request.connection.remoteAddress;
     let ipid = crypto.createHash('md5')
-        .update(socket.request.connection.remoteAddress)
+        .update(ip)
         .digest('hex')
         .substr(0,18);
 
     if (module.exports.logging) socket.use((packet, next) => {
-        console.log(packet);
+        let packetType = packet[0];
+        console.log(
+            'RECV:',
+            currentRp ? `"${currentRpCode}/${packetType}"` : `"${packetType}"`,
+            ':', ip, '|', packet
+        );
         return next();
     });
 
@@ -125,6 +135,7 @@ function clientHandler(socket) {
             if (!rp) return callback({error: 'no rp found'});
             
             currentRp = rp._id;
+            currentRpCode = rp.rpCode;
             socket.join(currentRp);
             delete rp._id;
             delete rp.rpCode;
@@ -164,8 +175,8 @@ function clientHandler(socket) {
         }
         function storeAndBroadcast() {
             db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
-                    callback(msg);
-                    socket.to(currentRp).broadcast.emit('add message', msg);
+                callback(msg);
+                socket.to(currentRp).broadcast.emit('add message', msg);
             });
         }
     });

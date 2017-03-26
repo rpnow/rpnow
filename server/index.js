@@ -1,4 +1,5 @@
 const api = require('./api');
+api.trustProxy = true;
 
 api.start((err) => {
     console.error(err || 'RPNow API: ready.');
