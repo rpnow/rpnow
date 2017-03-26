@@ -8,3 +8,23 @@ services:
   build:
     environment:
       RPNOW_PRODUCTION: dev
+
+  web_debug:
+    depends_on:
+      - build
+    image: "httpd:2.2"
+    volumes:
+      - build_www:/usr/local/apache2/htdocs:ro
+    ports:
+      - "8181:80"
+
+  db_debug:
+    depends_on:
+      - db
+    image: "mongo-express:0.38"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: db
+    links: 
+      - db
+    ports:
+      - "8282:8081"
