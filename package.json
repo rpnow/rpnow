@@ -1,7 +1,21 @@
 {
   "name": "rpnow",
+  "description": "The Dead-Simple Roleplay Chatroom Service.",
   "version": "0.2.0",
-  "description": "The Dead-Simple Roleplay Chatroom Service",
+  "author": "Nigel Nelson",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpnow/rpnow2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rpnow/rpnow2/issues"
+  },
+  "homepage": "http://beta.rpnow.net/",
+  "keywords": [
+    "roleplay"
+  ],
+
   "main": "src/index.js",
   "dependencies": {
     "mongojs": "^2.4.0",
@@ -22,20 +36,12 @@
   "scripts": {
     "prebuild": "rm -rf build/*",
     "build": "gulp",
-
     "start": "node server/index.js",
-
     "test": "jasmine JASMINE_CONFIG_PATH=server/tests/support/jasmine.json",
-
     "predocker-compose-build": "npm cache clean && npm install",
     "docker-compose-build": "npm run build",
     "predocker-compose-runner": "npm cache clean && npm install --prod",
     "docker-compose-runner": "npm start",
     "docker-compose-test": "npm test"
-  },
-  "keywords": [
-    "roleplay"
-  ],
-  "author": "Nigel Nelson",
-  "license": "ISC"
+  }
 }
