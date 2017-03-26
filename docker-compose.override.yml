@@ -4,6 +4,11 @@ services:
   web:
     ports:
       - "8080:80"
+
+  node:
+    volumes:
+      - node_modules_dev:/root/rpnow2/node_modules
+    command: npm run docker-compose-runner-dev
   
   build:
     environment:
@@ -28,3 +33,6 @@ services:
       - db
     ports:
       - "8282:8081"
+
+volumes:
+  node_modules_dev:

@@ -7,6 +7,8 @@ services:
     restart: always
   
   node:
+    volumes:
+      - node_modules_prod:/root/rpnow2/node_modules
     restart: always
   
   build:
@@ -15,3 +17,6 @@ services:
 
   db:
     restart: always
+
+volumes:
+  node_modules_prod:

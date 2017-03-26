@@ -21,7 +21,6 @@ services:
     volumes:
       - ./package.json:/root/rpnow2/package.json:ro
       - ./server:/root/rpnow2/server:ro
-      - node_modules_prod:/root/rpnow2/node_modules
     environment:
       DB_HOST: db
     links:
@@ -36,7 +35,7 @@ services:
       - ./gulpfile.js:/root/rpnow2/gulpfile.js:ro
       - ./client:/root/rpnow2/client:ro
       - build_www:/root/rpnow2/build
-      - node_modules_dev:/root/rpnow2/node_modules
+      - node_modules_build:/root/rpnow2/node_modules
     command: npm run docker-compose-build
 
   db:
@@ -47,5 +46,4 @@ services:
 volumes:
   build_www:
   db_data:
-  node_modules_dev:
-  node_modules_prod:
+  node_modules_build:

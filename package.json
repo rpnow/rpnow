@@ -15,7 +15,6 @@
   "keywords": [
     "roleplay"
   ],
-
   "main": "src/index.js",
   "dependencies": {
     "mongojs": "^2.4.0",
@@ -31,6 +30,7 @@
     "gulp-load-plugins": "^1.5.0",
     "gulp-order": "^1.1.1",
     "jasmine": "^2.5.2",
+    "nodemon": "^1.11.0",
     "socket.io-client": "^1.7.2"
   },
   "scripts": {
@@ -42,6 +42,9 @@
     "docker-compose-build": "npm run build",
     "predocker-compose-runner": "npm cache clean && npm install --prod",
     "docker-compose-runner": "npm start",
+    "predocker-compose-runner-dev": "npm cache clean && npm install",
+    "docker-compose-runner-dev": "nodemon --watch server server/index.js",
+    "predocker-compose-test": "npm cache clean && npm install",
     "docker-compose-test": "npm test"
   }
 }

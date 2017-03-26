@@ -10,7 +10,7 @@ services:
     volumes:
       - ./package.json:/root/rpnow2/package.json:ro
       - ./server:/root/rpnow2/server:ro
-      - node_modules_dev:/root/rpnow2/node_modules
+      - node_modules_tests:/root/rpnow2/node_modules
     environment:
       DB_HOST: db_testing
     links:
@@ -21,4 +21,4 @@ services:
     image: "mongo:3.4"
 
 volumes:
-  node_modules_dev:
+  node_modules_tests:
