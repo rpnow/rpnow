@@ -17,7 +17,7 @@
         <md-list-item title="Change the notification noise which will play when the tab is hidden, or just turn it off" ng-click="openNoiseSelector()">
           <md-icon>notifications</md-icon>
           <p>Notification noise</p>
-          <md-select id="noiseSelector" ng-model="notificationNoise" class="md-no-underline">
+          <md-select id="noiseSelector" ng-model="notificationNoise" class="md-no-underline" aria-label="Notification noise dropdown menu">
             <md-option ng-repeat="noise in allNoises" ng-value="$index" ng-click="noise.audio.play()">
               {{noise.name}}
             </md-option>
@@ -139,7 +139,7 @@
       <!-- MESSAGE BOX TITLE -->
       <header>
         <div layout="row" class="message-box-inner-row">
-          <md-select id="voice-selector" ng-model="msgBox.voice" flex title="Current character">
+          <md-select id="voice-selector" ng-model="msgBox.voice" flex title="Current character" aria-label="Character change dropdown">
             <md-option ng-if="rp.charas" ng-repeat="voice in msgBox.recentVoices()" ng-value="voice">
               <span ng-if="voice === 'narrator'">
                 <md-icon>create</md-icon> Narrator
@@ -251,9 +251,9 @@
           <label>Name this character:</label>
           <input ng-model="addCharaBox.name" maxlength="{{MAX_CHARA_NAME_LENGTH}}" md-autofocus>
         </md-input-container>
-        <color-picker ng-model="addCharaBox.color"></color-picker>
+        <color-picker ng-model="addCharaBox.color" aria-hidden="true"></color-picker>
         <md-input-container ng-class="nightMode? 'md-hue-3':'md-hue-2'">
-          <input ng-model="addCharaBox.color" maxlength="7">
+          <input ng-model="addCharaBox.color" maxlength="7" aria-label="Character color hex code">
         </md-input-container>
 
         <md-button class="md-raised" ng-click="sendChara()" ng-disabled="!addCharaBox.isValid()" title="Finish creating this character" ng-style="addCharaBox.isValid() ? {'background-color': addCharaBox.color, 'color': (addCharaBox.color | contrastColor) }: {}">
