@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+
+  node_testing:
+    depends_on:
+      - db_testing
+    image: "node:6"
+    working_dir: /root/rpnow2
+    volumes:
+      - ./package.json:/root/rpnow2/package.json:ro
+      - ./server:/root/rpnow2/server:ro
+      - node_modules_dev:/root/rpnow2/node_modules
+    environment:
+      DB_HOST: db_testing
+    links:
+      - db_testing
+    command: npm run docker-compose-test
+
+  db_testing:
+    image: "mongo:3.4"
+
+volumes:
+  node_modules_dev:

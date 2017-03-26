@@ -25,14 +25,13 @@
 
     "start": "node server/index.js",
 
-    "pretest": "mkdir -p /tmp/rptestdb && mongod --dbpath /tmp/rptestdb --fork --logpath /dev/null --smallfiles",
-    "test": "jasmine JASMINE_CONFIG_PATH=server/tests/support/jasmine.json; npm run-script cleanup-test",
-    "cleanup-test": "mongo admin --eval 'db.shutdownServer()' > /dev/null && rm -rf /tmp/rptestdb",
+    "test": "jasmine JASMINE_CONFIG_PATH=server/tests/support/jasmine.json",
 
     "predocker-compose-build": "npm cache clean && npm install",
     "docker-compose-build": "npm run build",
     "predocker-compose-runner": "npm cache clean && npm install --prod",
-    "docker-compose-runner": "npm start"
+    "docker-compose-runner": "npm start",
+    "docker-compose-test": "npm test"
   },
   "keywords": [
     "roleplay"
