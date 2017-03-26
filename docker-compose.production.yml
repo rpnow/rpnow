@@ -4,7 +4,14 @@ services:
   web:
     ports:
       - "80:80"
+    restart: always
+  
+  node:
+    restart: always
   
   build:
     environment:
       RPNOW_PRODUCTION: production
+
+  db:
+    restart: always
