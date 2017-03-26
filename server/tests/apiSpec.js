@@ -4,8 +4,10 @@ const host = `http://localhost:${port}`;
 
 const io = require('socket.io-client');
 const api = require('../api');
-const schemaMatchers = require('./support/schemaMatchers');
 api.logging = false;
+
+const schemaMatchers = require('./support/schemaMatchers');
+const errorSchema = { error: [String], errorDetails: [{$optional:String}]};
 
 describe("web server", () => {
     it("is not already running", (done) => {
@@ -110,7 +112,7 @@ describe("basic socket.io message coverage", () => {
     
     it("will give an error when an invalid rpCode is requested", (done) => {
         socket.emit('enter rp', 'badcode1', (data) => {
-            expect(data).toFitSchema({ error: [String] });
+            expect(data).toFitSchema(errorSchema);
             done();
         });
     });
@@ -234,7 +236,7 @@ describe("Malformed data resistance", () => {
     [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       ', 'NAME LONGER THAN THIRTY CHARACTERS'].forEach(badName => {
         it(`rejects chara with bad name: '${badName}'`, (done) => {
             socket.emit('add character', {name: badName, color: '#123456'}, (data) => {
-                expect(data).toFitSchema({ error: [ String ] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });
@@ -243,7 +245,7 @@ describe("Malformed data resistance", () => {
     [undefined, null, false, true, 0, 1, {}, [], '', '#abc', '#abcdef1', '#ABCD3F', 'abcd3f', '#abcdef#123456', 'rgba(0,0,0,0)', 'red'].forEach(badColor => {
         it(`rejects chara with bad color: '${badColor}'`, (done) => {
             socket.emit('add character', {name: 'Cassie', color: badColor}, (data) => {
-                expect(data).toFitSchema({ error: [ String ] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });
@@ -252,7 +254,7 @@ describe("Malformed data resistance", () => {
     [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       '].forEach(badContent => {
         it(`rejects message with bad content: '${badContent}'`, (done) => {
             socket.emit('add message', { type: 'narrator', content: badContent }, (data) => {
-                expect(data).toFitSchema({ error: [ String ] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });
@@ -260,7 +262,7 @@ describe("Malformed data resistance", () => {
     it('rejects message with too-long content', (done) => {
         var longContent = Array(10000 + 1 + 1).join('a');
         socket.emit('add message', { type: 'narrator', content: longContent }, (data) => {
-            expect(data).toFitSchema({ error: [ String ] });
+            expect(data).toFitSchema(errorSchema);
             done();
         });
     });
@@ -268,7 +270,7 @@ describe("Malformed data resistance", () => {
     [undefined, null, false, true, 0, 1, {}, [], '', ' ', 'oooc', 'oocc', 'ooc   ', 'OOC', 'oocnarrator'].forEach(badType => {
         it(`rejects message with bad type: '${badType}'`, (done) => {
             socket.emit('add message', { type: badType, content: 'Hello' }, (data) => {
-                expect(data).toFitSchema({ error: [ String ] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });
@@ -277,7 +279,7 @@ describe("Malformed data resistance", () => {
     [undefined, null, false, true, {}, [], '0', -1, 1, 0.5, -0.5].forEach(badCharaId => {
         it(`rejects message with bad charaId: '${badCharaId}'`, (done) => {
             socket.emit('add message', { type: 'chara', charaId: badCharaId, content: 'Hello' }, (data) => {
-                expect(data).toFitSchema({ error: [ String ] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });
@@ -285,7 +287,7 @@ describe("Malformed data resistance", () => {
 
     it('rejects chara message with missing charaId', (done) => {
         socket.emit('add message', { type: 'chara', content: 'Hello' }, (data) => {
-            expect(data).toFitSchema({ error: [ String ] });
+            expect(data).toFitSchema(errorSchema);
             done();
         });
     })
@@ -296,7 +298,7 @@ describe("Malformed data resistance", () => {
             socket.emit('add message', { type: 'chara', charaId: 0, content: 'Hello' }, (data) => {
                 expect(data.error).not.toBeDefined();
                 socket.emit('add message', { type: 'ooc', charaId: 0, content: 'Hello' }, (data) => {
-                    expect(data).toFitSchema({ error: [ String ] });
+                    expect(data).toFitSchema(errorSchema);
                     done();
                 });
             });
@@ -443,7 +445,7 @@ describe("bad event order handling", () => {
             expect(data).toFitSchema({ rpCode: [String] });
             rpCode = data.rpCode;
             socket.emit('exit rp', rpCode, (data) => {
-                expect(data).toFitSchema({ error: [String] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });
@@ -451,21 +453,21 @@ describe("bad event order handling", () => {
 
     it("sends an error when sending a message before entering an rp", (done) => {
         socket.emit('add message', {type:'ooc', content:'hello'}, (data) => {
-            expect(data).toFitSchema({ error: [String] });
+            expect(data).toFitSchema(errorSchema);
             done();
         });
     });
 
     it("sends an error when sending a character message before entering an rp", (done) => {
         socket.emit('add message', {type:'chara', content:'hello', charaId: 0}, (data) => {
-            expect(data).toFitSchema({ error: [String] });
+            expect(data).toFitSchema(errorSchema);
             done();
         });
     });
 
     it("sends an error when adding a chara before entering an rp", (done) => {
         socket.emit('add character', {name:'buddy', color:'#123456'}, (data) => {
-            expect(data).toFitSchema({ error: [String] });
+            expect(data).toFitSchema(errorSchema);
             done();
         });
     });
@@ -473,7 +475,7 @@ describe("bad event order handling", () => {
     it("sends an error when entering the same RP twice", (done) => {
         socket.emit('enter rp', rpCode, (data) => {
             socket.emit('enter rp', rpCode, (data) => {
-                expect(data).toFitSchema({ error: [String] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });
@@ -483,7 +485,7 @@ describe("bad event order handling", () => {
         socket.emit('create rp', { title: 'Test RP 2'}, (data) => {
             expect(data).toFitSchema({ rpCode: [String] });
             socket.emit('enter rp', data.rpCode, (data) => {
-                expect(data).toFitSchema({ error: [String] });
+                expect(data).toFitSchema(errorSchema);
                 done();
             });
         });

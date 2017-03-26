@@ -104,7 +104,9 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 
     socket.emit('enter rp', $scope.rp.rpCode, function(data) {
         if (data.error) {
-            console.log(data.error);
+            document.title = 'RP Not Found | RPNow';
+            $scope.loading = false;
+            $scope.loadError = data.error;
 
             return;
         }
