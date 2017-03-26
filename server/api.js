@@ -102,10 +102,11 @@ function clientHandler(socket) {
 
     if (module.exports.logging) socket.use((packet, next) => {
         let packetType = packet[0];
+        let packetContent = packet[1];
         console.log(
-            'RECV:',
-            currentRp ? `"${currentRpCode}/${packetType}"` : `"${packetType}"`,
-            ':', ip, '|', packet
+            `RECV (${ip}):`,
+            currentRp ? `${currentRpCode}/"${packetType}"` : `"${packetType}"`,
+             packetContent
         );
         return next();
     });
