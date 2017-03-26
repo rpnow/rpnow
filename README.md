@@ -8,10 +8,6 @@ Because RPNow is fully dockerized, the only requirements are Docker and Docker-c
 Tested on Ubuntu 16.04 using Docker 17 and Docker-compose 1.9.
 
 
-## Installing
-Clone this repository to your local machine.
-
-
 ## Running
 RPNow can be run in two distinct modes: development and production.
 
