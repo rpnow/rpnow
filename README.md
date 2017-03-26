@@ -20,20 +20,41 @@ To run RPNow in development mode, enter the repository folder and use the follow
 
     docker-compose up
 
-Once the "build" container has finished running gulp tasks, open `http://localhost:8080/` in your browser.
+Once the "build" container has finished running the 'default' gulp task, open `http://localhost:8080/` in your browser.
+
+To stop the dev containers, send an interrupt (press Ctrl+C) from the terminal that `docker-compose` is running in.
 
 
 ### Production mode
 In a production environment, use the following command to run RPNow:
 
-    docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
+    docker-compose -f docker-compose.yml -f docker-compose.production.override.yml up -d
 
-Because production mode runs the web server on port 80, you may need elevated privileges. (`sudo` works fine.) The `-d` flag runs docker-compose in detached mode, freeing up the console. You may leave it out if you don't want that behavior.
+Because production mode runs the web server on port 80, you may need elevated privileges to run in production mode. (`sudo` works fine.)
+
+The `-d` flag runs `docker-compose` in detached mode, freeing up the terminal. You may leave it out if you don't want that behavior.
 
 To view the log output of the containers in detached mode, use:
 
     docker-compose logs
 
+To stop all production containers, use:
+
+    docker-compose down
+
+
+## Debugging
+When running in dev mode, RPNow provides two additional containers to assist in debugging code.
+
+First, the `web_debug` container, available at `http://localhost:8181/`, serves all the static frontend files for RPNow, without doing any custom routing.
+
+Second, the `db_debug` container, available at `http://localhost:8282/`, provides the MongoDB admin web interface, Mongo-Express.
+
+These debugging containers are not created when in production mode.
+
 
 ## Testing
-`// TODO: dockerize unit tests`
+Currently, only the API server has unit tests. To run these, use the following command:
+
+    docker-compose -f docker-compose.tests.yml up --abort-on-container-exit
+
