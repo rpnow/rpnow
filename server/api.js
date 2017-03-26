@@ -93,6 +93,11 @@ function clientHandler(socket) {
         .digest('hex')
         .substr(0,18);
 
+    socket.use((packet, next) => {
+        console.log(packet);
+        return next();
+    });
+
     socket.on('create rp', (room, callback) => {
         callback = safecall(callback);
         let result = normalize(room, newRpSchema);
