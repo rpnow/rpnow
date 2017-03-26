@@ -33,6 +33,8 @@ const messageSchema = {
 let listener;
 let db;
 
+module.exports.logging = true;
+
 module.exports.start = function(callback = noop) {
     if (listener) return callback('Server already started.');
 
@@ -93,7 +95,7 @@ function clientHandler(socket) {
         .digest('hex')
         .substr(0,18);
 
-    socket.use((packet, next) => {
+    if (module.exports.logging) socket.use((packet, next) => {
         console.log(packet);
         return next();
     });

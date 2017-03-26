@@ -5,6 +5,7 @@ const host = `http://localhost:${port}`;
 const io = require('socket.io-client');
 const api = require('../api');
 const schemaMatchers = require('./support/schemaMatchers');
+api.logging = false;
 
 describe("web server", () => {
     it("is not already running", (done) => {
