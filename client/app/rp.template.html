@@ -57,20 +57,20 @@
   </md-sidenav>
 
   <!-- LOADING PAGE BODY -->
-  <md-content flex layout="column" layout-align="center center" layout-padding ng-show="loading">
+  <md-content flex layout="column" layout-align="center center" layout-padding ng-show="rp.loading">
     <md-progress-circular class="md-accent" md-diameter="96"></md-progress-circular>
     <p>Loading RP...</p>
   </md-content>
 
   <!-- ERROR PAGE BODY -->
-  <md-content flex layout="column" layout-align="center center" layout-padding ng-show="loadError">
+  <md-content flex layout="column" layout-align="center center" layout-padding ng-show="rp.loadError">
     <h1 title="RP Load Error"><md-icon class="md-warn" style="height:96px;width:96px;font-size:96px">cancel</md-icon></h1>
-    <p ng-show="loadError==='RP_NOT_FOUND'">Couldn't find an RP at <code>&quot;/rp/{{rp.rpCode}}&quot;</code>. Check the URL and try again.</p>
-    <p ng-hide="loadError==='RP_NOT_FOUND'">Failed to load the RP at <code>/rp/{{rp.rpCode}}</code> due to an unknown error. Please contact RPNow staff or try again later. (Server says: &quot;{{loadError}}&quot;)</p>
+    <p ng-show="rp.loadError==='RP_NOT_FOUND'">Couldn't find an RP at <code>&quot;/rp/{{rp.rpCode}}&quot;</code>. Check the URL and try again.</p>
+    <p ng-hide="rp.loadError==='RP_NOT_FOUND'">Failed to load the RP at <code>/rp/{{rp.rpCode}}</code> due to an unknown error. Please contact RPNow staff or try again later. (Server says: &quot;{{rp.loadError}}&quot;)</p>
   </md-content>
 
   <!-- MAIN PAGE BODY -->
-  <div flex layout="column" ng-hide="loading || loadError">
+  <div flex layout="column" ng-hide="rp.loading || rp.loadError">
 
     <!-- APP BAR -->
     <md-toolbar flex="none" id="appBar">

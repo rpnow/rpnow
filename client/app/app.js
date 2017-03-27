@@ -91,31 +91,38 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     });
 }])
 
-.controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'socket', 'localStorageService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, socket, localStorageService, saveRpService) {
+.controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, localStorageService, rpService, saveRpService) {
     $scope.MAX_CHARA_NAME_LENGTH  = 30;
     $scope.MAX_MSG_CONTENT_LENGTH = 10000;
 
     var RECENT_MSG_COUNT = 100;
     var MAX_RECENT_MSG_COUNT = 200;
 
-    $scope.loading = true;
     $scope.url = location.href.split('#')[0];
-    $scope.rp = { rpCode: $scope.url.split('/').pop() };
+    $scope.rp = rpService();
 
-    socket.emit('enter rp', $scope.rp.rpCode, function(data) {
-        if (data.error) {
-            document.title = 'RP Not Found | RPNow';
-            $scope.loading = false;
-            $scope.loadError = data.error;
+    $scope.$watch('rp.loadError', function(loadError) {
+        if (loadError) document.title = 'RP Not Found | RPNow';
+    });
 
-            return;
-        }
-        ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
-            .forEach(function(prop) {
-                if(data[prop] !== undefined) $scope.rp[prop] = JSON.parse(JSON.stringify(data[prop]));
-            });
-        document.title = $scope.rp.title + ' | RPNow';
-        $scope.loading = false;
+    $scope.$watch('rp.title', function(rpTitle) {
+        if (rpTitle) document.title = rpTitle;
+    });
+    
+    $scope.isStoryGlued = true;
+    $scope.numMsgsToShow = RECENT_MSG_COUNT;
+    $scope.$watch('rp.msgs.length', function(newLength, oldLength) {
+        if (!(newLength > oldLength)) return;
+
+        var msg = $scope.rp.msgs[$scope.rp.msgs.length-1];
+        var alertText;
+        if(msg.type === 'chara') alertText = '* ' + chara(msg).name + ' says...';
+        else if(msg.type === 'narrator') alertText = '* The narrator says...';
+        else if(msg.type === 'ooc') alertText = '* OOC message...';
+        pageAlerts.alert(alertText, $scope.notificationNoise);
+
+        if ($scope.isStoryGlued) $scope.numMsgsToShow = RECENT_MSG_COUNT;
+        else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
     });
 
     $scope.id = function(item) {
@@ -136,18 +143,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         }
         return voice.color;
     }
-
-    socket.on('add message', function(msg) {
-        $scope.rp.msgs.push(msg);
-        var alertText;
-        if(msg.type === 'chara') alertText = '* ' + chara(msg).name + ' says...';
-        else if(msg.type === 'narrator') alertText = '* The narrator says...';
-        else if(msg.type === 'ooc') alertText = '* OOC message...';
-        pageAlerts.alert(alertText, $scope.notificationNoise);
-    });
-    socket.on('add character', function(chara) {
-        $scope.rp.charas.push(chara);
-    });
 
     $scope.msgBox = {
         content: '',
@@ -196,15 +191,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         if (msg.type === 'chara') {
             msg.charaId = +$scope.msgBox.voice;
         }
-
-        socket.emit('add message', msg, function(receivedMsg) {
-            $scope.rp.msgs.splice($scope.rp.msgs.indexOf(msg),1);
-            $scope.rp.msgs.push(receivedMsg);
-        });
-        msg.sending = true;
-        $scope.rp.msgs.push(msg);
+        $scope.rp.sendMessage(msg);
         $scope.msgBox.content = '';
     };
+
     $scope.addCharaBox = {
         name: '',
         color: '#ff0000',
@@ -215,22 +205,17 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         }
     };
     $scope.sendChara = function() {
-        var chara = {
+        $scope.rp.sendChara({
             name: $scope.addCharaBox.name,
             color: $scope.addCharaBox.color
-        }
-
-        socket.emit('add character', chara, function(receivedChara) {
-            $scope.rp.charas.push(receivedChara);
+        }, function() {
             $timeout(function() { $mdSidenav('right').close(); },100);
             $mdDialog.hide($scope.rp.charas.length-1);
         });
         $scope.addCharaBox.sending = true;
         $scope.addCharaBox.name = '';
     };
-    // rp.stop = function() {
-    //    socket.close();
-    // };
+
     $scope.downloadOOC = true;
     $scope.downloadTxt = function() {
         saveRpService.saveTxt($scope.rp, $scope.downloadOOC);
@@ -306,15 +291,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     }
     $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
 
-    $scope.isStoryGlued = true;
-    $scope.numMsgsToShow = RECENT_MSG_COUNT;
-    $scope.$watch('rp.msgs.length', function(length, oldLength) {
-        if (!(length > oldLength)) return;
-
-        if ($scope.isStoryGlued) $scope.numMsgsToShow = RECENT_MSG_COUNT;
-        else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
-    });
-
     $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
         $scope.isDesktopMode = desktop;
     });
@@ -335,8 +311,73 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     }
 
     $scope.$on('$destroy', function() {
-        socket.emit('exit rp', $scope.rp.rpCode);
+        $scope.rp.exit();
     });
+}])
+
+.factory('rpService', ['socket', function(socket) {
+    return function(rpCode) { return new RP(rpCode); };
+
+    function RP(rpCode) {
+        var rp = this;
+        rp.rpCode = rpCode || (location.href.split('#')[0]).split('/').pop();
+        rp.loading = true;
+        rp.loadError = null;
+
+        var msgSendQueue = [];
+
+        function enterRp() {
+            socket.emit('enter rp', rp.rpCode, function(data) {
+                rp.loading = false;
+                if (data.error) {
+                    rp.loadError = data.error;
+                    return;
+                }
+                ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
+                    .forEach(function(prop) {
+                        if(data[prop] !== undefined) rp[prop] = JSON.parse(JSON.stringify(data[prop]));
+                    });
+                
+                msgSendQueue.forEach(msg => rp.sendMessage(msg))
+            });
+        }
+        socket.on('reconnect', enterRp);
+        enterRp();
+
+        rp.exit = function() {
+            socket.emit('exit rp', rpCode);
+        }
+
+        socket.on('add message', function(msg) {
+            rp.msgs.push(msg);
+        });
+        socket.on('add character', function(chara) {
+            rp.charas.push(chara);
+        });
+
+        rp.sendMessage = function(msg) {
+            var placeholderMsg = JSON.parse(JSON.stringify(msg));
+            placeholderMsg.sending = true;
+            rp.msgs.push(placeholderMsg);
+            msgSendQueue.push(msg);
+
+            socket.emit('add message', msg, callback);
+            function callback(receivedMsg) {
+                if (receivedMsg.error) return;
+                rp.msgs.splice(rp.msgs.indexOf(placeholderMsg),1);
+                msgSendQueue.splice(msgSendQueue.indexOf(msg));
+                rp.msgs.push(receivedMsg);
+            }
+        };
+        rp.sendChara = function(chara, callback) {
+            socket.emit('add character', chara, function(receivedChara) {
+                if (receivedChara.error) return;
+                rp.charas.push(receivedChara);
+                callback();
+            });
+        };
+
+    }
 }])
 
 .factory('saveRpService', ['$http', function($http) {
