@@ -13,6 +13,7 @@
     line-height: 1.6;
 }
 .message-chara .message-details,
+.message-image .message-details,
 .message-narrator .message-details {
     margin: -5px 28px -2px 0;
 }
@@ -20,7 +21,8 @@
     display: inline-block;
 }
 .message-chara md-progress-circular,
-.message-narrator md-progress-circular {
+.message-image md-progress-circular,
+.message-narrator md-progress-circular, {
     margin-top: -8px;
     line-height: 0;
     transform: translateY(4px);
@@ -158,4 +160,25 @@
 .dark .message-chara .content span.action {
     opacity: 0.9;
     border: 1px solid rgba(255,255,255,0.3);
+}
+.message-image {
+    text-align: right;
+}
+.message-image .content {
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 6px;
+}
+.dark .message-image .content {
+    border-color: rgba(255,255,255,0.3);
+}
+.message-image .content a {
+    display: block;
+    width: 100%;
+}
+.message-image .content img {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    max-height: 50vh;
 }

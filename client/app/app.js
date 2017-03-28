@@ -191,7 +191,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         if (msg.type === 'chara') {
             msg.charaId = +$scope.msgBox.voice;
         }
-        $scope.rp.sendMessage(msg);
+        $scope.rp.addMessage(msg);
         $scope.msgBox.content = '';
     };
 
@@ -205,7 +205,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         }
     };
     $scope.sendChara = function() {
-        $scope.rp.sendChara({
+        $scope.rp.addChara({
             name: $scope.addCharaBox.name,
             color: $scope.addCharaBox.color
         }, function() {
@@ -215,6 +215,24 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         $scope.addCharaBox.sending = true;
         $scope.addCharaBox.name = '';
     };
+
+    $scope.imagePostBox = {
+        url: '',
+        sending: false,
+        isValid: function() {
+            var url = $scope.imagePostBox.url;
+            var regexp = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi //https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
+            return url.match(regexp);
+        }
+    };
+    $scope.sendImage = function() {
+        $scope.rp.addImage($scope.imagePostBox.url, function() {
+            $scope.imagePostBox.sending = false;
+            $mdDialog.hide();
+        });
+        $scope.imagePostBox.url = '';
+        $scope.imagePostBox.sending = true;
+    }
 
     $scope.downloadOOC = true;
     $scope.downloadTxt = function() {
@@ -338,7 +356,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
                         if(data[prop] !== undefined) rp[prop] = JSON.parse(JSON.stringify(data[prop]));
                     });
                 
-                msgSendQueue.forEach(msg => rp.sendMessage(msg))
+                msgSendQueue.forEach(msg => rp.addMessage(msg))
             });
         }
         socket.on('reconnect', enterRp);
@@ -355,27 +373,34 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             rp.charas.push(chara);
         });
 
-        rp.sendMessage = function(msg) {
+        rp.addMessage = function(msg, callback) {
             var placeholderMsg = JSON.parse(JSON.stringify(msg));
             placeholderMsg.sending = true;
             rp.msgs.push(placeholderMsg);
             msgSendQueue.push(msg);
 
-            socket.emit('add message', msg, callback);
-            function callback(receivedMsg) {
+            socket.emit('add message', msg, function(receivedMsg) {
                 if (receivedMsg.error) return;
                 rp.msgs.splice(rp.msgs.indexOf(placeholderMsg),1);
                 msgSendQueue.splice(msgSendQueue.indexOf(msg));
                 rp.msgs.push(receivedMsg);
-            }
+                if (callback) callback();
+            });
         };
-        rp.sendChara = function(chara, callback) {
+        rp.addChara = function(chara, callback) {
             socket.emit('add character', chara, function(receivedChara) {
                 if (receivedChara.error) return;
                 rp.charas.push(receivedChara);
-                callback();
+                if (callback) callback();
             });
         };
+        rp.addImage = function(url, callback) {
+            socket.emit('add image', url, function(receivedMsg) {
+                if (receivedMsg.error) return;
+                rp.msgs.push(receivedMsg);
+                if (callback) callback();
+            });
+        }
 
     }
 }])
@@ -394,6 +419,9 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             else if(msg.type === 'chara') {
                 return rp.charas[msg.charaId].name.toUpperCase()+':\r\n'
                     + wordwrap(msg.content, 70, '  ');
+            }
+            else if(msg.type === 'image') {
+                return '--- IMAGE ---\r\n' + msg.url + '\r\n-------------';
             }
             else {
                 throw new Error('Unexpected message type: '+msg.type);
@@ -435,6 +463,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             msg.isNarrator = msg.type === 'narrator';
             msg.isOOC = msg.type === 'ooc';
             msg.isChara = msg.type === 'chara';
+            msg.isImage = msg.type === 'image';
             if (msg.isChara) msg.name = rpData.charas[msg.charaId].name.toUpperCase();
         });
         if (!docxTemplateRequest) {

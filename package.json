@@ -18,6 +18,7 @@
   "main": "src/index.js",
   "dependencies": {
     "mongojs": "^2.4.0",
+    "request": "^2.81.0",
     "socket.io": "^1.7.2"
   },
   "devDependencies": {

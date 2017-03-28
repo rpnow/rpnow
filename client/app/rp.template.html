@@ -129,7 +129,12 @@
               <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>
             </span>
           </div>
-          <div class="content" ng-bind-html="msg.content | msgContent:(chara(msg)&&chara(msg).color)"></div>
+          <div ng-if="msg.type !== 'image'" class="content" ng-bind-html="msg.content | msgContent:(chara(msg)&&chara(msg).color)"></div>
+          <div ng-if="msg.type === 'image'" class="content">
+            <a href="{{msg.url}}" target="_blank">
+              <img ng-src="{{msg.url}}"/>
+            </a>
+          </div>
         </div>
       </div>
     </md-content>
@@ -138,7 +143,7 @@
 
       <!-- MESSAGE BOX TITLE -->
       <header>
-        <div layout="row" class="message-box-inner-row">
+        <div layout="row" layout-align="center center" class="message-box-inner-row">
           <md-select id="voice-selector" ng-model="msgBox.voice" flex title="Current character" aria-label="Character change dropdown">
             <md-option ng-if="rp.charas" ng-repeat="voice in msgBox.recentVoices()" ng-value="voice">
               <span ng-if="voice === 'narrator'">
@@ -162,6 +167,9 @@
           </md-select>
           <md-button class="md-raised md-primary" hide-xs title="Show all characters for this RP" ng-click="toggleRightDrawer()">
             <md-icon>group</md-icon> All Characters
+          </md-button>
+          <md-button class="md-icon-button md-raised md-primary" title="Post an image to this RP" ng-click="showDialog('#imagePostDialog', $event)">
+            <md-icon>image</md-icon>
           </md-button>
         </div>
       </header>
@@ -229,6 +237,36 @@
   </md-sidenav>
 
 </section>
+
+<!-- IMAGE POST DIALOG-->
+<div style="visibility: hidden">
+  <div class="md-dialog-container" id="imagePostDialog">
+    <md-dialog>
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <h2><md-icon>image</md-icon> Post Image</h2>
+          <span flex></span>
+          <md-button class="md-icon-button" ng-hide="imagePostBox.sending" ng-click="hideDialog()" title="Close">
+            <md-icon>close</md-icon>
+          </md-button>
+        </div>
+      </md-toolbar>
+      <md-dialog-content ng-show="imagePostBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
+        <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
+      </md-dialog-content>
+      <md-dialog-content ng-hide="imagePostBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
+        <md-input-container ng-class="nightMode? 'md-hue-3':'md-hue-2'">
+          <label>Enter an image URL:</label>
+          <input ng-model="imagePostBox.url" ng-trim="true" md-autofocus>
+        </md-input-container>
+
+        <md-button class="md-raised md-accent" ng-click="sendImage()" ng-disabled="!imagePostBox.isValid()" title="Post the image">
+          <md-icon>check</md-icon> OK
+        </md-button>
+      </md-dialog-content>
+    </md-dialog>
+  </div>
+</div>
 
 <!-- CHARACTER CREATOR DIALOG-->
 <div style="visibility: hidden">

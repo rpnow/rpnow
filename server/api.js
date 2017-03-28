@@ -2,6 +2,7 @@ const http = require('http');
 const socketio = require('socket.io');
 const crypto = require('crypto');
 const mongojs = require('mongojs');
+const request = require('request');
 const normalize = require('./normalize-json');
 const rpnow = require('./constants');
 const noop = (function(){});
@@ -185,6 +186,33 @@ function clientHandler(socket) {
             });
         }
     });
+
+    socket.on('add image', (url, callback) => {
+        callback = safecall(callback);
+        if (!currentRp) return callback({error: 'NOT_IN_RP'});
+        if (typeof url !== 'string') return callback({error: 'BAD_URL'});
+
+        // validate image
+        request.head(url, (err, res) => {
+            if (err) return callback({ error: 'URL_FAILED', errorDetails: err });
+            if (!res.headers['content-type']) return callback({ error: 'UNKNOWN_CONTENT' });
+            if (!res.headers['content-type'].startsWith('image/')) return callback({error: 'BAD_CONTENT'});
+
+            // store & broadcast
+            let msg = {
+                type: 'image',
+                url: url,
+                timestamp: Date.now() / 1000,
+                ipid: ipid
+            };
+            db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
+                if (err) return callback({ error: 'DB_ERROR', errorDetails: err });
+
+                callback(msg);
+                socket.to(currentRp).broadcast.emit('add message', msg);
+            });
+        })
+    })
 
     socket.on('add character', (chara, callback) => {
         callback = safecall(callback);
