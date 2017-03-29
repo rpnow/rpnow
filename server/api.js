@@ -115,51 +115,51 @@ function clientHandler(socket) {
     socket.on('create rp', (room, callback) => {
         callback = safecall(callback);
         let result = normalize(room, newRpSchema);
-        if (!result.valid) return callback({error: 'BAD_RP', errorDetails: result.error});
+        if (!result.valid) return callback({code: 'BAD_RP', details: result.error});
 
         generateRpCode((err, rpCode) => {
             room.rpCode = rpCode;
             room.msgs = [];
             room.charas = [];
             db.rooms.insert(room, (err, rp) => {
-                if (err) return callback({ error: 'DB_ERROR', errorDetails: err });
-                callback({ rpCode: rpCode });
+                if (err) return callback({ code: 'DB_ERROR', details: err });
+                callback(null, rpCode);
             });
         });
     });
 
     socket.on('enter rp', (rpCode, callback) => {
         callback = safecall(callback);
-        if (currentRp) return callback({error: 'IN_RP'});
-        if (typeof rpCode !== 'string') return callback({error: 'BAD_RPCODE'});
+        if (currentRp) return callback({code: 'IN_RP'});
+        if (typeof rpCode !== 'string') return callback({code: 'BAD_RPCODE'});
         
         db.rooms.findOne({ rpCode: rpCode }, (err, rp) => {
-            if (!rp) return callback({error: 'RP_NOT_FOUND'});
+            if (!rp) return callback({code: 'RP_NOT_FOUND'});
             
             currentRp = rp._id;
             currentRpCode = rp.rpCode;
             socket.join(currentRp);
             delete rp._id;
             delete rp.rpCode;
-            callback(rp);
+            callback(null, rp);
         });
     });
 
-    socket.on('exit rp', (rpCode, callback) => {
+    socket.on('exit rp', (_unused, callback) => {
         callback = safecall(callback);
-        if (!currentRp) return callback({error: 'NOT_IN_RP'});
+        if (!currentRp) return callback({code: 'NOT_IN_RP'});
 
         socket.leave(currentRp);
         currentRp = null;
-        callback({});
+        callback(null);
     });
     
     socket.on('add message', (msg, callback) => {
         callback = safecall(callback);
-        if (!currentRp) return callback({error: 'NOT_IN_RP'});
+        if (!currentRp) return callback({code: 'NOT_IN_RP'});
         // validate & normalize
         let result = normalize(msg, messageSchema);
-        if (!result.valid) return callback({error: 'BAD_MSG', errorDetails: result.error});
+        if (!result.valid) return callback({code: 'BAD_MSG', details: result.error});
         msg.timestamp = Date.now() / 1000;
         msg.ipid = ipid;
         
@@ -167,9 +167,9 @@ function clientHandler(socket) {
         if (msg.type === 'chara') {
             // charas must be in the chara list
             db.rooms.findOne({ _id: currentRp }, { charas: 1 }, (err, rp) => {
-                if (err) return callback({ error: 'DB_ERROR', errorDetails: err });
+                if (err) return callback({ code: 'DB_ERROR', details: err });
 
-                if (msg.charaId >= rp.charas.length) return callback({error: 'CHARA_NOT_FOUND', errorDetails: `no character with id ${msg.charaId}`});
+                if (msg.charaId >= rp.charas.length) return callback({code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`});
 
                 storeAndBroadcast();
             });
@@ -179,9 +179,9 @@ function clientHandler(socket) {
         }
         function storeAndBroadcast() {
             db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
-                if (err) return callback({ error: 'DB_ERROR', errorDetails: err });
+                if (err) return callback({ code: 'DB_ERROR', details: err });
 
-                callback(msg);
+                callback(null, msg);
                 socket.to(currentRp).broadcast.emit('add message', msg);
             });
         }
@@ -189,14 +189,14 @@ function clientHandler(socket) {
 
     socket.on('add image', (url, callback) => {
         callback = safecall(callback);
-        if (!currentRp) return callback({error: 'NOT_IN_RP'});
-        if (typeof url !== 'string') return callback({error: 'BAD_URL'});
+        if (!currentRp) return callback({code: 'NOT_IN_RP'});
+        if (typeof url !== 'string') return callback({code: 'BAD_URL'});
 
         // validate image
         request.head(url, (err, res) => {
-            if (err) return callback({ error: 'URL_FAILED', errorDetails: err });
-            if (!res.headers['content-type']) return callback({ error: 'UNKNOWN_CONTENT' });
-            if (!res.headers['content-type'].startsWith('image/')) return callback({error: 'BAD_CONTENT'});
+            if (err) return callback({ code: 'URL_FAILED', details: err });
+            if (!res.headers['content-type']) return callback({ code: 'UNKNOWN_CONTENT' });
+            if (!res.headers['content-type'].startsWith('image/')) return callback({code: 'BAD_CONTENT'});
 
             // store & broadcast
             let msg = {
@@ -206,9 +206,9 @@ function clientHandler(socket) {
                 ipid: ipid
             };
             db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
-                if (err) return callback({ error: 'DB_ERROR', errorDetails: err });
+                if (err) return callback({ code: 'DB_ERROR', details: err });
 
-                callback(msg);
+                callback(null, msg);
                 socket.to(currentRp).broadcast.emit('add message', msg);
             });
         })
@@ -216,16 +216,16 @@ function clientHandler(socket) {
 
     socket.on('add character', (chara, callback) => {
         callback = safecall(callback);
-        if (!currentRp) return callback({error: 'NOT_IN_RP'});
+        if (!currentRp) return callback({code: 'NOT_IN_RP'});
         // validate & normalize
         let result = normalize(chara, charaSchema);
-        if (!result.valid) return callback({error: 'BAD_CHARA', errorDetails: result.error});
+        if (!result.valid) return callback({code: 'BAD_CHARA', details: result.error});
 
         // store & broadcast
         db.rooms.update({ _id: currentRp }, {$push: {charas: chara}}, (err, r) => {
-            if (err) return callback({ error: 'DB_ERROR', errorDetails: err });
+            if (err) return callback({ code: 'DB_ERROR', details: err });
 
-            callback(chara);
+            callback(null, chara);
             socket.to(currentRp).broadcast.emit('add character', chara);
         });
     });

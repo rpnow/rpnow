@@ -7,12 +7,12 @@ const api = require('../api');
 api.logging = false;
 
 const schemaMatchers = require('./support/schemaMatchers');
-const errorSchema = { error: [String], errorDetails: [{$optional:String}]};
+const errorSchema = { code: [String], details: [{$optional:String}]};
 
 describe("web server", () => {
     it("is not already running", (done) => {
         let socket = io(host);
-        socket.on('connect_error', (error) => {
+        socket.on('connect_error', () => {
             done();
             socket.close();
         });
@@ -31,7 +31,7 @@ describe("web server", () => {
     it("can be stopped", (done) => {
         api.stop(() => {
             let socket = io(host);
-            socket.on('connect_error', (error) => {
+            socket.on('connect_error', () => {
                 done();
                 socket.close();
             });
@@ -103,22 +103,25 @@ describe("basic socket.io message coverage", () => {
     beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
     
     it("will give the rp code when created", (done) => {
-        socket.emit('create rp', { title: 'Test RP'}, (data) => {
-            expect(data).toFitSchema({ rpCode: [String] });
-            rpCode = data.rpCode;
+        socket.emit('create rp', { title: 'Test RP'}, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(typeof data).toBe('string');
+            rpCode = data;
             done();
         })
     });
     
     it("will give an error when an invalid rpCode is requested", (done) => {
-        socket.emit('enter rp', 'badcode1', (data) => {
-            expect(data).toFitSchema(errorSchema);
+        socket.emit('enter rp', 'badcode1', (err, data) => {
+            expect(err).toFitSchema(errorSchema);
+            expect(data).not.toBeDefined();
             done();
         });
     });
     
     it("will give the blank rp when requested", (done) => {
-        socket.emit('enter rp', rpCode, (data) => {
+        socket.emit('enter rp', rpCode, (err, data) => {
+            expect(err).toBeFalsy();
             expect(data).toFitSchema({
                 title: [ String ],
                 desc: [ {$optional:String} ],
@@ -131,7 +134,8 @@ describe("basic socket.io message coverage", () => {
     
     it("accepts new chara", (done) => {
         let chara = { name: 'Cassie', color: '#ca551e' };
-        socket.emit('add character', chara, (data) => {
+        socket.emit('add character', chara, (err, data) => {
+            expect(err).toBeFalsy();
             expect(data).toFitSchema({
                 name: ['Cassie'],
                 color: ['#ca551e']
@@ -142,7 +146,8 @@ describe("basic socket.io message coverage", () => {
     
     it("accepts narrator message", (done) => {
         let msg = { type: 'narrator', content: 'Narrator message text.' };
-        socket.emit('add message', msg, (data) => {
+        socket.emit('add message', msg, (err, data) => {
+            expect(err).toBeFalsy();
             expect(data).toFitSchema({
                 type: ['narrator'],
                 content: [msg.content],
@@ -155,7 +160,8 @@ describe("basic socket.io message coverage", () => {
     
     it("accepts ooc message", (done) => {
         let msg = { type: 'ooc', content: 'OOC message text.' };
-        socket.emit('add message', msg, (data) => {
+        socket.emit('add message', msg, (err, data) => {
+            expect(err).toBeFalsy();
             expect(data).toFitSchema({
                 type: ['ooc'],
                 content: [msg.content],
@@ -168,7 +174,8 @@ describe("basic socket.io message coverage", () => {
     
     it("accepts chara message", (done) => {
         let msg = { type: 'chara', content: 'Hello!', charaId: 0 };
-        socket.emit('add message', msg, (data) => {
+        socket.emit('add message', msg, (err, data) => {
+            expect(err).toBeFalsy();
             expect(data).toFitSchema({
                 type: ['chara'],
                 content: [msg.content],
@@ -181,8 +188,9 @@ describe("basic socket.io message coverage", () => {
     });
 
     it("leaves the room succesfully", (done) => {
-        socket.emit('exit rp', rpCode, (data) => {
-            expect(data).toFitSchema({ })
+        socket.emit('exit rp', rpCode, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(data).not.toBeDefined();
             done();
         });
     });
@@ -212,16 +220,18 @@ describe("Malformed data resistance", () => {
             socket.emit(msgType, undefined);
         })
 
-        socket.emit('create rp', { title: 'Are you still alive'}, (data) => {
-            expect(data).toFitSchema({ rpCode: [String] });
+        socket.emit('create rp', { title: 'Are you still alive'}, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(typeof data).toBe('string');
             done();
         });
     })
     
     it("will create and join an RP for testing", (done) => {
-        socket.emit('create rp', { title: 'Test RP'}, (data) => {
-            expect(data).toFitSchema({ rpCode: [String] });
-            socket.emit('enter rp', data.rpCode, (data) => {
+        socket.emit('create rp', { title: 'Test RP'}, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(typeof data).toBe('string');
+            socket.emit('enter rp', data, (err, data) => {
                 expect(data).toFitSchema({
                     title: [ String ],
                     desc: [ {$optional:String} ],
@@ -235,8 +245,9 @@ describe("Malformed data resistance", () => {
 
     [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       ', 'NAME LONGER THAN THIRTY CHARACTERS'].forEach(badName => {
         it(`rejects chara with bad name: '${badName}'`, (done) => {
-            socket.emit('add character', {name: badName, color: '#123456'}, (data) => {
-                expect(data).toFitSchema(errorSchema);
+            socket.emit('add character', {name: badName, color: '#123456'}, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });
@@ -244,8 +255,9 @@ describe("Malformed data resistance", () => {
     
     [undefined, null, false, true, 0, 1, {}, [], '', '#abc', '#abcdef1', '#ABCD3F', 'abcd3f', '#abcdef#123456', 'rgba(0,0,0,0)', 'red'].forEach(badColor => {
         it(`rejects chara with bad color: '${badColor}'`, (done) => {
-            socket.emit('add character', {name: 'Cassie', color: badColor}, (data) => {
-                expect(data).toFitSchema(errorSchema);
+            socket.emit('add character', {name: 'Cassie', color: badColor}, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });
@@ -253,24 +265,27 @@ describe("Malformed data resistance", () => {
     
     [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       '].forEach(badContent => {
         it(`rejects message with bad content: '${badContent}'`, (done) => {
-            socket.emit('add message', { type: 'narrator', content: badContent }, (data) => {
-                expect(data).toFitSchema(errorSchema);
+            socket.emit('add message', { type: 'narrator', content: badContent }, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });
     });
     it('rejects message with too-long content', (done) => {
         var longContent = Array(10000 + 1 + 1).join('a');
-        socket.emit('add message', { type: 'narrator', content: longContent }, (data) => {
-            expect(data).toFitSchema(errorSchema);
+        socket.emit('add message', { type: 'narrator', content: longContent }, (err, data) => {
+            expect(err).toFitSchema(errorSchema);
+            expect(data).not.toBeDefined();
             done();
         });
     });
     
     [undefined, null, false, true, 0, 1, {}, [], '', ' ', 'oooc', 'oocc', 'ooc   ', 'OOC', 'oocnarrator'].forEach(badType => {
         it(`rejects message with bad type: '${badType}'`, (done) => {
-            socket.emit('add message', { type: badType, content: 'Hello' }, (data) => {
-                expect(data).toFitSchema(errorSchema);
+            socket.emit('add message', { type: badType, content: 'Hello' }, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });
@@ -278,27 +293,30 @@ describe("Malformed data resistance", () => {
     
     [undefined, null, false, true, {}, [], '0', -1, 1, 0.5, -0.5].forEach(badCharaId => {
         it(`rejects message with bad charaId: '${badCharaId}'`, (done) => {
-            socket.emit('add message', { type: 'chara', charaId: badCharaId, content: 'Hello' }, (data) => {
-                expect(data).toFitSchema(errorSchema);
+            socket.emit('add message', { type: 'chara', charaId: badCharaId, content: 'Hello' }, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });
     });
 
     it('rejects chara message with missing charaId', (done) => {
-        socket.emit('add message', { type: 'chara', content: 'Hello' }, (data) => {
-            expect(data).toFitSchema(errorSchema);
+        socket.emit('add message', { type: 'chara', content: 'Hello' }, (err, data) => {
+            expect(err).toFitSchema(errorSchema);
+            expect(data).not.toBeDefined();
             done();
         });
     })
 
     it('rejects non-chara message with charaId in it', (done) => {
-        socket.emit('add character', {name:'Good Chara', color: '#123456'}, (data) => {
-            expect(data.error).not.toBeDefined();
-            socket.emit('add message', { type: 'chara', charaId: 0, content: 'Hello' }, (data) => {
-                expect(data.error).not.toBeDefined();
-                socket.emit('add message', { type: 'ooc', charaId: 0, content: 'Hello' }, (data) => {
-                    expect(data).toFitSchema(errorSchema);
+        socket.emit('add character', {name:'Good Chara', color: '#123456'}, (err, data) => {
+            expect(err).toBeFalsy();
+            socket.emit('add message', { type: 'chara', charaId: 0, content: 'Hello' }, (err, data) => {
+                expect(err).toBeFalsy();
+                socket.emit('add message', { type: 'ooc', charaId: 0, content: 'Hello' }, (err, data) => {
+                    expect(err).toFitSchema(errorSchema);
+                    expect(data).not.toBeDefined();
                     done();
                 });
             });
@@ -324,10 +342,12 @@ describe("multiple clients", () => {
     beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
 
     it("initiates and enters a room", (done) => {
-        sockets[0].emit('create rp', { title: 'Test RP'}, (data) => {
-            expect(data).toFitSchema({ rpCode: [String] });
-            rpCode = data.rpCode;
-            sockets[0].emit('enter rp', rpCode, (data) => {
+        sockets[0].emit('create rp', { title: 'Test RP'}, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(typeof data).toBe('string');
+            rpCode = data;
+            sockets[0].emit('enter rp', rpCode, (err, data) => {
+                expect(err).toBeFalsy();
                 expect(data).toFitSchema({
                     title: [ String ],
                     desc: [ {$optional:String} ],
@@ -340,7 +360,8 @@ describe("multiple clients", () => {
     });
 
     it("have a friend join the same room", (done) => {
-        sockets[1].emit('enter rp', rpCode, (data) => {
+        sockets[1].emit('enter rp', rpCode, (err, data) => {
+            expect(err).toBeFalsy();
             expect(data).toFitSchema({
                 title: [ String ],
                 desc: [ {$optional:String} ],
@@ -352,9 +373,11 @@ describe("multiple clients", () => {
     });
 
     it("have someone else create a separate room", (done) => {
-        sockets[3].emit('create rp', { title: 'Other RP'}, (data) => {
-            expect(data).toFitSchema({ rpCode: [String] });
-            sockets[3].emit('enter rp', data.rpCode, (data) => {
+        sockets[3].emit('create rp', { title: 'Other RP'}, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(typeof data).toBe('string');
+            sockets[3].emit('enter rp', data, (err, data) => {
+                expect(err).toBeFalsy();
                 expect(data).toFitSchema({
                     title: [ String ],
                     desc: [ {$optional:String} ],
@@ -378,7 +401,8 @@ describe("multiple clients", () => {
 
             function sendOne() {
                 let message = {'type': 'narrator', 'content': 'hello'+Math.floor(Math.random()*1000)+'!'};
-                socket.emit('add message', message, (data) => {
+                socket.emit('add message', message, (err, data) => {
+                    expect(err).toBeFalsy();
                     msgs.push(data);
                     if (msgs.length < 20) setTimeout(sendOne, Math.random() * 100);
                     else if (!--waiters) setTimeout(check, 1000);
@@ -406,7 +430,7 @@ describe("multiple clients", () => {
     });
 
     it("have a third friend join and get the whole rp", (done) => {
-        sockets[2].emit('enter rp', rpCode, (data) => {
+        sockets[2].emit('enter rp', rpCode, (err, data) => {
             expect(data).toFitSchema({
                 title: [ String ],
                 desc: [ {$optional:String} ],
@@ -441,51 +465,61 @@ describe("bad event order handling", () => {
     beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
 
     it("sends an error when exiting an rp before entering it", (done) => {
-        socket.emit('create rp', { title: 'Test RP'}, (data) => {
-            expect(data).toFitSchema({ rpCode: [String] });
-            rpCode = data.rpCode;
-            socket.emit('exit rp', rpCode, (data) => {
-                expect(data).toFitSchema(errorSchema);
+        socket.emit('create rp', { title: 'Test RP'}, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(typeof data).toBe('string');
+            rpCode = data;
+            socket.emit('exit rp', rpCode, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });
     });
 
     it("sends an error when sending a message before entering an rp", (done) => {
-        socket.emit('add message', {type:'ooc', content:'hello'}, (data) => {
-            expect(data).toFitSchema(errorSchema);
+        socket.emit('add message', {type:'ooc', content:'hello'}, (err, data) => {
+            expect(err).toFitSchema(errorSchema);
+            expect(data).not.toBeDefined();
             done();
         });
     });
 
     it("sends an error when sending a character message before entering an rp", (done) => {
-        socket.emit('add message', {type:'chara', content:'hello', charaId: 0}, (data) => {
-            expect(data).toFitSchema(errorSchema);
+        socket.emit('add message', {type:'chara', content:'hello', charaId: 0}, (err, data) => {
+            expect(err).toFitSchema(errorSchema);
+            expect(data).not.toBeDefined();
             done();
         });
     });
 
     it("sends an error when adding a chara before entering an rp", (done) => {
-        socket.emit('add character', {name:'buddy', color:'#123456'}, (data) => {
-            expect(data).toFitSchema(errorSchema);
+        socket.emit('add character', {name:'buddy', color:'#123456'}, (err, data) => {
+            expect(err).toFitSchema(errorSchema);
+            expect(data).not.toBeDefined();
             done();
         });
     });
 
     it("sends an error when entering the same RP twice", (done) => {
-        socket.emit('enter rp', rpCode, (data) => {
-            socket.emit('enter rp', rpCode, (data) => {
-                expect(data).toFitSchema(errorSchema);
+        socket.emit('enter rp', rpCode, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(data).toBeTruthy();
+            socket.emit('enter rp', rpCode, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });
     });
 
     it("sends an error when trying to join a second RP", (done) => {
-        socket.emit('create rp', { title: 'Test RP 2'}, (data) => {
-            expect(data).toFitSchema({ rpCode: [String] });
-            socket.emit('enter rp', data.rpCode, (data) => {
-                expect(data).toFitSchema(errorSchema);
+        socket.emit('create rp', { title: 'Test RP 2'}, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(typeof data).toBe('string');
+            socket.emit('enter rp', data.rpCode, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
                 done();
             });
         });

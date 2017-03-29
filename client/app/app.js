@@ -80,8 +80,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 
     $scope.submit = function() {
         $scope.submitted = true;
-        socket.emit('create rp', {title: $scope.title, desc: $scope.desc}, function(data) {
-            $scope.rpCode = data.rpCode;
+        socket.emit('create rp', {title: $scope.title, desc: $scope.desc}, function(err, data) {
+            $scope.rpCode = data;
             $location.url('/rp/'+$scope.rpCode);
         });
     };
@@ -119,6 +119,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         if(msg.type === 'chara') alertText = '* ' + chara(msg).name + ' says...';
         else if(msg.type === 'narrator') alertText = '* The narrator says...';
         else if(msg.type === 'ooc') alertText = '* OOC message...';
+        else if(msg.type === 'image') alertText = '* Image posted...'
         pageAlerts.alert(alertText, $scope.notificationNoise);
 
         if ($scope.isStoryGlued) $scope.numMsgsToShow = RECENT_MSG_COUNT;
@@ -345,10 +346,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         var msgSendQueue = [];
 
         function enterRp() {
-            socket.emit('enter rp', rp.rpCode, function(data) {
+            socket.emit('enter rp', rp.rpCode, function(err, data) {
                 rp.loading = false;
-                if (data.error) {
-                    rp.loadError = data.error;
+                if (err) {
+                    rp.loadError = err.code;
                     return;
                 }
                 ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
@@ -363,7 +364,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         enterRp();
 
         rp.exit = function() {
-            socket.emit('exit rp', rpCode);
+            socket.emit('exit rp');
         }
 
         socket.on('add message', function(msg) {
@@ -379,8 +380,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             rp.msgs.push(placeholderMsg);
             msgSendQueue.push(msg);
 
-            socket.emit('add message', msg, function(receivedMsg) {
-                if (receivedMsg.error) return;
+            socket.emit('add message', msg, function(err, receivedMsg) {
+                if (err) return;
                 rp.msgs.splice(rp.msgs.indexOf(placeholderMsg),1);
                 msgSendQueue.splice(msgSendQueue.indexOf(msg));
                 rp.msgs.push(receivedMsg);
@@ -388,15 +389,15 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             });
         };
         rp.addChara = function(chara, callback) {
-            socket.emit('add character', chara, function(receivedChara) {
-                if (receivedChara.error) return;
+            socket.emit('add character', chara, function(err, receivedChara) {
+                if (err) return;
                 rp.charas.push(receivedChara);
                 if (callback) callback();
             });
         };
         rp.addImage = function(url, callback) {
-            socket.emit('add image', url, function(receivedMsg) {
-                if (receivedMsg.error) return;
+            socket.emit('add image', url, function(err, receivedMsg) {
+                if (err) return;
                 rp.msgs.push(receivedMsg);
                 if (callback) callback();
             });
