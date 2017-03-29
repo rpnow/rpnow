@@ -15,7 +15,7 @@
         <md-input-container flex class="md-icon-right md-hue-2">
           <label>Name your story</label>
           <input type="text" ng-model="title" maxlength="30" autocomplete="off">
-          <md-button class="md-icon-button" style="position:absolute;top:0px;right:-6px;margin:0" ng-click="spinTitle()">
+          <md-button class="md-icon-button" style="position:absolute;top:0px;right:-6px;margin:0" ng-click="spinTitle()" title="...or let us name it for you">
             <md-icon>casino</md-icon>
           </md-button>
         </md-input-container>
@@ -26,7 +26,7 @@
       <div layout="row" layout-align="space-around center">
         <md-button class="md-raised md-accent" ng-disabled="!title.trim()" type="submit">
           <md-icon>check</md-icon>
-          {{isXs ? "Begin RP" : "Begin Roleplay"}}
+          Create {{isXs ? "RP" : "Roleplay"}}
         </md-button>
         <md-button type="button" ng-hide="showMoreOptions" ng-click="showMoreOptions = true">
           <md-icon>more_horiz</md-icon>

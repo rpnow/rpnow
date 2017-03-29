@@ -69,6 +69,10 @@ md-select-value md-icon:first-child {
     transition: none;
 }
 
+#contactDialog md-dialog-content md-icon {
+    margin-right: 10px;
+}
+
 #message-input-box {
     z-index: 3;
 }
