@@ -126,10 +126,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
     });
 
-    $scope.id = function(item) {
+    var id = $scope.id = function(item) {
         var index;
-        if ((index = $scope.rp.charas.indexOf(item)) >= 0) return index;
-        if ((index = $scope.rp.msgs.indexOf(item)) >= 0) return index;
+        if ((index = $scope.rp.charas && $scope.rp.charas.indexOf(item)) >= 0) return index;
+        if ((index = $scope.rp.msgs && $scope.rp.msgs.indexOf(item)) >= 0) return index;
         return null;
     };
     var chara = $scope.chara = function(x) {
@@ -154,10 +154,12 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     $scope.msgBox = {
         content: '',
         voice: 'narrator',
-        recentCharas: () => $scope.msgBox.recentCharasString
-            .split(',')
-            .filter(x=>x>=0)
-            .map(x=>$scope.rp.charas[+x]),
+        recentCharas: () => $scope.rp.charas ?
+            $scope.msgBox.recentCharasString
+                .split(',')
+                .filter(x=>x>=0)
+                .map(x=>$scope.rp.charas[+x]):
+            [],
         recentCharasString: '', // stored in a string so it can be easily bound to localStorage
         isValid: function() {
             return $scope.msgBox.content.trim().length > 0;
@@ -168,7 +170,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         if ($scope.msgBox.recentCharasString === undefined) return;
         if ($scope.rp.charas === undefined) return;
 
-        console.log($scope.rp);
         var c = $scope.rp.charas[newChara];
         var rc = $scope.msgBox.recentCharas();
         // add to 'recent' list if it isn't already there
@@ -254,6 +255,21 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     };
     $scope.downloadDocx = function() {
         saveRpService.saveDocx($scope.rp, $scope.downloadOOC);
+    };
+
+    $scope.beginEdit = function(msg) {
+        msg.editing = true;
+        msg.newContent = msg.content;
+    };
+    $scope.cancelEdit = function(msg) {
+        msg.editing = false;
+    };
+    $scope.confirmEdit = function(msg) {
+        var data = { id: id(msg), content: msg.newContent, secret: msg.secret };
+        $scope.rp.editMessage(data);
+        msg.content = msg.newContent;
+        msg.editing = false;
+        msg.sending = true;
     };
     
     $scope.allNoises = pageAlerts.allNoises;
@@ -405,6 +421,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         socket.on('add character', function(chara) {
             rp.charas.push(chara);
         });
+        socket.on('edit message', function(data) {
+            console.log(data);
+            rp.msgs.splice(data.id,1);
+            rp.msgs.push(data.msg);
+        });
 
         rp.addMessage = function(msg, callback) {
             var placeholderMsg = JSON.parse(JSON.stringify(msg));
@@ -414,8 +435,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 
             socket.emit('add message', msg, function(err, receivedMsg) {
                 if (err) return;
+                msgSendQueue.splice(msgSendQueue.indexOf(msg),1);
                 rp.msgs.splice(rp.msgs.indexOf(placeholderMsg),1);
-                msgSendQueue.splice(msgSendQueue.indexOf(msg));
                 rp.msgs.push(receivedMsg);
                 if (callback) callback();
             });
@@ -433,7 +454,17 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
                 rp.msgs.push(receivedMsg);
                 if (callback) callback();
             });
-        }
+        };
+
+        rp.editMessage = function(data, callback) {
+            rp.msgs[data.id].sending = true;
+            socket.emit('edit message', data, function(err, receivedMsg) {
+                if (err) return;
+                rp.msgs.splice(data.id,1);
+                rp.msgs.push(receivedMsg);
+                if (callback) callback();
+            });
+        };
 
     }
 }])

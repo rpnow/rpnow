@@ -12,6 +12,16 @@
 .message .content {
     line-height: 1.6;
 }
+.message .action-buttons button {
+    margin: -15px -6px;
+    padding: 0;
+}
+.message textarea {
+    width: calc(100% - 16px);
+    margin: 8px;
+    box-sizing: border-box;
+    resize: vertical;
+}
 .message-chara .message-details,
 .message-image .message-details,
 .message-narrator .message-details {

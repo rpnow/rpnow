@@ -8,6 +8,35 @@ api.logging = false;
 
 const schemaMatchers = require('./support/schemaMatchers');
 const errorSchema = { code: [String], details: [{$optional:String}]};
+const msgSchema = {
+    type: ['narrator', 'chara', 'ooc'],
+    content: [String, 10000],
+    charaId: (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined,
+    timestamp: [Number],
+    ipid: [String],
+    challenge: [String],
+    secret: [String]
+}
+const friendMsgSchema = {
+    type: ['narrator', 'chara', 'ooc'],
+    content: [String, 10000],
+    charaId: (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined,
+    timestamp: [Number],
+    ipid: [String],
+    challenge: [String]
+}
+const emptyRoomSchema = {
+    title: [ String ],
+    desc: [ {$optional:String} ],
+    msgs: [ Array, false ],
+    charas: [ Array, false ]
+}
+const fullRoomSchema = {
+    title: [ String ],
+    desc: [ {$optional:String} ],
+    msgs: [ Array, friendMsgSchema ],
+    charas: [ Array, false ]
+}
 
 describe("web server", () => {
     it("is not already running", (done) => {
@@ -122,12 +151,7 @@ describe("basic socket.io message coverage", () => {
     it("will give the blank rp when requested", (done) => {
         socket.emit('enter rp', rpCode, (err, data) => {
             expect(err).toBeFalsy();
-            expect(data).toFitSchema({
-                title: [ String ],
-                desc: [ {$optional:String} ],
-                msgs: [ Array, false ],
-                charas: [ Array, false ]
-            });
+            expect(data).toFitSchema(emptyRoomSchema);
             done();
         });
     });
@@ -148,12 +172,9 @@ describe("basic socket.io message coverage", () => {
         let msg = { type: 'narrator', content: 'Narrator message text.' };
         socket.emit('add message', msg, (err, data) => {
             expect(err).toBeFalsy();
-            expect(data).toFitSchema({
-                type: ['narrator'],
-                content: [msg.content],
-                timestamp: [Number],
-                ipid: [String]
-            })
+            expect(data).toFitSchema(msgSchema);
+            expect(data.type).toBe('narrator');
+            expect(data.content).toEqual(msg.content);
             done();
         });
     });
@@ -162,12 +183,9 @@ describe("basic socket.io message coverage", () => {
         let msg = { type: 'ooc', content: 'OOC message text.' };
         socket.emit('add message', msg, (err, data) => {
             expect(err).toBeFalsy();
-            expect(data).toFitSchema({
-                type: ['ooc'],
-                content: [msg.content],
-                timestamp: [Number],
-                ipid: [String]
-            })
+            expect(data).toFitSchema(msgSchema);
+            expect(data.type).toBe('ooc');
+            expect(data.content).toEqual(msg.content);
             done();
         });
     });
@@ -176,13 +194,10 @@ describe("basic socket.io message coverage", () => {
         let msg = { type: 'chara', content: 'Hello!', charaId: 0 };
         socket.emit('add message', msg, (err, data) => {
             expect(err).toBeFalsy();
-            expect(data).toFitSchema({
-                type: ['chara'],
-                content: [msg.content],
-                charaId: [0],
-                timestamp: [Number],
-                ipid: [String]
-            })
+            expect(data).toFitSchema(msgSchema);
+            expect(data.type).toBe('chara');
+            expect(data.content).toEqual(msg.content);
+            expect(data.charaId).toBe(0);
             done();
         });
     });
@@ -232,12 +247,8 @@ describe("Malformed data resistance", () => {
             expect(err).toBeFalsy();
             expect(typeof data).toBe('string');
             socket.emit('enter rp', data, (err, data) => {
-                expect(data).toFitSchema({
-                    title: [ String ],
-                    desc: [ {$optional:String} ],
-                    msgs: [ Array, false ],
-                    charas: [ Array, false ]
-                });
+                expect(err).toBeFalsy();
+                expect(data).toFitSchema(emptyRoomSchema);
                 done();
             });
         });
@@ -348,12 +359,7 @@ describe("multiple clients", () => {
             rpCode = data;
             sockets[0].emit('enter rp', rpCode, (err, data) => {
                 expect(err).toBeFalsy();
-                expect(data).toFitSchema({
-                    title: [ String ],
-                    desc: [ {$optional:String} ],
-                    msgs: [ Array, false ],
-                    charas: [ Array, false ]
-                });
+                expect(data).toFitSchema(emptyRoomSchema);
                 done();
             });
         });
@@ -362,12 +368,7 @@ describe("multiple clients", () => {
     it("have a friend join the same room", (done) => {
         sockets[1].emit('enter rp', rpCode, (err, data) => {
             expect(err).toBeFalsy();
-            expect(data).toFitSchema({
-                title: [ String ],
-                desc: [ {$optional:String} ],
-                msgs: [ Array, false ],
-                charas: [ Array, false ]
-            });
+            expect(data).toFitSchema(emptyRoomSchema);
             done();
         });
     });
@@ -378,12 +379,7 @@ describe("multiple clients", () => {
             expect(typeof data).toBe('string');
             sockets[3].emit('enter rp', data, (err, data) => {
                 expect(err).toBeFalsy();
-                expect(data).toFitSchema({
-                    title: [ String ],
-                    desc: [ {$optional:String} ],
-                    msgs: [ Array, false ],
-                    charas: [ Array, false ]
-                });
+                expect(data).toFitSchema(emptyRoomSchema);
                 done();
             });
         });
@@ -422,6 +418,9 @@ describe("multiple clients", () => {
             expect(chat1.length).toBeGreaterThan(20-1);
             expect(chat2.length).toBeGreaterThan(20-1);
             expect(chatOtherRoom.length).toBe(0);
+            expect(JSON.stringify(chat1)).not.toEqual(JSON.stringify(chat2));
+            chat1.forEach(msg=>delete msg.secret);
+            chat2.forEach(msg=>delete msg.secret);
             expect(JSON.stringify(chat1)).toEqual(JSON.stringify(chat2));
             chat = chat1;
             done();
@@ -431,17 +430,7 @@ describe("multiple clients", () => {
 
     it("have a third friend join and get the whole rp", (done) => {
         sockets[2].emit('enter rp', rpCode, (err, data) => {
-            expect(data).toFitSchema({
-                title: [ String ],
-                desc: [ {$optional:String} ],
-                msgs: [ Array, {
-                    type: ['narrator'],
-                    content: [String],
-                    timestamp: [Number],
-                    ipid: [String]
-                }],
-                charas: [ Array, false ]
-            })
+            expect(data).toFitSchema(fullRoomSchema);
             expect(JSON.stringify(data.msgs)).toEqual(JSON.stringify(chat));
             done();
         });

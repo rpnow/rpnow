@@ -30,6 +30,11 @@ const messageSchema = {
     'type': [ 'narrator', 'chara', 'ooc' ],
     'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined
 };
+const editMessageSchema = {
+    'id': [ Number, 0, Infinity ],
+    'content': [ String, rpnow.maxMessageContentLength ],
+    'secret': [ String, 64 ]
+};
 
 let listener;
 let db;
@@ -160,8 +165,6 @@ function clientHandler(socket) {
         // validate & normalize
         let result = normalize(msg, messageSchema);
         if (!result.valid) return callback({code: 'BAD_MSG', details: result.error});
-        msg.timestamp = Date.now() / 1000;
-        msg.ipid = ipid;
         
         // store & broadcast
         if (msg.type === 'chara') {
@@ -178,14 +181,59 @@ function clientHandler(socket) {
             storeAndBroadcast();
         }
         function storeAndBroadcast() {
-            db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
-                if (err) return callback({ code: 'DB_ERROR', details: err });
+            crypto.randomBytes(32, (err, buf) => {
+                if (err) return callback({ code: 'INTERNAL_ERROR', details: err });
 
-                callback(null, msg);
-                socket.to(currentRp).broadcast.emit('add message', msg);
+                msg.timestamp = Date.now() / 1000;
+                msg.ipid = ipid;
+                let secret = buf.toString('hex');
+                msg.challenge = crypto.createHash('sha512')
+                    .update(secret)
+                    .digest('hex');
+
+                let msgWithSecret = JSON.parse(JSON.stringify(msg));
+                msgWithSecret.secret = secret;
+
+                db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
+                    if (err) return callback({ code: 'DB_ERROR', details: err });
+
+                    callback(null, msgWithSecret);
+                    socket.to(currentRp).broadcast.emit('add message', msg);
+                });
             });
         }
     });
+
+    socket.on('edit message', (editInfo, callback) => {
+        callback = safecall(callback);
+        if (!currentRp) return callback({code: 'NOT_IN_RP'});
+        // validate & normalize
+        let result = normalize(editInfo, editMessageSchema);
+        if (!result.valid) return callback({code: 'BAD_EDIT', details: result.error});
+
+        // check if the message is there
+        db.rooms.findOne({ _id: currentRp }, { _id: 0, msgs: {$slice:[editInfo.id,1]} }, (err, rp) => {
+            if (err) return callback({ code: 'DB_ERROR', details: err });
+
+            if (rp.msgs.length === 0) return callback({ code: 'BAD_MSG_ID' });
+
+            let msg = rp.msgs[0];
+            let hash = crypto.createHash('sha512')
+                .update(editInfo.secret)
+                .digest('hex');
+            if (hash !== msg.challenge) return callback({ code: 'BAD_SECRET' });
+
+            db.rooms.update({ _id: currentRp }, { $set: { [`msgs.${editInfo.id}.content`]: editInfo.content }}, (err, r) => {
+                    if (err) return callback({ code: 'DB_ERROR', details: err });
+            
+                    msg.content = editInfo.content;
+                    socket.to(currentRp).broadcast.emit('edit message', {id: editInfo.id, msg: msg });
+                    msg.secret = editInfo.secret;
+                    callback(null, msg);
+            });
+
+        });
+    })
 
     socket.on('add image', (url, callback) => {
         callback = safecall(callback);
