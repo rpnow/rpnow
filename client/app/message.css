@@ -16,6 +16,13 @@
     margin: -15px -6px;
     padding: 0;
 }
+.message md-icon {
+    color: inherit;
+    opacity: 0.66;
+}
+.message button:hover md-icon {
+    opacity: 1;
+}
 .message textarea {
     width: calc(100% - 16px);
     margin: 8px;
@@ -77,7 +84,8 @@
 }
 .message-narrator .content {
     /*border: dotted 1px #bbb;*/
-    padding: 30px 16px;
+    padding: 10px 16px 30px;
+    margin-top: 20px;
     text-align: left;
     border-radius: 4px;
     /*font-size: 120%;*/

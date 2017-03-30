@@ -14,7 +14,7 @@
     <md-content flex>
       <md-list>
         <md-list-item href="/" target="_blank" title="Return to the homepage to create a new RP">
-          <md-icon>add</md-icon>
+          <md-icon>note_add</md-icon>
           <p>Create new RP</p>
         </md-list-item>
 
@@ -145,12 +145,15 @@
             </span>
             <span class="action-buttons" ng-if="msg.secret">
               <md-button class="md-icon-button" ng-if="!msg.editing && !msg.sending" ng-click="beginEdit(msg)">
+                <md-tooltip ng-if="hasMouse" md-direction="{{msg.type === 'ooc' ? 'left' : 'right'}}">Edit post</md-tooltip>
                 <md-icon>edit</md-icon>
               </md-button>
               <md-button class="md-icon-button" ng-if="msg.editing" ng-click="confirmEdit(msg)">
+                <md-tooltip ng-if="hasMouse" md-direction="top">Save edits</md-tooltip>
                 <md-icon>save</md-icon>
               </md-button>
               <md-button class="md-icon-button" ng-if="msg.editing" ng-click="cancelEdit(msg)">
+                <md-tooltip ng-if="hasMouse" md-direction="top">Discard edits</md-tooltip>
                 <md-icon>cancel</md-icon>
               </md-button>
             </span>
@@ -169,12 +172,12 @@
     <div layout="column" id="message-input-box" ng-style="{'background-color': color(msgBox.voice) || 'auto', 'color':((color(msgBox.voice) || '#ffffff') | contrastColor:0.7) }" ng-class="(color(msgBox.voice)|contrastColor)==='white'?'dark':'light'">
 
       <!-- MESSAGE BOX TITLE -->
-      <header>
+      <header class="noselect">
         <div layout="row" layout-align="center center" class="message-box-inner-row">
           <div flex layout="row" layout-align="start center" ng-click="isRightDrawerVisible || toggleRightDrawer()" id="voiceChangeBar" ng-class="{hovershade:!isRightDrawerVisible}">
             <md-tooltip ng-if="hasMouse && !isRightDrawerVisible" md-direction="top">Change character</md-tooltip>
             <span ng-if="msgBox.voice === 'narrator'" md-truncate>
-              <md-icon>create</md-icon> <span>Narrator</span>
+              <md-icon>local_library</md-icon> <span>Narrator</span>
             </span>
             <span ng-if="msgBox.voice === 'ooc'" md-truncate>
               <md-icon>chat</md-icon> <span>Out of character</span>
@@ -222,7 +225,7 @@
     <md-content flex md-colors="{background:nightMode?'background-900':'background-200'}">
       <md-list>
         <md-list-item ng-click="setVoice('narrator')">
-          <md-icon>create</md-icon> <p>Narrator</p>
+          <md-icon>local_library</md-icon> <p>Narrator</p>
           <md-icon ng-show="msgBox.voice === 'narrator'">check</md-icon>
         </md-list-item>
         <md-list-item ng-click="setVoice('ooc')">

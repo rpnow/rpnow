@@ -423,8 +423,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         });
         socket.on('edit message', function(data) {
             console.log(data);
-            rp.msgs.splice(data.id,1);
-            rp.msgs.push(data.msg);
+            rp.msgs.splice(data.id,1, data.msg);
         });
 
         rp.addMessage = function(msg, callback) {
@@ -460,8 +459,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             rp.msgs[data.id].sending = true;
             socket.emit('edit message', data, function(err, receivedMsg) {
                 if (err) return;
-                rp.msgs.splice(data.id,1);
-                rp.msgs.push(receivedMsg);
+                rp.msgs.splice(data.id,1, receivedMsg);
                 if (callback) callback();
             });
         };
