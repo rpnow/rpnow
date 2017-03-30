@@ -132,8 +132,14 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         if ((index = $scope.rp.msgs.indexOf(item)) >= 0) return index;
         return null;
     };
-    var chara = $scope.chara = function(msg) {
-        return msg.type === 'chara' ? $scope.rp.charas[msg.charaId] : null;
+    var chara = $scope.chara = function(x) {
+        if (!$scope.rp.charas) return null;
+        // voice
+        if (x >= 0) return $scope.rp.charas[x];
+        // msg
+        if (x.type === 'chara') return $scope.rp.charas[x.charaId];
+        // fail
+        return null;
     };
     $scope.color = function(voice) {
         if (voice === 'narrator') return $scope.nightMode? '#444444':'#ffffff'; 
@@ -148,28 +154,34 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     $scope.msgBox = {
         content: '',
         voice: 'narrator',
-        recentVoices: function() { return $scope.msgBox.recentVoicesString? $scope.msgBox.recentVoicesString.split(',').map(function(x) { return (+x >= 0)? +x: x;}): undefined; },
-        recentVoicesString: 'narrator,ooc', // stored in a string so it can be easily bound to localStorage
+        recentCharas: () => $scope.msgBox.recentCharasString
+            .split(',')
+            .filter(x=>x>=0)
+            .map(x=>$scope.rp.charas[+x]),
+        recentCharasString: '', // stored in a string so it can be easily bound to localStorage
         isValid: function() {
             return $scope.msgBox.content.trim().length > 0;
         }
     };
-    $scope.$watch('msgBox.voice', function(newVoice) {
-        if (typeof newVoice === 'string' && newVoice.startsWith('_')) return;
+    $scope.$watch('msgBox.voice', function(newChara) {
+        if (!(newChara >= 0)) return;
+        if ($scope.msgBox.recentCharasString === undefined) return;
+        if ($scope.rp.charas === undefined) return;
 
-        var rv = $scope.msgBox.recentVoices();
-        if (!rv) return;
+        console.log($scope.rp);
+        var c = $scope.rp.charas[newChara];
+        var rc = $scope.msgBox.recentCharas();
         // add to 'recent' list if it isn't already there
-        if (rv.indexOf(newVoice) === -1) rv.unshift(newVoice);
+        if (rc.indexOf(c) === -1) rc.unshift(c);
         // or move it to the top
         else {
-            rv.splice(rv.indexOf(newVoice),1);
-            rv.unshift(newVoice);
+            rc.splice(rc.indexOf(c),1);
+            rc.unshift(c);
         }
-        if(rv.length > 5) {
-            rv.splice(5, rv.length);
+        if(rc.length > 5) {
+            rc.splice(5, rc.length);
         }
-        $scope.msgBox.recentVoicesString = rv.join(',');
+        $scope.msgBox.recentCharasString = rc.map(c=>$scope.id(c)).join(',');
     })
     $scope.sendMessage = function() {
         var msg = {
@@ -211,7 +223,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             color: $scope.addCharaBox.color
         }, function() {
             $timeout(function() { $mdSidenav('right').close(); },100);
-            $mdDialog.hide($scope.rp.charas.length-1);
+            $mdDialog.hide();
+            $scope.msgBox.voice = $scope.rp.charas.length-1
         });
         $scope.addCharaBox.sending = true;
         $scope.addCharaBox.name = '';
@@ -285,9 +298,17 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         $scope.msgBox.voice = voice;
         $mdSidenav('right').close();
     }
-    $scope.$watch(function() { return $scope.charaListDocked || $mdSidenav('right').isOpen(); }, function(isRightDrawerLockedOpen) {
+    $scope.$watch(function() {
+        return $scope.charaListDocked || $mdSidenav('right').isOpen();
+    }, function(isRightDrawerLockedOpen) {
         $scope.isRightDrawerLockedOpen = isRightDrawerLockedOpen;
     });
+    $scope.$watch(function() {
+        return $mdMedia('gt-md') ? $scope.isRightDrawerLockedOpen : $mdSidenav('right').isOpen()
+    }, function(isRightDrawerVisible) {
+        $scope.isRightDrawerVisible = isRightDrawerVisible;
+    })
+
     $scope.hasManyCharacters = function() {
         return $scope.rp.charas && $scope.rp.charas.length > 10;
     };
@@ -303,9 +324,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     $scope.showCharacterDialog = function(evt) {
         $timeout(function(x){$scope.msgBox.voice=x;},0,true,$scope.msgBox.voice);
         $scope.showDialog('#characterCreatorDialog', evt)
-        .then(function(charaId) { 
+        .then(function() { 
             $scope.addCharaBox.sending = false;
-            $scope.msgBox.voice = charaId
         })
     }
     $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
@@ -313,6 +333,18 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
         $scope.isDesktopMode = desktop;
     });
+
+    // detect if the user is primarily using touch or a mouse,
+    //  guessing according to which the window notices first
+    //  used to decide whether to show tooltips or not
+    $scope.hasMouse = undefined;
+    window.addEventListener('touchstart', detectEvent);
+    window.addEventListener('mousemove', detectEvent);
+    function detectEvent(evt) {
+        window.removeEventListener('touchstart', detectEvent);
+        window.removeEventListener('mousemove', detectEvent);
+        $scope.hasMouse = (evt.type === 'mousemove');
+    }
 
     // recall these values if they have been saved in localStorage
     // otherwise use the defaults defined earlier in the controller
@@ -322,7 +354,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
             localStorageService.bind($scope, option, initVal);
         });
-        ['msgBox.content', 'msgBox.voice', 'msgBox.recentVoicesString']
+        ['msgBox.content', 'msgBox.voice', 'msgBox.recentCharasString']
         .forEach(function(option) {
             var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
             localStorageService.bind($scope, option, initVal, $scope.rp.rpCode+'.'+option);

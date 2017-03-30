@@ -87,19 +87,23 @@
     <md-toolbar flex="none" id="appBar">
       <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
         <div class="left-buttons">
-          <md-button class="md-icon-button" aria-label="Main menu" title="Main menu" ng-click="toggleLeftDrawer()">
+          <md-button class="md-icon-button" aria-label="Main menu" ng-click="toggleLeftDrawer()">
+            <md-tooltip ng-if="hasMouse">Main menu</md-tooltip>
             <md-icon>menu</md-icon>
           </md-button>
         </div>
         <h1 md-truncate flex title="{{rp.desc || rp.title}}">{{rp.title}}</h1>
         <div class="right-buttons" layout="row" layout-align="end center">
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" title="Invite friends" id="inviteButton" ng-click="showDialog('#inviteDialog', $event)">
+          <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" id="inviteButton" ng-click="showDialog('#inviteDialog', $event)">
+            <md-tooltip ng-if="hasMouse">Invite friends</md-tooltip>
             <md-icon>mail</md-icon>
           </md-button>
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" title="Read archive" ng-click="showDialog('#readerNotDoneDialog', $event)">
+          <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" ng-click="showDialog('#readerNotDoneDialog', $event)">
+            <md-tooltip ng-if="hasMouse">Read archive</md-tooltip>
             <md-icon>import_contacts</md-icon>
           </md-button>
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" title="Download RP" ng-click="showDialog('#downloadDialog', $event)">
+          <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" ng-click="showDialog('#downloadDialog', $event)">
+            <md-tooltip ng-if="hasMouse">Download RP</md-tooltip>
             <md-icon>cloud_download</md-icon>
           </md-button>
           <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
@@ -150,36 +154,30 @@
       </div>
     </md-content>
 
-    <div layout="column" id="message-input-box" ng-style="{'background-color': color(msgBox.voice) || 'auto', 'color':((color(msgBox.voice) || '#ffffff') | contrastColor:0.7) }">
+    <div layout="column" id="message-input-box" ng-style="{'background-color': color(msgBox.voice) || 'auto', 'color':((color(msgBox.voice) || '#ffffff') | contrastColor:0.7) }" ng-class="(color(msgBox.voice)|contrastColor)==='white'?'dark':'light'">
 
       <!-- MESSAGE BOX TITLE -->
       <header>
         <div layout="row" layout-align="center center" class="message-box-inner-row">
-          <md-select id="voice-selector" ng-model="msgBox.voice" flex title="Current character" aria-label="Character change dropdown">
-            <md-option ng-if="rp.charas" ng-repeat="voice in msgBox.recentVoices()" ng-value="voice">
-              <span ng-if="voice === 'narrator'">
-                <md-icon>create</md-icon> Narrator
-              </span>
-              <span ng-if="voice === 'ooc'">
-                <md-icon>chat</md-icon> Out of character
-              </span>
-              <span ng-if="voice >= 0">
-                <md-icon ng-style="{'color':rp.charas[voice].color,'text-shadow':(rp.charas[voice].color|needsContrastColor)?'1px 1px 0px '+(rp.charas[voice].color|contrastColor:0.3) : ''}">person</md-icon>
-                {{rp.charas[voice].name}}
-              </span>
-            </md-option>
-            <md-divider hide-gt-xs></md-divider>
-            <md-option hide-gt-xs ng-show="rp.charas.length > 0" value="_showall" ng-click="toggleRightDrawer()" aria-hidden="true">
-              <md-icon>group</md-icon> All Characters...
-            </md-option>
-            <md-option hide-gt-xs ng-show="rp.charas.length === 0" value="_addnew" ng-click="showCharacterDialog($event)" aria-hidden="true">
-              <md-icon>person_add</md-icon> New Character...
-            </md-option>
-          </md-select>
-          <md-button class="md-raised md-primary" hide-xs title="Show all characters for this RP" ng-click="toggleRightDrawer()">
-            <md-icon>group</md-icon> All Characters
-          </md-button>
-          <md-button class="md-icon-button md-raised md-primary" title="Post an image to this RP" ng-click="showDialog('#imagePostDialog', $event)">
+          <div flex layout="row" layout-align="start center" ng-click="isRightDrawerVisible || toggleRightDrawer()" id="voiceChangeBar" ng-class="{hovershade:!isRightDrawerVisible}">
+            <md-tooltip ng-if="hasMouse && !isRightDrawerVisible" md-direction="top">Change character</md-tooltip>
+            <span ng-if="msgBox.voice === 'narrator'" md-truncate>
+              <md-icon>create</md-icon> <span>Narrator</span>
+            </span>
+            <span ng-if="msgBox.voice === 'ooc'" md-truncate>
+              <md-icon>chat</md-icon> <span>Out of character</span>
+            </span>
+            <span ng-if="msgBox.voice >= 0" md-truncate>
+              <md-icon>person</md-icon>
+              <span>{{chara(msgBox.voice).name}}</span>
+            </span>
+            <span hide-xs ng-hide="isRightDrawerVisible" class="clickToChange">
+              (Click to change)
+            </span>
+            <span flex></span>
+          </div>
+          <md-button class="md-icon-button" aria-label="Post image" ng-click="showDialog('#imagePostDialog', $event)">
+            <md-tooltip ng-if="hasMouse" md-direction="top">Post image</md-tooltip>
             <md-icon>image</md-icon>
           </md-button>
         </div>
@@ -225,22 +223,16 @@
         </md-list-item>
         <md-divider></md-divider>
         <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">Recent</md-subheader>
-        <md-list-item ng-show="hasManyCharacters()" ng-repeat="voice in msgBox.recentVoices()" ng-click="setVoice(voice)">
-          <md-icon ng-if="voice === 'narrator'">create</md-icon>
-          <md-icon ng-if="voice === 'ooc'">chat</md-icon>
-          <md-icon ng-if="voice >= 0" ng-style="{'color':rp.charas[voice].color,'text-shadow':(rp.charas[voice].color|needsContrastColor)?'1px 1px 0px '+(rp.charas[voice].color|contrastColor:0.3) : ''}">person</md-icon>
-
-          <p ng-if="voice === 'narrator'">Narrator</p>
-          <p ng-if="voice === 'ooc'">Out of character</p>
-          <p ng-if="voice >= 0">{{rp.charas[voice].name}}</p>
-
-          <md-icon ng-show="msgBox.voice === voice">check</md-icon>
+        <md-list-item ng-show="hasManyCharacters()" ng-repeat="chara in msgBox.recentCharas() | orderBy:'name'" ng-click="setVoice(id(chara))">
+          <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
+          <p md-truncate>{{chara.name}}</p>
+          <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
         </md-list-item>
         <md-divider ng-show="hasManyCharacters()"></md-divider>
         <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">All Characters</md-subheader>
         <md-list-item ng-repeat="chara in rp.charas | orderBy:'name'" ng-click="setVoice(id(chara))">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
-          <p>{{chara.name}}</p>
+          <p md-truncate>{{chara.name}}</p>
           <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
         </md-list-item>
       </md-list>

@@ -80,6 +80,11 @@ md-select-value md-icon:first-child {
     border-top: 1px solid rgba(0,0,0,0.2);
     border-bottom: 1px solid rgba(0,0,0,0.2);
 }
+@media (min-width: 960px) {
+    #message-input-box header .message-box-inner-row {
+        padding-right: 10px;
+    }
+}
 .dark #message-input-box header {
     border-color: rgba(255,255,255,0.3);
 }
@@ -91,28 +96,20 @@ md-select-value md-icon:first-child {
         height: 48px;
     }
 }
-#message-input-box md-select {
-    /*padding: 4px;*/
-}
-#message-input-box md-icon,
-#message-input-box .md-select-icon {
+#message-input-box md-icon {
     color: inherit;
 }
-#message-input-box md-select-value,
-#message-input-box md-select-value:focus {
-    border-bottom: none;
-    color: inherit;
+#voiceChangeBar {
+    height: 100%;
+    font-size: 120%;
 }
-#message-input-box md-select-value span:first-child {
-    flex-grow: 0;
-    max-width: initial;
-    margin-right: 20px;
-    font-size: 110%;
+#voiceChangeBar md-icon {
+    margin: 0 12px;
 }
-#message-input-box md-select-value md-icon {
-    /*display: none;*/
-    color: inherit !important;
-    text-shadow: none !important;
+#voiceChangeBar .clickToChange {
+    font-size: 80%;
+    opacity: 0.7;
+    margin-left: 20px;
 }
 .message-box-inner-row {
     width: 100%;
@@ -126,10 +123,6 @@ md-select-value md-icon:first-child {
 @media (min-width: 960px) {
     .left-buttons, .right-buttons { width:150px; }
     .md-toolbar-tools h1 { max-width: 600px; }
-}
-#voice-selector {
-    margin: 0;
-    padding: 0 10px;
 }
 #message-input {
     border: none;
