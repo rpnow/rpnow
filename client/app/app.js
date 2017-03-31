@@ -108,8 +108,18 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     $scope.$watch('rp.title', function(rpTitle) {
         if (rpTitle) document.title = rpTitle;
     });
-    
+
     $scope.isStoryGlued = true;
+    // for SOME REASON this makes scrollglue work properly again
+    //  my best guess? view changes are happening AFTER scrollglue tries
+    //  to move the scrolling content, so it doesn't scroll the rest of
+    //  the way
+    // this is a dumb workaround but what EVER
+    $scope.$watch('showMessageDetails', checkScrollHeight);
+    $scope.$watch('rp.loading', checkScrollHeight);
+    $scope.$watchCollection('rp.msgs', checkScrollHeight);
+    function checkScrollHeight() { $timeout(() => {},100); }
+
     $scope.numMsgsToShow = RECENT_MSG_COUNT;
     $scope.$watch('rp.msgs.length', function(newLength, oldLength) {
         if (!(newLength > oldLength)) return;
@@ -388,6 +398,8 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     function RP(rpCode) {
         var rp = this;
         rp.rpCode = rpCode || (location.href.split('#')[0]).split('/').pop();
+        rp.title = undefined;
+        rp.desc = 
         rp.loading = true;
         rp.loadError = null;
 
