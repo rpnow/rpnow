@@ -1,10 +1,8 @@
 const http = require('http');
 const socketio = require('socket.io');
 const crypto = require('crypto');
-const mongojs = require('mongojs');
-const request = require('request');
-const normalize = require('./normalize-json');
 const rpnow = require('./constants');
+const model = require('./model');
 const noop = (function(){});
 
 const safecall = function(callback) {
@@ -17,27 +15,7 @@ const safecall = function(callback) {
     }
 };
 
-const newRpSchema = {
-    'title': [ String, rpnow.maxTitleLength ],
-    'desc': [ {$optional:String}, rpnow.maxDescLength ]
-};
-const charaSchema = {
-    'name': [ String, rpnow.maxCharaNameLength ],
-    'color': /^#[0-9a-f]{6}$/g
-};
-const messageSchema = {
-    'content': [ String, rpnow.maxMessageContentLength ],
-    'type': [ 'narrator', 'chara', 'ooc' ],
-    'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined
-};
-const editMessageSchema = {
-    'id': [ Number, 0, Infinity ],
-    'content': [ String, rpnow.maxMessageContentLength ],
-    'secret': [ String, 64 ]
-};
-
 let listener;
-let db;
 
 module.exports.logging = true;
 module.exports.trustProxy = false;
@@ -48,8 +26,6 @@ module.exports.start = function(callback = noop) {
     let server = http.createServer();
     let io = socketio(server, { serveClient: false });
     io.on('connection', clientHandler);
-
-    db = mongojs(`${rpnow.dbHost}/rpnow`, ['rooms']);
 
     listener = server.listen(rpnow.port, (err)=>{
         callback(err || null);
@@ -62,37 +38,8 @@ module.exports.stop = function(callback = noop) {
     listener.close((err) => { 
         if (err) return callback(err);
         listener = null;
-        db.close();
-        db = null;
         callback(null);
     });
-}
-
-function generateRpCode(callback) {
-    let length = rpnow.rpCodeLength;
-    let characters = rpnow.rpCodeChars;
-
-    let numCryptoBytes = length * 2; // ample bytes just in case
-    crypto.randomBytes(numCryptoBytes, gotBytes);
-
-    function gotBytes(err, buffer) {
-        if (err) return callback(err);
-
-        let token = buffer.toString('base64');
-        let rpCode = token.match(new RegExp(characters.split('').join('|'), 'g')).join('').substr(0, length);
-        
-        // if it generated a bad rp code, try again
-        if (rpCode.length !== length) {
-            return crypto.randomBytes(numCryptoBytes, gotBytes);
-        }
-        // ensure code doesn't exist already
-        db.rooms.findOne({ rpCode: rpCode }, (err, rp) => {
-            if (err) return callback(err);
-            if (rp) return crypto.randomBytes(numCryptoBytes, gotBytes);
-
-            callback(null, rpCode);
-        });
-    }
 }
 
 function clientHandler(socket) {
@@ -119,34 +66,20 @@ function clientHandler(socket) {
 
     socket.on('create rp', (room, callback) => {
         callback = safecall(callback);
-        let result = normalize(room, newRpSchema);
-        if (!result.valid) return callback({code: 'BAD_RP', details: result.error});
-
-        generateRpCode((err, rpCode) => {
-            room.rpCode = rpCode;
-            room.msgs = [];
-            room.charas = [];
-            db.rooms.insert(room, (err, rp) => {
-                if (err) return callback({ code: 'DB_ERROR', details: err });
-                callback(null, rpCode);
-            });
-        });
+        model.createRp(room, callback);
     });
 
     socket.on('enter rp', (rpCode, callback) => {
         callback = safecall(callback);
         if (currentRp) return callback({code: 'IN_RP'});
-        if (typeof rpCode !== 'string') return callback({code: 'BAD_RPCODE'});
-        
-        db.rooms.findOne({ rpCode: rpCode }, (err, rp) => {
-            if (!rp) return callback({code: 'RP_NOT_FOUND'});
-            
-            currentRp = rp._id;
-            currentRpCode = rp.rpCode;
+
+        model.getRp(rpCode, (err, data) => {
+            if (err) return callback(err);
+
+            currentRp = data.id;
+            currentRpCode = rpCode;
             socket.join(currentRp);
-            delete rp._id;
-            delete rp.rpCode;
-            callback(null, rp);
+            callback(null, data.rp);
         });
     });
 
@@ -162,119 +95,52 @@ function clientHandler(socket) {
     socket.on('add message', (msg, callback) => {
         callback = safecall(callback);
         if (!currentRp) return callback({code: 'NOT_IN_RP'});
-        // validate & normalize
-        let result = normalize(msg, messageSchema);
-        if (!result.valid) return callback({code: 'BAD_MSG', details: result.error});
-        
-        // store & broadcast
-        if (msg.type === 'chara') {
-            // charas must be in the chara list
-            db.rooms.findOne({ _id: currentRp }, { charas: 1 }, (err, rp) => {
-                if (err) return callback({ code: 'DB_ERROR', details: err });
 
-                if (msg.charaId >= rp.charas.length) return callback({code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`});
+        model.addMessage(currentRp, msg, ipid, (err, data) => {
+            if (err) return callback(err);
 
-                storeAndBroadcast();
-            });
-        }
-        else {
-            storeAndBroadcast();
-        }
-        function storeAndBroadcast() {
-            crypto.randomBytes(32, (err, buf) => {
-                if (err) return callback({ code: 'INTERNAL_ERROR', details: err });
+            let msgWithSecret = JSON.parse(JSON.stringify(data.msg));
+            msgWithSecret.secret = data.secret;
 
-                msg.timestamp = Date.now() / 1000;
-                msg.ipid = ipid;
-                let secret = buf.toString('hex');
-                msg.challenge = crypto.createHash('sha512')
-                    .update(secret)
-                    .digest('hex');
-
-                let msgWithSecret = JSON.parse(JSON.stringify(msg));
-                msgWithSecret.secret = secret;
-
-                db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
-                    if (err) return callback({ code: 'DB_ERROR', details: err });
-
-                    callback(null, msgWithSecret);
-                    socket.to(currentRp).broadcast.emit('add message', msg);
-                });
-            });
-        }
+            callback(null, msgWithSecret);
+            socket.to(currentRp).broadcast.emit('add message', data.msg);
+        });
     });
 
     socket.on('edit message', (editInfo, callback) => {
         callback = safecall(callback);
         if (!currentRp) return callback({code: 'NOT_IN_RP'});
-        // validate & normalize
-        let result = normalize(editInfo, editMessageSchema);
-        if (!result.valid) return callback({code: 'BAD_EDIT', details: result.error});
-
-        // check if the message is there
-        db.rooms.findOne({ _id: currentRp }, { _id: 0, msgs: {$slice:[editInfo.id,1]} }, (err, rp) => {
-            if (err) return callback({ code: 'DB_ERROR', details: err });
-
-            if (rp.msgs.length === 0) return callback({ code: 'BAD_MSG_ID' });
-
-            let msg = rp.msgs[0];
-            let hash = crypto.createHash('sha512')
-                .update(editInfo.secret)
-                .digest('hex');
-            if (hash !== msg.challenge) return callback({ code: 'BAD_SECRET' });
-
-            db.rooms.update({ _id: currentRp }, { $set: { [`msgs.${editInfo.id}.content`]: editInfo.content }}, (err, r) => {
-                    if (err) return callback({ code: 'DB_ERROR', details: err });
             
-                    msg.content = editInfo.content;
-                    socket.to(currentRp).broadcast.emit('edit message', {id: editInfo.id, msg: msg });
-                    msg.secret = editInfo.secret;
-                    callback(null, msg);
-            });
+        model.editMessage(currentRp, editInfo, ipid, (err, data) => {
+            if (err) return callback(err);
 
+            socket.to(currentRp).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
+            data.msg.secret = editInfo.secret;
+            callback(null, data.msg);
         });
     })
 
     socket.on('add image', (url, callback) => {
         callback = safecall(callback);
         if (!currentRp) return callback({code: 'NOT_IN_RP'});
-        if (typeof url !== 'string') return callback({code: 'BAD_URL'});
+        
+        model.addImage(currentRp, url, ipid, (err, data) => {
+            if (err) return callback(err);
 
-        // validate image
-        request.head(url, (err, res) => {
-            if (err) return callback({ code: 'URL_FAILED', details: err });
-            if (!res.headers['content-type']) return callback({ code: 'UNKNOWN_CONTENT' });
-            if (!res.headers['content-type'].startsWith('image/')) return callback({code: 'BAD_CONTENT'});
-
-            // store & broadcast
-            let msg = {
-                type: 'image',
-                url: url,
-                timestamp: Date.now() / 1000,
-                ipid: ipid
-            };
-            db.rooms.update({ _id: currentRp }, {$push: {msgs: msg}}, (err, r) => {
-                if (err) return callback({ code: 'DB_ERROR', details: err });
-
-                callback(null, msg);
-                socket.to(currentRp).broadcast.emit('add message', msg);
-            });
-        })
+            callback(null, data.msg);
+            socket.to(currentRp).broadcast.emit('add message', data.msg);
+        });
     })
 
     socket.on('add character', (chara, callback) => {
         callback = safecall(callback);
         if (!currentRp) return callback({code: 'NOT_IN_RP'});
-        // validate & normalize
-        let result = normalize(chara, charaSchema);
-        if (!result.valid) return callback({code: 'BAD_CHARA', details: result.error});
+        
+        model.addChara(currentRp, chara, ipid, (err, data) => {
+            if (err) return callback(err);
 
-        // store & broadcast
-        db.rooms.update({ _id: currentRp }, {$push: {charas: chara}}, (err, r) => {
-            if (err) return callback({ code: 'DB_ERROR', details: err });
-
-            callback(null, chara);
-            socket.to(currentRp).broadcast.emit('add character', chara);
-        });
+            callback(null, data.chara);
+            socket.to(currentRp).broadcast.emit('add character', data.chara);
+        })
     });
 }
