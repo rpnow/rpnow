@@ -106,7 +106,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     });
 
     $scope.$watch('rp.title', function(rpTitle) {
-        if (rpTitle) document.title = rpTitle;
+        if (rpTitle) document.title = rpTitle + ' | RPNow';
     });
 
     $scope.isStoryGlued = true;
