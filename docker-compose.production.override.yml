@@ -14,6 +14,7 @@ services:
   build:
     environment:
       RPNOW_PRODUCTION: production
+    restart: "on-failure:3"
 
   db:
     restart: always
