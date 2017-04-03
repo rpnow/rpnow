@@ -7,7 +7,10 @@ const api = require('../api');
 api.logging = false;
 
 const schemaMatchers = require('./support/schemaMatchers');
-const errorSchema = { code: [String], details: [{$optional:String}]};
+const errorSchema = {
+    code: [String],
+    details: [{$optional:String}]
+};
 const msgSchema = {
     type: ['narrator', 'chara', 'ooc'],
     content: [String, 10000],
@@ -25,6 +28,9 @@ const friendMsgSchema = {
     ipid: [String],
     challenge: [String]
 }
+const rpCodeSchema = {
+    rpCode: [ String ]
+}
 const emptyRoomSchema = {
     title: [ String ],
     desc: [ {$optional:String} ],
@@ -38,93 +44,6 @@ const fullRoomSchema = {
     charas: [ Array, false ]
 }
 
-describe("web server", () => {
-    it("is not already running", (done) => {
-        let socket = io(host);
-        socket.on('connect_error', () => {
-            done();
-            socket.close();
-        });
-    });
-    
-    it("can be started", (done) => {
-        api.start(() => {
-            let socket = io(host);
-            socket.on('connect', () => {
-                done();
-                socket.close();
-            });
-        });
-    });
-    
-    it("can be stopped", (done) => {
-        api.stop(() => {
-            let socket = io(host);
-            socket.on('connect_error', () => {
-                done();
-                socket.close();
-            });
-        });
-    });
-    
-    it("can be started again", (done) => {
-        api.start(() => {
-            let socket = io(host);
-            socket.on('connect', () => {
-                done();
-                socket.close();
-            });
-        });
-    });
-});
-
-// describe("single-page app file serving", () => {
-//     const badMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-//     const pageUrls = [`/`, `/rp/aaaaaaaa`, `/about`, `/terms`, `/invalid`];
-//     const resourceUrls = [`/app/index.html`, `/app/home.template.html`, `/app/app.js`, `/sounds/alert.mp3`, `/robots.txt`];
-//     let pageResponses = {};
-
-//     pageUrls.concat(resourceUrls).forEach(url => {
-//         it(`will give a 200 status for GET-ing the resource: ${url}`, (done) => {
-//             request({ uri: `${host}${url}`, method: 'GET'}, (err, res, body) => {
-//                 expect(err).toBeFalsy();
-//                 expect(res.statusCode).toBe(200);
-//                 pageResponses[url] = body;
-//                 done();
-//             });
-//         });
-//         badMethods.forEach(method => {
-//             it(`will give a 404 status for other HTTP request type "${method}" for ${url}`, (done) => {
-//                 request({ uri: `${host}${url}`, method: method }, (err, res, body) => {
-//                     expect(err).toBeFalsy();
-//                     expect(res.statusCode).toBe(404);
-//                     done();
-//                 });
-//             });
-//         });
-//     });
-//     it(`will not respond to invalid HTTP request types`, (done) => {
-//         request({ uri: `${host}/`, method: 'INVALID'}, (err, res, body) => {
-//             expect(err).toBeTruthy();
-//             done();
-//         });
-//     });
-
-//     it(`will give the same page body for each SPA url`, () => {
-//         pageUrls.forEach(url => {
-//             expect(pageResponses[url]).toEqual(pageResponses['/app/index.html']);
-//         })
-//     });
-//     it('will not serve the SPA index for static resources', () => {
-//         resourceUrls.forEach(url => {
-//             if (url !== '/app/index.html') {
-//                 expect(pageResponses[url]).not.toEqual(pageResponses['/app/index.html']);
-//             }
-//         })
-//     })
-
-// });
-
 describe("basic socket.io message coverage", () => {
     const socket = io(host);
     let rpCode = null;
@@ -134,8 +53,8 @@ describe("basic socket.io message coverage", () => {
     it("will give the rp code when created", (done) => {
         socket.emit('create rp', { title: 'Test RP'}, (err, data) => {
             expect(err).toBeFalsy();
-            expect(typeof data).toBe('string');
-            rpCode = data;
+            expect(data).toFitSchema(rpCodeSchema);
+            rpCode = data.rpCode;
             done();
         })
     });
@@ -237,7 +156,7 @@ describe("Malformed data resistance", () => {
 
         socket.emit('create rp', { title: 'Are you still alive'}, (err, data) => {
             expect(err).toBeFalsy();
-            expect(typeof data).toBe('string');
+            expect(data).toFitSchema(rpCodeSchema);
             done();
         });
     })
@@ -245,8 +164,8 @@ describe("Malformed data resistance", () => {
     it("will create and join an RP for testing", (done) => {
         socket.emit('create rp', { title: 'Test RP'}, (err, data) => {
             expect(err).toBeFalsy();
-            expect(typeof data).toBe('string');
-            socket.emit('enter rp', data, (err, data) => {
+            expect(data).toFitSchema(rpCodeSchema);
+            socket.emit('enter rp', data.rpCode, (err, data) => {
                 expect(err).toBeFalsy();
                 expect(data).toFitSchema(emptyRoomSchema);
                 done();
@@ -355,8 +274,8 @@ describe("multiple clients", () => {
     it("initiates and enters a room", (done) => {
         sockets[0].emit('create rp', { title: 'Test RP'}, (err, data) => {
             expect(err).toBeFalsy();
-            expect(typeof data).toBe('string');
-            rpCode = data;
+            expect(data).toFitSchema(rpCodeSchema);
+            rpCode = data.rpCode;
             sockets[0].emit('enter rp', rpCode, (err, data) => {
                 expect(err).toBeFalsy();
                 expect(data).toFitSchema(emptyRoomSchema);
@@ -376,8 +295,8 @@ describe("multiple clients", () => {
     it("have someone else create a separate room", (done) => {
         sockets[3].emit('create rp', { title: 'Other RP'}, (err, data) => {
             expect(err).toBeFalsy();
-            expect(typeof data).toBe('string');
-            sockets[3].emit('enter rp', data, (err, data) => {
+            expect(data).toFitSchema(rpCodeSchema);
+            sockets[3].emit('enter rp', data.rpCode, (err, data) => {
                 expect(err).toBeFalsy();
                 expect(data).toFitSchema(emptyRoomSchema);
                 done();
@@ -456,8 +375,8 @@ describe("bad event order handling", () => {
     it("sends an error when exiting an rp before entering it", (done) => {
         socket.emit('create rp', { title: 'Test RP'}, (err, data) => {
             expect(err).toBeFalsy();
-            expect(typeof data).toBe('string');
-            rpCode = data;
+            expect(data).toFitSchema(rpCodeSchema);
+            rpCode = data.rpCode;
             socket.emit('exit rp', rpCode, (err, data) => {
                 expect(err).toFitSchema(errorSchema);
                 expect(data).not.toBeDefined();
@@ -505,7 +424,7 @@ describe("bad event order handling", () => {
     it("sends an error when trying to join a second RP", (done) => {
         socket.emit('create rp', { title: 'Test RP 2'}, (err, data) => {
             expect(err).toBeFalsy();
-            expect(typeof data).toBe('string');
+            expect(data).toFitSchema(rpCodeSchema);
             socket.emit('enter rp', data.rpCode, (err, data) => {
                 expect(err).toFitSchema(errorSchema);
                 expect(data).not.toBeDefined();

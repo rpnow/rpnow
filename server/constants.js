@@ -1,4 +1,7 @@
 module.exports = {
+    trustProxy: true,
+    logging: true,
+
     port: 3000,
     dbHost: process.env.DB_HOST || 'localhost',
 

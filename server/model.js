@@ -88,7 +88,7 @@ module.exports.createRp = function(roomOptions, callback) {
 
         db.rooms.insert(room, (err, rp) => {
             if (err) return callback({ code: 'DB_ERROR', details: err });
-            callback(null, rpCode);
+            callback(null, { rpCode });
         });
     });
 };
