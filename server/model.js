@@ -2,32 +2,32 @@ const request = require('request');
 const crypto = require('crypto');
 const mongojs = require('mongojs');
 const normalize = require('./normalize-json');
-const rpnow = require('./constants');
+const config = require('./config');
 
-const db = mongojs(`${rpnow.dbHost}/rpnow`, ['rooms']);
+const db = mongojs(`${config.get('DB_HOST')}/rpnow`, ['rooms']);
 
 const roomOptionsSchema = {
-    'title': [ String, rpnow.maxTitleLength ],
-    'desc': [ {$optional:String}, rpnow.maxDescLength ]
+    'title': [ String, config.get('maxTitleLength') ],
+    'desc': [ {$optional:String}, config.get('maxDescLength') ]
 };
 const addCharaSchema = {
-    'name': [ String, rpnow.maxCharaNameLength ],
+    'name': [ String, config.get('maxCharaNameLength') ],
     'color': /^#[0-9a-f]{6}$/g
 };
 const addMessageSchema = {
-    'content': [ String, rpnow.maxMessageContentLength ],
+    'content': [ String, config.get('maxMessageContentLength') ],
     'type': [ 'narrator', 'chara', 'ooc' ],
     'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined
 };
 const editMessageSchema = {
     'id': [ Number, 0, Infinity ],
-    'content': [ String, rpnow.maxMessageContentLength ],
+    'content': [ String, config.get('maxMessageContentLength') ],
     'secret': [ String, 64 ]
 };
 
 function generateRpCode(callback) {
-    let length = rpnow.rpCodeLength;
-    let characters = rpnow.rpCodeChars;
+    let length = config.get('rpCodeLength');
+    let characters = config.get('rpCodeChars');
 
     let numCryptoBytes = length * 2; // ample bytes just in case
     crypto.randomBytes(numCryptoBytes, gotBytes);

@@ -1,10 +1,11 @@
 /* global describe it expect */
-const port = require('../constants').port;
+const config = require('../config');
+config.set('logLevel', 'warn');
+const port = config.get('port');
 const host = `http://localhost:${port}`;
 
 const io = require('socket.io-client');
 const api = require('../api');
-api.logging = false;
 
 const schemaMatchers = require('./support/schemaMatchers');
 const errorSchema = {

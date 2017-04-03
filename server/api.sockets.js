@@ -1,10 +1,9 @@
 const crypto = require('crypto');
 
 const model = require('./model');
+const logger = require('./logger');
+const config = require('./config');
 const noop = (function(){});
-
-const logging = true;
-const trustProxy = true;
 
 const safecall = function(callback) {
     if (typeof callback !== 'function') return noop;
@@ -19,7 +18,7 @@ const safecall = function(callback) {
 module.exports = function socketConnection(socket) {
     let currentRp;
     let currentRpCode;
-    let ip = trustProxy
+    let ip = config.get('trustProxy')
         && socket.handshake.headers['x-forwarded-for']
         || socket.request.connection.remoteAddress;
     let ipid = crypto.createHash('md5')
@@ -27,10 +26,10 @@ module.exports = function socketConnection(socket) {
         .digest('hex')
         .substr(0,18);
 
-    if (logging) socket.use((packet, next) => {
+    socket.use((packet, next) => {
         let packetType = packet[0];
         let packetContent = packet[1];
-        console.log(
+        logger.info(
             `RECV (${ip}):`,
             currentRp ? `${currentRpCode}/"${packetType}"` : `"${packetType}"`,
              packetContent

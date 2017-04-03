@@ -1,7 +1,8 @@
-const winston = require('winston');
-const rpnow = require('./constants');
-
+const logger = require('./logger');
+const config = require('./config');
 const noop = (function(){});
+
+logger.debug('Starting RPNow API...');
 
 let app = require('express')();
 let server = require('http').createServer(app);
@@ -9,14 +10,24 @@ app.use('/api/', require('./api.rest'));
 require('socket.io')(server, { serveClient: false })
     .on('connection', require('./api.sockets'));
 
-let listener = server.listen(rpnow.port);
+let listener = server.listen(config.get('port'), (err) => {
+    if (err) logger.error(err);
+    else logger.info('RPNow API: ready.');
+});
 
 module.exports.stop = function stop(callback = noop) {
-    if (!listener) return callback('No server to stop.');
+    if (!listener) {
+        logger.warn('No server to stop.');
+        return callback('No server to stop.');
+    }
 
     listener.close((err) => { 
-        if (err) return callback(err);
+        if (err) {
+            logger.error(err);
+            return callback(err);
+        }
         listener = null;
+        logger.notice('RPNow API: Stopped successfully.');
         callback(null);
     });
 };
@@ -24,9 +35,6 @@ module.exports.stop = function stop(callback = noop) {
 process.on('SIGTERM', ()=> onKill('SIGTERM') ); //kill (terminate)
 process.on('SIGINT', ()=> onKill('SIGINT') ); //Ctrl+C (interrupt)
 function onKill(reason = 'No reason given') {
-    console.log(`RPNow API: Attempting graceful shutdown: ${reason}`);
-    stop((err)=> {
-        if (err) console.error(err);
-        else console.log('RPNow API: Shutdown complete.');
-    });
+    logger.notice(`RPNow API: Attempting graceful shutdown: ${reason}`);
+    stop();
 }
