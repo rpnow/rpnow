@@ -152,7 +152,7 @@ module.exports.addMessage = function(rpid, msg, ipid, callback) {
     }
 };
 
-module.exports.addImage = function(url, ipid, callback) {
+module.exports.addImage = function(rpid, url, ipid, callback) {
     if (typeof url !== 'string') return callback({code: 'BAD_URL'});
 
     // validate image
