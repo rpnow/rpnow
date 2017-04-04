@@ -63,10 +63,7 @@ module.exports = function onConnection(socket) {
         model.addMessage(rpid, msg, ipid, (err, data) => {
             if (err) return callback(err);
 
-            let msgWithSecret = JSON.parse(JSON.stringify(data.msg));
-            msgWithSecret.secret = data.secret;
-
-            callback(null, msgWithSecret);
+            callback(null, data.msg);
             socket.to(rpid).broadcast.emit('add message', data.msg);
         });
     });
@@ -75,9 +72,8 @@ module.exports = function onConnection(socket) {
         model.editMessage(rpid, editInfo, ipid, (err, data) => {
             if (err) return callback(err);
 
-            socket.to(rpid).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
-            data.msg.secret = editInfo.secret;
             callback(null, data.msg);
+            socket.to(rpid).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
         });
     })
 

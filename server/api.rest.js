@@ -15,6 +15,13 @@ router.post('/rp.json', (req, res, next) => {
     });
 })
 
+router.get('/challenge.json', (req, res, next) => {
+    model.generateChallenge((err, data) => {
+        if (err) return next(err);
+        res.status(200).json(data);
+    });
+})
+
 router.all('*', (req, res, next) => {
     next({ code: 'UNKNOWN_REQUEST'});
 })

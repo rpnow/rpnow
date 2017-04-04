@@ -276,7 +276,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         msg.editing = false;
     };
     $scope.confirmEdit = function(msg) {
-        var data = { id: id(msg), content: msg.newContent, secret: msg.secret };
+        var data = { id: id(msg), content: msg.newContent };
         $scope.rp.editMessage(data);
         msg.content = msg.newContent;
         msg.editing = false;
@@ -393,7 +393,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     });
 }])
 
-.factory('rpService', ['io', function(io) {
+.factory('rpService', ['$http', 'io', 'localStorageService', function($http, io, localStorageService) {
     return function(rpCode) { return new RP(rpCode); };
 
     function RP(rpCode) {
@@ -403,6 +403,21 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         rp.loadError = null;
 
         var socket = io('/', { query: 'rpCode='+rp.rpCode });
+
+        var challenge = null;
+        var challegePromise = new Promise(function(resolve, reject) {
+            if (localStorageService.isSupported && localStorageService.get('challenge.secret')) {
+                resolve(challenge = {
+                    secret: localStorageService.get('challenge.secret') || null,
+                    hash: localStorageService.get('challenge.hash') || null
+                });
+            }
+            else $http.get('/api/challenge.json').then(function(res) {
+                resolve(challenge = res.data);
+                localStorageService.set('challenge.secret', challenge.secret);
+                localStorageService.set('challenge.hash', challenge.hash);
+            });
+        });
 
         socket.on('rp error', function(err) {
             rp.loading = false;
@@ -431,11 +446,14 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             placeholderMsg.sending = true;
             rp.msgs.push(placeholderMsg);
 
-            socket.emit('add message', msg, function(err, receivedMsg) {
-                if (err) return;
-                rp.msgs.splice(rp.msgs.indexOf(placeholderMsg),1);
-                rp.msgs.push(receivedMsg);
-                if (callback) callback();
+            challegePromise.then(() => {
+                msg.challenge = challenge.hash;
+                socket.emit('add message', msg, function(err, receivedMsg) {
+                    if (err) return;
+                    rp.msgs.splice(rp.msgs.indexOf(placeholderMsg),1);
+                    rp.msgs.push(receivedMsg);
+                    if (callback) callback();
+                });
             });
         };
         rp.addChara = function(chara, callback) {
@@ -453,14 +471,21 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             });
         };
 
-        rp.editMessage = function(data, callback) {
-            rp.msgs[data.id].sending = true;
-            socket.emit('edit message', data, function(err, receivedMsg) {
-                if (err) return;
-                rp.msgs.splice(data.id,1, receivedMsg);
-                if (callback) callback();
+        rp.editMessage = function(editInfo, callback) {
+            rp.msgs[editInfo.id].sending = true;
+            challegePromise.then(() => {
+                editInfo.secret = challenge.secret;
+                socket.emit('edit message', editInfo, function(err, receivedMsg) {
+                    if (err) return;
+                    rp.msgs.splice(editInfo.id,1, receivedMsg);
+                    if (callback) callback();
+                });
             });
         };
+
+        rp.canEdit = function(msg) {
+            return msg.challenge === challenge.hash;
+        }
 
         rp.exit = function() {
             socket.close();

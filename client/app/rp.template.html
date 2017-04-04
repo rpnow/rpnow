@@ -140,10 +140,10 @@
           <div class="message-details noselect" ng-show="msg.sending || showMessageDetails || (msg.type === 'ooc')">
             <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(chara(msg)? ((chara(msg).color | contrastColor) === 'white') : (nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
             <span class="timestamp" moment-ago-short="msg.timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-if="!msg.sending" ng-show="showMessageDetails"></span>
-            <span class="color-ip-box" title="User color ID" ng-if="!msg.sending && !msg.secret">
+            <span class="color-ip-box" title="User color ID" ng-if="!msg.sending && !rp.canEdit(msg)">
               <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>
             </span>
-            <span class="action-buttons" ng-if="msg.secret">
+            <span class="action-buttons" ng-if="rp.canEdit(msg)">
               <md-button class="md-icon-button" ng-if="!msg.editing && !msg.sending" ng-click="beginEdit(msg)">
                 <md-tooltip ng-if="hasMouse" md-direction="{{msg.type === 'ooc' ? 'left' : 'right'}}">Edit post</md-tooltip>
                 <md-icon>edit</md-icon>

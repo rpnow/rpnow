@@ -17,7 +17,8 @@ const addCharaSchema = {
 const addMessageSchema = {
     'content': [ String, config.get('maxMessageContentLength') ],
     'type': [ 'narrator', 'chara', 'ooc' ],
-    'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined
+    'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined,
+    'challenge': [ String, 128 ]
 };
 const editMessageSchema = {
     'id': [ Number, 0, Infinity ],
@@ -52,7 +53,7 @@ function generateRpCode(callback) {
     }
 }
 
-function generateChallenge(callback) {
+module.exports.generateChallenge = function(callback) {
     crypto.randomBytes(32, (err, buf) => {
         if (err) return callback({ code: 'INTERNAL_ERROR', details: err });
 
@@ -63,7 +64,8 @@ function generateChallenge(callback) {
 
         callback(null, {secret, hash});
     });
-}
+};
+
 function isCorrectSecret(guess, hash) {
     let guessHash = crypto.createHash('sha512')
         .update(guess)
@@ -115,7 +117,7 @@ function pushToMsgs(rpid, msg, ipid, callback) {
 
     db.rooms.update({ _id: rpid }, {$push: {msgs: msg}}, (err, r) => {
         if (err) return callback({ code: 'DB_ERROR', details: err });
-        callback(null, msg);
+        callback(null, { msg });
     });
 }
 
@@ -131,24 +133,11 @@ module.exports.addMessage = function(rpid, msg, ipid, callback) {
 
             if (msg.charaId >= rp.charas.length) return callback({code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`});
 
-            storeAndBroadcast();
+            pushToMsgs(rpid, msg, ipid, callback);
         });
     }
     else {
-        storeAndBroadcast();
-    }
-    function storeAndBroadcast() {
-        generateChallenge((err, challenge) => {
-            if (err) return callback(err);
-            msg.challenge = challenge.hash;
-
-            pushToMsgs(rpid, msg, ipid, (err, storedMsg) => {
-                if (err) return callback(err);
-
-                let secret = challenge.secret;
-                callback(null, { msg: storedMsg, secret });
-            });
-        });
+        pushToMsgs(rpid, msg, ipid, callback);
     }
 };
 
@@ -166,11 +155,8 @@ module.exports.addImage = function(rpid, url, ipid, callback) {
             type: 'image',
             url: url
         };
-        pushToMsgs(rpid, msg, ipid, (err, storedMsg) => {
-            if (err) return callback(err);
-            callback(null, { msg: storedMsg });
-        });
-    })
+        pushToMsgs(rpid, msg, ipid, callback);
+    });
 };
 
 module.exports.addChara = function(rpid, chara, ipid, callback) {
