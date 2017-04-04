@@ -20,15 +20,15 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         })
         .when('/terms', {
             title: 'Terms of Use | RPNow',
-            templateUrl: '/app/terms.template.html'
+            template:`<article ng-include="'/app/terms.template.html'"></article>`
         })
         .when('/about', {
             title: 'About | RPNow',
-            templateUrl: '/app/about.template.html'
+            template:`<article ng-include="'/app/about.template.html'"></article>`
         })
         .otherwise({
             title: 'Not Found | RPNow',
-            templateUrl: '/app/404.template.html',
+            template:`<article ng-include="'/app/404.template.html'"></article>`,
             controller: ['$scope', '$location', function($scope, $location) {
                 $scope.url = $location.url();
             }]

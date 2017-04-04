@@ -85,3 +85,17 @@ md-tooltip {
 .dark .hovershade:hover {
     background-color: rgba(255,255,255,0.3);
 }
+article {
+    max-width: 650px;
+    margin: 40px auto;
+    line-height: 1.6;
+    font-size: 18px;
+    padding: 0 10px;
+}
+article h1, article h2, article h3 {
+    margin: 40px 0 0;
+    line-height: 1.2;
+}
+article h1 {
+    font-size: 36px;
+}
