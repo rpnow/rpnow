@@ -14,13 +14,19 @@ gulp.task('app/html', () =>
         .pipe(gulp.dest('build/app'))
 )
 
+gulp.task('app/md', () =>
+    gulp.src('client/app/*.md')
+        .pipe(plugins.markdown())
+        .pipe(gulp.dest('build/app'))
+)
+
 gulp.task('app/css', () =>
     gulp.src(['client/app/*.css', 'client/app.css'])
         .pipe(plugins.cssCondense())
         .pipe(gulp.dest('build/app'))
 )
 
-gulp.task('app', [ 'app/js', 'app/html', 'app/css' ])
+gulp.task('app', [ 'app/js', 'app/html', 'app/css', 'app/md' ])
 
 gulp.task('vendor/js', () =>
     gulp.src('client/lib/*.js')
@@ -53,6 +59,7 @@ if (devMode) {
     gulp.watch('client/app/*.js', ['app/js']);
     gulp.watch('client/app/*.html', ['app/html']);
     gulp.watch('client/app/*.css', ['app/css']);
+    gulp.watch('client/app/*.md', ['app/md']);
     gulp.watch('client/assets/**/*', ['files/assets']);
     gulp.watch('client/*.*', ['files/root']);
 }
