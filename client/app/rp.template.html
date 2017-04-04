@@ -140,6 +140,7 @@
           <div class="message-details noselect" ng-show="msg.sending || showMessageDetails || (msg.type === 'ooc')">
             <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(chara(msg)? ((chara(msg).color | contrastColor) === 'white') : (nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
             <span class="timestamp" moment-ago-short="msg.timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-if="!msg.sending" ng-show="showMessageDetails"></span>
+            <span ng-if="msg.edited" title="Edited {{msg.edited | momentAgo}}" ng-show="showMessageDetails">(Edited)</span>
             <span class="color-ip-box" title="User color ID" ng-if="!msg.sending && !rp.canEdit(msg)">
               <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>
             </span>

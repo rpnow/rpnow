@@ -184,10 +184,10 @@ module.exports.editMessage = function(rpid, editInfo, ipid, callback) {
 
         if (!isCorrectSecret(editInfo.secret, msg.challenge)) return callback({ code: 'BAD_SECRET'});
 
-        db.rooms.update({ _id: rpid }, { $set: { [`msgs.${editInfo.id}.content`]: editInfo.content }}, (err) => {
+        msg.content = editInfo.content;
+        msg.edited = (Date.now() / 1000);
+        db.rooms.update({ _id: rpid }, { $set: { [`msgs.${editInfo.id}.content`]:msg.content, [`msgs.${editInfo.id}.edited`]:msg.edited }}, (err) => {
             if (err) return callback({ code: 'DB_ERROR', details: err });
-    
-            msg.content = editInfo.content;
             callback(null, { msg });
         });
 
