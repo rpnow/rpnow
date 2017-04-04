@@ -7,12 +7,11 @@ router.use(require('compression')());
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
-router.post('rp', (req, res, next) => {
+router.post('/rp.json', (req, res, next) => {
     let roomOptions = req.body;
-    console.log(roomOptions);
-    model.createRp(roomOptions, (err, rpCode) => {
+    model.createRp(roomOptions, (err, data) => {
         if (err) return next(err);
-        res.status(201).json({ rpCode: rpCode });
+        res.status(201).json(data);
     });
 })
 

@@ -6,7 +6,7 @@ logger.debug('Starting RPNow API...');
 
 let app = require('express')();
 let server = require('http').createServer(app);
-app.use('/api/', require('./api.rest'));
+app.use('/api', require('./api.rest'));
 require('socket.io')(server, { serveClient: false })
     .on('connection', require('./api.sockets'));
 

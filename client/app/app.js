@@ -63,7 +63,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     });
 }])
 
-.controller('NewRpController', ['$scope', '$timeout', '$location', '$mdMedia', 'RPRandom', 'socket', function($scope, $timeout, $location, $mdMedia, RPRandom, socket) {
+.controller('NewRpController', ['$scope', '$timeout', '$location', '$http', '$mdMedia', 'RPRandom', function($scope, $timeout, $location, $http, $mdMedia, RPRandom) {
     var spinTimer = null;
     function tick(millis) {
         RPRandom.roll('title', 25).then(function(title) {
@@ -80,10 +80,11 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 
     $scope.submit = function() {
         $scope.submitted = true;
-        socket.emit('create rp', {title: $scope.title, desc: $scope.desc}, function(err, data) {
-            $scope.rpCode = data;
-            $location.url('/rp/'+$scope.rpCode);
-        });
+        $http.post('/api/rp.json', {title: $scope.title, desc: $scope.desc})
+            .then(function(res) {
+                $scope.rpCode = res.data.rpCode;
+                $location.url('/rp/'+$scope.rpCode);
+            });
     };
 
     $scope.$watch(function() { return $mdMedia('xs'); }, function(result) {

@@ -37,11 +37,6 @@ module.exports = function socketConnection(socket) {
         return next();
     });
 
-    socket.on('create rp', (roomOptions, callback) => {
-        callback = safecall(callback);
-        model.createRp(roomOptions, callback);
-    });
-
     socket.on('enter rp', (rpCode, callback) => {
         callback = safecall(callback);
         if (currentRp) return callback({code: 'IN_RP'});
