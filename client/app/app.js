@@ -393,40 +393,28 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     });
 }])
 
-.factory('rpService', ['socket', function(socket) {
+.factory('rpService', ['io', function(io) {
     return function(rpCode) { return new RP(rpCode); };
 
     function RP(rpCode) {
         var rp = this;
         rp.rpCode = rpCode || (location.href.split('#')[0]).split('/').pop();
-        rp.title = undefined;
-        rp.desc = 
         rp.loading = true;
         rp.loadError = null;
 
-        var msgSendQueue = [];
+        var socket = io('/', { query: 'rpCode='+rp.rpCode });
 
-        function enterRp() {
-            socket.emit('enter rp', rp.rpCode, function(err, data) {
-                rp.loading = false;
-                if (err) {
-                    rp.loadError = err.code;
-                    return;
-                }
-                ['title', 'desc', 'msgs', 'charas', 'ipid', 'timestamp']
-                    .forEach(function(prop) {
-                        if(data[prop] !== undefined) rp[prop] = JSON.parse(JSON.stringify(data[prop]));
-                    });
-                
-                msgSendQueue.forEach(msg => rp.addMessage(msg))
-            });
-        }
-        socket.on('reconnect', enterRp);
-        enterRp();
+        socket.on('rp error', function(err) {
+            rp.loading = false;
+            rp.loadError = err.code;
+        })
 
-        rp.exit = function() {
-            socket.emit('exit rp');
-        }
+        socket.on('load rp', function(data) {
+            rp.loading = false;
+            for (var prop in data) {
+                rp[prop] = data[prop];
+            }
+        });
 
         socket.on('add message', function(msg) {
             rp.msgs.push(msg);
@@ -435,7 +423,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             rp.charas.push(chara);
         });
         socket.on('edit message', function(data) {
-            console.log(data);
             rp.msgs.splice(data.id,1, data.msg);
         });
 
@@ -443,11 +430,9 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             var placeholderMsg = JSON.parse(JSON.stringify(msg));
             placeholderMsg.sending = true;
             rp.msgs.push(placeholderMsg);
-            msgSendQueue.push(msg);
 
             socket.emit('add message', msg, function(err, receivedMsg) {
                 if (err) return;
-                msgSendQueue.splice(msgSendQueue.indexOf(msg),1);
                 rp.msgs.splice(rp.msgs.indexOf(placeholderMsg),1);
                 rp.msgs.push(receivedMsg);
                 if (callback) callback();
@@ -475,6 +460,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
                 rp.msgs.splice(data.id,1, receivedMsg);
                 if (callback) callback();
             });
+        };
+
+        rp.exit = function() {
+            socket.close();
         };
 
     }
@@ -640,22 +629,27 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
 }])
 
 // https://stackoverflow.com/questions/14389049/
-.factory('socket', ['$rootScope', function($rootScope) {
-    var socket = io();
-    return {
-        emit: function(type, data, callback) {
-            socket.emit(type, data, function() {
-                if (callback) callback.apply(socket, arguments);
-                $rootScope.$apply();
-            })
-        },
-        on: function(type, callback) {
-            socket.on(type, function() {
-                callback.apply(socket, arguments);
-                $rootScope.$apply();
-            })
-        }
-    };
+.factory('io', ['$rootScope', function($rootScope) {
+    return function() {
+        var socket = io.apply(io, arguments);
+        return {
+            emit: function(type, data, callback) {
+                socket.emit(type, data, function() {
+                    if (callback) callback.apply(socket, arguments);
+                    $rootScope.$apply();
+                })
+            },
+            on: function(type, callback) {
+                socket.on(type, function() {
+                    callback.apply(socket, arguments);
+                    $rootScope.$apply();
+                })
+            },
+            close: function() {
+                socket.close();
+            }
+        };
+    }
 }])
 
 // https://stackoverflow.com/questions/18006334/updating-time-ago-values-in-angularjs-and-momentjs

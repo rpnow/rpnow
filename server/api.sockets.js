@@ -15,9 +15,7 @@ const safecall = function(callback) {
     }
 };
 
-module.exports = function socketConnection(socket) {
-    let currentRp;
-    let currentRpCode;
+module.exports = function onConnection(socket) {
     let ip = config.get('trustProxy')
         && socket.handshake.headers['x-forwarded-for']
         || socket.request.connection.remoteAddress;
@@ -26,89 +24,78 @@ module.exports = function socketConnection(socket) {
         .digest('hex')
         .substr(0,18);
 
-    socket.use((packet, next) => {
-        let packetType = packet[0];
-        let packetContent = packet[1];
-        logger.info(
-            `RECV (${ip}):`,
-            currentRp ? `${currentRpCode}/"${packetType}"` : `"${packetType}"`,
-             packetContent
-        );
-        return next();
-    });
+    let rpCode = socket.handshake.query.rpCode;
+    let rpid;
 
-    socket.on('enter rp', (rpCode, callback) => {
-        callback = safecall(callback);
-        if (currentRp) return callback({code: 'IN_RP'});
-
+    let rpInit = new Promise((resolve, reject) => {
         model.getRp(rpCode, (err, data) => {
-            if (err) return callback(err);
+            if (err) return reject(err);
 
-            currentRp = data.id;
-            currentRpCode = rpCode;
-            socket.join(currentRp);
-            callback(null, data.rp);
+            rpid = data.id;
+            socket.join(rpid);
+            socket.emit('load rp', data.rp);
+            return resolve(data);
         });
+    }).catch(err => socket.emit('rp error', err));
+
+    socket.use((packet, next) => {
+        // stall action packets until the rp has been loaded and sent
+        rpInit
+            .then(()=>next())
+            .catch(err=>next(err));
     });
 
-    socket.on('exit rp', (_unused, callback) => {
-        callback = safecall(callback);
-        if (!currentRp) return callback({code: 'NOT_IN_RP'});
-
-        socket.leave(currentRp);
-        currentRp = null;
-        callback(null);
+    socket.use((packet, next) => {
+        // logging
+        let packetType = packet[0];
+        let packetContent = JSON.stringify(packet[1]);
+        logger.info(`RECV (${ip}): ${rpCode}/"${packetType}" ${packetContent}`);
+        next();
     });
+
+    socket.use((packet, next) => {
+        // sanitize callback function
+        packet[2] = safecall(packet[2]);
+        next();
+    })
     
     socket.on('add message', (msg, callback) => {
-        callback = safecall(callback);
-        if (!currentRp) return callback({code: 'NOT_IN_RP'});
-
-        model.addMessage(currentRp, msg, ipid, (err, data) => {
+        model.addMessage(rpid, msg, ipid, (err, data) => {
             if (err) return callback(err);
 
             let msgWithSecret = JSON.parse(JSON.stringify(data.msg));
             msgWithSecret.secret = data.secret;
 
             callback(null, msgWithSecret);
-            socket.to(currentRp).broadcast.emit('add message', data.msg);
+            socket.to(rpid).broadcast.emit('add message', data.msg);
         });
     });
 
     socket.on('edit message', (editInfo, callback) => {
-        callback = safecall(callback);
-        if (!currentRp) return callback({code: 'NOT_IN_RP'});
-            
-        model.editMessage(currentRp, editInfo, ipid, (err, data) => {
+        model.editMessage(rpid, editInfo, ipid, (err, data) => {
             if (err) return callback(err);
 
-            socket.to(currentRp).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
+            socket.to(rpid).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
             data.msg.secret = editInfo.secret;
             callback(null, data.msg);
         });
     })
 
     socket.on('add image', (url, callback) => {
-        callback = safecall(callback);
-        if (!currentRp) return callback({code: 'NOT_IN_RP'});
-        
-        model.addImage(currentRp, url, ipid, (err, data) => {
+        model.addImage(rpid, url, ipid, (err, data) => {
             if (err) return callback(err);
 
             callback(null, data.msg);
-            socket.to(currentRp).broadcast.emit('add message', data.msg);
+            socket.to(rpid).broadcast.emit('add message', data.msg);
         });
     })
 
     socket.on('add character', (chara, callback) => {
-        callback = safecall(callback);
-        if (!currentRp) return callback({code: 'NOT_IN_RP'});
-        
-        model.addChara(currentRp, chara, ipid, (err, data) => {
+        model.addChara(rpid, chara, ipid, (err, data) => {
             if (err) return callback(err);
 
             callback(null, data.chara);
-            socket.to(currentRp).broadcast.emit('add character', data.chara);
+            socket.to(rpid).broadcast.emit('add character', data.chara);
         })
     });
 };
