@@ -13,6 +13,7 @@ RPNow is entirely supported by user donations. Over the past six months, our gen
 The following people actively support RPNow by donating $5 or more per month:
 
 *   **Jackson Marriott**
+*   **Karl O'Malley**
 *   Charlie and Elliott
 *   Diana Lennox
 *   Eli
