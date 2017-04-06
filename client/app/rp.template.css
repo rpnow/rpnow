@@ -50,7 +50,7 @@ md-select-value md-icon:first-child {
     margin-right: 10px;
 }
 #message-container {
-    padding: 30px 10px 0;
+    padding: 10px 10px 20px;
 }
 #characterCreatorDialog .md-errors-spacer {
     display: none;

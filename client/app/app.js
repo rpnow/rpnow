@@ -153,6 +153,9 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         return null;
     };
     $scope.color = function(voice) {
+        // msg
+        if (voice.content) voice = (voice.type === 'chara') ? voice.charaId : voice.type;
+        // other
         if (voice === 'narrator') return $scope.nightMode? '#444444':'#ffffff'; 
         if (voice === 'ooc') return $scope.nightMode? '#303030':'#fafafa'; 
         if (voice >= 0) {
@@ -693,6 +696,23 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         }
     };
 }])
+.config(function() {
+    moment.defineLocale('en-short', {
+        parentLocale: 'en',
+        relativeTime: {
+            past: function(val) {
+                if (val === 'now') return 'now';
+                return `${val} ago`;
+            },
+            s: 'now',
+            m: '1 m', mm: '%d m',
+            h: '1 h', hh: '%d h',
+            d: '1 d', dd: '%d d',
+            M: '1 Mo', MM: '%d Mo',
+            y: '1 y', yy: '%d y'
+        }
+    });
+})
 .directive('momentAgoShort', ['timestampUpdateService', function(timestampUpdateService) {
     return {
         template: '<span>{{momentAgoShort}}</span>',
@@ -833,16 +853,3 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         clearTimeout(timer);
     })
 })
-
-moment.defineLocale('en-short', {
-    parentLocale: 'en',
-    relativeTime: {
-        past: "%s",
-        s: 'now',
-        m: '%dmin', mm: '%dmin',
-        h: '%dhr', hh: '%dhr',
-        d: '%dday', dd: '%dday',
-        M: '%dmo', MM: '%dmo',
-        y: '%dyr', yy: '%dyrs'
-    }
-});
