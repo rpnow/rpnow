@@ -15,6 +15,7 @@ services:
   build:
     environment:
       RPNOW_PRODUCTION: dev
+    restart: always
 
   web_debug:
     depends_on:
