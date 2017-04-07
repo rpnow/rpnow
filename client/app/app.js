@@ -92,7 +92,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     });
 }])
 
-.controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, localStorageService, rpService, saveRpService) {
+.controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, rpService, saveRpService) {
     $scope.MAX_CHARA_NAME_LENGTH  = 30;
     $scope.MAX_MSG_CONTENT_LENGTH = 10000;
 
@@ -255,8 +255,21 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         }
     };
     $scope.sendImage = function() {
-        $scope.rp.addImage($scope.imagePostBox.url, function() {
+        var url = $scope.imagePostBox.url;
+        $scope.rp.addImage(url, function(err) {
             $scope.imagePostBox.sending = false;
+            if (err) {
+                var errMsg;
+                if (err.code === 'URL_FAILED')
+                    errMsg = `Couldn't reach the site at: ${url}`
+                else if (err.code === 'BAD_CONTENT')
+                    errMsg = `The content at "${url}" does not appear to be an image. Check the URL and try again.`;
+                else
+                    errMsg = `An unknown error occurred! Server says: "${err.code}"`
+
+                $mdToast.show($mdToast.simple().textContent(errMsg));
+                return;
+            }
             $mdDialog.hide();
         });
         $scope.imagePostBox.url = '';
@@ -468,7 +481,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         };
         rp.addImage = function(url, callback) {
             socket.emit('add image', url, function(err, receivedMsg) {
-                if (err) return;
+                if (err) return callback(err);
                 rp.msgs.push(receivedMsg);
                 if (callback) callback();
             });
