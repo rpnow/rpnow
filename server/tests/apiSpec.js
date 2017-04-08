@@ -6,40 +6,40 @@ const host = `http://localhost:${port}`;
 
 const io = require('socket.io-client');
 const request = require('request');
+const nJ = require('normalize-json');
 const api = require('../api');
 
-const schemaMatchers = require('./support/schemaMatchers');
-const errorSchema = {
+const errorSchema = nJ({
     code: [String],
     details: [{$optional:String}]
-};
-const msgSchema = {
+});
+const msgSchema = nJ({
     type: ['narrator', 'chara', 'ooc'],
     content: [String, 10000],
     charaId: (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined,
     timestamp: [Number],
     ipid: [String],
     challenge: [String]
-}
-const rpCodeSchema = {
+});
+const rpCodeSchema = nJ({
     rpCode: [ String ]
-}
-const emptyRoomSchema = {
+});
+const emptyRoomSchema = nJ({
     title: [ String ],
     desc: [ {$optional:String} ],
     msgs: [ Array, false ],
     charas: [ Array, false ]
-}
-const challengeSchema = {
+});
+const challengeSchema = nJ({
     secret: [ String ],
     hash: [ String ]
-}
-const fullRoomSchema = {
+});
+const fullRoomSchema = nJ({
     title: [ String ],
     desc: [ {$optional:String} ],
-    msgs: [ Array, msgSchema ],
+    msgs: [ Array, msgSchema.requirements ],
     charas: [ Array, false ]
-}
+});
 
 // shortcut to open up an RP, providing the socket, message-challenge, and
 //  (if not provided,) the RP code.
@@ -66,7 +66,7 @@ function openRoom(rpCode, callback) {
 
 // specs start here
 describe("basic socket.io message coverage", () => {
-    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
+    beforeEach(() => jasmine.addMatchers(nJ.jasmineMatchers));
 
     let socket;
     let rpCode;
@@ -166,7 +166,7 @@ describe("basic socket.io message coverage", () => {
 });
 
 describe("Malformed data resistance within an RP", () => {
-    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
+    beforeEach(() => jasmine.addMatchers(nJ.jasmineMatchers));
 
     let socket, challenge, rpCode;
     it("will open up a room", (done) => {
@@ -286,7 +286,7 @@ describe("Malformed data resistance within an RP", () => {
 });
 
 describe("multiple clients", () => {
-    beforeEach(() => jasmine.addMatchers(schemaMatchers.matchers));
+    beforeEach(() => jasmine.addMatchers(nJ.jasmineMatchers));
 
     let users = [];
     let rpCode;
@@ -316,7 +316,8 @@ describe("multiple clients", () => {
     });
 
     it("send and receive many messages in order, but only within the same room", (done) => {
-        let waiters = 2;
+        let numMsgs = 4;
+        let waiters = 0;
 
         let chat1 = startMockClient(users[0], true);
         let chat2 = startMockClient(users[1], true);
@@ -330,7 +331,7 @@ describe("multiple clients", () => {
                 user.socket.emit('add message', message, (err, data) => {
                     expect(err).toBeFalsy();
                     msgs.push(data);
-                    if (msgs.length < 20) setTimeout(sendOne, Math.random() * 100);
+                    if (msgs.length < numMsgs) setTimeout(sendOne, Math.random() * 100);
                     else if (!--waiters) setTimeout(check, 1000);
                 })
             }
@@ -339,14 +340,17 @@ describe("multiple clients", () => {
                 msgs.push(msg);
             })
 
-            if (active) sendOne();
+            if (active) {
+                ++waiters;
+                sendOne();
+            }
 
             return msgs;
         }
 
         function check() {
-            expect(chat1.length).toBeGreaterThan(20-1);
-            expect(chat2.length).toBeGreaterThan(20-1);
+            expect(chat1.length).toBeGreaterThan(numMsgs-1);
+            expect(chat2.length).toBeGreaterThan(numMsgs-1);
             expect(chatOtherRoom.length).toBe(0);
             expect(JSON.stringify(chat1)).toEqual(JSON.stringify(chat2));
             chat = chat1;

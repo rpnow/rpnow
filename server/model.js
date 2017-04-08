@@ -1,30 +1,30 @@
 const request = require('request');
 const crypto = require('crypto');
 const mongojs = require('mongojs');
-const normalize = require('./normalize-json');
+const nJ = require('normalize-json');
 const config = require('./config');
 
 const db = mongojs(`${config.get('DB_HOST')}/rpnow`, ['rooms']);
 
-const roomOptionsSchema = {
+const roomOptionsSchema = nJ({
     'title': [ String, config.get('maxTitleLength') ],
     'desc': [ {$optional:String}, config.get('maxDescLength') ]
-};
-const addCharaSchema = {
+});
+const addCharaSchema = nJ({
     'name': [ String, config.get('maxCharaNameLength') ],
     'color': /^#[0-9a-f]{6}$/g
-};
-const addMessageSchema = {
+});
+const addMessageSchema = nJ({
     'content': [ String, config.get('maxMessageContentLength') ],
     'type': [ 'narrator', 'chara', 'ooc' ],
     'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined,
     'challenge': [ String, 128 ]
-};
-const editMessageSchema = {
+});
+const editMessageSchema = nJ({
     'id': [ Number, 0, Infinity ],
     'content': [ String, config.get('maxMessageContentLength') ],
     'secret': [ String, 64 ]
-};
+});
 
 function generateRpCode(callback) {
     let length = config.get('rpCodeLength');
@@ -74,9 +74,14 @@ function isCorrectSecret(guess, hash) {
     return guessHash === hash;
 }
 
-module.exports.createRp = function(roomOptions, callback) {
-    let njResult = normalize(roomOptions, roomOptionsSchema);
-    if (!njResult.valid) return callback({code: 'BAD_RP', details: njResult.error});
+module.exports.createRp = function(input, callback) {
+    let roomOptions;
+    try {
+        roomOptions = roomOptionsSchema(input);
+    }
+    catch (error) {
+        return callback({code: 'BAD_RP', details: error.message});
+    }
 
     generateRpCode((err, rpCode) => {
         let room = {
@@ -89,7 +94,7 @@ module.exports.createRp = function(roomOptions, callback) {
         if (roomOptions.desc === undefined) delete room.desc;
 
         db.rooms.insert(room, (err, rp) => {
-            if (err) return callback({ code: 'DB_ERROR', details: err });
+            if (err) return callback({ code: 'DB_ERROR', details: err.message });
             callback(null, { rpCode });
         });
     });
@@ -116,14 +121,19 @@ function pushToMsgs(rpid, msg, ipid, callback) {
     msg.ipid = ipid;
 
     db.rooms.update({ _id: rpid }, {$push: {msgs: msg}}, (err, r) => {
-        if (err) return callback({ code: 'DB_ERROR', details: err });
+        if (err) return callback({ code: 'DB_ERROR', details: err.message });
         callback(null, { msg });
     });
 }
 
-module.exports.addMessage = function(rpid, msg, ipid, callback) {
-    let njResult = normalize(msg, addMessageSchema);
-    if (!njResult.valid) return callback({code: 'BAD_MSG', details: njResult.error});
+module.exports.addMessage = function(rpid, input, ipid, callback) {
+    let msg;
+    try {
+        msg = addMessageSchema(input);
+    }
+    catch (error) {
+        return callback({code: 'BAD_MSG', details: error.message});
+    }
     
     // store & broadcast
     if (msg.type === 'chara') {
@@ -159,9 +169,14 @@ module.exports.addImage = function(rpid, url, ipid, callback) {
     });
 };
 
-module.exports.addChara = function(rpid, chara, ipid, callback) {
-    let njResult = normalize(chara, addCharaSchema);
-    if (!njResult.valid) return callback({code: 'BAD_CHARA', details: njResult.error});
+module.exports.addChara = function(rpid, inputChara, ipid, callback) {
+    let chara;
+    try {
+        chara = addCharaSchema(inputChara);
+    }
+    catch (error) {
+        return callback({code: 'BAD_CHARA', details: error.message});
+    }
 
     // store & broadcast
     db.rooms.update({ _id: rpid }, {$push: {charas: chara}}, (err) => {
@@ -170,9 +185,14 @@ module.exports.addChara = function(rpid, chara, ipid, callback) {
     });
 };
 
-module.exports.editMessage = function(rpid, editInfo, ipid, callback) {
-    let njResult = normalize(editInfo, editMessageSchema);
-    if (!njResult.valid) return callback({code: 'BAD_EDIT', details: njResult.error});
+module.exports.editMessage = function(rpid, input, ipid, callback) {
+    let editInfo;
+    try {
+        editInfo = editMessageSchema(input);
+    }
+    catch (error) {
+        return callback({code: 'BAD_EDIT', details: error.message});
+    }
 
     // check if the message is there
     db.rooms.findOne({ _id: rpid }, { _id: 0, msgs: {$slice:[editInfo.id,1]} }, (err, rp) => {
