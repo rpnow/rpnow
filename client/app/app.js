@@ -7,7 +7,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         .when('/', {
             title: 'RPNow',
             templateUrl: '/app/home.template.html',
-            controller: 'NewRpController'
+            controller: 'HomeController'
         })
         .when('/rp/:rpCode', {
             title: 'Loading RP... | RPNow',
@@ -63,7 +63,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     });
 }])
 
-.controller('NewRpController', ['$scope', '$timeout', '$location', '$http', '$mdMedia', 'RPRandom', function($scope, $timeout, $location, $http, $mdMedia, RPRandom) {
+.controller('HomeController', ['$scope', '$timeout', '$location', '$http', '$mdMedia', 'RPRandom', function($scope, $timeout, $location, $http, $mdMedia, RPRandom) {
     var spinTimer = null;
     function tick(millis) {
         RPRandom.roll('title', 25).then(function(title) {
@@ -203,10 +203,13 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             content: $scope.msgBox.content.trim(),
             type: (+$scope.msgBox.voice >= 0) ? 'chara' : $scope.msgBox.voice
         }
+        // shortcut to send ooc messages; if not on the actual OOC character,
+        //  you can send a message inside of (()) et all, as a shortcut to change
+        //  that specific message to an OOC message
         if (msg.type !== 'ooc') {
-            [  /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( stuff ))
-                /^\{+\s*(.*?[^\s])\s*\}*$/g, // { stuff }, {{ stuff }}, ...
-                /^\/\/\s*(.*[^\s])\s*$/g // //stuff
+            [  /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( message text ))
+                /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
+                /^\/\/\s*(.*[^\s])\s*$/g // //message text
             ].forEach(function(oocRegex) {
                 var match = oocRegex.exec(msg.content);
                 if (match) {
@@ -565,10 +568,10 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         rpData.hasDesc = !!rpData.desc;
         if (!includeOOC) rpData.msgs = rpData.msgs.filter(function(msg) {return msg.type!=='ooc'});
         rpData.msgs.forEach(function(msg) {
-            msg.isNarrator = msg.type === 'narrator';
-            msg.isOOC = msg.type === 'ooc';
-            msg.isChara = msg.type === 'chara';
-            msg.isImage = msg.type === 'image';
+            msg.isNarrator = (msg.type === 'narrator');
+            msg.isOOC = (msg.type === 'ooc');
+            msg.isChara = (msg.type === 'chara');
+            msg.isImage = (msg.type === 'image');
             if (msg.isChara) msg.name = rpData.charas[msg.charaId].name.toUpperCase();
         });
         if (!docxTemplateRequest) {
@@ -609,31 +612,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     }
 })
 
-.directive('autoResize', function() {
-    return function(scope, element, attrs) {
-        var maxHeight = null;
-        element.css('resize','none');
-
-        element.bind('input', resize);
-        window.onresize = function() {
-            maxHeight = null;
-            resize();
-        }
-        function resize() {
-            if (attrs.maxHeight && !maxHeight) {
-                element.css('overflow','hidden');
-                element.css('height', attrs.maxHeight);
-                maxHeight = element[0].clientHeight;
-            }
-            element.css('height','');
-            var newHeight = element[0].scrollHeight;
-            if (newHeight > maxHeight) newHeight = maxHeight;
-            element.css('overflow', newHeight === maxHeight? 'auto':'hidden')
-            element.css('height', newHeight + 'px');
-        }
-    }
-})
-
 .factory('RPRandom', ['$http', function($http) {
     var types = {
         'title': ':Title'
@@ -642,7 +620,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         'title': $http.get('/assets/titles.json')
     };
 
-    function resolve(str, dict) {
+    function fillString(str, dict) {
         do {
             var lastStr = str;
             str = str.replace(/:([a-zA-Z]+):?/, dictRep);
@@ -659,7 +637,7 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
             return new Promise(function(success, fail) {
                 dictPromises[template].then(function(res) {
                     while (true) {
-                        var str = resolve(types[template], res.data);
+                        var str = fillString(types[template], res.data);
                         if (maxLength && str.length > maxLength) continue;
                         return success(str);
                     }
@@ -787,30 +765,32 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
     }
 }])
 
-.filter('contrastColor', function() {
-    return function(color, opacity) {
-        //YIQ algorithm modified from:
-        // http://24ways.org/2010/calculating-color-contrast/
-        var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
-        var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
-        if (opacity) {
-            var i = (yiq >= 128)? 0:255;
-            return 'rgba('+i+','+i+','+i+','+opacity+')';
-        }
-        return (yiq >= 128) ? 'black' : 'white';
-    };
+.factory('yiqBrightness', function() {
+    // returns brightness from 0 to 255
+    return function(color) {
+        // YIQ algorithm modified from:
+        //  http://24ways.org/2010/calculating-color-contrast/
+        let [r,g,b] = color.match(/[0-9a-f]{2}/g).map(hex => parseInt(hex,16));
+        return 0.299*r + 0.597*g + 0.114*b;
+    }
 })
 
-.filter('needsContrastColor', function() {
+.filter('contrastColor', ['yiqBrightness', function(yiqBrightness) {
+    return function(color, opacity=1) {
+        if (!color) return false;
+        let brightness = yiqBrightness(color);
+        if (brightness >= 128) return `rgba(0,0,0, ${opacity})`;
+        else return `rgba(255,255,255, ${opacity})`;
+    };
+}])
+
+.filter('needsContrastColor', ['yiqBrightness', function(yiqBrightness) {
     return function(color) {
         if (!color) return false;
-        //YIQ algorithm modified from:
-        // http://24ways.org/2010/calculating-color-contrast/
-        var components = [1,3,5].map(i => parseInt(color.substr(i, 2), 16));
-        var yiq = components[0]*0.299 + components[1]*0.597 + components[2]*0.114;
-        return yiq > 200 || yiq < 60;
+        let brightness = yiqBrightness(color);
+        return brightness < 60 || brightness > 200;
     };
-})
+}])
 
 .service('pageAlerts', function() {
     var pageAlerts = this;
