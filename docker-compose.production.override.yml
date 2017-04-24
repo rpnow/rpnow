@@ -6,18 +6,10 @@ services:
       - "80:80"
     restart: always
   
-  node:
-    volumes:
-      - node_modules_prod:/root/rpnow2/node_modules
+  api:
     restart: always
   
   build:
     environment:
       RPNOW_PRODUCTION: production
-    restart: "on-failure:3"
-
-  db:
-    restart: always
-
-volumes:
-  node_modules_prod:
+    restart: "on-failure"

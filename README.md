@@ -8,6 +8,12 @@ Because RPNow is fully dockerized, the only requirements are Docker and Docker-c
 Tested on Ubuntu 16.04 using Docker 17 and Docker-compose 1.9.
 
 
+## Installing
+A convenience script is provided for quickly installing vendor components within the repository.
+
+    ./run.sh
+
+
 ## Running
 RPNow can be run in two distinct modes: development and production.
 
@@ -52,5 +58,5 @@ These debugging containers are not created when in production mode.
 ## Testing
 Currently, only the API server has unit tests. To run these, use the following command:
 
-    docker-compose -f docker-compose.tests.yml up --abort-on-container-exit
+    docker-compose run --rm api npm test
 

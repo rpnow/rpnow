@@ -4,25 +4,23 @@ services:
   web:
     ports:
       - "8080:80"
-
-  node:
-    volumes:
-      - node_modules_dev:/root/rpnow2/node_modules
-    command: npm run docker-compose-runner-dev
-    ports:
-      - "3000:3000"
   
-  build:
+  web_build:
     environment:
       RPNOW_PRODUCTION: dev
     restart: always
 
+  api:
+    command: npm run start-dev
+    ports:
+      - "3000:3000"
+
   web_debug:
     depends_on:
-      - build
+      - web_build
     image: "httpd:2.2"
     volumes:
-      - build_www:/usr/local/apache2/htdocs:ro
+      - ./client/build:/usr/local/apache2/htdocs:ro
     ports:
       - "8181:80"
 
@@ -36,6 +34,3 @@ services:
       - db
     ports:
       - "8282:8081"
-
-volumes:
-  node_modules_dev:
