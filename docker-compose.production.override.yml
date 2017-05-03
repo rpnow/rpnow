@@ -9,7 +9,7 @@ services:
   api:
     restart: always
   
-  build:
+  web_build:
     environment:
       RPNOW_PRODUCTION: production
     restart: "on-failure"
