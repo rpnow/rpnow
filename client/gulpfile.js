@@ -1,6 +1,9 @@
 const gulp = require('gulp');
 const plugins = require('gulp-load-plugins')();
 const bowerFiles = require('main-bower-files');
+const bowerFilesManual = [
+    'bower_components/socket.io-client/dist/socket.io.slim.min.js'
+];
 
 const devMode = process.env.RPNOW_PRODUCTION !== 'production';
 
@@ -30,7 +33,7 @@ gulp.task('app/css', () =>
 gulp.task('app', [ 'app/js', 'app/html', 'app/css', 'app/md' ])
 
 gulp.task('vendor/js', () =>
-    gulp.src(['src/lib/*.js', ...bowerFiles('**/*.js')])
+    gulp.src(['src/lib/*.js', ...bowerFiles('**/*.js'), ...bowerFilesManual])
         .pipe(plugins.order(['babel-polyfill.min.js', 'angular.js']))
         .pipe(plugins.concat('vendor.js'))
         .pipe(gulp.dest('build'))
