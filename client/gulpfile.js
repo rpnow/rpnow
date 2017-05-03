@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const plugins = require('gulp-load-plugins')();
+const bowerFiles = require('main-bower-files');
 
 const devMode = process.env.RPNOW_PRODUCTION !== 'production';
 
@@ -29,13 +30,13 @@ gulp.task('app/css', () =>
 gulp.task('app', [ 'app/js', 'app/html', 'app/css', 'app/md' ])
 
 gulp.task('vendor/js', () =>
-    gulp.src('src/lib/*.js')
-        .pipe(plugins.order(['babel-polyfill.min.js', 'angular.min.js']))
+    gulp.src(['src/lib/*.js', ...bowerFiles('**/*.js')])
+        .pipe(plugins.order(['babel-polyfill.min.js', 'angular.js']))
         .pipe(plugins.concat('vendor.js'))
         .pipe(gulp.dest('build'))
 )
 gulp.task('vendor/css', () =>
-    gulp.src('src/lib/*.css')
+    gulp.src(['src/lib/*.css', ...bowerFiles('**/*.css')])
         .pipe(plugins.concat('vendor.css'))
         .pipe(gulp.dest('build'))
 )

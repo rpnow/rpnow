@@ -6,13 +6,16 @@
   },
   "dependencies": {
     "babel-preset-env": "^1.2.2",
+    "bower": "^1.8.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
+    "gulp-bower": "0.0.13",
     "gulp-cli": "^1.2.2",
     "gulp-concat": "^2.6.1",
     "gulp-css-condense": "^1.1.2",
     "gulp-load-plugins": "^1.5.0",
     "gulp-markdown": "^1.2.0",
-    "gulp-order": "^1.1.1"
+    "gulp-order": "^1.1.1",
+    "main-bower-files": "^2.13.1"
   }
 }
