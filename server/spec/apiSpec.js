@@ -1,5 +1,5 @@
 /* global describe it expect */
-const config = require('../config');
+const config = require('../src/config');
 config.set('logLevel', 'warn');
 const port = config.get('port');
 const host = `http://localhost:${port}`;
@@ -7,7 +7,7 @@ const host = `http://localhost:${port}`;
 const io = require('socket.io-client');
 const request = require('request');
 const nJ = require('normalize-json');
-const api = require('../api');
+const api = require('../src/api');
 
 const errorSchema = nJ({
     code: [String],

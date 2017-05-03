@@ -1,9 +1,9 @@
 {
   "private": true,
   "scripts": {
-    "start": "node api.js",
-    "start-dev": "nodemon api.js",
-    "test": "jasmine JASMINE_CONFIG_PATH=tests/support/jasmine.json"
+    "start": "node src/api.js",
+    "start-dev": "nodemon src/api.js",
+    "test": "jasmine"
   },
   "dependencies": {
     "body-parser": "^1.17.1",
