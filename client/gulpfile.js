@@ -36,6 +36,7 @@ gulp.task('vendor/js', () =>
     gulp.src([...bowerFiles('**/*.js'), ...bowerFilesManual])
         .pipe(plugins.order(['core.js', 'angular.js']))
         .pipe(plugins.concat('vendor.js'))
+        .pipe(plugins.uglify())
         .pipe(gulp.dest('build'))
 )
 gulp.task('vendor/css', () =>

@@ -17,6 +17,7 @@
     "gulp-load-plugins": "^1.5.0",
     "gulp-markdown": "^1.2.0",
     "gulp-order": "^1.1.1",
+    "gulp-uglify": "^2.1.2",
     "main-bower-files": "^2.13.1"
   }
 }
