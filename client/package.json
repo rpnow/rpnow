@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "postinstall": "bower install --allow-root",
     "prestart": "rm -rf build/*",
     "start": "gulp"
   },

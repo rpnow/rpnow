@@ -33,13 +33,13 @@ gulp.task('app/css', () =>
 gulp.task('app', [ 'app/js', 'app/html', 'app/css', 'app/md' ])
 
 gulp.task('vendor/js', () =>
-    gulp.src(['src/lib/*.js', ...bowerFiles('**/*.js'), ...bowerFilesManual])
-        .pipe(plugins.order(['babel-polyfill.min.js', 'angular.js']))
+    gulp.src([...bowerFiles('**/*.js'), ...bowerFilesManual])
+        .pipe(plugins.order(['core.js', 'angular.js']))
         .pipe(plugins.concat('vendor.js'))
         .pipe(gulp.dest('build'))
 )
 gulp.task('vendor/css', () =>
-    gulp.src(['src/lib/*.css', ...bowerFiles('**/*.css')])
+    gulp.src(bowerFiles('**/*.css'))
         .pipe(plugins.concat('vendor.css'))
         .pipe(gulp.dest('build'))
 )
