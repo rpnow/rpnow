@@ -14,13 +14,17 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 
-  <link rel="stylesheet" href="/vendor.css">
-  <link rel="stylesheet" href="/app/app.css">
+  <!-- bower:css -->
+  <!-- endinject -->
+  <!-- inject:css -->
+  <!-- endinject -->
 </head>
 
 <body ng-view ng-cloak ng-class="nightMode?'dark':'light'" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
 
-  <script src="/vendor.js"></script>
-  <script src="/app/app.js"></script>
+  <!-- bower:js -->
+  <!-- endinject -->
+  <!-- inject:js -->
+  <!-- endinject -->
 </body>
 </html>

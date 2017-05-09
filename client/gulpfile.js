@@ -1,70 +1,159 @@
 const gulp = require('gulp');
 const plugins = require('gulp-load-plugins')();
+const es = require('event-stream');
+const print = require('gulp-print');
+
 const bowerFiles = require('main-bower-files');
 const bowerFilesManual = [
     'bower_components/socket.io-client/dist/socket.io.slim.min.js'
 ];
 
-const devMode = process.env.RPNOW_PRODUCTION !== 'production';
+let devMode = process.env.RPNOW_PRODUCTION !== 'production';
 
-gulp.task('app/js', () =>
-    gulp.src('src/app/*.js')
-        .pipe(plugins.babel({ presets: ['env'] }))
-        .pipe(gulp.dest('build/app'))
+const paths = {
+    scripts: './app/**/*.js',
+    styles: ['./app/**/*.css', './app/**/*.scss'],
+    assets: './app/assets/**/*',
+    index: './app/index.html',
+    partials: ['./app/**/*.html', '!./app/index.html'],
+    assets: ['./app/**/*.*', '!./**/*.html', '!./**/*.css', '!./**/*.js', '!./**/*.md'],
+    distDev: './dist.dev',
+    distProd: './dist.prod',
+    distVendorDev: './dist.dev/vendor',
+    distScriptsProd: './dist.prod/scripts',
+    distStylesProd: './dist.prod/styles'
+};
+
+let pipes = {};
+
+pipes.orderedVendorScripts = () => plugins.order(['jquery.js', 'angular.js'])
+pipes.orderedAppScripts = () => plugins.angularFilesort()
+
+pipes.minifiedFileName = () => plugins.rename(path=>path.extname = '.min' + path.extname)
+
+pipes.validatedPartials = () => gulp.src(paths.partials)
+    // .pipe(plugins.htmlhint({'doctype-first': false}))
+    // .pipe(plugins.htmlhint.reporter())
+
+pipes.builtPartialsDev = () => pipes.validatedPartials()
+    .pipe(gulp.dest(paths.distDev))
+
+pipes.scriptedPartials = () => pipes.validatedPartials()
+    // .pipe(plugins.htmlhint.failReporter())
+    // .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
+    .pipe(plugins.ngHtml2js({moduleName: "rpnow.templates", prefix: "/", declareModule: false}))
+
+pipes.validatedAppScripts = () => gulp.src(paths.scripts)
+    .pipe(plugins.babel({ presets: ['env'] }))
+    // .pipe(plugins.jshint())
+    // .pipe(plugins.jshint.reporter('jshint-stylish'))
+
+pipes.builtAppScriptsDev = () => pipes.validatedAppScripts()
+    .pipe(gulp.dest(paths.distDev))
+
+pipes.builtAppScriptsProd = () =>
+    es.merge(pipes.scriptedPartials(), pipes.validatedAppScripts())
+    .pipe(pipes.orderedAppScripts())
+    .pipe(plugins.concat('app.min.js'))
+    // .pipe(plugins.uglify())
+    .pipe(gulp.dest(paths.distScriptsProd))
+
+pipes.builtAppStylesDev = () => gulp.src(paths.styles)
+    .pipe(plugins.sass())
+    .pipe(gulp.dest(paths.distDev))
+
+pipes.builtAppStylesProd = () => gulp.src(paths.styles)
+    .pipe(plugins.minifyCss())
+    .pipe(plugins.concat('app.min.css'))
+    .pipe(gulp.dest(paths.distStylesProd));
+
+pipes.vendorScripts = () => gulp.src([...bowerFiles('**/*.js'), ...bowerFilesManual])
+
+pipes.builtVendorScriptsDev = () => pipes.vendorScripts()
+    .pipe(gulp.dest(paths.distVendorDev))
+
+pipes.builtVendorScriptsProd = () => pipes.vendorScripts()
+    .pipe(pipes.orderedVendorScripts())
+    .pipe(plugins.concat('vendor.min.js'))
+    .pipe(plugins.uglify())
+    .pipe(gulp.dest(paths.distScriptsProd))
+
+pipes.vendorStyles = () => gulp.src(bowerFiles('**/*.css'))
+
+pipes.builtVendorStylesDev = () =>  pipes.vendorStyles()
+    .pipe(gulp.dest(paths.distVendorDev))
+
+pipes.builtVendorStylesProd = () => pipes.vendorStyles()
+    .pipe(plugins.minifyCss())
+    .pipe(plugins.concat('vendor.min.css'))
+    .pipe(gulp.dest(paths.distStylesProd));
+
+pipes.validatedIndex = () => gulp.src(paths.index)
+    // .pipe(plugins.htmlhint())
+    // .pipe(plugins.htmlhint.reporter())
+
+pipes.builtIndexDev = () => pipes.validatedIndex()
+    .pipe(gulp.dest(paths.distDev)) // write first to get relative path for inject
+    .pipe(plugins.inject(
+        pipes.builtVendorScriptsDev().pipe(pipes.orderedVendorScripts()),
+        {relative: true, name: 'bower'}))
+    .pipe(plugins.inject(
+        pipes.builtAppScriptsDev().pipe(pipes.orderedAppScripts()),
+        {relative: true}))
+    .pipe(plugins.inject(pipes.builtAppStylesDev(), {relative: true}))
+    .pipe(plugins.inject(pipes.builtVendorStylesDev(), {relative: true, name:'bower'}))
+    .pipe(gulp.dest(paths.distDev))
+
+pipes.builtIndexProd = () => pipes.validatedIndex()
+    .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
+    .pipe(plugins.inject(pipes.builtVendorScriptsProd(), {relative: true, name: 'bower'}))
+    .pipe(plugins.inject(pipes.builtAppScriptsProd(), {relative: true}))
+    .pipe(plugins.inject(pipes.builtVendorStylesProd(), {relative: true, name: 'bower'}))
+    .pipe(plugins.inject(pipes.builtAppStylesProd(), {relative: true}))
+    .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
+    .pipe(gulp.dest(paths.distProd))
+
+pipes.assetsDev = () => gulp.src(paths.assets)
+    .pipe(gulp.dest(paths.distDev))
+
+pipes.assetsProd = () => gulp.src(paths.assets)
+    .pipe(gulp.dest(paths.distProd))
+
+pipes.builtAppDev = () => es.merge(
+    pipes.builtIndexDev(),
+    pipes.builtPartialsDev(),
+    pipes.assetsDev()
 )
 
-gulp.task('app/html', () =>
-    gulp.src('src/app/*.html')
-        .pipe(gulp.dest('build/app'))
+pipes.builtAppProd = () => es.merge(
+    pipes.builtIndexProd(),
+    pipes.assetsProd()
 )
 
-gulp.task('app/md', () =>
-    gulp.src('src/app/*.md')
-        .pipe(plugins.markdown())
-        .pipe(gulp.dest('build/app'))
-)
+// builds a complete dev environment
+gulp.task('build-dev', pipes.builtAppDev);
 
-gulp.task('app/css', () =>
-    gulp.src(['src/app/*.css', 'src/app.css'])
-        .pipe(plugins.cssCondense())
-        .pipe(gulp.dest('build/app'))
-)
+// builds a complete prod environment
+gulp.task('build-prod', pipes.builtAppProd);
 
-gulp.task('app', [ 'app/js', 'app/html', 'app/css', 'app/md' ])
+// clean, build, and watch live changes to the dev environment
+gulp.task('watch-dev', ['build-dev'], function() {
+    [
+        [paths.index, pipes.builtIndexDev],
+        [paths.scripts, pipes.builtAppScriptsDev],
+        [paths.partials, pipes.builtPartialsDev],
+        [paths.styles, pipes.builtAppStylesDev]
+    ]
+        .forEach(([path, pipe]) => gulp.watch(path, pipe))
+});
 
-gulp.task('vendor/js', () =>
-    gulp.src([...bowerFiles('**/*.js'), ...bowerFilesManual])
-        .pipe(plugins.order(['core.js', 'angular.js']))
-        .pipe(plugins.concat('vendor.js'))
-        .pipe(plugins.uglify())
-        .pipe(gulp.dest('build'))
-)
-gulp.task('vendor/css', () =>
-    gulp.src(bowerFiles('**/*.css'))
-        .pipe(plugins.concat('vendor.css'))
-        .pipe(gulp.dest('build'))
-)
-
-gulp.task('vendor', [ 'vendor/js', 'vendor/css' ])
-
-gulp.task('files/assets', () =>
-    gulp.src('src/assets/**/*')
-        .pipe(gulp.dest('build/assets'))
-)
-gulp.task('files/root', () =>
-    gulp.src('src/*.*')
-        .pipe(gulp.dest('build'))
-)
-
-gulp.task('files', ['files/assets', 'files/root']);
-
-gulp.task('default', [ 'app', 'files', 'vendor' ])
-
-if (devMode) {
-    gulp.watch('src/app/*.js', ['app/js']);
-    gulp.watch('src/app/*.html', ['app/html']);
-    gulp.watch('src/app/*.css', ['app/css']);
-    gulp.watch('src/app/*.md', ['app/md']);
-    gulp.watch('src/assets/**/*', ['files/assets']);
-    gulp.watch('src/*.*', ['files/root']);
-}
+// clean, build, and watch live changes to the prod environment
+gulp.task('watch-prod', ['build-prod'], function() {
+    [
+        [paths.index, pipes.builtIndexProd],
+        [paths.scripts, pipes.builtAppScriptsProd],
+        [paths.partials, pipes.builtAppScriptsProd],
+        [paths.styles, pipes.builtAppStylesProd]
+    ]
+        .forEach(([path, pipe]) => gulp.watch(path, pipe))
+});

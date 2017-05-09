@@ -4,12 +4,18 @@ services:
   web:
     ports:
       - "80:80"
-    restart: always
-  
-  api:
+    volumes:
+      - ./client/dist.prod:/usr/share/nginx/html:ro
     restart: always
   
   web_build:
     environment:
       RPNOW_PRODUCTION: production
+    volumes:
+      - ./client/dist.prod:/root/client/dist.prod:rw
+    command: npm run gulp -- build-prod
     restart: "on-failure"
+
+  api:
+    restart: always
+  

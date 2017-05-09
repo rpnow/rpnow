@@ -4,13 +4,19 @@ services:
   web:
     ports:
       - "8080:80"
+    volumes:
+      - ./client/dist.dev:/usr/share/nginx/html:ro
   
   web_build:
     environment:
       RPNOW_PRODUCTION: dev
-    restart: always
+    volumes:
+      - ./client/dist.dev:/root/client/dist.dev:rw
+    command: npm run gulp -- watch-dev
 
   api:
+    volumes:
+      - ./server/spec:/root/api/spec
     command: npm run start-dev
     ports:
       - "3000:3000"

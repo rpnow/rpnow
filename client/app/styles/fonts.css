@@ -1,0 +1,25 @@
+@font-face {
+    font-family: 'Alice';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Alice Regular'),
+         local('Alice-Regular'),
+         url(/assets/fonts/Alice-Regular.woff2) format('woff2'),
+         url(/assets/fonts/Alice-Regular.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Playfair Display'),
+         local('PlayfairDisplay-Regular'),
+         url(/assets/fonts/PlayfairDisplay-Regular.woff2) format('woff2'),
+         url(/assets/fonts/PlayfairDisplay-Regular.ttf) format('truetype');
+}
+
+body, textarea, input {
+    font-family: Alice;
+}
+h1, h2, h3 {
+    font-family: Playfair Display;
+}

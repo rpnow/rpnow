@@ -1,95 +1,17 @@
-angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directives', 'mp.colorPicker', 'LocalStorageModule'])
+'use strict';
 
-.config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
-    $locationProvider.html5Mode(true);
+angular.module('rpnow')
 
-    $routeProvider
-        .when('/', {
-            title: 'RPNow',
-            templateUrl: '/app/home.template.html',
-            controller: 'HomeController'
-        })
-        .when('/rp/:rpCode', {
-            title: 'Loading RP... | RPNow',
-            templateUrl: '/app/rp.template.html',
-            controller: 'RpController',
-            css: [
-                '/app/rp.template.css',
-                '/app/message.css',
-            ]
-        })
-        .when('/terms', {
-            title: 'Terms of Use | RPNow',
-            template:`<article ng-include="'/app/terms.template.html'"></article>`
-        })
-        .when('/about', {
-            title: 'About | RPNow',
-            template:`<article ng-include="'/app/about.template.html'"></article>`
-        })
-        .otherwise({
-            title: 'Not Found | RPNow',
-            template:`<article ng-include="'/app/404.template.html'"></article>`,
-            controller: ['$scope', '$location', function($scope, $location) {
-                $scope.url = $location.url();
-            }]
-        });
-}])
-
-.config(['$mdThemingProvider', function($mdThemingProvider) {
-    $mdThemingProvider.theme('default')
-        .primaryPalette('grey', {
-            'default': '50'
-        })
-        .accentPalette('deep-purple');
-    $mdThemingProvider.theme('dark')
-        .primaryPalette('grey', {
-            'default': '800'
-        })
-        .accentPalette('amber')
-        .dark();
-    $mdThemingProvider.alwaysWatchTheme(true);
-}])
-
-.config(['localStorageServiceProvider', function(localStorageServiceProvider) {
-    localStorageServiceProvider
-        .setPrefix('rpnow')
-        .setDefaultToCookie(false)
-}])
-
-.run(['$rootScope', '$route', function($rootScope, $route) {
-    // https://stackoverflow.com/questions/26308020/how-to-change-page-title-in-angular-using-routeprovider
-    $rootScope.$on('$routeChangeSuccess', function() {
-        document.title = $route.current.title;
-    });
-}])
-
-.controller('HomeController', ['$scope', '$timeout', '$location', '$http', '$mdMedia', 'RPRandom', function($scope, $timeout, $location, $http, $mdMedia, RPRandom) {
-    var spinTimer = null;
-    function tick(millis) {
-        RPRandom.roll('title', 25).then(function(title) {
-            $scope.$apply(function() {
-                $scope.title = title;
-            });
-            if (millis < 200.0) spinTimer = $timeout(tick, millis, true, millis * 1.15);
-        })
-    }
-    $scope.spinTitle = function() {
-        if (spinTimer) $timeout.cancel(spinTimer);
-        tick(10.0);
-    }
-
-    $scope.submit = function() {
-        $scope.submitted = true;
-        $http.post('/api/rp.json', {title: $scope.title, desc: $scope.desc})
-            .then(function(res) {
-                $scope.rpCode = res.data.rpCode;
-                $location.url('/rp/'+$scope.rpCode);
-            });
-    };
-
-    $scope.$watch(function() { return $mdMedia('xs'); }, function(result) {
-        $scope.isXs = result;
-    });
+.config(['$routeProvider', function($routeProvider) {
+    $routeProvider.when('/rp/:rpCode', {
+        title: 'Loading RP... | RPNow',
+        templateUrl: '/rp-view/rp.template.html',
+        controller: 'RpController',
+        css: [
+            '/rp-view/rp.template.css',
+            '/rp-view/message.css',
+        ]
+    })
 }])
 
 .controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, rpService, saveRpService) {
@@ -611,41 +533,6 @@ angular.module('rpnow', ['ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directive
         })
     }
 })
-
-.factory('RPRandom', ['$http', function($http) {
-    var types = {
-        'title': ':Title'
-    };
-    var dictPromises = {
-        'title': $http.get('/assets/titles.json')
-    };
-
-    function fillString(str, dict) {
-        do {
-            var lastStr = str;
-            str = str.replace(/:([a-zA-Z]+):?/, dictRep);
-        } while(str !== lastStr);
-        function dictRep(match, inner) {
-            var x = dict[inner];
-            if(x) return x[Math.floor(Math.random()*x.length)];
-            else return inner.toUpperCase() + '?';
-        }
-        return str.trim().replace(/\s+/g, ' ');
-    }
-    return {
-        roll: function(template, maxLength) {
-            return new Promise(function(success, fail) {
-                dictPromises[template].then(function(res) {
-                    while (true) {
-                        var str = fillString(types[template], res.data);
-                        if (maxLength && str.length > maxLength) continue;
-                        return success(str);
-                    }
-                })
-            })
-        }
-    }
-}])
 
 // https://stackoverflow.com/questions/14389049/
 .factory('io', ['$rootScope', function($rootScope) {

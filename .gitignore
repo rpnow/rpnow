@@ -1,5 +1,5 @@
 **/bower_components
 **/node_modules
 **/npm-debug.log
-client/build/*
+client/dist*/*
 !**/.gitkeep
