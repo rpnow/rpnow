@@ -1,5 +1,5 @@
 angular.module('rpnow', [
-    'ngRoute', 'ngMaterial', 'angularCSS', 'luegg.directives', 'mp.colorPicker', 'LocalStorageModule'
+    'angularCSS', 'LocalStorageModule', 'luegg.directives', 'mp.colorPicker', 'ngMaterial', 'ui.router', 'ngMeta'
 ])
 
 .config(['$locationProvider', function($locationProvider) {
@@ -27,9 +27,6 @@ angular.module('rpnow', [
         .setDefaultToCookie(false)
 }])
 
-.run(['$rootScope', '$route', function($rootScope, $route) {
-    // https://stackoverflow.com/questions/26308020/how-to-change-page-title-in-angular-using-routeprovider
-    $rootScope.$on('$routeChangeSuccess', function() {
-        document.title = $route.current.title;
-    });
+.run(['ngMeta', function(ngMeta) {
+    ngMeta.init();
 }])

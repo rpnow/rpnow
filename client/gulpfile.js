@@ -49,7 +49,7 @@ pipes.builtPartialsDev = () => pipes.validatedPartials()
 pipes.scriptedPartials = () => pipes.validatedPartials()
     // .pipe(plugins.htmlhint.failReporter())
     // .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
-    .pipe(plugins.ngHtml2js({moduleName: "rpnow.templates", prefix: "/", declareModule: false}))
+    .pipe(plugins.ngHtml2js({moduleName: "rpnow", prefix: "/", declareModule: false}))
 
 pipes.validatedAppScripts = () => gulp.src(paths.scripts)
     .pipe(plugins.babel({ presets: ['env'] }))

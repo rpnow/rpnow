@@ -2,11 +2,15 @@
 
 angular.module('rpnow')
 
-.config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/', {
-        title: 'RPNow',
-        templateUrl: 'home-view/home.template.html',
-        controller: 'HomeController'
+.config(['$stateProvider', function($stateProvider) {
+    $stateProvider.state({
+        name: 'home',
+        url: '/',
+        templateUrl: '/home-view/home.template.html',
+        controller: 'HomeController',
+        meta: {
+            title: 'RPNow'
+        },
     })
 }])
 

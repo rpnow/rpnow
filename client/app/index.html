@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-  <title>RPNow</title>
+  <title ng-bind="ngMeta.title || 'RPNow'">RPNow</title>
   <meta name="description" content="RPNow is a roleplay site where small groups of friends can instantly create private roleplaying chatrooms.">
 
   <base href="/">
@@ -20,7 +20,7 @@
   <!-- endinject -->
 </head>
 
-<body ng-view ng-cloak ng-class="nightMode?'dark':'light'" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
+<body ui-view ng-cloak ng-class="nightMode?'dark':'light'" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
 
   <!-- bower:js -->
   <!-- endinject -->

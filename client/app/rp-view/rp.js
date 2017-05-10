@@ -2,11 +2,15 @@
 
 angular.module('rpnow')
 
-.config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/rp/:rpCode', {
-        title: 'Loading RP... | RPNow',
+.config(['$stateProvider', function($stateProvider) {
+    $stateProvider.state({
+        name: 'rp',
+        url: '/rp/:rpCode',
         templateUrl: '/rp-view/rp.template.html',
         controller: 'RpController',
+        meta: {
+            title: 'Loading RP... | RPNow'
+        },
         css: [
             '/rp-view/rp.template.css',
             '/rp-view/message.css',
