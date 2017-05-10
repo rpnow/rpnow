@@ -49,7 +49,7 @@ pipes.builtPartialsDev = () => pipes.validatedPartials()
 
 pipes.scriptedPartials = () => pipes.validatedPartials()
     // .pipe(plugins.htmlhint.failReporter())
-    // .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
+    .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
     .pipe(plugins.ngHtml2js({moduleName: "rpnow", prefix: "/", declareModule: false}))
 
 pipes.validatedAppScripts = () => gulp.src(paths.scripts)
@@ -64,7 +64,7 @@ pipes.builtAppScriptsProd = () =>
     es.merge(pipes.scriptedPartials(), pipes.validatedAppScripts())
     .pipe(pipes.orderedAppScripts())
     .pipe(plugins.concat('app.min.js'))
-    // .pipe(plugins.uglify())
+    .pipe(plugins.uglify())
     .pipe(gulp.dest(paths.distScriptsProd))
 
 pipes.appStyles = () =>
