@@ -16,6 +16,7 @@ const paths = {
     assets: './app/assets/**/*',
     index: './app/index.html',
     partials: ['./app/**/*.html', '!./app/index.html'],
+    mdPartials: './app/**/*.md',
     assets: ['./app/**/*.*', '!./**/*.html', '!./**/*.css', '!./**/*.js', '!./**/*.md'],
     distDev: './dist.dev',
     distProd: './dist.prod',
@@ -31,7 +32,14 @@ pipes.orderedAppScripts = () => plugins.angularFilesort()
 
 pipes.minifiedFileName = () => plugins.rename(path=>path.extname = '.min' + path.extname)
 
-pipes.validatedPartials = () => gulp.src(paths.partials)
+pipes.mdToHtmlPartials = () => gulp.src(paths.mdPartials)
+    .pipe(plugins.markdown())
+    .pipe(plugins.rename(path=>path.extname = '.html'))
+
+pipes.partials = () =>
+    es.merge(gulp.src(paths.partials), pipes.mdToHtmlPartials())
+
+pipes.validatedPartials = () => pipes.partials()
     // .pipe(plugins.htmlhint({'doctype-first': false}))
     // .pipe(plugins.htmlhint.reporter())
 
