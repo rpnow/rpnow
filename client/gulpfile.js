@@ -8,6 +8,8 @@ const bowerFilesManual = [
     'bower_components/socket.io-client/dist/socket.io.slim.min.js'
 ];
 
+const bustFix = '?build='+(+new Date());
+
 let devMode = process.env.RPNOW_PRODUCTION !== 'production';
 
 const paths = {
@@ -109,20 +111,32 @@ pipes.builtIndexDev = () => pipes.validatedIndex()
     .pipe(gulp.dest(paths.distDev)) // write first to get relative path for inject
     .pipe(plugins.inject(
         pipes.builtVendorScriptsDev().pipe(pipes.orderedVendorScripts()),
-        {relative: true, name: 'bower'}))
+        {relative: true, addSuffix: bustFix, name: 'bower'}))
     .pipe(plugins.inject(
         pipes.builtAppScriptsDev().pipe(pipes.orderedAppScripts()),
-        {relative: true}))
-    .pipe(plugins.inject(pipes.builtAppStylesDev(), {relative: true}))
-    .pipe(plugins.inject(pipes.builtVendorStylesDev(), {relative: true, name:'bower'}))
+        {relative: true, addSuffix: bustFix}))
+    .pipe(plugins.inject(
+        pipes.builtAppStylesDev(),
+        {relative: true, addSuffix: bustFix}))
+    .pipe(plugins.inject(
+        pipes.builtVendorStylesDev(),
+        {relative: true, addSuffix: bustFix, name:'bower'}))
     .pipe(gulp.dest(paths.distDev))
 
 pipes.builtIndexProd = () => pipes.validatedIndex()
     .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
-    .pipe(plugins.inject(pipes.builtVendorScriptsProd(), {relative: true, name: 'bower'}))
-    .pipe(plugins.inject(pipes.builtAppScriptsProd(), {relative: true}))
-    .pipe(plugins.inject(pipes.builtVendorStylesProd(), {relative: true, name: 'bower'}))
-    .pipe(plugins.inject(pipes.builtAppStylesProd(), {relative: true}))
+    .pipe(plugins.inject(
+        pipes.builtVendorScriptsProd(),
+        {relative: true, addSuffix: bustFix, name: 'bower'}))
+    .pipe(
+        plugins.inject(pipes.builtAppScriptsProd(),
+        {relative: true, addSuffix: bustFix}))
+    .pipe(
+        plugins.inject(pipes.builtVendorStylesProd(),
+        {relative: true, addSuffix: bustFix, name: 'bower'}))
+    .pipe(
+        plugins.inject(pipes.builtAppStylesProd(),
+        {relative: true, addSuffix: bustFix}))
     .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
     .pipe(gulp.dest(paths.distProd))
 
