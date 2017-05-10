@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "postinstall": "bower install --allow-root",
+    "postinstall": "bower prune --allow-root && bower install --allow-root",
     "pregulp": "rm -rf dist.dev/* dist.prod/*",
     "gulp": "gulp"
   },
