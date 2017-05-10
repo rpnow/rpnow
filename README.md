@@ -11,7 +11,7 @@ Tested on Ubuntu 16.04 using Docker 17 and Docker-compose 1.9.
 ## Installing
 A convenience script is provided for quickly installing vendor components within the repository.
 
-    ./run.sh
+    ./install.sh
 
 
 ## Running
