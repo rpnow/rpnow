@@ -1,5 +1,5 @@
 angular.module('rpnow', [
-    'angularCSS', 'LocalStorageModule', 'luegg.directives', 'mp.colorPicker', 'ngMaterial', 'ui.router', 'ngMeta'
+    'LocalStorageModule', 'luegg.directives', 'mp.colorPicker', 'ngMaterial', 'ui.router', 'ngMeta'
 ])
 
 .config(['$locationProvider', function($locationProvider) {
@@ -29,4 +29,10 @@ angular.module('rpnow', [
 
 .run(['ngMeta', function(ngMeta) {
     ngMeta.init();
+}])
+
+// give the view a reference to the ui-state.
+// https://github.com/angular-ui/ui-router/issues/561
+.run(['$rootScope', '$state', function($rootScope, $state) {
+    $rootScope.$uiState = $state;
 }])

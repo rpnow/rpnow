@@ -12,12 +12,13 @@ let devMode = process.env.RPNOW_PRODUCTION !== 'production';
 
 const paths = {
     scripts: './app/**/*.js',
-    styles: ['./app/**/*.css', './app/**/*.scss'],
+    cssStyles: './app/**/*.css',
+    sassStyles: './app/**/*.scss',
     assets: './app/assets/**/*',
     index: './app/index.html',
     partials: ['./app/**/*.html', '!./app/index.html'],
     mdPartials: './app/**/*.md',
-    assets: ['./app/**/*.*', '!./**/*.html', '!./**/*.css', '!./**/*.js', '!./**/*.md'],
+    assets: ['./app/**/*.*', '!./**/*.html', '!./**/*.css', '!./**/*.scss', '!./**/*.js', '!./**/*.md'],
     distDev: './dist.dev',
     distProd: './dist.prod',
     distVendorDev: './dist.dev/vendor',
@@ -66,11 +67,16 @@ pipes.builtAppScriptsProd = () =>
     // .pipe(plugins.uglify())
     .pipe(gulp.dest(paths.distScriptsProd))
 
-pipes.builtAppStylesDev = () => gulp.src(paths.styles)
-    .pipe(plugins.sass())
+pipes.appStyles = () =>
+    es.merge(
+        gulp.src(paths.cssStyles),
+        gulp.src(paths.sassStyles).pipe(plugins.sass())
+    )
+
+pipes.builtAppStylesDev = () => pipes.appStyles()
     .pipe(gulp.dest(paths.distDev))
 
-pipes.builtAppStylesProd = () => gulp.src(paths.styles)
+pipes.builtAppStylesProd = () => pipes.appStyles()
     .pipe(plugins.minifyCss())
     .pipe(plugins.concat('app.min.css'))
     .pipe(gulp.dest(paths.distStylesProd));
@@ -150,7 +156,8 @@ gulp.task('watch-dev', ['build-dev'], function() {
         [paths.index, pipes.builtIndexDev],
         [paths.scripts, pipes.builtAppScriptsDev],
         [paths.partials, pipes.builtPartialsDev],
-        [paths.styles, pipes.builtAppStylesDev]
+        [paths.cssStyles, pipes.builtAppStylesDev],
+        [paths.sassStyles, pipes.builtAppStylesDev]
     ]
         .forEach(([path, pipe]) => gulp.watch(path, pipe))
 });
@@ -161,7 +168,8 @@ gulp.task('watch-prod', ['build-prod'], function() {
         [paths.index, pipes.builtIndexProd],
         [paths.scripts, pipes.builtAppScriptsProd],
         [paths.partials, pipes.builtAppScriptsProd],
-        [paths.styles, pipes.builtAppStylesProd]
+        [paths.cssStyles, pipes.builtAppStylesProd],
+        [paths.sassStyles, pipes.builtAppStylesProd]
     ]
         .forEach(([path, pipe]) => gulp.watch(path, pipe))
 });

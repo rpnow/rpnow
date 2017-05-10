@@ -10,11 +10,7 @@ angular.module('rpnow')
         controller: 'RpController',
         meta: {
             title: 'Loading RP... | RPNow'
-        },
-        css: [
-            '/rp-view/rp.template.css',
-            '/rp-view/message.css',
-        ]
+        }
     })
 }])
 
