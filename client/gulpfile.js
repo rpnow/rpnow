@@ -11,13 +11,12 @@ const bowerFilesManual = [
 let devMode = process.env.RPNOW_PRODUCTION !== 'production';
 
 const paths = {
-    scripts: './app/**/*.js',
-    cssStyles: './app/**/*.css',
-    sassStyles: './app/**/*.scss',
-    assets: './app/assets/**/*',
     index: './app/index.html',
+    scripts: './app/**/*.js',
     partials: ['./app/**/*.html', '!./app/index.html'],
     mdPartials: './app/**/*.md',
+    cssStyles: './app/**/*.css',
+    sassStyles: './app/**/*.scss',
     assets: ['./app/**/*.*', '!./**/*.html', '!./**/*.css', '!./**/*.scss', '!./**/*.js', '!./**/*.md'],
     distDev: './dist.dev',
     distProd: './dist.prod',
@@ -156,8 +155,10 @@ gulp.task('watch-dev', ['build-dev'], function() {
         [paths.index, pipes.builtIndexDev],
         [paths.scripts, pipes.builtAppScriptsDev],
         [paths.partials, pipes.builtPartialsDev],
+        [paths.mdPartials, pipes.builtPartialsDev],
         [paths.cssStyles, pipes.builtAppStylesDev],
-        [paths.sassStyles, pipes.builtAppStylesDev]
+        [paths.sassStyles, pipes.builtAppStylesDev],
+        [paths.assets, pipes.assetsDev]
     ]
         .forEach(([path, pipe]) => gulp.watch(path, pipe))
 });
@@ -168,8 +169,10 @@ gulp.task('watch-prod', ['build-prod'], function() {
         [paths.index, pipes.builtIndexProd],
         [paths.scripts, pipes.builtAppScriptsProd],
         [paths.partials, pipes.builtAppScriptsProd],
+        [paths.mdPartials, pipes.builtAppScriptsProd],
         [paths.cssStyles, pipes.builtAppStylesProd],
-        [paths.sassStyles, pipes.builtAppStylesProd]
+        [paths.sassStyles, pipes.builtAppStylesProd],
+        [paths.assets, pipes.assetsProd]
     ]
         .forEach(([path, pipe]) => gulp.watch(path, pipe))
 });
