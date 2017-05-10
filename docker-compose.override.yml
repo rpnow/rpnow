@@ -21,15 +21,6 @@ services:
     ports:
       - "3000:3000"
 
-  web_debug:
-    depends_on:
-      - web_build
-    image: "httpd:2.2"
-    volumes:
-      - ./client/build:/usr/local/apache2/htdocs:ro
-    ports:
-      - "8181:80"
-
   db_debug:
     depends_on:
       - db
