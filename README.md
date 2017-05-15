@@ -1,5 +1,13 @@
 # RPNow
-The Dead-Simple Roleplay Chatroom Service. http://beta.rpnow.net/
+The Dead-Simple Roleplay Chatroom Service. [beta.rpnow.net](http://beta.rpnow.net/)
+
+
+## What is this?
+Originally a passion project created for my own use in 2015, __RPNow__ has since become a popular platform for roleplaying and storytelling internationally. As of May 2017, it has delivered __9 million messages__ between __80 thousand users.__
+
+This is the second iteration of the site, which is currently still in beta. It will eventually replace the current stable version, whose repository [is available here](https://github.com/rpnow/rpnow).
+
+Hosting for RPNow is entirely supported by user donations. Please consider [donating on Patreon](https://www.patreon.com/rpnow)!
 
 
 ## Requirements
