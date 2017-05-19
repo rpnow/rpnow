@@ -291,8 +291,12 @@ angular.module('rpnow')
     $scope.hideDialog = function() { $mdDialog.cancel(); };
     $scope.showCharacterDialog = function(evt) {
         $timeout(function(x){$scope.msgBox.voice=x;},0,true,$scope.msgBox.voice);
-        $scope.showDialog('#characterCreatorDialog', evt)
-        .then(function() { 
+        $mdDialog.show({
+            contentElement: '#characterCreatorDialog',
+            targetEvent: evt,
+            clickOutsideToClose: true,
+            fullscreen: $mdMedia('xs')
+        }).then(function() { 
             $scope.addCharaBox.sending = false;
         })
     }
