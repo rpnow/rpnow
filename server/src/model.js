@@ -17,11 +17,11 @@ const addCharaSchema = nJ({
 const addMessageSchema = nJ({
     'content': [ String, config.get('maxMessageContentLength') ],
     'type': [ 'narrator', 'chara', 'ooc' ],
-    'charaId': (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined,
+    'charaId': (msg)=> msg.type === 'chara' ? [ Number.isInteger, 0, Infinity ] : undefined,
     'challenge': [ String, 128 ]
 });
 const editMessageSchema = nJ({
-    'id': [ Number, 0, Infinity ],
+    'id': [ Number.isInteger, 0, Infinity ],
     'content': [ String, config.get('maxMessageContentLength') ],
     'secret': [ String, 64 ]
 });

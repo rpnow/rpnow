@@ -21,6 +21,15 @@ const msgSchema = nJ({
     ipid: [String],
     challenge: [String]
 });
+const editedMsgSchema = nJ({
+    type: ['narrator', 'chara', 'ooc'],
+    content: [String, 10000],
+    charaId: (msg)=> msg.type === 'chara' ? [ Number, 0, Infinity ] : undefined,
+    timestamp: [Number],
+    ipid: [String],
+    challenge: [String],
+    edited: [Number]
+});
 const imageMsgSchema = nJ({
     type: ['image'],
     url: [String],
@@ -171,7 +180,16 @@ describe("basic socket.io message coverage", () => {
             expect(data.url).toEqual(url);
             done();
         })
-    })
+    });
+
+    it("edits a message", (done) => {
+        let input = { id: 0, content: 'Edited!', secret: challenge.secret };
+        socket.emit('edit message', input, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(data).toFitSchema(editedMsgSchema);
+            done();
+        });
+    });
 
     it("closes its connection", (done) => {
         socket.on('disconnect', () => {
@@ -299,6 +317,39 @@ describe("Malformed data resistance within an RP", () => {
     ].forEach(badUrl => {
         it(`rejects image with bad url: '${badUrl}'`, (done) => {
             socket.emit('add image', badUrl, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
+                done();
+            });
+        });
+    });
+    
+    [undefined, null, false, true, {}, [], '0', -1, 2, 0.5, -0.5].forEach(badId => {
+        it(`rejects edits with bad id: '${badId}'`, (done) => {
+            let input = { id: badId, content: 'Edited!', secret: challenge.secret };
+            socket.emit('edit message', input, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
+                done();
+            });
+        });
+    });
+    
+    [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       '].forEach(badContent => {
+        it(`rejects edits with bad content: '${badContent}'`, (done) => {
+            let input = { id: 0, content: badContent, secret: challenge.secret };
+            socket.emit('edit message', input, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
+                done();
+            });
+        });
+    });
+    
+    [undefined, null, false, true, 0, 1, {}, [], '', ' ', '       '].forEach(badSecret => {
+        it(`rejects edits with bad challenge secret: '${badSecret}'`, (done) => {
+            let input = { id: 0, content: 'Edited!', secret: badSecret };
+            socket.emit('edit message', input, (err, data) => {
                 expect(err).toFitSchema(errorSchema);
                 expect(data).not.toBeDefined();
                 done();
