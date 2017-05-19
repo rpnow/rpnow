@@ -42,14 +42,14 @@ pipes.partials = () =>
     es.merge(gulp.src(paths.partials), pipes.mdToHtmlPartials())
 
 pipes.validatedPartials = () => pipes.partials()
-    // .pipe(plugins.htmlhint({'doctype-first': false}))
-    // .pipe(plugins.htmlhint.reporter())
+    .pipe(plugins.htmlhint({'doctype-first': false}))
+    .pipe(plugins.htmlhint.reporter())
 
 pipes.builtPartialsDev = () => pipes.validatedPartials()
     .pipe(gulp.dest(paths.distDev))
 
 pipes.scriptedPartials = () => pipes.validatedPartials()
-    // .pipe(plugins.htmlhint.failReporter())
+    .pipe(plugins.htmlhint.failReporter())
     .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
     .pipe(plugins.ngHtml2js({moduleName: "rpnow", prefix: "/", declareModule: false}))
 
