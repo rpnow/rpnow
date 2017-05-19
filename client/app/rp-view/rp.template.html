@@ -209,7 +209,7 @@
   </div>
 
   <!-- RIGHT DRAWER (FOR CHARACTERS) -->
-  <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && isRightDrawerLockedOpen" layout="column" id="rightDrawer">
+  <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && isRightDrawerLockedOpen" layout="column" id="rightDrawer" ng-hide="rp.loading">
     <md-toolbar md-colors="{background:nightMode?'background-900':'background-200'}">
       <div class="md-toolbar-tools" layout="row">
         <h2 md-truncate><md-icon>group</md-icon> All Characters</h2>
