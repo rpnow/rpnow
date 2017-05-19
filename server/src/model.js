@@ -156,7 +156,7 @@ module.exports.addImage = function(rpid, url, ipid, callback) {
 
     // validate image
     request.head(url, (err, res) => {
-        if (err) return callback({ code: 'URL_FAILED', details: err });
+        if (err) return callback({ code: 'URL_FAILED', details: err.message });
         if (!res.headers['content-type']) return callback({ code: 'UNKNOWN_CONTENT' });
         if (!res.headers['content-type'].startsWith('image/')) return callback({code: 'BAD_CONTENT'});
 

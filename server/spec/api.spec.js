@@ -21,6 +21,12 @@ const msgSchema = nJ({
     ipid: [String],
     challenge: [String]
 });
+const imageMsgSchema = nJ({
+    type: ['image'],
+    url: [String],
+    timestamp: [Number],
+    ipid: [String]
+});
 const rpCodeSchema = nJ({
     rpCode: [ String ]
 });
@@ -157,6 +163,16 @@ describe("basic socket.io message coverage", () => {
         });
     });
 
+    it("accepts image", (done) => {
+        let url = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
+        socket.emit('add image', url, (err, data) => {
+            expect(err).toBeFalsy();
+            expect(data).toFitSchema(imageMsgSchema);
+            expect(data.url).toEqual(url);
+            done();
+        })
+    })
+
     it("closes its connection", (done) => {
         socket.on('disconnect', () => {
             done();
@@ -234,7 +250,7 @@ describe("Malformed data resistance within an RP", () => {
         });
     });
     
-    [undefined, null, false, true, 0, 1, {}, [], '', ' ', 'oooc', 'oocc', 'ooc   ', 'OOC', 'oocnarrator'].forEach(badType => {
+    [undefined, null, false, true, 0, 1, {}, [], '', ' ', 'oooc', 'oocc', 'ooc   ', 'OOC', 'oocnarrator', 'image'].forEach(badType => {
         it(`rejects message with bad type: '${badType}'`, (done) => {
             socket.emit('add message', { type: badType, content: 'Hello', challenge: challenge.hash }, (err, data) => {
                 expect(err).toFitSchema(errorSchema);
@@ -243,7 +259,7 @@ describe("Malformed data resistance within an RP", () => {
             });
         });
     });
-    
+
     [undefined, null, false, true, {}, [], '0', -1, 1, 0.5, -0.5].forEach(badCharaId => {
         it(`rejects message with bad charaId: '${badCharaId}'`, (done) => {
             socket.emit('add message', { type: 'chara', charaId: badCharaId, content: 'Hello' }, (err, data) => {
@@ -272,6 +288,20 @@ describe("Malformed data resistance within an RP", () => {
                     expect(data).not.toBeDefined();
                     done();
                 });
+            });
+        });
+    });
+
+    [
+        undefined, null, false, true, 0, 1, {}, [], '', ' ', '       ',
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAhElEQVRIie2WwQrAIAxDU/H/fzk7CdHVwdYWdjCXipQX04NqJIlCdVkbAG5q2EAh3NSQgUJCJxaeAaAm+DqONaEpp22a3mgCrrwmTVG5jIwEj8pM4HKa15WpY3AM/m3AagOrNrglyLouJp4aZF1400u4vmhZJmMa7IiPxvsojH1Y9bflAvhRIjH91XRBAAAAAElFTkSuQmC',
+        'http://baduri'
+    ].forEach(badUrl => {
+        it(`rejects image with bad url: '${badUrl}'`, (done) => {
+            socket.emit('add image', badUrl, (err, data) => {
+                expect(err).toFitSchema(errorSchema);
+                expect(data).not.toBeDefined();
+                done();
             });
         });
     });
