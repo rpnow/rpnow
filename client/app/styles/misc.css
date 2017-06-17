@@ -20,17 +20,17 @@
 .dark .hovershade:hover {
     background-color: rgba(255,255,255,0.3);
 }
-a.link {
+a.link, article a {
     text-decoration: none;
     border-bottom: 1px dotted rgb(124, 77, 255);
     color: rgb(124, 77, 255);
     opacity: 0.87;
 }
-.dark a.link {
+.dark a.link, .dark article a {
     color: rgb(255,193,7);
     border-bottom-color: rgb(255,193,7);
 }
-a.link:hover {
+a.link:hover, .dark a:hover {
     opacity: 1;
 }
 article {

@@ -39,10 +39,10 @@
           <p>Show message details</p>
           <md-checkbox ng-model="showMessageDetails"></md-checkbox>
         </md-list-item>
-        <md-list-item ng-click="nightMode = !nightMode" title="Display the site in a darker color scheme">
+        <md-list-item ng-click="$root.nightMode = !$root.nightMode" title="Display the site in a darker color scheme">
           <md-icon>brightness_4</md-icon>
           <p>Night mode</p>
-          <md-checkbox ng-model="nightMode"></md-checkbox>
+          <md-checkbox ng-model="$root.nightMode"></md-checkbox>
         </md-list-item>
 
         <md-divider></md-divider>
@@ -132,7 +132,7 @@
         <div ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails, 'message-mine': rp.canEdit(msg) }" ng-style="{'background-color': chara(msg)?chara(msg).color:'auto', 'color': chara(msg)?(chara(msg).color | contrastColor):'' }">
           <div ng-if="msg.type === 'chara'" class="name">{{chara(msg).name}}</div>
           <div class="message-details noselect" ng-if="msg.sending">
-            <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(chara(msg)? ((chara(msg).color | contrastColor) === 'white') : (nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
+            <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(chara(msg)? ((chara(msg).color | contrastColor) === 'white') : ($root.nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
           </div>
           <div class="message-details noselect" ng-if="!msg.sending" ng-show="!msg.editing">
             <span class="timestamp" moment-ago-short="msg.timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-if="msg.timestamp"></span>
@@ -196,7 +196,7 @@
       </header>
 
       <!-- MESSAGE BOX BODY -->
-      <div ng-style="{'color': nightMode? 'white':'black', 'background-color':nightMode?'#303030':'white', opacity:0.7}">
+      <div ng-style="{'color': $root.nightMode? 'white':'black', 'background-color':$root.nightMode?'#303030':'white', opacity:0.7}">
         <div layout="row" layout-align="center center" class="message-box-inner-row">
           <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
           <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="(msgBox.isValid() && isDesktopMode)?{'background-color': color(msgBox.voice), 'color': (color(msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="!msgBox.isValid()">
@@ -210,7 +210,7 @@
 
   <!-- RIGHT DRAWER (FOR CHARACTERS) -->
   <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && isRightDrawerLockedOpen" layout="column" id="rightDrawer" ng-hide="rp.loading || rp.loadError">
-    <md-toolbar md-colors="{background:nightMode?'background-900':'background-200'}">
+    <md-toolbar md-colors="{background:$root.nightMode?'background-900':'background-200'}">
       <div class="md-toolbar-tools" layout="row">
         <h2 md-truncate><md-icon>group</md-icon> All Characters</h2>
         <span flex></span>
@@ -219,7 +219,7 @@
         </md-button>
       </div>
     </md-toolbar>
-    <md-content flex md-colors="{background:nightMode?'background-900':'background-200'}">
+    <md-content flex md-colors="{background:$root.nightMode?'background-900':'background-200'}">
       <md-list>
         <md-list-item ng-click="setVoice('narrator')">
           <md-icon>local_library</md-icon> <p>Narrator</p>
@@ -270,7 +270,7 @@
         <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
       </md-dialog-content>
       <md-dialog-content ng-hide="imagePostBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
-        <md-input-container ng-class="nightMode? 'md-hue-3':'md-hue-2'">
+        <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
           <label>Enter an image URL:</label>
           <input ng-model="imagePostBox.url" ng-trim="true" md-autofocus>
         </md-input-container>
@@ -300,12 +300,12 @@
         <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
       </md-dialog-content>
       <md-dialog-content ng-hide="addCharaBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
-        <md-input-container ng-class="nightMode? 'md-hue-3':'md-hue-2'">
+        <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
           <label>Name this character:</label>
           <input ng-model="addCharaBox.name" maxlength="{{MAX_CHARA_NAME_LENGTH}}" md-autofocus>
         </md-input-container>
         <color-picker ng-model="addCharaBox.color" aria-hidden="true"></color-picker>
-        <md-input-container ng-class="nightMode? 'md-hue-3':'md-hue-2'">
+        <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
           <input ng-model="addCharaBox.color" maxlength="7" aria-label="Character color hex code">
         </md-input-container>
 

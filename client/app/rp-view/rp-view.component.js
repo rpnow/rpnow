@@ -18,7 +18,7 @@ angular.module('rpnow')
     controller: 'RpController'
 })
 
-.controller('RpController', ['$scope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, rpService, saveRpService) {
+.controller('RpController', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, rpService, saveRpService) {
     $scope.MAX_CHARA_NAME_LENGTH  = 30;
     $scope.MAX_MSG_CONTENT_LENGTH = 10000;
 
@@ -82,8 +82,8 @@ angular.module('rpnow')
         // msg
         if (voice.content) voice = (voice.type === 'chara') ? voice.charaId : voice.type;
         // other
-        if (voice === 'narrator') return $scope.nightMode? '#444444':'#ffffff'; 
-        if (voice === 'ooc') return $scope.nightMode? '#303030':'#fafafa'; 
+        if (voice === 'narrator') return $rootScope.nightMode? '#444444':'#ffffff'; 
+        if (voice === 'ooc') return $rootScope.nightMode? '#303030':'#fafafa'; 
         if (voice >= 0) {
             if (!$scope.rp.charas) return '';
             voice = $scope.rp.charas[voice];
@@ -238,7 +238,6 @@ angular.module('rpnow')
     $scope.pressEnterToSend = true;
     $scope.notificationNoise = 1;
     $scope.showMessageDetails = true;
-    $scope.nightMode = false;
 
     $scope.toggleLeftDrawer = function() {
         $mdSidenav('left').toggle();
@@ -325,7 +324,7 @@ angular.module('rpnow')
     // recall these values if they have been saved in localStorage
     // otherwise use the defaults defined earlier in the controller
     if (localStorageService.isSupported) {
-        ['downloadOOC', 'pressEnterToSend', 'notificationNoise', 'showMessageDetails', 'nightMode', 'addCharaBox.color', 'charaListDocked']
+        ['downloadOOC', 'pressEnterToSend', 'notificationNoise', 'showMessageDetails', 'addCharaBox.color', 'charaListDocked']
         .forEach(function(option) {
             var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
             localStorageService.bind($scope, option, initVal);

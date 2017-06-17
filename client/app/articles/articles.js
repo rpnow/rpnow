@@ -6,7 +6,7 @@ angular.module('rpnow')
     $stateProvider.state({
         name: 'terms',
         url: '/terms',
-        template:`<article ng-include="'/articles/terms.template.html'"></article>`,
+        template:`<md-content><article ng-include="'/articles/terms.template.html'"></article></md-content>`,
         meta: {
             title: 'Terms of Use | RPNow'
         }
@@ -14,7 +14,7 @@ angular.module('rpnow')
     .state({
         name: 'about',
         url: '/about',
-        template:`<article ng-include="'/articles/about.template.html'"></article>`,
+        template:`<md-content><article ng-include="'/articles/about.template.html'"></article></md-content>`,
         meta: {
             title: 'About | RPNow'
         }
@@ -22,7 +22,7 @@ angular.module('rpnow')
     .state({
         name: '404',
         url: '*path',
-        template:`<article ng-include="'/articles/404.template.html'"></article>`,
+        template:`<md-content><article ng-include="'/articles/404.template.html'"></article></md-content>`,
         meta: {
             title: 'Not Found | RPNow'
         },
