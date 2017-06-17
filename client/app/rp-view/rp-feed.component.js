@@ -11,7 +11,8 @@ angular.module('rpnow')
 }])
 
 .component('rpFeed', {
-    template: `<span>The regular feed.</span>`,
+    templateUrl: '/rp-view/rp-feed.template.html',
+    template: ``,
     controller: 'RpFeedController'
 })
 

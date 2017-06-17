@@ -19,7 +19,7 @@ angular.module('rpnow')
     controller: 'RpController'
 })
 
-.controller('RpController', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, rpService, saveRpService) {
+.controller('RpController', ['$scope', '$rootScope', '$stateParams', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $rootScope, $stateParams, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, rpService, saveRpService) {
     $scope.MAX_CHARA_NAME_LENGTH  = 30;
     $scope.MAX_MSG_CONTENT_LENGTH = 10000;
 
@@ -27,7 +27,7 @@ angular.module('rpnow')
     var MAX_RECENT_MSG_COUNT = 200;
 
     $scope.url = location.href.split('#')[0];
-    $scope.rp = rpService();
+    $scope.rp = rpService($stateParams.rpCode);
 
     $scope.$watch('rp.loadError', function(loadError) {
         if (loadError) document.title = 'RP Not Found | RPNow';

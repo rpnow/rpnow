@@ -7,7 +7,7 @@ angular.module('rpnow')
 
     function RP(rpCode) {
         var rp = this;
-        rp.rpCode = rpCode || (location.href.split('#')[0]).split('/').pop();
+        rp.rpCode = rpCode;
         rp.loading = true;
         rp.loadError = null;
 

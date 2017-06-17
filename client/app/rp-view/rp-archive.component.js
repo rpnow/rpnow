@@ -11,7 +11,7 @@ angular.module('rpnow')
 }])
 
 .component('rpArchive', {
-    template: `<span>It's the archive.</span>`,
+    templateUrl: '/rp-view/rp-archive.template.html',
     controller: 'RpArchiveController'
 })
 
