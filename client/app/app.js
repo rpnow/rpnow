@@ -39,5 +39,4 @@ angular.module('rpnow', [
 
 .run(['$rootScope', 'localStorageService', function($rootScope, localStorageService) {
     localStorageService.bind($rootScope, 'nightMode', true);
-    setInterval(()=>console.log($rootScope.nightMode),500);
 }])
