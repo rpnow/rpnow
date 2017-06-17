@@ -101,6 +101,10 @@
             <md-tooltip ng-if="hasMouse">Invite friends</md-tooltip>
             <md-icon>mail</md-icon>
           </md-button>
+          <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" ui-sref="rp.archive({page:1})">
+            <md-tooltip ng-if="hasMouse">Read archive</md-tooltip>
+            <md-icon>import_contacts</md-icon>
+          </md-button>
           <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" ng-click="showDialog('#downloadDialog', $event)">
             <md-tooltip ng-if="hasMouse">Download RP</md-tooltip>
             <md-icon>cloud_download</md-icon>
@@ -127,6 +131,7 @@
     </md-toolbar>
 
     <!-- MESSAGES PANE -->
+    <ui-view></ui-view>
     <md-content flex layout="column" scroll-glue="isStoryGlued">
       <div id="message-container">
         <div ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails, 'message-mine': rp.canEdit(msg) }" ng-style="{'background-color': chara(msg)?chara(msg).color:'auto', 'color': chara(msg)?(chara(msg).color | contrastColor):'' }">

@@ -1,4 +1,4 @@
-html[state="rp"], html[state="rp"] body {
+html[state^="rp"], html[state^="rp"] body {
     /* prevent weird scrolling issues on mobile */
     overflow: hidden;
     max-width: 100vw;

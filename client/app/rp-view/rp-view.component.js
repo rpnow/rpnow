@@ -6,6 +6,7 @@ angular.module('rpnow')
     $stateProvider.state({
         name: 'rp',
         url: '/rp/:rpCode',
+        abstract: true,
         component: 'rpView',
         meta: {
             title: 'Loading RP... | RPNow'
