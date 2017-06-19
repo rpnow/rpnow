@@ -1,0 +1,34 @@
+<div class="message message-{{$ctrl.msg.type}}" ng-class="{'message-sending': $ctrl.msg.sending, 'message-slim': !$ctrl.showDetails, 'message-mine': $ctrl.msg.canEdit }" ng-style="{'background-color': $ctrl.msg.color||'auto', 'color': $ctrl.msg.chara?($ctrl.msg.color|contrastColor):'' }">
+  <div ng-if="$ctrl.msg.chara" class="name">{{$ctrl.msg.chara.name}}</div>
+  <div class="message-details noselect" ng-if="$ctrl.msg.sending">
+    <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="($ctrl.msg.color? (($ctrl.msg.color | contrastColor) === 'white') : ($root.nightMode))? 'md-hue-3':'md-hue-2'" ng-if="$ctrl.msg.sending"></md-progress-circular>
+  </div>
+  <div class="message-details noselect" ng-if="!$ctrl.msg.sending" ng-show="!$ctrl.editing">
+    <span class="timestamp" moment-ago-short="$ctrl.msg.timestamp" title="Posted {{$ctrl.msg.timestamp | momentAgo}}" ng-if="$ctrl.msg.timestamp"></span>
+    <span class="edited-text" ng-if="$ctrl.msg.edited" title="Edited {{$ctrl.msg.edited | momentAgo}}">(Edited)</span>
+    <span class="color-ip-box" title="User color ID" ng-if="$ctrl.msg.ipid">
+      <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+$ctrl.msg.ipid.substr(i,6)}"></span>
+    </span>
+  </div>
+  <div class="action-buttons noselect" layout="row" ng-if="$ctrl.msg.canEdit && !$ctrl.msg.sending">
+    <md-button class="md-icon-button" ng-if="!$ctrl.editing" ng-click="$ctrl.beginEdit()">
+      <md-tooltip ng-if="hasMouse" md-direction="right">Edit post</md-tooltip>
+      <md-icon>edit</md-icon>
+    </md-button>
+    <md-button class="md-icon-button" ng-if="$ctrl.editing" ng-click="$ctrl.confirmEdit()">
+      <md-tooltip ng-if="hasMouse" md-direction="top">Save edits</md-tooltip>
+      <md-icon>save</md-icon>
+    </md-button>
+    <md-button class="md-icon-button" ng-if="$ctrl.editing" ng-click="$ctrl.cancelEdit(msg)">
+      <md-tooltip ng-if="hasMouse" md-direction="top">Discard edits</md-tooltip>
+      <md-icon>cancel</md-icon>
+    </md-button>
+  </div>
+  <div ng-if="$ctrl.msg.type !== 'image' && !$ctrl.editing" class="content" ng-bind-html="$ctrl.msg.content | msgContent:($ctrl.msg.color)"></div>
+  <textarea ng-if="$ctrl.editing" class="content" ng-model="$ctrl.newContent" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" rows="4"></textarea>
+  <div ng-if="$ctrl.msg.type === 'image'" class="content">
+    <a href="{{$ctrl.msg.url}}" target="_blank">
+      <img ng-src="{{$ctrl.msg.url}}"/>
+    </a>
+  </div>
+</div>

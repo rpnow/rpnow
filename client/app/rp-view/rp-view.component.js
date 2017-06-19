@@ -213,21 +213,6 @@ angular.module('rpnow')
     $scope.downloadDocx = function() {
         saveRpService.saveDocx($scope.rp, $scope.downloadOOC);
     };
-
-    $scope.beginEdit = function(msg) {
-        msg.editing = true;
-        msg.newContent = msg.content;
-    };
-    $scope.cancelEdit = function(msg) {
-        msg.editing = false;
-    };
-    $scope.confirmEdit = function(msg) {
-        var data = { id: id(msg), content: msg.newContent };
-        $scope.rp.editMessage(data);
-        msg.content = msg.newContent;
-        msg.editing = false;
-        msg.sending = true;
-    };
     
     $scope.allNoises = pageAlerts.allNoises;
     $scope.openNoiseSelector = function() {

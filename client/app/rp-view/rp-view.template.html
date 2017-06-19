@@ -134,40 +134,7 @@
     <ui-view></ui-view>
     <md-content flex layout="column" scroll-glue="isStoryGlued">
       <div id="message-container">
-        <div ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" class="message message-{{msg.type}}" ng-class="{'message-sending': msg.sending, 'message-slim': !showMessageDetails, 'message-mine': rp.canEdit(msg) }" ng-style="{'background-color': chara(msg)?chara(msg).color:'auto', 'color': chara(msg)?(chara(msg).color | contrastColor):'' }">
-          <div ng-if="msg.type === 'chara'" class="name">{{chara(msg).name}}</div>
-          <div class="message-details noselect" ng-if="msg.sending">
-            <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="(chara(msg)? ((chara(msg).color | contrastColor) === 'white') : ($root.nightMode))? 'md-hue-3':'md-hue-2'" ng-if="msg.sending"></md-progress-circular>
-          </div>
-          <div class="message-details noselect" ng-if="!msg.sending" ng-show="!msg.editing">
-            <span class="timestamp" moment-ago-short="msg.timestamp" title="Posted {{msg.timestamp | momentAgo}}" ng-if="msg.timestamp"></span>
-            <span class="edited-text" ng-if="msg.edited" title="Edited {{msg.edited | momentAgo}}">(Edited)</span>
-            <span class="color-ip-box" title="User color ID" ng-if="msg.ipid">
-              <span ng-repeat="i in [0,6,12]" ng-style="{'background-color':'#'+msg.ipid.substr(i,6)}"></span>
-            </span>
-          </div>
-          <div class="action-buttons noselect" layout="row" ng-if="rp.canEdit(msg) && !msg.sending">
-            <md-button class="md-icon-button" ng-if="!msg.editing" ng-click="beginEdit(msg)">
-              <md-tooltip ng-if="hasMouse" md-direction="right">Edit post</md-tooltip>
-              <md-icon>edit</md-icon>
-            </md-button>
-            <md-button class="md-icon-button" ng-if="msg.editing" ng-click="confirmEdit(msg)">
-              <md-tooltip ng-if="hasMouse" md-direction="top">Save edits</md-tooltip>
-              <md-icon>save</md-icon>
-            </md-button>
-            <md-button class="md-icon-button" ng-if="msg.editing" ng-click="cancelEdit(msg)">
-              <md-tooltip ng-if="hasMouse" md-direction="top">Discard edits</md-tooltip>
-              <md-icon>cancel</md-icon>
-            </md-button>
-          </div>
-          <div ng-if="msg.type !== 'image' && !msg.editing" class="content" ng-bind-html="msg.content | msgContent:(chara(msg)&&chara(msg).color)"></div>
-          <textarea ng-if="msg.editing" class="content" ng-model="msg.newContent" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" rows="4"></textarea>
-          <div ng-if="msg.type === 'image'" class="content">
-            <a href="{{msg.url}}" target="_blank">
-              <img ng-src="{{msg.url}}"/>
-            </a>
-          </div>
-        </div>
+        <rp-message ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" msg="msg" show-details="showMessageDetails"></rp-message>
       </div>
     </md-content>
 
