@@ -10,34 +10,40 @@ angular.module('rpnow')
         component: 'rpView',
         meta: {
             title: 'Loading RP... | RPNow'
+        },
+        resolve: {
+            rp: ['rpService', '$stateParams', function(rpService, $stateParams) {
+                return rpService.rp($stateParams.rpCode);
+            }]
         }
     })
 }])
 
 .component('rpView', {
     templateUrl: '/rp-view/rp-view.template.html',
-    controller: 'RpController'
+    controller: 'RpController',
+    bindings: {
+        rp: '<'
+    }
 })
 
-.controller('RpController', ['$scope', '$rootScope', '$stateParams', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'rpService', 'saveRpService', function($scope, $rootScope, $stateParams, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, rpService, saveRpService) {
-    $scope.MAX_CHARA_NAME_LENGTH  = 30;
-    $scope.MAX_MSG_CONTENT_LENGTH = 10000;
+.controller('RpController', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {
+    const $ctrl = this;
+    
+    $ctrl.MAX_CHARA_NAME_LENGTH  = 30;
+    $ctrl.MAX_MSG_CONTENT_LENGTH = 10000;
 
-    var RECENT_MSG_COUNT = 100;
-    var MAX_RECENT_MSG_COUNT = 200;
+    $ctrl.$onInit = function() {
+        $ctrl.inviteUrl = location.href.split('#')[0];
 
-    $scope.url = location.href.split('#')[0];
-    $scope.rp = rpService($stateParams.rpCode);
+        document.title = $ctrl.rp.title + ' | RPNow';
 
-    $scope.$watch('rp.loadError', function(loadError) {
-        if (loadError) document.title = 'RP Not Found | RPNow';
-    });
+        console.log('onInit: ', $ctrl.rp);
+    }
+}])
 
-    $scope.$watch('rp.title', function(rpTitle) {
-        if (rpTitle) document.title = rpTitle + ' | RPNow';
-    });
+.controller('RpControllerOld', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {
 
-    $scope.isStoryGlued = true;
     // for SOME REASON this makes scrollglue work properly again
     //  my best guess? view changes are happening AFTER scrollglue tries
     //  to move the scrolling content, so it doesn't scroll the rest of
@@ -48,7 +54,6 @@ angular.module('rpnow')
     $scope.$watchCollection('rp.msgs', checkScrollHeight);
     function checkScrollHeight() { $timeout(() => {},100); }
 
-    $scope.numMsgsToShow = RECENT_MSG_COUNT;
     $scope.$watch('rp.msgs.length', function(newLength, oldLength) {
         if (!(newLength > oldLength)) return;
 

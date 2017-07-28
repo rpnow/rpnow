@@ -3,13 +3,13 @@
 angular.module('rpnow')
 
 .factory('rpService', ['$http', 'io', 'localStorageService', function($http, io, localStorageService) {
-    return function(rpCode) { return new RP(rpCode); };
+    return {
+        rp: (rpCode) => new Promise(rpPromiseHandler.bind(null, rpCode))
+    };
 
-    function RP(rpCode) {
-        var rp = this;
+    function rpPromiseHandler(rpCode, resolve, reject) {
+        var rp = {};
         rp.rpCode = rpCode;
-        rp.loading = true;
-        rp.loadError = null;
 
         var socket = io('/', { query: 'rpCode='+rp.rpCode });
 
@@ -73,16 +73,15 @@ angular.module('rpnow')
         }
 
         socket.on('rp error', function(err) {
-            rp.loading = false;
-            rp.loadError = err.code;
+            reject(err.code)
         })
 
         socket.on('load rp', function(data) {
-            rp.loading = false;
             for (var prop in data) {
                 rp[prop] = data[prop];
             }
             rp.msgs = rp.msgs.map(msg => new Message(msg));
+            resolve(rp);
         });
 
         socket.on('add message', function(msg) {

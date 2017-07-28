@@ -6,16 +6,31 @@ angular.module('rpnow')
     $stateProvider.state({
         name: 'rp.feed',
         url: '',
-        component: 'rpFeed'
+        component: 'rpFeed',
+        resolve: {
+            msgs: ['rp', rp => rp.msgs]
+        }
     })
 }])
 
 .component('rpFeed', {
     templateUrl: '/rp-view/rp-feed.template.html',
     template: ``,
-    controller: 'RpFeedController'
+    controller: 'RpFeedController',
+    bindings: {
+        msgs: '<'
+    }
 })
 
 .controller('RpFeedController', [function() {
-    console.log('feed');
+    const $ctrl = this;
+
+    var RECENT_MSG_COUNT = 100;
+    var MAX_RECENT_MSG_COUNT = 200;
+
+    $ctrl.$onInit = function() {
+        $ctrl.isStoryGlued = true;
+        $ctrl.numMsgsToShow = RECENT_MSG_COUNT;
+        console.log('feed:', $ctrl.msgs);
+    };
 }])
