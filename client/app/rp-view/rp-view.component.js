@@ -248,8 +248,6 @@ angular.module('rpnow')
         $scope.imagePostBox.sending = true;
     }
 
-    $scope.downloadOOC = true;
-    
     $scope.allNoises = pageAlerts.allNoises;
     $scope.openNoiseSelector = function() {
         $timeout(function() {
@@ -330,18 +328,6 @@ angular.module('rpnow')
     $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
         $scope.isDesktopMode = desktop;
     });
-
-    // detect if the user is primarily using touch or a mouse,
-    //  guessing according to which the window notices first
-    //  used to decide whether to show tooltips or not
-    $scope.hasMouse = undefined;
-    window.addEventListener('touchstart', detectEvent);
-    window.addEventListener('mousemove', detectEvent);
-    function detectEvent(evt) {
-        window.removeEventListener('touchstart', detectEvent);
-        window.removeEventListener('mousemove', detectEvent);
-        $scope.hasMouse = (evt.type === 'mousemove');
-    }
 
     // recall these values if they have been saved in localStorage
     // otherwise use the defaults defined earlier in the controller

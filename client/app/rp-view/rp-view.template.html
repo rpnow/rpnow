@@ -88,25 +88,25 @@
       <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
         <div class="left-buttons">
           <md-button class="md-icon-button" aria-label="Main menu" ng-click="toggleLeftDrawer()">
-            <md-tooltip ng-if="hasMouse">Main menu</md-tooltip>
+            <md-tooltip ng-if="$root.hasMouse">Main menu</md-tooltip>
             <md-icon>menu</md-icon>
           </md-button>
         </div>
         <h1 class="md-truncate">
-          <md-tooltip ng-if="hasMouse && rp.desc">{{rp.desc}}</md-tooltip>
+          <md-tooltip ng-if="$root.hasMouse && rp.desc">{{rp.desc}}</md-tooltip>
           {{$ctrl.rp.title}}
         </h1>
         <div class="right-buttons" layout="row" layout-align="end center">
           <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" id="inviteButton" ng-click="$ctrl.showInviteDialog($event)">
-            <md-tooltip ng-if="hasMouse">Invite friends</md-tooltip>
+            <md-tooltip ng-if="$root.hasMouse">Invite friends</md-tooltip>
             <md-icon>mail</md-icon>
           </md-button>
           <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" ui-sref="rp.archive({page:1})">
-            <md-tooltip ng-if="hasMouse">Read archive</md-tooltip>
+            <md-tooltip ng-if="$root.hasMouse">Read archive</md-tooltip>
             <md-icon>import_contacts</md-icon>
           </md-button>
           <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" ng-click="$ctrl.showDownloadDialog($event)">
-            <md-tooltip ng-if="hasMouse">Download RP</md-tooltip>
+            <md-tooltip ng-if="$root.hasMouse">Download RP</md-tooltip>
             <md-icon>cloud_download</md-icon>
           </md-button>
           <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
@@ -144,7 +144,7 @@
       <header class="noselect">
         <div layout="row" layout-align="center center" class="message-box-inner-row">
           <div flex layout="row" layout-align="start center" ng-click="isRightDrawerVisible || toggleRightDrawer()" id="voiceChangeBar" ng-class="{hovershade:!isRightDrawerVisible}">
-            <md-tooltip ng-if="hasMouse && !isRightDrawerVisible" md-direction="top">Change character</md-tooltip>
+            <md-tooltip ng-if="$root.hasMouse && !isRightDrawerVisible" md-direction="top">Change character</md-tooltip>
             <span ng-if="msgBox.voice === 'narrator'" class="md-truncate">
               <md-icon>local_library</md-icon> <span>Narrator</span>
             </span>
@@ -161,7 +161,7 @@
             <span flex></span>
           </div>
           <md-button class="md-icon-button" aria-label="Post image" ng-click="showDialog('#imagePostDialog', $event)">
-            <md-tooltip ng-if="hasMouse" md-direction="top">Post image</md-tooltip>
+            <md-tooltip ng-if="$root.hasMouse" md-direction="top">Post image</md-tooltip>
             <md-icon>image</md-icon>
           </md-button>
         </div>

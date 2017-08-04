@@ -40,3 +40,17 @@ angular.module('rpnow', [
 .run(['$rootScope', 'localStorageService', function($rootScope, localStorageService) {
     localStorageService.bind($rootScope, 'nightMode', true);
 }])
+
+// detect if the user is primarily using touch or a mouse,
+//  guessing according to which the window notices first
+//  used to decide whether to show tooltips or not
+.run(['$rootScope', function($rootScope) {
+    $rootScope.hasMouse = undefined;
+    window.addEventListener('touchstart', detectEvent);
+    window.addEventListener('mousemove', detectEvent);
+    function detectEvent(evt) {
+        window.removeEventListener('touchstart', detectEvent);
+        window.removeEventListener('mousemove', detectEvent);
+        $rootScope.hasMouse = (evt.type === 'mousemove');
+    }
+}])
