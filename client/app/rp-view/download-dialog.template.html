@@ -1,0 +1,26 @@
+<md-dialog>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><md-icon>cloud_download</md-icon> Download RP</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="$ctrl.hide()" title="Close">
+        <md-icon>close</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="md-dialog-content">
+    <md-checkbox ng-model="$ctrl.downloadOOC" aria-label="Include OOC messages" title="Include out-of-character messages">
+      Include OOC messages
+    </md-checkbox>
+    <md-dialog-actions layout="row">
+      <md-button class="md-raised md-accent" ng-click="$ctrl.downloadTxt()" title="A plain, unformatted text file">
+        <md-icon>file_download</md-icon>
+          .TXT
+      </md-button>
+      <md-button class="md-raised md-accent" ng-click="$ctrl.downloadDocx()" title="A document suitable for editing in a word processor, such as Microsoft Word or LibreOffice">
+        <md-icon>file_download</md-icon>
+          .DOCX
+      </md-button>
+    </md-dialog-actions>
+  </md-dialog-content>
+</md-dialog>

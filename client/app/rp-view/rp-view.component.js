@@ -27,7 +27,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {
+.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', function($timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService) {
     const $ctrl = this;
     
     $ctrl.MAX_CHARA_NAME_LENGTH  = 30;
@@ -56,6 +56,21 @@ angular.module('rpnow')
             }),
             controllerAs: '$ctrl',
             templateUrl: '/rp-view/invite-dialog.template.html',
+            parent: angular.element(document.body),
+            targetEvent: evt,
+            clickOutsideToClose: true
+        });
+    }
+    $ctrl.showDownloadDialog = function(evt) {
+        return $mdDialog.show({
+            controller: ['saveRpService', function(saveRpService) {
+                this.hide = $ctrl.hideDialog;
+                this.downloadOOC = true;
+                this.downloadTxt = () => saveRpService.saveTxt($ctrl.rp, this.downloadOOC);
+                this.downloadDocx = () => saveRpService.saveDocx($ctrl.rp, this.downloadOOC)
+            }],
+            controllerAs: '$ctrl',
+            templateUrl: '/rp-view/download-dialog.template.html',
             parent: angular.element(document.body),
             targetEvent: evt,
             clickOutsideToClose: true
@@ -234,12 +249,6 @@ angular.module('rpnow')
     }
 
     $scope.downloadOOC = true;
-    $scope.downloadTxt = function() {
-        saveRpService.saveTxt($scope.rp, $scope.downloadOOC);
-    };
-    $scope.downloadDocx = function() {
-        saveRpService.saveDocx($scope.rp, $scope.downloadOOC);
-    };
     
     $scope.allNoises = pageAlerts.allNoises;
     $scope.openNoiseSelector = function() {
