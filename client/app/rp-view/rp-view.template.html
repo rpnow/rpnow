@@ -160,7 +160,7 @@
             </span>
             <span flex></span>
           </div>
-          <md-button class="md-icon-button" aria-label="Post image" ng-click="showDialog('#imagePostDialog', $event)">
+          <md-button class="md-icon-button" aria-label="Post image" ng-click="$ctrl.showImageDialog($event)">
             <md-tooltip ng-if="$root.hasMouse" md-direction="top">Post image</md-tooltip>
             <md-icon>image</md-icon>
           </md-button>
@@ -224,36 +224,6 @@
   </md-sidenav>
 
 </section>
-
-<!-- IMAGE POST DIALOG-->
-<div style="visibility: hidden">
-  <div class="md-dialog-container" id="imagePostDialog">
-    <md-dialog>
-      <md-toolbar>
-        <div class="md-toolbar-tools">
-          <h2><md-icon>image</md-icon> Post Image</h2>
-          <span flex></span>
-          <md-button class="md-icon-button" ng-hide="imagePostBox.sending" ng-click="hideDialog()" title="Close">
-            <md-icon>close</md-icon>
-          </md-button>
-        </div>
-      </md-toolbar>
-      <md-dialog-content ng-show="imagePostBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
-        <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
-      </md-dialog-content>
-      <md-dialog-content ng-hide="imagePostBox.sending" class="md-dialog-content" layout="column" layout-align="center center">
-        <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
-          <label>Enter an image URL:</label>
-          <input ng-model="imagePostBox.url" ng-trim="true" md-autofocus>
-        </md-input-container>
-
-        <md-button class="md-raised md-accent" ng-click="sendImage()" ng-disabled="!imagePostBox.isValid()" title="Post the image">
-          <md-icon>check</md-icon> OK
-        </md-button>
-      </md-dialog-content>
-    </md-dialog>
-  </div>
-</div>
 
 <!-- CHARACTER CREATOR DIALOG-->
 <div style="visibility: hidden">

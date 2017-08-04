@@ -76,6 +76,46 @@ angular.module('rpnow')
             clickOutsideToClose: true
         });
     }
+    $ctrl.showImageDialog = function(evt) {
+        return $mdDialog.show({
+            controller: ['$mdDialog', '$mdToast', function($mdDialog, $mdToast) {
+                this.hide = () => $mdDialog.cancel();
+                this.url = '';
+                this.sending = false;
+
+                //https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
+                var urlRegexp = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi
+                this.isValid = () => this.url.match(urlRegexp);
+                
+                this.send = () => {
+                    $ctrl.rp.addImage(this.url, (err) => {
+                        this.sending = false;
+                        if (err) {
+                            var errMsg;
+                            if (err.code === 'URL_FAILED')
+                                errMsg = `Couldn't reach the site at: ${this.url}`
+                            else if (err.code === 'BAD_CONTENT')
+                                errMsg = `The content at "${this.url}" does not appear to be an image. Check the URL and try again.`;
+                            else
+                                errMsg = `An unknown error occurred! Server says: "${err.code}"`
+
+                            $mdToast.show($mdToast.simple().textContent(errMsg));
+                            return;
+                        }
+                        $mdDialog.hide();
+                        this.url = '';
+                    });
+                    this.sending = true;
+                }
+            }],
+            controllerAs: '$ctrl',
+            templateUrl: '/rp-view/image-dialog.template.html',
+            parent: angular.element(document.body),
+            targetEvent: evt,
+            clickOutsideToClose: true
+        });
+    }
+
     $ctrl.hideDialog = function() { $mdDialog.cancel(); };
 }])
 
@@ -216,37 +256,6 @@ angular.module('rpnow')
         $scope.addCharaBox.sending = true;
         $scope.addCharaBox.name = '';
     };
-
-    $scope.imagePostBox = {
-        url: '',
-        sending: false,
-        isValid: function() {
-            var url = $scope.imagePostBox.url;
-            var regexp = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi //https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
-            return url.match(regexp);
-        }
-    };
-    $scope.sendImage = function() {
-        var url = $scope.imagePostBox.url;
-        $scope.rp.addImage(url, function(err) {
-            $scope.imagePostBox.sending = false;
-            if (err) {
-                var errMsg;
-                if (err.code === 'URL_FAILED')
-                    errMsg = `Couldn't reach the site at: ${url}`
-                else if (err.code === 'BAD_CONTENT')
-                    errMsg = `The content at "${url}" does not appear to be an image. Check the URL and try again.`;
-                else
-                    errMsg = `An unknown error occurred! Server says: "${err.code}"`
-
-                $mdToast.show($mdToast.simple().textContent(errMsg));
-                return;
-            }
-            $mdDialog.hide();
-        });
-        $scope.imagePostBox.url = '';
-        $scope.imagePostBox.sending = true;
-    }
 
     $scope.allNoises = pageAlerts.allNoises;
     $scope.openNoiseSelector = function() {
