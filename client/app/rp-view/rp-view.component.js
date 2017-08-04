@@ -117,7 +117,6 @@ angular.module('rpnow')
                 return;
             }
             $mdDialog.hide();
-            this.url = '';
         });
         this.sending = true;
     }
