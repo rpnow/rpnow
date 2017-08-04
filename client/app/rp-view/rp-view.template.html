@@ -47,7 +47,7 @@
 
         <md-divider></md-divider>
 
-        <md-list-item ng-click="showDialog('#contactDialog', $event)" target="_blank" title="Get in touch with RPNow administration and support">
+        <md-list-item ng-click="$ctrl.showContactDialog($event)" title="Get in touch with RPNow administration and support">
           <md-icon>help</md-icon>
           <p>Contact RPNow</p>
         </md-list-item>
@@ -255,46 +255,6 @@
           <md-icon style="color:inherit">check</md-icon>
             OK
         </md-button>
-      </md-dialog-content>
-    </md-dialog>
-  </div>
-</div>
-
-<!-- CONTACT DIALOG-->
-<div style="visibility: hidden">
-  <div class="md-dialog-container" id="contactDialog">
-    <md-dialog>
-      <md-toolbar>
-        <div class="md-toolbar-tools">
-          <h2><md-icon>help</md-icon> Contact RPNow</h2>
-          <span flex></span>
-          <md-button class="md-icon-button" ng-click="hideDialog()" title="Close">
-            <md-icon>close</md-icon>
-          </md-button>
-        </div>
-      </md-toolbar>
-      <md-dialog-content class="md-dialog-content">
-        <p>Feel free to contact us with any questions or comments!</p>
-        <p title="E-mail RPNow">
-          <md-icon>mail</md-icon>
-          <a class="link" href="mailto:rpnow.net@gmail.com" target="_blank">rpnow.net@gmail.com</a>
-        </p>
-        <p title="RPNow on Facebook">
-          <md-icon md-svg-src="/assets/img/facebook.svg"></md-icon>
-          <a class="link" href="https://fb.me/rpnow.net" target="_blank">fb.me/rpnow.net</a>
-        </p>
-        <p title="RPNow on Twitter">
-          <md-icon md-svg-src="/assets/img/twitter.svg"></md-icon>
-          <a class="link" href="https://twitter.com/rpnow_net" target="_blank">@rpnow_net</a>
-        </p>
-        <p title="RPNow on Tumblr">
-          <md-icon md-svg-src="/assets/img/tumblr.svg"></md-icon>
-          <a class="link" href="https://rpnow.tumblr.com/" target="_blank">rpnow.tumblr.com</a>
-        </p>
-        <p title="RPNow on Discord">
-          <md-icon md-svg-src="/assets/img/discord.svg"></md-icon>
-          <a class="link" href="https://discord.gg/rGtKnHV" target="_blank">discord.gg/rGtKnHV</a>
-        </p>
       </md-dialog-content>
     </md-dialog>
   </div>

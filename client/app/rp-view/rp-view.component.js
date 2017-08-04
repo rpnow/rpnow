@@ -56,13 +56,6 @@ angular.module('rpnow')
         })
     }
 
-    $ctrl.showDialog = function(id, evt) {
-        return $mdDialog.show({
-            contentElement: id,
-            targetEvent: evt,
-            clickOutsideToClose: true
-        });
-    }
     $ctrl.showInviteDialog = function(evt) {
         return $mdDialog.show({
             controller: () => ({
@@ -86,6 +79,16 @@ angular.module('rpnow')
             }],
             controllerAs: '$ctrl',
             templateUrl: '/rp-view/download-dialog.template.html',
+            parent: angular.element(document.body),
+            targetEvent: evt,
+            clickOutsideToClose: true
+        });
+    }
+    $ctrl.showContactDialog = function(evt) {
+        return $mdDialog.show({
+            controller: () => ({ hide: $ctrl.hideDialog }),
+            controllerAs: '$ctrl',
+            templateUrl: '/rp-view/contact-dialog.template.html',
             parent: angular.element(document.body),
             targetEvent: evt,
             clickOutsideToClose: true
