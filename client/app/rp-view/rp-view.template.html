@@ -25,11 +25,11 @@
           <p>Press <kbd>Enter</kbd> to send</p>
           <md-checkbox ng-model="$ctrl.pressEnterToSend"></md-checkbox>
         </md-list-item>
-        <md-list-item title="Change the notification noise which will play when the tab is hidden, or just turn it off" ng-click="openNoiseSelector()">
+        <md-list-item title="Change the notification noise which will play when the tab is hidden, or just turn it off" ng-click="$ctrl.openNoiseSelector()">
           <md-icon>notifications</md-icon>
           <p>Notification noise</p>
           <md-select id="noiseSelector" ng-model="$ctrl.notificationNoise" class="md-no-underline" aria-label="Notification noise dropdown menu">
-            <md-option ng-repeat="noise in allNoises" ng-value="$index" ng-click="noise.audio.play()">
+            <md-option ng-repeat="noise in $ctrl.allNoises" ng-value="$index" ng-click="noise.audio.play()">
               {{noise.name}}
             </md-option>
           </md-select>
