@@ -8,7 +8,7 @@ angular.module('rpnow')
         url: '',
         component: 'rpFeed',
         resolve: {
-            msgs: ['rp', rp => rp.msgs],
+            msgs: ['rp', rp => rp.msgs]
         }
     })
 }])
