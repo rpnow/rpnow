@@ -27,7 +27,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpController', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {
+.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {
     const $ctrl = this;
     
     $ctrl.MAX_CHARA_NAME_LENGTH  = 30;
@@ -40,6 +40,23 @@ angular.module('rpnow')
 
         console.log('onInit: ', $ctrl.rp);
     }
+
+    $ctrl.showDialog = function(id, evt) {
+        return $mdDialog.show({
+            contentElement: id,
+            targetEvent: evt,
+            clickOutsideToClose: true
+        });
+    }
+    $ctrl.showInviteDialog = function(evt) {
+        return $mdDialog.show({
+            templateUrl: '/rp-view/invite-dialog.template.html',
+            parent: angular.element(document.body),
+            targetEvent: evt,
+            clickOutsideToClose: true
+        });
+    }
+    $ctrl.hideDialog = function() { $mdDialog.cancel(); };
 }])
 
 .controller('RpControllerOld', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {

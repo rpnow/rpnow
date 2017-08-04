@@ -92,12 +92,12 @@
             <md-icon>menu</md-icon>
           </md-button>
         </div>
-        <h1 md-truncate>
+        <h1 class="md-truncate">
           <md-tooltip ng-if="hasMouse && rp.desc">{{rp.desc}}</md-tooltip>
-          {{rp.title}}
+          {{$ctrl.rp.title}}
         </h1>
         <div class="right-buttons" layout="row" layout-align="end center">
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" id="inviteButton" ng-click="showDialog('#inviteDialog', $event)">
+          <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" id="inviteButton" ng-click="$ctrl.showInviteDialog($event)">
             <md-tooltip ng-if="hasMouse">Invite friends</md-tooltip>
             <md-icon>mail</md-icon>
           </md-button>
@@ -145,13 +145,13 @@
         <div layout="row" layout-align="center center" class="message-box-inner-row">
           <div flex layout="row" layout-align="start center" ng-click="isRightDrawerVisible || toggleRightDrawer()" id="voiceChangeBar" ng-class="{hovershade:!isRightDrawerVisible}">
             <md-tooltip ng-if="hasMouse && !isRightDrawerVisible" md-direction="top">Change character</md-tooltip>
-            <span ng-if="msgBox.voice === 'narrator'" md-truncate>
+            <span ng-if="msgBox.voice === 'narrator'" class="md-truncate">
               <md-icon>local_library</md-icon> <span>Narrator</span>
             </span>
-            <span ng-if="msgBox.voice === 'ooc'" md-truncate>
+            <span ng-if="msgBox.voice === 'ooc'" class="md-truncate">
               <md-icon>chat</md-icon> <span>Out of character</span>
             </span>
-            <span ng-if="msgBox.voice >= 0" md-truncate>
+            <span ng-if="msgBox.voice >= 0" class="md-truncate">
               <md-icon>person</md-icon>
               <span>{{chara(msgBox.voice).name}}</span>
             </span>
@@ -184,7 +184,7 @@
   <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && isRightDrawerLockedOpen" layout="column" id="rightDrawer" ng-hide="rp.loading || rp.loadError">
     <md-toolbar md-colors="{background:$root.nightMode?'background-900':'background-200'}">
       <div class="md-toolbar-tools" layout="row">
-        <h2 md-truncate><md-icon>group</md-icon> All Characters</h2>
+        <h2 class="md-truncate"><md-icon>group</md-icon> All Characters</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="toggleRightDrawer()" title="Close">
           <md-icon>close</md-icon>
@@ -209,14 +209,14 @@
         <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">Recent</md-subheader>
         <md-list-item ng-show="hasManyCharacters()" ng-repeat="chara in msgBox.recentCharas() | orderBy:'name'" ng-click="setVoice(id(chara))">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
-          <p md-truncate>{{chara.name}}</p>
+          <p class="md-truncate">{{chara.name}}</p>
           <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
         </md-list-item>
         <md-divider ng-show="hasManyCharacters()"></md-divider>
         <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">All Characters</md-subheader>
         <md-list-item ng-repeat="chara in rp.charas | orderBy:'name'" ng-click="setVoice(id(chara))">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
-          <p md-truncate>{{chara.name}}</p>
+          <p class="md-truncate">{{chara.name}}</p>
           <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
         </md-list-item>
       </md-list>
@@ -261,7 +261,7 @@
     <md-dialog>
       <md-toolbar>
         <div class="md-toolbar-tools">
-          <h2 md-truncate><md-icon>person_add</md-icon> New Character</h2>
+          <h2 class="md-truncate"><md-icon>person_add</md-icon> New Character</h2>
           <span flex></span>
           <md-button class="md-icon-button" ng-hide="addCharaBox.sending" ng-click="hideDialog()" title="Close">
             <md-icon>close</md-icon>
@@ -325,27 +325,6 @@
           <md-icon md-svg-src="/assets/img/discord.svg"></md-icon>
           <a class="link" href="https://discord.gg/rGtKnHV" target="_blank">discord.gg/rGtKnHV</a>
         </p>
-      </md-dialog-content>
-    </md-dialog>
-  </div>
-</div>
-
-<!-- INVITE DIALOG -->
-<div style="visibility: hidden">
-  <div class="md-dialog-container" id="inviteDialog">
-    <md-dialog>
-      <md-toolbar>
-        <div class="md-toolbar-tools">
-          <h2><md-icon>mail</md-icon> Invite Friends</h2>
-          <span flex></span>
-          <md-button class="md-icon-button" ng-click="hideDialog()" title="Close">
-            <md-icon>close</md-icon>
-          </md-button>
-        </div>
-      </md-toolbar>
-      <md-dialog-content class="md-dialog-content">
-        <p>To invite others to this RP, send them the following URL:</p>
-        <p><a class="link" href="{{inviteUrl}}">{{inviteUrl}}</a></p>
       </md-dialog-content>
     </md-dialog>
   </div>
