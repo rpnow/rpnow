@@ -3,13 +3,13 @@
     <div class="md-toolbar-tools">
       <h2><md-icon>mail</md-icon> Invite Friends</h2>
       <span flex></span>
-      <md-button class="md-icon-button" ng-click="hideDialog()" title="Close">
+      <md-button class="md-icon-button" ng-click="$ctrl.hide()" title="Close">
         <md-icon>close</md-icon>
       </md-button>
     </div>
   </md-toolbar>
   <md-dialog-content class="md-dialog-content">
     <p>To invite others to this RP, send them the following URL:</p>
-    <p><a class="link" href="{{inviteUrl}}">{{inviteUrl}}</a></p>
+    <p><a class="link" href="{{$ctrl.inviteUrl}}">{{$ctrl.inviteUrl}}</a></p>
   </md-dialog-content>
 </md-dialog>

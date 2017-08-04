@@ -50,6 +50,11 @@ angular.module('rpnow')
     }
     $ctrl.showInviteDialog = function(evt) {
         return $mdDialog.show({
+            controller: () => ({
+                hide: $ctrl.hideDialog,
+                inviteUrl: $ctrl.inviteUrl
+            }),
+            controllerAs: '$ctrl',
             templateUrl: '/rp-view/invite-dialog.template.html',
             parent: angular.element(document.body),
             targetEvent: evt,
