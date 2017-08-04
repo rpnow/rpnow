@@ -316,14 +316,6 @@ angular.module('rpnow')
         return $scope.rp.charas && $scope.rp.charas.length > 10;
     };
 
-    $scope.showDialog = function(id, evt) {
-        return $mdDialog.show({
-            contentElement: id,
-            targetEvent: evt,
-            clickOutsideToClose: true
-        });
-    }
-    $scope.hideDialog = function() { $mdDialog.cancel(); };
     $scope.showCharacterDialog = function(evt) {
         $timeout(function(x){$scope.msgBox.voice=x;},0,true,$scope.msgBox.voice);
         $mdDialog.show({
@@ -335,7 +327,6 @@ angular.module('rpnow')
             $scope.addCharaBox.sending = false;
         })
     }
-    $scope.viewMobileToolbarMenu = function($mdOpenMenu, evt) { $mdOpenMenu(evt); };
 
     $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
         $scope.isDesktopMode = desktop;

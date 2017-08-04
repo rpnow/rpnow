@@ -110,17 +110,22 @@
             <md-icon>cloud_download</md-icon>
           </md-button>
           <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
-            <md-button class="md-icon-button" title="RP options" ng-click="viewMobileToolbarMenu($mdOpenMenu, $event)">
+            <md-button class="md-icon-button" title="RP options" ng-click="$mdOpenMenu($event)">
               <md-icon md-menu-origin>expand_more</md-icon>
             </md-button>
             <md-menu-content>
               <md-menu-item>
-                <md-button ng-click="showDialog('#inviteDialog', $event)">
+                <md-button ng-click="$ctrl.showInviteDialog($event)">
                   <md-icon>mail</md-icon> Invite friends
                 </md-button>
               </md-menu-item>
               <md-menu-item>
-                <md-button ng-click="showDialog('#downloadDialog', $event)">
+                <md-button ui-sref="rp.archive({page:1})">
+                  <md-icon>import_contacts</md-icon> Invite friends
+                </md-button>
+              </md-menu-item>
+              <md-menu-item>
+                <md-button ng-click="$ctrl.showDownloadDialog($event)">
                   <md-icon>cloud_download</md-icon> Download RP
                 </md-button>
               </md-menu-item>
