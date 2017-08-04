@@ -5,7 +5,7 @@
     <md-toolbar layout="column">
       <div layout="row" class="md-toolbar-tools">
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="toggleLeftDrawer()" title="Close">
+        <md-button class="md-icon-button" ng-click="$ctrl.toggleLeftDrawer()" title="Close">
           <md-icon>close</md-icon>
         </md-button>
       </div>
@@ -20,24 +20,24 @@
 
         <md-divider></md-divider>
 
-        <md-list-item ng-click="pressEnterToSend = !pressEnterToSend" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
+        <md-list-item ng-click="$ctrl.pressEnterToSend = !$ctrl.pressEnterToSend" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
           <md-icon>send</md-icon>
           <p>Press <kbd>Enter</kbd> to send</p>
-          <md-checkbox ng-model="pressEnterToSend"></md-checkbox>
+          <md-checkbox ng-model="$ctrl.pressEnterToSend"></md-checkbox>
         </md-list-item>
         <md-list-item title="Change the notification noise which will play when the tab is hidden, or just turn it off" ng-click="openNoiseSelector()">
           <md-icon>notifications</md-icon>
           <p>Notification noise</p>
-          <md-select id="noiseSelector" ng-model="notificationNoise" class="md-no-underline" aria-label="Notification noise dropdown menu">
+          <md-select id="noiseSelector" ng-model="$ctrl.notificationNoise" class="md-no-underline" aria-label="Notification noise dropdown menu">
             <md-option ng-repeat="noise in allNoises" ng-value="$index" ng-click="noise.audio.play()">
               {{noise.name}}
             </md-option>
           </md-select>
         </md-list-item>
-        <md-list-item ng-click="showMessageDetails = !showMessageDetails" title="Show or hide the timestamps and color-ID's on all messages">
+        <md-list-item ng-click="$ctrl.showMessageDetails = !$ctrl.showMessageDetails" title="Show or hide the timestamps and color-ID's on all messages">
           <md-icon>account_box</md-icon>
           <p>Show message details</p>
-          <md-checkbox ng-model="showMessageDetails"></md-checkbox>
+          <md-checkbox ng-model="$ctrl.showMessageDetails"></md-checkbox>
         </md-list-item>
         <md-list-item ng-click="$root.nightMode = !$root.nightMode" title="Display the site in a darker color scheme">
           <md-icon>brightness_4</md-icon>
@@ -87,7 +87,7 @@
     <md-toolbar flex="none" id="appBar">
       <div layout="row" layout-align="space-between center" class="md-toolbar-tools noselect">
         <div class="left-buttons">
-          <md-button class="md-icon-button" aria-label="Main menu" ng-click="toggleLeftDrawer()">
+          <md-button class="md-icon-button" aria-label="Main menu" ng-click="$ctrl.toggleLeftDrawer()">
             <md-tooltip ng-if="$root.hasMouse">Main menu</md-tooltip>
             <md-icon>menu</md-icon>
           </md-button>
@@ -136,12 +136,7 @@
     </md-toolbar>
 
     <!-- MESSAGES PANE -->
-    <ui-view></ui-view>
-    <md-content flex layout="column" scroll-glue="isStoryGlued">
-      <div id="message-container">
-        <rp-message ng-repeat="msg in rp.msgs.slice(-numMsgsToShow)" msg="msg" show-details="showMessageDetails"></rp-message>
-      </div>
-    </md-content>
+    <ui-view show-details="$ctrl.showMessageDetails"></ui-view>
 
     <div layout="column" id="message-input-box" ng-style="{'background-color': color(msgBox.voice) || 'auto', 'color':((color(msgBox.voice) || '#ffffff') | contrastColor:0.7) }" ng-class="(color(msgBox.voice)|contrastColor)==='white'?'dark':'light'">
 
@@ -175,7 +170,7 @@
       <!-- MESSAGE BOX BODY -->
       <div ng-style="{'color': $root.nightMode? 'white':'black', 'background-color':$root.nightMode?'#303030':'white', opacity:0.7}">
         <div layout="row" layout-align="center center" class="message-box-inner-row">
-          <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!pressEnterToSend}}"></textarea>
+          <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{$ctrl.pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!$ctrl.pressEnterToSend}}"></textarea>
           <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="(msgBox.isValid() && isDesktopMode)?{'background-color': color(msgBox.voice), 'color': (color(msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="!msgBox.isValid()">
             <md-icon>send</md-icon>
           </md-button>

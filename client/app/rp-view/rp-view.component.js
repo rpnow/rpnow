@@ -27,7 +27,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', function($timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService) {
+.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'localStorageService', function($timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, localStorageService) {
     const $ctrl = this;
     
     $ctrl.MAX_CHARA_NAME_LENGTH  = 30;
@@ -39,6 +39,21 @@ angular.module('rpnow')
         document.title = $ctrl.rp.title + ' | RPNow';
 
         console.log('onInit: ', $ctrl.rp);
+    }
+
+    $ctrl.toggleLeftDrawer = function() {
+        $mdSidenav('left').toggle();
+    };
+
+    $ctrl.pressEnterToSend = true;
+    $ctrl.notificationNoise = 1;
+    $ctrl.showMessageDetails = true;
+
+    $ctrl.allNoises = pageAlerts.allNoises;
+    $ctrl.openNoiseSelector = function() {
+        $timeout(function() {
+            angular.element(document.getElementById('noiseSelector')).triggerHandler('click');
+        })
     }
 
     $ctrl.showDialog = function(id, evt) {
@@ -258,21 +273,6 @@ angular.module('rpnow')
         });
         $scope.addCharaBox.sending = true;
         $scope.addCharaBox.name = '';
-    };
-
-    $scope.allNoises = pageAlerts.allNoises;
-    $scope.openNoiseSelector = function() {
-        $timeout(function() {
-            angular.element(document.getElementById('noiseSelector')).triggerHandler('click');
-        })
-    }
-
-    $scope.pressEnterToSend = true;
-    $scope.notificationNoise = 1;
-    $scope.showMessageDetails = true;
-
-    $scope.toggleLeftDrawer = function() {
-        $mdSidenav('left').toggle();
     };
 
     // all this complicated logic ends up creating intuitive behavior
