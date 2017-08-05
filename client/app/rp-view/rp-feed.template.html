@@ -3,7 +3,7 @@
   <!-- MESSAGES PANE -->
   <md-content flex layout="column" scroll-glue="$ctrl.isStoryGlued">
     <div id="message-container">
-      <rp-message ng-repeat="msg in $ctrl.msgs.slice(-$ctrl.numMsgsToShow)" msg="msg" show-details="$ctrl.showDetails"></rp-message>
+      <rp-message ng-repeat="msg in $ctrl.rp.msgs.slice(-$ctrl.numMsgsToShow)" msg="msg" show-details="$ctrl.showDetails"></rp-message>
     </div>
   </md-content>
 
