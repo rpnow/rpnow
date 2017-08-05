@@ -12,7 +12,6 @@ angular.module('rpnow')
 
 .component('rpFeed', {
     templateUrl: '/rp-view/rp-feed.template.html',
-    template: ``,
     controller: 'RpFeedController',
     bindings: {
         rp: '<',
