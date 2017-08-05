@@ -1,4 +1,4 @@
-# Privacy & Terms
+# Terms & Privacy
 
 By using RPNow, you agree to the terms listed in this document.
 

@@ -8,7 +8,7 @@ angular.module('rpnow')
         url: '/terms',
         template:`<md-content><article ng-include="'/articles/terms.template.html'"></article></md-content>`,
         meta: {
-            title: 'Terms of Use | RPNow'
+            title: 'Terms & Privacy | RPNow'
         }
     })
     .state({
