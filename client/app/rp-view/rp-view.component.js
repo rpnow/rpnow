@@ -149,17 +149,6 @@ angular.module('rpnow')
         return voice.color;
     }
 
-    // TODO: move to character menu area
-    $scope.msgBox = {
-        recentCharas: function() {
-            return $ctrl.msgBox.recentCharasString
-                .split(',')
-                .filter(x=>x>=0)
-                .map(x=>$ctrl.rp.charas[+x]);
-        },
-        recentCharasString: '', // stored in a string so it can be easily bound to localStorage
-    }
-
     $scope.$watch('msgBox.voice', function(newChara) {
         if (!(newChara >= 0)) return;
         if ($scope.msgBox.recentCharasString === undefined) return;
@@ -200,47 +189,6 @@ angular.module('rpnow')
         });
         $scope.addCharaBox.sending = true;
         $scope.addCharaBox.name = '';
-    };
-
-    // all this complicated logic ends up creating intuitive behavior
-    // for the right sidedrawer when resizing window, and opening/closing
-    // sidedrawer within different window sizes.
-    $scope.charaListDocked = false;
-    $scope.toggleRightDrawer = function() {
-        // if clicked from select menu, set it back to old chara
-        $timeout(function(x){$scope.msgBox.voice=x;},0,true,$scope.msgBox.voice);
-
-        // change behavior based on if we're on a large screen or not
-        if ($mdMedia('gt-md')) {
-            if ($scope.charaListDocked) {
-                $mdSidenav('right').close();
-                $timeout(function() { $scope.charaListDocked = false; },100);
-            }         
-            else {
-                $scope.charaListDocked = true;
-            }
-        }
-        else {
-            $mdSidenav('right').toggle();
-        }
-    }
-    $scope.setVoice = function(voice) {
-        $scope.msgBox.voice = voice;
-        $mdSidenav('right').close();
-    }
-    $scope.$watch(function() {
-        return $scope.charaListDocked || $mdSidenav('right').isOpen();
-    }, function(isRightDrawerLockedOpen) {
-        $scope.isRightDrawerLockedOpen = isRightDrawerLockedOpen;
-    });
-    $scope.$watch(function() {
-        return $mdMedia('gt-md') ? $scope.isRightDrawerLockedOpen : $mdSidenav('right').isOpen()
-    }, function(isRightDrawerVisible) {
-        $scope.isRightDrawerVisible = isRightDrawerVisible;
-    })
-
-    $scope.hasManyCharacters = function() {
-        return $scope.rp.charas && $scope.rp.charas.length > 10;
     };
 
     $scope.showCharacterDialog = function(evt) {

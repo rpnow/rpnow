@@ -21,7 +21,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpFeedController', ['$mdDialog', function($mdDialog) {
+.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', function($timeout, $mdDialog, $mdMedia, $mdSidenav) {
     const $ctrl = this;
 
     var RECENT_MSG_COUNT = 100;
@@ -81,7 +81,45 @@ angular.module('rpnow')
             targetEvent: evt,
             clickOutsideToClose: true
         });
+    };
+
+    $ctrl.recentCharasString = '';
+    $ctrl.recentCharas = function() {
+        return $ctrl.recentCharasString
+            .split(',')
+            .filter(x=>x>=0)
+            .map(x=>$ctrl.rp.charas[+x]);
+    };
+
+    $ctrl.hasManyCharacters = () => $ctrl.rp.charas.length > 10;
+
+    $ctrl.setVoice = function(voice) {
+        $ctrl.msgBox.voice = voice;
+        $mdSidenav('right').close();
+    };
+
+    // all this complicated logic ends up creating intuitive behavior
+    // for the right sidedrawer when resizing window, and opening/closing
+    // sidedrawer within different window sizes.
+    $ctrl.charaListDocked = false;
+    $ctrl.toggleRightDrawer = function() {
+        // change behavior based on if we're on a large screen or not
+        if ($mdMedia('gt-md')) {
+            if ($ctrl.charaListDocked) {
+                $mdSidenav('right').close();
+                $timeout(() => $ctrl.charaListDocked = false, 100);
+            }         
+            else {
+                $ctrl.charaListDocked = true;
+            }
+        }
+        else {
+            $mdSidenav('right').toggle();
+        }
     }
+    $ctrl.isRightDrawerLockedOpen = () => $ctrl.charaListDocked || $mdSidenav('right').isOpen();
+    $ctrl.isRightDrawerVisible = () => $mdMedia('gt-md') ? $ctrl.isRightDrawerLockedOpen() : $mdSidenav('right').isOpen()
+
 }])
 
 .controller('ImageDialogController', ['$mdDialog', '$mdToast', function($mdDialog, $mdToast) {

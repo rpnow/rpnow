@@ -137,50 +137,6 @@
 
     <ui-view flex show-details="$ctrl.showMessageDetails" press-enter-to-send="$ctrl.pressEnterToSend"></ui-view>
   </div>
-
-  <!-- RIGHT DRAWER (FOR CHARACTERS) -->
-  <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && isRightDrawerLockedOpen" layout="column" id="rightDrawer" ng-hide="rp.loading || rp.loadError">
-    <md-toolbar md-colors="{background:$root.nightMode?'background-900':'background-200'}">
-      <div class="md-toolbar-tools" layout="row">
-        <h2 class="md-truncate"><md-icon>group</md-icon> All Characters</h2>
-        <span flex></span>
-        <md-button class="md-icon-button" ng-click="toggleRightDrawer()" title="Close">
-          <md-icon>close</md-icon>
-        </md-button>
-      </div>
-    </md-toolbar>
-    <md-content flex md-colors="{background:$root.nightMode?'background-900':'background-200'}">
-      <md-list>
-        <md-list-item ng-click="setVoice('narrator')">
-          <md-icon>local_library</md-icon> <p>Narrator</p>
-          <md-icon ng-show="msgBox.voice === 'narrator'">check</md-icon>
-        </md-list-item>
-        <md-list-item ng-click="setVoice('ooc')">
-          <md-icon>chat</md-icon> <p>Out of character</p>
-          <md-icon ng-show="msgBox.voice === 'ooc'">check</md-icon>
-        </md-list-item>
-        <md-divider></md-divider>
-        <md-list-item ng-click="showCharacterDialog($event)" aria-hidden="true">
-          <md-icon>person_add</md-icon> <p>New Character...</p>
-        </md-list-item>
-        <md-divider></md-divider>
-        <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">Recent</md-subheader>
-        <md-list-item ng-show="hasManyCharacters()" ng-repeat="chara in msgBox.recentCharas() | orderBy:'name'" ng-click="setVoice(id(chara))">
-          <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
-          <p class="md-truncate">{{chara.name}}</p>
-          <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
-        </md-list-item>
-        <md-divider ng-show="hasManyCharacters()"></md-divider>
-        <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">All Characters</md-subheader>
-        <md-list-item ng-repeat="chara in rp.charas | orderBy:'name'" ng-click="setVoice(id(chara))">
-          <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
-          <p class="md-truncate">{{chara.name}}</p>
-          <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
-        </md-list-item>
-      </md-list>
-    </md-content>
-  </md-sidenav>
-
 </section>
 
 <!-- CHARACTER CREATOR DIALOG-->
