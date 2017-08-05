@@ -15,15 +15,15 @@
       <div layout="row" layout-align="center center" class="message-box-inner-row">
         <div flex layout="row" layout-align="start center" ng-click="isRightDrawerVisible || toggleRightDrawer()" id="voiceChangeBar" ng-class="{hovershade:!isRightDrawerVisible}">
           <md-tooltip ng-if="$root.hasMouse && !isRightDrawerVisible" md-direction="top">Change character</md-tooltip>
-          <span ng-if="msgBox.voice === 'narrator'" class="md-truncate">
+          <span ng-if="$ctrl.msgBox.voice === 'narrator'" class="md-truncate">
             <md-icon>local_library</md-icon> <span>Narrator</span>
           </span>
-          <span ng-if="msgBox.voice === 'ooc'" class="md-truncate">
+          <span ng-if="$ctrl.msgBox.voice === 'ooc'" class="md-truncate">
             <md-icon>chat</md-icon> <span>Out of character</span>
           </span>
-          <span ng-if="msgBox.voice >= 0" class="md-truncate">
+          <span ng-if="$ctrl.msgBox.voice >= 0" class="md-truncate">
             <md-icon>person</md-icon>
-            <span>{{chara(msgBox.voice).name}}</span>
+            <span>{{$ctrl.rp.charas[msgBox.voice].name}}</span>
           </span>
           <span hide-xs ng-hide="isRightDrawerVisible" class="clickToChange">
             (Click to change)
@@ -40,8 +40,8 @@
     <!-- MESSAGE BOX BODY -->
     <div ng-style="{'color': $root.nightMode? 'white':'black', 'background-color':$root.nightMode?'#303030':'white', opacity:0.7}">
       <div layout="row" layout-align="center center" class="message-box-inner-row">
-        <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{$ctrl.pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="msgBox.content" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" on-press-enter="sendMessage()" require-ctrl-key="{{!$ctrl.pressEnterToSend}}"></textarea>
-        <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="(msgBox.isValid() && isDesktopMode)?{'background-color': color(msgBox.voice), 'color': (color(msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="sendMessage()" ng-disabled="!msgBox.isValid()">
+        <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{$ctrl.pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="$ctrl.msgBox.content" maxlength="{{$ctrl.MAX_MSG_CONTENT_LENGTH}}" on-press-enter="$ctrl.sendMessage()" require-ctrl-key="{{!$ctrl.pressEnterToSend}}"></textarea>
+        <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="($ctrl.msgBox.isValid() && isDesktopMode)?{'background-color': color(msgBox.voice), 'color': (color(msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.msgBox.isValid()">
           <md-icon>send</md-icon>
         </md-button>
       </div>

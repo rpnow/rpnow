@@ -149,20 +149,17 @@ angular.module('rpnow')
         return voice.color;
     }
 
+    // TODO: move to character menu area
     $scope.msgBox = {
-        content: '',
-        voice: 'narrator',
-        recentCharas: () => $scope.rp.charas ?
-            $scope.msgBox.recentCharasString
+        recentCharas: function() {
+            return $ctrl.msgBox.recentCharasString
                 .split(',')
                 .filter(x=>x>=0)
-                .map(x=>$scope.rp.charas[+x]):
-            [],
+                .map(x=>$ctrl.rp.charas[+x]);
+        },
         recentCharasString: '', // stored in a string so it can be easily bound to localStorage
-        isValid: function() {
-            return $scope.msgBox.content.trim().length > 0;
-        }
-    };
+    }
+
     $scope.$watch('msgBox.voice', function(newChara) {
         if (!(newChara >= 0)) return;
         if ($scope.msgBox.recentCharasString === undefined) return;
@@ -182,33 +179,6 @@ angular.module('rpnow')
         }
         $scope.msgBox.recentCharasString = rc.map(c=>$scope.id(c)).join(',');
     })
-    $scope.sendMessage = function() {
-        var msg = {
-            content: $scope.msgBox.content.trim(),
-            type: (+$scope.msgBox.voice >= 0) ? 'chara' : $scope.msgBox.voice
-        }
-        // shortcut to send ooc messages; if not on the actual OOC character,
-        //  you can send a message inside of (()) et all, as a shortcut to change
-        //  that specific message to an OOC message
-        if (msg.type !== 'ooc') {
-            [  /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( message text ))
-                /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
-                /^\/\/\s*(.*[^\s])\s*$/g // //message text
-            ].forEach(function(oocRegex) {
-                var match = oocRegex.exec(msg.content);
-                if (match) {
-                    msg.content = match[1];
-                    msg.type = 'ooc';
-                }
-            });
-        }
-        if (!msg.content) return;
-        if (msg.type === 'chara') {
-            msg.charaId = +$scope.msgBox.voice;
-        }
-        $scope.rp.addMessage(msg);
-        $scope.msgBox.content = '';
-    };
 
     $scope.addCharaBox = {
         name: '',

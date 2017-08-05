@@ -16,6 +16,7 @@ angular.module('rpnow')
     controller: 'RpFeedController',
     bindings: {
         rp: '<',
+        pressEnterToSend: '<',
         showDetails: '<'
     }
 })
@@ -29,6 +30,44 @@ angular.module('rpnow')
     $ctrl.$onInit = function() {
         $ctrl.isStoryGlued = true;
         $ctrl.numMsgsToShow = RECENT_MSG_COUNT;
+    };
+
+    $ctrl.msgBox = {
+        content: '',
+        voice: 'narrator',
+        isValid: () => $ctrl.msgBox.content.trim().length > 0
+    };
+
+    function applyOocShortcuts(msg) {
+        // shortcut to send ooc messages; if not on the actual OOC character,
+        //  you can send a message inside of (()) et all, as a shortcut to change
+        //  that specific message to an OOC message
+        let oocRegexList = [
+            /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( message text ))
+            /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
+            /^\/\/\s*(.*[^\s])\s*$/g // //message text
+        ];
+        oocRegexList.forEach(function(oocRegex) {
+            var match = oocRegex.exec(msg.content);
+            if (match) {
+                msg.content = match[1];
+                msg.type = 'ooc';
+            }
+        });
+    }
+
+    $ctrl.sendMessage = function() {
+        var msg = {
+            content: $ctrl.msgBox.content.trim(),
+            type: (+$ctrl.msgBox.voice >= 0) ? 'chara' : $ctrl.msgBox.voice
+        }
+        if (msg.type !== 'ooc') applyOocShortcuts(msg);
+        if (!msg.content) return;
+        if (msg.type === 'chara') {
+            msg.charaId = +$ctrl.msgBox.voice;
+        }
+        $ctrl.rp.addMessage(msg);
+        $ctrl.msgBox.content = '';
     };
 
     $ctrl.showImageDialog = function(evt) {
