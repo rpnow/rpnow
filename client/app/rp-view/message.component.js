@@ -7,7 +7,8 @@ angular.module('rpnow')
     controller: 'RpMessageController',
     bindings: {
         msg: '<',
-        showDetails: '<'
+        showDetails: '<',
+        quickEdit: '<'
     }
 })
 

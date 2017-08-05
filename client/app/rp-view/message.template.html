@@ -25,7 +25,7 @@
     </md-button>
   </div>
   <div ng-if="$ctrl.msg.type !== 'image' && !$ctrl.editing" class="content" ng-bind-html="$ctrl.msg.content | msgContent:($ctrl.msg.color)"></div>
-  <textarea ng-if="$ctrl.editing" class="content" ng-model="$ctrl.newContent" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" rows="4"></textarea>
+  <textarea ng-if="$ctrl.editing" class="content" ng-model="$ctrl.newContent" maxlength="{{MAX_MSG_CONTENT_LENGTH}}" rows="4" on-press-enter="$ctrl.confirmEdit()" require-ctrl-key="{{!$ctrl.quickEdit}}"></textarea>
   <div ng-if="$ctrl.msg.type === 'image'" class="content">
     <a href="{{$ctrl.msg.url}}" target="_blank">
       <img ng-src="{{$ctrl.msg.url}}"/>
