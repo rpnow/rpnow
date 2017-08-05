@@ -54,7 +54,7 @@ angular.module('rpnow')
     $ctrl.showInviteDialog = function(evt) {
         return $mdDialog.show({
             controller: () => ({
-                hide: $ctrl.hideDialog,
+                hide: $mdDialog.cancel,
                 inviteUrl: location.href.split('#')[0]
             }),
             controllerAs: '$ctrl',
@@ -67,7 +67,7 @@ angular.module('rpnow')
     $ctrl.showDownloadDialog = function(evt) {
         return $mdDialog.show({
             controller: ['saveRpService', function(saveRpService) {
-                this.hide = $ctrl.hideDialog;
+                this.hide = $mdDialog.cancel;
                 this.downloadOOC = true;
                 this.downloadTxt = () => saveRpService.saveTxt($ctrl.rp, this.downloadOOC);
                 this.downloadDocx = () => saveRpService.saveDocx($ctrl.rp, this.downloadOOC)
@@ -81,7 +81,7 @@ angular.module('rpnow')
     }
     $ctrl.showContactDialog = function(evt) {
         return $mdDialog.show({
-            controller: () => ({ hide: $ctrl.hideDialog }),
+            controller: () => ({ hide: $mdDialog.cancel }),
             controllerAs: '$ctrl',
             templateUrl: '/rp-view/contact-dialog.template.html',
             parent: angular.element(document.body),
@@ -90,7 +90,9 @@ angular.module('rpnow')
         });
     }
 
-    $ctrl.hideDialog = function() { $mdDialog.cancel(); };
+    $ctrl.$onDestroy = function() {
+        $ctrl.rp.exit();
+    };
 }])
 
 .controller('RpControllerOld', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {
@@ -120,21 +122,6 @@ angular.module('rpnow')
         else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
     });
 
-    var id = $scope.id = function(item) {
-        var index;
-        if ((index = $scope.rp.charas && $scope.rp.charas.indexOf(item)) >= 0) return index;
-        if ((index = $scope.rp.msgs && $scope.rp.msgs.indexOf(item)) >= 0) return index;
-        return null;
-    };
-    var chara = $scope.chara = function(x) {
-        if (!$scope.rp.charas) return null;
-        // voice
-        if (x >= 0) return $scope.rp.charas[x];
-        // msg
-        if (x.type === 'chara') return $scope.rp.charas[x.charaId];
-        // fail
-        return null;
-    };
     $scope.color = function(voice) {
         // msg
         if (voice.content) voice = (voice.type === 'chara') ? voice.charaId : voice.type;
@@ -168,10 +155,6 @@ angular.module('rpnow')
         $scope.msgBox.recentCharasString = rc.map(c=>$scope.id(c)).join(',');
     })
 
-    $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
-        $scope.isDesktopMode = desktop;
-    });
-
     // recall these values if they have been saved in localStorage
     // otherwise use the defaults defined earlier in the controller
     if (localStorageService.isSupported) {
@@ -186,10 +169,6 @@ angular.module('rpnow')
             localStorageService.bind($scope, option, initVal, $scope.rp.rpCode+'.'+option);
         });
     }
-
-    $scope.$on('$destroy', function() {
-        $scope.rp.exit();
-    });
 }])
 
 .directive('onPressEnter', function() {

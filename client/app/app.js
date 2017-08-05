@@ -54,3 +54,9 @@ angular.module('rpnow', [
         $rootScope.hasMouse = (evt.type === 'mousemove');
     }
 }])
+
+.run(['$rootScope', '$mdMedia', function($rootScope, $mdMedia) {
+    $rootScope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
+        $rootScope.isDesktopMode = desktop;
+    });
+}])

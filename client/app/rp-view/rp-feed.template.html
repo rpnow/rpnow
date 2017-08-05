@@ -42,7 +42,7 @@
       <div ng-style="{'color': $root.nightMode? 'white':'black', 'background-color':$root.nightMode?'#303030':'white', opacity:0.7}">
         <div layout="row" layout-align="center center" class="message-box-inner-row">
           <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{$ctrl.pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="$ctrl.msgBox.content" maxlength="{{$ctrl.MAX_MSG_CONTENT_LENGTH}}" on-press-enter="$ctrl.sendMessage()" require-ctrl-key="{{!$ctrl.pressEnterToSend}}"></textarea>
-          <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="($ctrl.msgBox.isValid() && isDesktopMode)?{'background-color': color($ctrl.msgBox.voice), 'color': (color($ctrl.msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.msgBox.isValid()">
+          <md-button ng-class="$root.isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="($ctrl.msgBox.isValid() && $root.isDesktopMode)?{'background-color': color($ctrl.msgBox.voice), 'color': (color($ctrl.msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.msgBox.isValid()">
             <md-icon>send</md-icon>
           </md-button>
         </div>
