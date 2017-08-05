@@ -43,36 +43,14 @@ html[state^="rp"], html[state^="rp"] body {
             z-index: 58;
         }
     }
-    md-dialog .md-toolbar-tools md-icon:first-child,
+
     md-sidenav .md-toolbar-tools md-icon:first-child,
     md-select-menu md-icon:first-child,
     md-select-value md-icon:first-child {
         margin-right: 10px;
     }
     #message-container {
-        padding: 10px 10px 20px;
-    }
-    #characterCreatorDialog {
-        .md-errors-spacer {
-            display: none;
-        }
-        .angular-color-picker {
-            background-color: inherit;
-            padding: 0;
-            border: none;
-        }
-        .angular-color-picker + md-input-container {
-            margin: 0;
-            padding: 0 0 20px;
-            width: 157px;
-        }
-        md-dialog-content button.md-button {
-            transition: none;
-        }
-    }
-
-    #contactDialog md-dialog-content md-icon {
-        margin-right: 10px;
+        padding: 10px 10px 19px;
     }
 
     #message-input-box {

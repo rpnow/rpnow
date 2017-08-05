@@ -1,0 +1,24 @@
+md-dialog .md-toolbar-tools md-icon:first-child,
+
+#characterCreatorDialog {
+    .md-errors-spacer {
+        display: none;
+    }
+    .angular-color-picker {
+        background-color: inherit;
+        padding: 0;
+        border: none;
+    }
+    .angular-color-picker + md-input-container {
+        margin: 0;
+        padding: 0 0 20px;
+        width: 157px;
+    }
+    md-dialog-content button.md-button {
+        transition: none;
+    }
+}
+
+#contactDialog md-dialog-content md-icon {
+    margin-right: 10px;
+}
