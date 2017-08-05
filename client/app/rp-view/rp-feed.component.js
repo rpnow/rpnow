@@ -32,6 +32,5 @@ angular.module('rpnow')
     $ctrl.$onInit = function() {
         $ctrl.isStoryGlued = true;
         $ctrl.numMsgsToShow = RECENT_MSG_COUNT;
-        console.log('feed:', $ctrl.msgs);
     };
 }])

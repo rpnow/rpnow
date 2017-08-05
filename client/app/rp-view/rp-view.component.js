@@ -34,11 +34,7 @@ angular.module('rpnow')
     $ctrl.MAX_MSG_CONTENT_LENGTH = 10000;
 
     $ctrl.$onInit = function() {
-        $ctrl.inviteUrl = location.href.split('#')[0];
-
         document.title = $ctrl.rp.title + ' | RPNow';
-
-        console.log('onInit: ', $ctrl.rp);
     }
 
     $ctrl.toggleLeftDrawer = function() {
@@ -60,7 +56,7 @@ angular.module('rpnow')
         return $mdDialog.show({
             controller: () => ({
                 hide: $ctrl.hideDialog,
-                inviteUrl: $ctrl.inviteUrl
+                inviteUrl: location.href.split('#')[0]
             }),
             controllerAs: '$ctrl',
             templateUrl: '/rp-view/invite-dialog.template.html',
