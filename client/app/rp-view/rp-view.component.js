@@ -30,7 +30,6 @@ angular.module('rpnow')
 .controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'localStorageService', function($timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, localStorageService) {
     const $ctrl = this;
     
-    $ctrl.MAX_CHARA_NAME_LENGTH  = 30;
     $ctrl.MAX_MSG_CONTENT_LENGTH = 10000;
 
     $ctrl.$onInit = function() {
@@ -168,40 +167,6 @@ angular.module('rpnow')
         }
         $scope.msgBox.recentCharasString = rc.map(c=>$scope.id(c)).join(',');
     })
-
-    $scope.addCharaBox = {
-        name: '',
-        color: '#ff0000',
-        sending: false,
-        isValid: function() {
-            return $scope.addCharaBox.name.trim().length > 0
-                && /^#[0-9a-f]{6}$/g.test($scope.addCharaBox.color);
-        }
-    };
-    $scope.sendChara = function() {
-        $scope.rp.addChara({
-            name: $scope.addCharaBox.name,
-            color: $scope.addCharaBox.color
-        }, function() {
-            $timeout(function() { $mdSidenav('right').close(); },100);
-            $mdDialog.hide();
-            $scope.msgBox.voice = $scope.rp.charas.length-1
-        });
-        $scope.addCharaBox.sending = true;
-        $scope.addCharaBox.name = '';
-    };
-
-    $scope.showCharacterDialog = function(evt) {
-        $timeout(function(x){$scope.msgBox.voice=x;},0,true,$scope.msgBox.voice);
-        $mdDialog.show({
-            contentElement: '#characterCreatorDialog',
-            targetEvent: evt,
-            clickOutsideToClose: true,
-            fullscreen: $mdMedia('xs')
-        }).then(function() { 
-            $scope.addCharaBox.sending = false;
-        })
-    }
 
     $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(desktop) {
         $scope.isDesktopMode = desktop;

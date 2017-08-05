@@ -1,0 +1,29 @@
+<md-dialog>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2 class="md-truncate"><md-icon>person_add</md-icon> New Character</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-hide="$ctrl.sending" ng-click="$ctrl.hide()" title="Close">
+        <md-icon>close</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content ng-show="$ctrl.sending" class="md-dialog-content" layout="column" layout-align="center center">
+    <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
+  </md-dialog-content>
+  <md-dialog-content ng-hide="$ctrl.sending" class="md-dialog-content" layout="column" layout-align="center center">
+    <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
+      <label>Name this character:</label>
+      <input ng-model="$ctrl.name" maxlength="{{$ctrl.MAX_CHARA_NAME_LENGTH}}" md-autofocus>
+    </md-input-container>
+    <color-picker ng-model="$ctrl.color" aria-hidden="true"></color-picker>
+    <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
+      <input ng-model="$ctrl.color" maxlength="7" aria-label="Character color hex code">
+    </md-input-container>
+
+    <md-button class="md-raised" ng-click="$ctrl.send()" ng-disabled="!$ctrl.isValid()" title="Finish creating this character" ng-style="$ctrl.isValid() ? {'background-color': $ctrl.color, 'color': ($ctrl.color | contrastColor) }: {}">
+      <md-icon style="color:inherit">check</md-icon>
+        OK
+    </md-button>
+  </md-dialog-content>
+</md-dialog>

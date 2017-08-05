@@ -72,6 +72,16 @@ angular.module('rpnow')
             }
         }
 
+        class Chara {
+            constructor(data) {
+                for (let prop in data) this[prop] = data[prop];
+            }
+
+            get id() {
+                return rp.charas.indexOf(this);
+            }
+        }
+
         socket.on('rp error', function(err) {
             reject(err.code)
         })
@@ -81,6 +91,7 @@ angular.module('rpnow')
                 rp[prop] = data[prop];
             }
             rp.msgs = rp.msgs.map(msg => new Message(msg));
+            rp.charas = rp.charas.map(chara => new Chara(chara));
             resolve(rp);
         });
 
@@ -88,7 +99,7 @@ angular.module('rpnow')
             rp.msgs.push(new Message(msg));
         });
         socket.on('add character', function(chara) {
-            rp.charas.push(chara);
+            rp.charas.push(new Chara(chara));
         });
         socket.on('edit message', function(data) {
             rp.msgs[data.id].onEdited(data.msg);
@@ -110,9 +121,9 @@ angular.module('rpnow')
             });
         };
         rp.addChara = function(chara, callback) {
-            socket.emit('add character', chara, function(err, receivedChara) {
+            socket.emit('add character', chara, function(err, data) {
                 if (err) return;
-                rp.charas.push(receivedChara);
+                rp.charas.push(new Chara(data));
                 if (callback) callback();
             });
         };

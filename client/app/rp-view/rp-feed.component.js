@@ -120,6 +120,23 @@ angular.module('rpnow')
     $ctrl.isRightDrawerLockedOpen = () => $ctrl.charaListDocked || $mdSidenav('right').isOpen();
     $ctrl.isRightDrawerVisible = () => $mdMedia('gt-md') ? $ctrl.isRightDrawerLockedOpen() : $mdSidenav('right').isOpen()
 
+    $ctrl.showCharaDialog = function(evt) {
+        return $mdDialog.show({
+            controller: 'CharaDialogController',
+            controllerAs: '$ctrl',
+            locals: { rp: $ctrl.rp },
+            bindToController: true,
+            templateUrl: '/rp-view/chara-dialog.template.html',
+            parent: angular.element(document.body),
+            targetEvent: evt,
+            clickOutsideToClose: true,
+            fullscreen: $mdMedia('xs')
+        }).then(function() { 
+            $timeout(() => $mdSidenav('right').close(), 100);
+            $ctrl.msgBox.voice = $ctrl.rp.charas.length-1
+        })
+    };
+
 }])
 
 .controller('ImageDialogController', ['$mdDialog', '$mdToast', function($mdDialog, $mdToast) {
@@ -148,6 +165,24 @@ angular.module('rpnow')
             }
             $mdDialog.hide();
         });
+        this.sending = true;
+    }
+}])
+
+.controller('CharaDialogController', ['$mdDialog', function($mdDialog) {
+    this.MAX_CHARA_NAME_LENGTH  = 30;
+
+    this.hide = () => $mdDialog.cancel();
+    this.name = '';
+    this.color = '#ff0000';
+    this.sending = false;
+
+    let colorRegex = /^#[0-9a-f]{6}$/g;
+    this.isValid = () => this.name.trim().length > 0 && colorRegex.test(this.color);
+
+    this.send = () => {
+        let data = { name: this.name, color: this.color };
+        this.rp.addChara(data, () => $mdDialog.hide() );
         this.sending = true;
     }
 }])

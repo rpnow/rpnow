@@ -9,7 +9,7 @@
     </md-content>
 
     <!-- MESSAGE BOX -->
-    <div layout="column" id="message-input-box" ng-style="{'background-color': color(msgBox.voice) || 'auto', 'color':((color(msgBox.voice) || '#ffffff') | contrastColor:0.7) }" ng-class="(color(msgBox.voice)|contrastColor)==='white'?'dark':'light'">
+    <div layout="column" id="message-input-box" ng-style="{'background-color': color($ctrl.msgBox.voice) || 'auto', 'color':((color($ctrl.msgBox.voice) || '#ffffff') | contrastColor:0.7) }" ng-class="(color($ctrl.msgBox.voice)|contrastColor)==='white'?'dark':'light'">
 
       <!-- MESSAGE BOX TITLE -->
       <header class="noselect">
@@ -24,7 +24,7 @@
             </span>
             <span ng-if="$ctrl.msgBox.voice >= 0" class="md-truncate">
               <md-icon>person</md-icon>
-              <span>{{$ctrl.rp.charas[msgBox.voice].name}}</span>
+              <span>{{$ctrl.rp.charas[$ctrl.msgBox.voice].name}}</span>
             </span>
             <span hide-xs ng-hide="$ctrl.isRightDrawerVisible()" class="clickToChange">
               (Click to change)
@@ -42,7 +42,7 @@
       <div ng-style="{'color': $root.nightMode? 'white':'black', 'background-color':$root.nightMode?'#303030':'white', opacity:0.7}">
         <div layout="row" layout-align="center center" class="message-box-inner-row">
           <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{$ctrl.pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="$ctrl.msgBox.content" maxlength="{{$ctrl.MAX_MSG_CONTENT_LENGTH}}" on-press-enter="$ctrl.sendMessage()" require-ctrl-key="{{!$ctrl.pressEnterToSend}}"></textarea>
-          <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="($ctrl.msgBox.isValid() && isDesktopMode)?{'background-color': color(msgBox.voice), 'color': (color(msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.msgBox.isValid()">
+          <md-button ng-class="isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="($ctrl.msgBox.isValid() && isDesktopMode)?{'background-color': color($ctrl.msgBox.voice), 'color': (color($ctrl.msgBox.voice) | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.msgBox.isValid()">
             <md-icon>send</md-icon>
           </md-button>
         </div>
@@ -64,31 +64,31 @@
     </md-toolbar>
     <md-content flex md-colors="{background:$root.nightMode?'background-900':'background-200'}">
       <md-list>
-        <md-list-item ng-click="setVoice('narrator')">
+        <md-list-item ng-click="$ctrl.setVoice('narrator')">
           <md-icon>local_library</md-icon> <p>Narrator</p>
-          <md-icon ng-show="msgBox.voice === 'narrator'">check</md-icon>
+          <md-icon ng-show="$ctrl.msgBox.voice === 'narrator'">check</md-icon>
         </md-list-item>
-        <md-list-item ng-click="setVoice('ooc')">
+        <md-list-item ng-click="$ctrl.setVoice('ooc')">
           <md-icon>chat</md-icon> <p>Out of character</p>
-          <md-icon ng-show="msgBox.voice === 'ooc'">check</md-icon>
+          <md-icon ng-show="$ctrl.msgBox.voice === 'ooc'">check</md-icon>
         </md-list-item>
         <md-divider></md-divider>
-        <md-list-item ng-click="showCharacterDialog($event)" aria-hidden="true">
+        <md-list-item ng-click="$ctrl.showCharaDialog($event)" aria-hidden="true">
           <md-icon>person_add</md-icon> <p>New Character...</p>
         </md-list-item>
         <md-divider></md-divider>
-        <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">Recent</md-subheader>
-        <md-list-item ng-show="hasManyCharacters()" ng-repeat="chara in msgBox.recentCharas() | orderBy:'name'" ng-click="setVoice(id(chara))">
+        <md-subheader class="md-no-sticky" ng-show="$ctrl.hasManyCharacters()">Recent</md-subheader>
+        <md-list-item ng-show="$ctrl.hasManyCharacters()" ng-repeat="chara in $ctrl.recentCharas() | orderBy:'name'" ng-click="$ctrl.setVoice(chara.id)">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
           <p class="md-truncate">{{chara.name}}</p>
-          <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
+          <md-icon ng-show="$ctrl.msgBox.voice === chara.id">check</md-icon>
         </md-list-item>
         <md-divider ng-show="hasManyCharacters()"></md-divider>
         <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">All Characters</md-subheader>
-        <md-list-item ng-repeat="chara in rp.charas | orderBy:'name'" ng-click="setVoice(id(chara))">
+        <md-list-item ng-repeat="chara in $ctrl.rp.charas | orderBy:'name'" ng-click="$ctrl.setVoice(chara.id)">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
           <p class="md-truncate">{{chara.name}}</p>
-          <md-icon ng-show="msgBox.voice === id(chara)">check</md-icon>
+          <md-icon ng-show="$ctrl.msgBox.voice === id(chara)">check</md-icon>
         </md-list-item>
       </md-list>
     </md-content>
