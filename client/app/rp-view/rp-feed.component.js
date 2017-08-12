@@ -20,7 +20,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', function($timeout, $mdDialog, $mdMedia, $mdSidenav) {
+.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope) {
     const $ctrl = this;
 
     var RECENT_MSG_COUNT = 100;
@@ -34,7 +34,12 @@ angular.module('rpnow')
     $ctrl.msgBox = {
         content: '',
         voice: 'narrator',
-        isValid: () => $ctrl.msgBox.content.trim().length > 0
+        isValid: () => ($ctrl.msgBox.content.trim().length > 0),
+        color: () => {
+            if ($ctrl.msgBox.voice === 'narrator') return $rootScope.nightMode? '#444444':'#ffffff'; 
+            if ($ctrl.msgBox.voice === 'ooc') return $rootScope.nightMode? '#303030':'#fafafa'; 
+            return $ctrl.rp.charas[$ctrl.msgBox.voice].color;
+        }
     };
 
     function applyOocShortcuts(msg) {

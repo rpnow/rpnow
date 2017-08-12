@@ -122,19 +122,6 @@ angular.module('rpnow')
         else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
     });
 
-    $scope.color = function(voice) {
-        // msg
-        if (voice.content) voice = (voice.type === 'chara') ? voice.charaId : voice.type;
-        // other
-        if (voice === 'narrator') return $rootScope.nightMode? '#444444':'#ffffff'; 
-        if (voice === 'ooc') return $rootScope.nightMode? '#303030':'#fafafa'; 
-        if (voice >= 0) {
-            if (!$scope.rp.charas) return '';
-            voice = $scope.rp.charas[voice];
-        }
-        return voice.color;
-    }
-
     $scope.$watch('msgBox.voice', function(newChara) {
         if (!(newChara >= 0)) return;
         if ($scope.msgBox.recentCharasString === undefined) return;
