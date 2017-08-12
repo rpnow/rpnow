@@ -181,8 +181,7 @@ angular.module('rpnow')
     this.color = '#ff0000';
     this.sending = false;
 
-    let colorRegex = /^#[0-9a-f]{6}$/g;
-    this.isValid = () => this.name.trim().length > 0 && colorRegex.test(this.color);
+    this.isValid = () => this.name.trim().length > 0 && /^#[0-9a-f]{6}$/g.test(this.color);
 
     this.send = () => {
         let data = { name: this.name, color: this.color };
