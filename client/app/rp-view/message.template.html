@@ -1,7 +1,7 @@
 <div class="message message-{{$ctrl.msg.type}}" ng-class="{'message-sending': $ctrl.msg.sending, 'message-slim': !$ctrl.showDetails, 'message-mine': $ctrl.msg.canEdit }" ng-style="{'background-color': $ctrl.msg.color||'auto', 'color': $ctrl.msg.chara?($ctrl.msg.color|contrastColor):'' }">
   <div ng-if="$ctrl.msg.chara" class="name">{{$ctrl.msg.chara.name}}</div>
   <div class="message-details noselect" ng-if="$ctrl.msg.sending">
-    <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="($ctrl.msg.color? (($ctrl.msg.color | contrastColor) === 'white') : ($root.nightModeSetting.value))? 'md-hue-3':'md-hue-2'" ng-if="$ctrl.msg.sending"></md-progress-circular>
+    <md-progress-circular md-mode="indeterminate" md-diameter="16px" ng-class="($ctrl.msg.color? (($ctrl.msg.color | contrastColor) === 'white') : ($root.nightMode))? 'md-hue-3':'md-hue-2'" ng-if="$ctrl.msg.sending"></md-progress-circular>
   </div>
   <div class="message-details noselect" ng-if="!$ctrl.msg.sending" ng-show="!$ctrl.editing">
     <span class="timestamp" moment-ago-short="$ctrl.msg.timestamp" title="Posted {{$ctrl.msg.timestamp | momentAgo}}" ng-if="$ctrl.msg.timestamp"></span>

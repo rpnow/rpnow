@@ -2,7 +2,7 @@
 
 angular.module('rpnow')
 
-.factory('rpService', ['$http', 'io', 'globalSettings', function($http, io, globalSettings) {
+.factory('rpService', ['$http', 'io', 'globalSetting', function($http, io, globalSetting) {
     return {
         rp: (rpCode) => new Promise(rpPromiseHandler.bind(null, rpCode))
     };
@@ -13,19 +13,19 @@ angular.module('rpnow')
 
         var socket = io('/', { query: 'rpCode='+rp.rpCode });
 
-        var challengeSetting = globalSettings.setting('challenge', null)
-        var challenge = null;
+        var challenge = {};
+        console.log(challenge);
+        globalSetting(challenge, 'secret', 'challenge.secret');
+        globalSetting(challenge, 'hash', 'challenge.hash');
+        console.log(challenge);
+
         var challegePromise = new Promise(function(resolve, reject) {
-            if (globalSettings.setting('challenge.secret').value) {
-                resolve(challenge = {
-                    secret: globalSettings.setting('challenge.secret').value,
-                    hash: globalSettings.setting('challenge.hash').value
-                });
-            }
-            else $http.get('/api/challenge.json').then(function(res) {
-                globalSettings.setting('challenge.secret').value = challenge.secret;
-                globalSettings.setting('challenge.hash').value = challenge.hash;
-                resolve(challenge = res.data);
+            if (challenge.secret) return resolve();
+
+            $http.get('/api/challenge.json').then(function(res) {
+                challenge.secret = res.secret;
+                challege.hash = res.hash;
+                resolve();
             });
         });
 

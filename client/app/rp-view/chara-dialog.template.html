@@ -12,12 +12,12 @@
     <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
   </md-dialog-content>
   <md-dialog-content ng-hide="$ctrl.sending" class="md-dialog-content" layout="column" layout-align="center center">
-    <md-input-container ng-class="$root.nightModeSetting.value? 'md-hue-3':'md-hue-2'">
+    <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
       <label>Name this character:</label>
       <input ng-model="$ctrl.name" maxlength="{{$ctrl.MAX_CHARA_NAME_LENGTH}}" md-autofocus>
     </md-input-container>
     <color-picker ng-model="$ctrl.color" aria-hidden="true"></color-picker>
-    <md-input-container ng-class="$root.nightModeSetting.value? 'md-hue-3':'md-hue-2'">
+    <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
       <input ng-model="$ctrl.color" maxlength="7" aria-label="Character color hex code">
     </md-input-container>
 

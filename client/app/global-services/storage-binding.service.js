@@ -2,28 +2,27 @@
 
 angular.module('rpnow')
 
-.factory('storageBindingService', [function() {
-    return function(key, defaultValue) {
-        return {
-            get value() {
+.factory('storageBinder', [function() {
+    return function($ctrl, propName, key) {
+        let defaultValue = $ctrl[key];
+        Object.defineProperty($ctrl, propName, {
+            get: function() {
                 if (localStorage.getItem(key) === null) return defaultValue;
                 return JSON.parse(localStorage.getItem(key));
             },
-            set value(value) {
+            set: function(value) {
                 localStorage.setItem(key, JSON.stringify(value));
             }
-        };
+        });
     };
 }])
 
-.factory('globalSettings', ['storageBindingService', function(storageBindingService) {
-    return {
-        setting: (key, defaultValue) => storageBindingService(['rpnow',key].join('.'), defaultValue)
-    }
+.factory('globalSetting', ['storageBinder', function(storageBinder) {
+    return ($ctrl, propName, key) => storageBinder($ctrl, propName, ['rpnow',(key||propName)].join('.'));
 }])
 
-.factory('roomSettings', ['storageBindingService', function(storageBindingService) {
+.factory('roomSetting', ['storageBinder', function(storageBinder) {
     return (rpCode) => ({
-        setting: (key, defaultValue) => storageBindingService(['rpnow',rpCode,key].join('.'), defaultValue)
+        setting: ($ctrl, propName, key) => storageBinder($ctrl, propName ['rpnow',rpCode,(key||propName)].join('.'))
     });
 }])

@@ -31,8 +31,9 @@ angular.module('rpnow', [
     $rootScope.$uiState = $state;
 }])
 
-.run(['$rootScope', 'globalSettings', function($rootScope, globalSettings) {
-    $rootScope.nightModeSetting = globalSettings.setting('nightMode', true);
+.run(['$rootScope', 'globalSetting', function($rootScope, globalSetting) {
+    $rootScope.nightMode = true;
+    globalSetting($rootScope, 'nightMode');
 }])
 
 // detect if the user is primarily using touch or a mouse,

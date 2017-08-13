@@ -20,29 +20,29 @@
 
         <md-divider></md-divider>
 
-        <md-list-item ng-click="$ctrl.pressEnterToSendSetting.value = !$ctrl.pressEnterToSendSetting.value" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
+        <md-list-item ng-click="$ctrl.pressEnterToSend = !$ctrl.pressEnterToSend" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
           <md-icon>send</md-icon>
           <p>Press <kbd>Enter</kbd> to send</p>
-          <md-checkbox ng-model="$ctrl.pressEnterToSendSetting.value"></md-checkbox>
+          <md-checkbox ng-model="$ctrl.pressEnterToSend"></md-checkbox>
         </md-list-item>
         <md-list-item title="Change the notification noise which will play when the tab is hidden, or just turn it off" ng-click="$ctrl.openNoiseSelector()">
           <md-icon>notifications</md-icon>
           <p>Notification noise</p>
-          <md-select id="noiseSelector" ng-model="$ctrl.notificationNoiseSetting.value" class="md-no-underline" aria-label="Notification noise dropdown menu">
+          <md-select id="noiseSelector" ng-model="$ctrl.notificationNoise" class="md-no-underline" aria-label="Notification noise dropdown menu">
             <md-option ng-repeat="noise in $ctrl.allNoises" ng-value="$index" ng-click="noise.audio.play()">
               {{noise.name}}
             </md-option>
           </md-select>
         </md-list-item>
-        <md-list-item ng-click="$ctrl.showMessageDetailsSetting.value = !$ctrl.showMessageDetailsSetting.value" title="Show or hide the timestamps and color-ID's on all messages">
+        <md-list-item ng-click="$ctrl.showMessageDetails = !$ctrl.showMessageDetails" title="Show or hide the timestamps and color-ID's on all messages">
           <md-icon>account_box</md-icon>
           <p>Show message details</p>
-          <md-checkbox ng-model="$ctrl.showMessageDetailsSetting.value"></md-checkbox>
+          <md-checkbox ng-model="$ctrl.showMessageDetails"></md-checkbox>
         </md-list-item>
-        <md-list-item ng-click="$root.nightModeSetting.value = !$root.nightModeSetting.value" title="Display the site in a darker color scheme">
+        <md-list-item ng-click="$root.nightMode = !$root.nightMode" title="Display the site in a darker color scheme">
           <md-icon>brightness_4</md-icon>
           <p>Night mode</p>
-          <md-checkbox ng-model="$root.nightModeSetting.value"></md-checkbox>
+          <md-checkbox ng-model="$root.nightMode"></md-checkbox>
         </md-list-item>
 
         <md-divider></md-divider>
@@ -135,6 +135,6 @@
       </div>
     </md-toolbar>
 
-    <ui-view flex show-details="$ctrl.showMessageDetailsSetting.value" press-enter-to-send="$ctrl.pressEnterToSendSetting.value"></ui-view>
+    <ui-view flex show-details="$ctrl.showMessageDetails" press-enter-to-send="$ctrl.pressEnterToSend"></ui-view>
   </div>
 </section>

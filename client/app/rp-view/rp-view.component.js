@@ -27,7 +27,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'globalSettings', function($timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, globalSettings) {
+.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'globalSetting', function($timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, globalSetting) {
     const $ctrl = this;
     
     $ctrl.MAX_MSG_CONTENT_LENGTH = 10000;
@@ -40,9 +40,12 @@ angular.module('rpnow')
         $mdSidenav('left').toggle();
     };
 
-    $ctrl.pressEnterToSendSetting = globalSettings.setting('pressEnterToSend', true);
-    $ctrl.notificationNoiseSetting = globalSettings.setting('notificationNoise', 1);
-    $ctrl.showMessageDetailsSetting = globalSettings.setting('showMessageDetails', true);
+    $ctrl.pressEnterToSend = true;
+    $ctrl.notificationNoise = 1;
+    $ctrl.showMessageDetails = true;
+    globalSetting($ctrl, 'pressEnterToSend');
+    globalSetting($ctrl, 'notificationNoise');
+    globalSetting($ctrl, 'showMessageDetails');
 
     $ctrl.allNoises = pageAlerts.allNoises;
     $ctrl.openNoiseSelector = function() {
@@ -66,11 +69,12 @@ angular.module('rpnow')
     }
     $ctrl.showDownloadDialog = function(evt) {
         return $mdDialog.show({
-            controller: ['saveRpService', 'globalSettings', function(saveRpService, globalSettings) {
+            controller: ['saveRpService', 'globalSetting', function(saveRpService, globalSetting) {
                 this.hide = $mdDialog.cancel;
-                this.downloadOOCSetting = globalSettings.setting('downloadOOC', true);
-                this.downloadTxt = () => saveRpService.saveTxt($ctrl.rp, this.downloadOOCSetting.value);
-                this.downloadDocx = () => saveRpService.saveDocx($ctrl.rp, this.downloadOOCSetting.value)
+                this.downloadOOC = true;
+                globalSetting(this, 'downloadOOC');
+                this.downloadTxt = () => saveRpService.saveTxt($ctrl.rp, this.downloadOOC);
+                this.downloadDocx = () => saveRpService.saveDocx($ctrl.rp, this.downloadOOC)
             }],
             controllerAs: '$ctrl',
             templateUrl: '/rp-view/download-dialog.template.html',
