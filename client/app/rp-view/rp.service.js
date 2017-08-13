@@ -13,16 +13,16 @@ angular.module('rpnow')
 
         var socket = io('/', { query: 'rpCode='+rp.rpCode });
 
-        var challenge = {};
+        var challenge = { secret: null, hash: null };
         globalSetting(challenge, 'secret', 'challenge.secret');
         globalSetting(challenge, 'hash', 'challenge.hash');
 
-        var challegePromise = new Promise(function(resolve, reject) {
+        var challengePromise = new Promise(function(resolve, reject) {
             if (challenge.secret) return resolve();
 
             $http.get('/api/challenge.json').then(function(res) {
-                challenge.secret = res.secret;
-                challege.hash = res.hash;
+                challenge.secret = res.data.secret;
+                challenge.hash = res.data.hash;
                 resolve();
             });
         });
@@ -51,7 +51,7 @@ angular.module('rpnow')
             edit(newContent, callback) {
                 this.sending = true;
                 this.content = newContent;
-                challegePromise.then(() => {
+                challengePromise.then(() => {
                     let data = {
                         id: this.id,
                         content: newContent,
@@ -109,7 +109,7 @@ angular.module('rpnow')
             placeholderMsg.sending = true;
             rp.msgs.push(placeholderMsg);
 
-            challegePromise.then(() => {
+            challengePromise.then(() => {
                 msg.challenge = challenge.hash;
                 socket.emit('add message', msg, function(err, data) {
                     if (err) return;
