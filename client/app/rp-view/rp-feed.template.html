@@ -39,7 +39,7 @@
       </header>
 
       <!-- MESSAGE BOX BODY -->
-      <div ng-style="{'color': $root.nightMode? 'white':'black', 'background-color':$root.nightMode?'#303030':'white', opacity:0.7}">
+      <div ng-style="{'color': $root.nightModeSetting.value? 'white':'black', 'background-color':$root.nightModeSetting.value?'#303030':'white', opacity:0.7}">
         <div layout="row" layout-align="center center" class="message-box-inner-row">
           <textarea flex id="message-input" rows="4" ng-attr-placeholder="Type your message. {{$ctrl.pressEnterToSend? '(Press Enter to send)' : '(Press Ctrl+Enter to send)'}}" ng-model="$ctrl.msgBox.content" maxlength="{{$ctrl.MAX_MSG_CONTENT_LENGTH}}" on-press-enter="$ctrl.sendMessage()" require-ctrl-key="{{!$ctrl.pressEnterToSend}}"></textarea>
           <md-button ng-class="$root.isDesktopMode ? 'md-fab md-primary' :  'md-icon-button'" ng-style="($ctrl.msgBox.isValid() && $root.isDesktopMode)?{'background-color': $ctrl.msgBox.color(), 'color': ($ctrl.msgBox.color() | contrastColor) }:{}" aria-label="Send" title="Send" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.msgBox.isValid()">
@@ -53,7 +53,7 @@
 
   <!-- RIGHT DRAWER (FOR CHARACTERS) -->
   <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && $ctrl.isRightDrawerLockedOpen()" layout="column" id="rightDrawer">
-    <md-toolbar md-colors="{background:$root.nightMode?'background-900':'background-200'}">
+    <md-toolbar md-colors="{background:$root.nightModeSetting.value?'background-900':'background-200'}">
       <div class="md-toolbar-tools" layout="row">
         <h2 class="md-truncate"><md-icon>group</md-icon> Characters</h2>
         <span flex></span>
@@ -62,7 +62,7 @@
         </md-button>
       </div>
     </md-toolbar>
-    <md-content flex md-colors="{background:$root.nightMode?'background-900':'background-200'}">
+    <md-content flex md-colors="{background:$root.nightModeSetting.value?'background-900':'background-200'}">
       <md-list>
         <md-list-item ng-click="$ctrl.setVoice('narrator')">
           <md-icon>local_library</md-icon> <p>Narrator</p>

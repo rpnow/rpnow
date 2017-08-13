@@ -1,5 +1,5 @@
 angular.module('rpnow', [
-    'LocalStorageModule', 'luegg.directives', 'mp.colorPicker', 'ngMaterial', 'ui.router', 'ngMeta'
+    'luegg.directives', 'mp.colorPicker', 'ngMaterial', 'ui.router', 'ngMeta'
 ])
 
 .config(['$locationProvider', function($locationProvider) {
@@ -21,12 +21,6 @@ angular.module('rpnow', [
     $mdThemingProvider.alwaysWatchTheme(true);
 }])
 
-.config(['localStorageServiceProvider', function(localStorageServiceProvider) {
-    localStorageServiceProvider
-        .setPrefix('rpnow')
-        .setDefaultToCookie(false)
-}])
-
 .run(['ngMeta', function(ngMeta) {
     ngMeta.init();
 }])
@@ -37,8 +31,8 @@ angular.module('rpnow', [
     $rootScope.$uiState = $state;
 }])
 
-.run(['$rootScope', 'localStorageService', function($rootScope, localStorageService) {
-    localStorageService.bind($rootScope, 'nightMode', true);
+.run(['$rootScope', 'globalSettings', function($rootScope, globalSettings) {
+    $rootScope.nightModeSetting = globalSettings.setting('nightMode', true);
 }])
 
 // detect if the user is primarily using touch or a mouse,

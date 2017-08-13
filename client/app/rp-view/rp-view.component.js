@@ -27,7 +27,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'localStorageService', function($timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, localStorageService) {
+.controller('RpController', ['$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', 'pageAlerts', 'globalSettings', function($timeout, $mdMedia, $mdSidenav, $mdDialog, pageAlerts, globalSettings) {
     const $ctrl = this;
     
     $ctrl.MAX_MSG_CONTENT_LENGTH = 10000;
@@ -40,9 +40,9 @@ angular.module('rpnow')
         $mdSidenav('left').toggle();
     };
 
-    $ctrl.pressEnterToSend = true;
-    $ctrl.notificationNoise = 1;
-    $ctrl.showMessageDetails = true;
+    $ctrl.pressEnterToSendSetting = globalSettings.setting('pressEnterToSend', true);
+    $ctrl.notificationNoiseSetting = globalSettings.setting('notificationNoise', 1);
+    $ctrl.showMessageDetailsSetting = globalSettings.setting('showMessageDetails', true);
 
     $ctrl.allNoises = pageAlerts.allNoises;
     $ctrl.openNoiseSelector = function() {
@@ -66,11 +66,11 @@ angular.module('rpnow')
     }
     $ctrl.showDownloadDialog = function(evt) {
         return $mdDialog.show({
-            controller: ['saveRpService', function(saveRpService) {
+            controller: ['saveRpService', 'globalSettings', function(saveRpService, globalSettings) {
                 this.hide = $mdDialog.cancel;
-                this.downloadOOC = true;
-                this.downloadTxt = () => saveRpService.saveTxt($ctrl.rp, this.downloadOOC);
-                this.downloadDocx = () => saveRpService.saveDocx($ctrl.rp, this.downloadOOC)
+                this.downloadOOCSetting = globalSettings.setting('downloadOOC', true);
+                this.downloadTxt = () => saveRpService.saveTxt($ctrl.rp, this.downloadOOCSetting.value);
+                this.downloadDocx = () => saveRpService.saveDocx($ctrl.rp, this.downloadOOCSetting.value)
             }],
             controllerAs: '$ctrl',
             templateUrl: '/rp-view/download-dialog.template.html',
@@ -95,7 +95,7 @@ angular.module('rpnow')
     };
 }])
 
-.controller('RpControllerOld', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'localStorageService', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, localStorageService, saveRpService) {
+.controller('RpControllerOld', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, saveRpService) {
 
     // for SOME REASON this makes scrollglue work properly again
     //  my best guess? view changes are happening AFTER scrollglue tries
@@ -124,8 +124,7 @@ angular.module('rpnow')
 
     // recall these values if they have been saved in localStorage
     // otherwise use the defaults defined earlier in the controller
-    if (localStorageService.isSupported) {
-        ['downloadOOC', 'pressEnterToSend', 'notificationNoise', 'showMessageDetails', 'addCharaBox.color', 'charaListDocked']
+        ['addCharaBox.color', 'charaListDocked']
         .forEach(function(option) {
             var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
             localStorageService.bind($scope, option, initVal);
@@ -135,7 +134,6 @@ angular.module('rpnow')
             var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
             localStorageService.bind($scope, option, initVal, $scope.rp.rpCode+'.'+option);
         });
-    }
 }])
 
 .directive('onPressEnter', function() {

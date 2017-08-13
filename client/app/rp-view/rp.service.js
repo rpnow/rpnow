@@ -2,7 +2,7 @@
 
 angular.module('rpnow')
 
-.factory('rpService', ['$http', 'io', 'localStorageService', function($http, io, localStorageService) {
+.factory('rpService', ['$http', 'io', 'globalSettings', function($http, io, globalSettings) {
     return {
         rp: (rpCode) => new Promise(rpPromiseHandler.bind(null, rpCode))
     };
@@ -13,18 +13,19 @@ angular.module('rpnow')
 
         var socket = io('/', { query: 'rpCode='+rp.rpCode });
 
+        var challengeSetting = globalSettings.setting('challenge', null)
         var challenge = null;
         var challegePromise = new Promise(function(resolve, reject) {
-            if (localStorageService.isSupported && localStorageService.get('challenge.secret')) {
+            if (globalSettings.setting('challenge.secret').value) {
                 resolve(challenge = {
-                    secret: localStorageService.get('challenge.secret') || null,
-                    hash: localStorageService.get('challenge.hash') || null
+                    secret: globalSettings.setting('challenge.secret').value,
+                    hash: globalSettings.setting('challenge.hash').value
                 });
             }
             else $http.get('/api/challenge.json').then(function(res) {
+                globalSettings.setting('challenge.secret').value = challenge.secret;
+                globalSettings.setting('challenge.hash').value = challenge.hash;
                 resolve(challenge = res.data);
-                localStorageService.set('challenge.secret', challenge.secret);
-                localStorageService.set('challenge.hash', challenge.hash);
             });
         });
 

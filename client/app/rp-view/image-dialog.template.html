@@ -12,7 +12,7 @@
     <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
   </md-dialog-content>
   <md-dialog-content ng-hide="$ctrl.sending" class="md-dialog-content" layout="column" layout-align="center center">
-    <md-input-container ng-class="$root.nightMode? 'md-hue-3':'md-hue-2'">
+    <md-input-container ng-class="$root.nightModeSetting.value? 'md-hue-3':'md-hue-2'">
       <label>Enter an image URL:</label>
       <input ng-model="$ctrl.url" ng-trim="true" md-autofocus>
     </md-input-container>

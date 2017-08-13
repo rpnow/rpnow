@@ -20,11 +20,13 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope) {
+.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', 'globalSettings', function($timeout, $mdDialog, $mdMedia, $mdSidenav, globalSettings) {
     const $ctrl = this;
 
     var RECENT_MSG_COUNT = 100;
     var MAX_RECENT_MSG_COUNT = 200;
+
+    var nightModeSetting = globalSettings.setting('nightMode');
 
     $ctrl.$onInit = function() {
         $ctrl.isStoryGlued = true;
@@ -36,8 +38,8 @@ angular.module('rpnow')
         voice: 'narrator',
         isValid: () => ($ctrl.msgBox.content.trim().length > 0),
         color: () => {
-            if ($ctrl.msgBox.voice === 'narrator') return $rootScope.nightMode? '#444444':'#ffffff'; 
-            if ($ctrl.msgBox.voice === 'ooc') return $rootScope.nightMode? '#303030':'#fafafa'; 
+            if ($ctrl.msgBox.voice === 'narrator') return nightModeSetting.value? '#444444':'#ffffff'; 
+            if ($ctrl.msgBox.voice === 'ooc') return nightModeSetting.value? '#303030':'#fafafa'; 
             return $ctrl.rp.charas[$ctrl.msgBox.voice].color;
         }
     };
