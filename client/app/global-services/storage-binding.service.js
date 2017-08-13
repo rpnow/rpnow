@@ -4,7 +4,7 @@ angular.module('rpnow')
 
 .factory('storageBinder', [function() {
     return function($ctrl, propName, key) {
-        let defaultValue = $ctrl[key];
+        let defaultValue = $ctrl[propName];
         Object.defineProperty($ctrl, propName, {
             get: function() {
                 if (localStorage.getItem(key) === null) return defaultValue;
@@ -23,6 +23,6 @@ angular.module('rpnow')
 
 .factory('roomSetting', ['storageBinder', function(storageBinder) {
     return (rpCode) => ({
-        setting: ($ctrl, propName, key) => storageBinder($ctrl, propName ['rpnow',rpCode,(key||propName)].join('.'))
+        setting: ($ctrl, propName, key) => storageBinder($ctrl, propName, ['rpnow',rpCode,(key||propName)].join('.'))
     });
 }])

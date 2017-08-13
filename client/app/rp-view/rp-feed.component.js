@@ -20,7 +20,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', 'globalSetting', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope, globalSetting) {
+.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', 'globalSetting', 'roomSetting', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope, globalSetting, roomSetting) {
     const $ctrl = this;
 
     var RECENT_MSG_COUNT = 100;
@@ -29,6 +29,9 @@ angular.module('rpnow')
     $ctrl.$onInit = function() {
         $ctrl.isStoryGlued = true;
         $ctrl.numMsgsToShow = RECENT_MSG_COUNT;
+        roomSetting($ctrl.rp.rpCode).setting($ctrl.msgBox, 'content', 'msgBox.conent');
+        roomSetting($ctrl.rp.rpCode).setting($ctrl.msgBox, 'voice', 'msgBox.voice');
+        roomSetting($ctrl.rp.rpCode).setting($ctrl, 'recentCharasString');
     };
 
     $ctrl.msgBox = {
@@ -89,6 +92,7 @@ angular.module('rpnow')
 
     $ctrl.recentCharasString = '';
     $ctrl.recentCharas = function() {
+        if (!$ctrl.recentCharasString) return [];
         return $ctrl.recentCharasString
             .split(',')
             .filter(x=>x>=0)

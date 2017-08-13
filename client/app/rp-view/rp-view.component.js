@@ -125,14 +125,6 @@ angular.module('rpnow')
         if ($scope.isStoryGlued) $scope.numMsgsToShow = RECENT_MSG_COUNT;
         else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
     });
-
-    // recall these values if they have been saved in localStorage
-    // otherwise use the defaults defined earlier in the controller
-        ['msgBox.content', 'msgBox.voice', 'msgBox.recentCharasString']
-        .forEach(function(option) {
-            var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
-            localStorageService.bind($scope, option, initVal, $scope.rp.rpCode+'.'+option);
-        });
 }])
 
 .directive('onPressEnter', function() {

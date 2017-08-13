@@ -77,14 +77,14 @@
           <md-icon>person_add</md-icon> <p>New Character...</p>
         </md-list-item>
         <md-divider></md-divider>
-        <md-subheader class="md-no-sticky" ng-show="$ctrl.hasManyCharacters()">Recent</md-subheader>
+        <md-subheader class="md-no-sticky" ng-show="$ctrl.hasManyCharacters() && $ctrl.recentCharas().length > 0">Recent</md-subheader>
         <md-list-item ng-show="$ctrl.hasManyCharacters()" ng-repeat="chara in $ctrl.recentCharas() | orderBy:'name'" ng-click="$ctrl.setVoice(chara.id)">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
           <p class="md-truncate">{{chara.name}}</p>
           <md-icon ng-show="$ctrl.msgBox.voice === chara.id">check</md-icon>
         </md-list-item>
-        <md-divider ng-show="$ctrl.hasManyCharacters()"></md-divider>
-        <md-subheader class="md-no-sticky" ng-show="$ctrl.hasManyCharacters()">All Characters</md-subheader>
+        <md-divider ng-show="$ctrl.hasManyCharacters() && $ctrl.recentCharas().length > 0"></md-divider>
+        <md-subheader class="md-no-sticky" ng-show="$ctrl.hasManyCharacters() && $ctrl.recentCharas().length > 0">All Characters</md-subheader>
         <md-list-item ng-repeat="chara in $ctrl.rp.charas | orderBy:'name'" ng-click="$ctrl.setVoice(chara.id)">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
           <p class="md-truncate">{{chara.name}}</p>
