@@ -128,11 +128,6 @@ angular.module('rpnow')
 
     // recall these values if they have been saved in localStorage
     // otherwise use the defaults defined earlier in the controller
-        ['addCharaBox.color', 'charaListDocked']
-        .forEach(function(option) {
-            var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);
-            localStorageService.bind($scope, option, initVal);
-        });
         ['msgBox.content', 'msgBox.voice', 'msgBox.recentCharasString']
         .forEach(function(option) {
             var initVal = option.split('.').reduce(function(scope,key){return scope[key];},$scope);

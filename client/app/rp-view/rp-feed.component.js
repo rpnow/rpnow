@@ -20,7 +20,7 @@ angular.module('rpnow')
     }
 })
 
-.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope) {
+.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', 'globalSetting', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope, globalSetting) {
     const $ctrl = this;
 
     var RECENT_MSG_COUNT = 100;
@@ -125,6 +125,8 @@ angular.module('rpnow')
     // for the right sidedrawer when resizing window, and opening/closing
     // sidedrawer within different window sizes.
     $ctrl.charaListDocked = false;
+    globalSetting($ctrl, 'charaListDocked');
+
     $ctrl.toggleRightDrawer = function() {
         // change behavior based on if we're on a large screen or not
         if ($mdMedia('gt-md')) {
@@ -195,13 +197,15 @@ angular.module('rpnow')
     }
 }])
 
-.controller('CharaDialogController', ['$mdDialog', function($mdDialog) {
+.controller('CharaDialogController', ['$mdDialog', 'globalSetting', function($mdDialog, globalSetting) {
     this.MAX_CHARA_NAME_LENGTH  = 30;
 
     this.hide = () => $mdDialog.cancel();
     this.name = '';
     this.color = '#ff0000';
     this.sending = false;
+
+    globalSetting(this, 'color', 'addCharaBox.color');
 
     this.isValid = () => this.name.trim().length > 0 && /^#[0-9a-f]{6}$/g.test(this.color);
 

@@ -14,10 +14,8 @@ angular.module('rpnow')
         var socket = io('/', { query: 'rpCode='+rp.rpCode });
 
         var challenge = {};
-        console.log(challenge);
         globalSetting(challenge, 'secret', 'challenge.secret');
         globalSetting(challenge, 'hash', 'challenge.hash');
-        console.log(challenge);
 
         var challegePromise = new Promise(function(resolve, reject) {
             if (challenge.secret) return resolve();
