@@ -99,34 +99,6 @@ angular.module('rpnow')
     };
 }])
 
-.controller('RpControllerOld', ['$scope', '$rootScope', '$timeout', '$mdMedia', '$mdSidenav', '$mdDialog', '$mdToast', 'pageAlerts', 'saveRpService', function($scope, $rootScope, $timeout, $mdMedia, $mdSidenav, $mdDialog, $mdToast, pageAlerts, saveRpService) {
-
-    // for SOME REASON this makes scrollglue work properly again
-    //  my best guess? view changes are happening AFTER scrollglue tries
-    //  to move the scrolling content, so it doesn't scroll the rest of
-    //  the way
-    // this is a dumb workaround but what EVER
-    $scope.$watch('showMessageDetails', checkScrollHeight);
-    $scope.$watch('rp.loading', checkScrollHeight);
-    $scope.$watchCollection('rp.msgs', checkScrollHeight);
-    function checkScrollHeight() { $timeout(() => {},100); }
-
-    $scope.$watch('rp.msgs.length', function(newLength, oldLength) {
-        if (!(newLength > oldLength)) return;
-
-        var msg = $scope.rp.msgs[$scope.rp.msgs.length-1];
-        var alertText;
-        if(msg.type === 'chara') alertText = '* ' + chara(msg).name + ' says...';
-        else if(msg.type === 'narrator') alertText = '* The narrator says...';
-        else if(msg.type === 'ooc') alertText = '* OOC message...';
-        else if(msg.type === 'image') alertText = '* Image posted...'
-        pageAlerts.alert(alertText, $scope.notificationNoise);
-
-        if ($scope.isStoryGlued) $scope.numMsgsToShow = RECENT_MSG_COUNT;
-        else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
-    });
-}])
-
 .directive('onPressEnter', function() {
     return function(scope, element, attrs) {
         element.bind("keypress", function(evt) {

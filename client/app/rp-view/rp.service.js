@@ -95,7 +95,9 @@ angular.module('rpnow')
         });
 
         socket.on('add message', function(msg) {
-            rp.msgs.push(new Message(msg));
+            msg = new Message(msg);
+            rp.msgs.push(msg);
+            if (rp.onNewMessage) rp.onNewMessage(msg);
         });
         socket.on('add character', function(chara) {
             rp.charas.push(new Chara(chara));
@@ -133,6 +135,7 @@ angular.module('rpnow')
                 if (callback) callback();
             });
         };
+        rp.onNewMessage = null;
 
         rp.exit = function() {
             socket.close();

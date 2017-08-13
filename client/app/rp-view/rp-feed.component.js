@@ -16,11 +16,12 @@ angular.module('rpnow')
     bindings: {
         rp: '<',
         pressEnterToSend: '<',
-        showDetails: '<'
+        showDetails: '<',
+        notificationNoise: '<'
     }
 })
 
-.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', 'globalSetting', 'roomSetting', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope, globalSetting, roomSetting) {
+.controller('RpFeedController', ['$timeout', '$mdDialog', '$mdMedia', '$mdSidenav', '$rootScope', 'globalSetting', 'roomSetting', 'pageAlerts', function($timeout, $mdDialog, $mdMedia, $mdSidenav, $rootScope, globalSetting, roomSetting, pageAlerts) {
     const $ctrl = this;
 
     var RECENT_MSG_COUNT = 100;
@@ -32,6 +33,7 @@ angular.module('rpnow')
         roomSetting($ctrl.rp.rpCode).setting($ctrl.msgBox, 'content', 'msgBox.conent');
         roomSetting($ctrl.rp.rpCode).setting($ctrl.msgBox, 'voice', 'msgBox.voice');
         roomSetting($ctrl.rp.rpCode).setting($ctrl, 'recentCharasString');
+        $ctrl.rp.onNewMessage = $ctrl.onNewMessage;
     };
 
     $ctrl.msgBox = {
@@ -169,6 +171,21 @@ angular.module('rpnow')
         })
     };
 
+    $ctrl.onNewMessage = function(msg) {
+        var alertText;
+        if(msg.type === 'chara') alertText = '* ' + chara(msg).name + ' says...';
+        else if(msg.type === 'narrator') alertText = '* The narrator says...';
+        else if(msg.type === 'ooc') alertText = '* OOC message...';
+        else if(msg.type === 'image') alertText = '* Image posted...'
+        pageAlerts.alert(alertText, $ctrl.notificationNoise);
+
+        if ($ctrl.isStoryGlued) $ctrl.numMsgsToShow = RECENT_MSG_COUNT;
+        else $ctrl.numMsgsToShow = Math.min($ctrl.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
+    };
+
+    $ctrl.$onDestroy = function() {
+        $ctrl.rp.onNewMessage = null;
+    };
 }])
 
 .controller('ImageDialogController', ['$mdDialog', '$mdToast', function($mdDialog, $mdToast) {
