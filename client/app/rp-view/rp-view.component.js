@@ -122,26 +122,6 @@ angular.module('rpnow')
         else $scope.numMsgsToShow = Math.min($scope.numMsgsToShow+1, MAX_RECENT_MSG_COUNT);
     });
 
-    $scope.$watch('msgBox.voice', function(newChara) {
-        if (!(newChara >= 0)) return;
-        if ($scope.msgBox.recentCharasString === undefined) return;
-        if ($scope.rp.charas === undefined) return;
-
-        var c = $scope.rp.charas[newChara];
-        var rc = $scope.msgBox.recentCharas();
-        // add to 'recent' list if it isn't already there
-        if (rc.indexOf(c) === -1) rc.unshift(c);
-        // or move it to the top
-        else {
-            rc.splice(rc.indexOf(c),1);
-            rc.unshift(c);
-        }
-        if(rc.length > 5) {
-            rc.splice(5, rc.length);
-        }
-        $scope.msgBox.recentCharasString = rc.map(c=>$scope.id(c)).join(',');
-    })
-
     // recall these values if they have been saved in localStorage
     // otherwise use the defaults defined earlier in the controller
     if (localStorageService.isSupported) {

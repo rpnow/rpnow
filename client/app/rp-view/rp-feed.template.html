@@ -55,7 +55,7 @@
   <md-sidenav class="md-sidenav-right noselect" md-component-id="right" md-is-locked-open="$mdMedia('gt-md') && $ctrl.isRightDrawerLockedOpen()" layout="column" id="rightDrawer">
     <md-toolbar md-colors="{background:$root.nightMode?'background-900':'background-200'}">
       <div class="md-toolbar-tools" layout="row">
-        <h2 class="md-truncate"><md-icon>group</md-icon> All Characters</h2>
+        <h2 class="md-truncate"><md-icon>group</md-icon> Characters</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="$ctrl.toggleRightDrawer()" title="Close">
           <md-icon>close</md-icon>
@@ -83,8 +83,8 @@
           <p class="md-truncate">{{chara.name}}</p>
           <md-icon ng-show="$ctrl.msgBox.voice === chara.id">check</md-icon>
         </md-list-item>
-        <md-divider ng-show="hasManyCharacters()"></md-divider>
-        <md-subheader class="md-no-sticky" ng-show="hasManyCharacters()">All Characters</md-subheader>
+        <md-divider ng-show="$ctrl.hasManyCharacters()"></md-divider>
+        <md-subheader class="md-no-sticky" ng-show="$ctrl.hasManyCharacters()">All Characters</md-subheader>
         <md-list-item ng-repeat="chara in $ctrl.rp.charas | orderBy:'name'" ng-click="$ctrl.setVoice(chara.id)">
           <md-icon ng-style="{'color':chara.color,'text-shadow':(chara.color|needsContrastColor)?'1px 1px 0px '+(chara.color|contrastColor:0.3) : ''}">person</md-icon>
           <p class="md-truncate">{{chara.name}}</p>

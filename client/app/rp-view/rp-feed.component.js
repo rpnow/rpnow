@@ -94,12 +94,31 @@ angular.module('rpnow')
             .filter(x=>x>=0)
             .map(x=>$ctrl.rp.charas[+x]);
     };
+    $ctrl.updateRecentCharas = function() {
+        var charaId = $ctrl.msgBox.voice;
+        if (!(charaId >= 0)) return;
+
+        var c = $ctrl.rp.charas[charaId];
+        var rc = $ctrl.recentCharas();
+        // add to 'recent' list if it isn't already there
+        if (rc.indexOf(c) === -1) rc.unshift(c);
+        // or move it to the top
+        else {
+            rc.splice(rc.indexOf(c),1);
+            rc.unshift(c);
+        }
+        if(rc.length > 5) {
+            rc.splice(5, rc.length);
+        }
+        $ctrl.recentCharasString = rc.map(c=>c.id).join(',');
+    };
 
     $ctrl.hasManyCharacters = () => $ctrl.rp.charas.length > 10;
 
     $ctrl.setVoice = function(voice) {
         $ctrl.msgBox.voice = voice;
         $mdSidenav('right').close();
+        if (voice >= 0) $ctrl.updateRecentCharas();
     };
 
     // all this complicated logic ends up creating intuitive behavior
@@ -128,7 +147,10 @@ angular.module('rpnow')
         return $mdDialog.show({
             controller: 'CharaDialogController',
             controllerAs: '$ctrl',
-            locals: { rp: $ctrl.rp },
+            locals: {
+                rp: $ctrl.rp,
+                onComplete: () => $timeout(() => $mdSidenav('right').close(), 100) 
+            },
             bindToController: true,
             templateUrl: '/rp-view/chara-dialog.template.html',
             parent: angular.element(document.body),
@@ -136,8 +158,8 @@ angular.module('rpnow')
             clickOutsideToClose: true,
             fullscreen: $mdMedia('xs')
         }).then(function() { 
-            $timeout(() => $mdSidenav('right').close(), 100);
-            $ctrl.msgBox.voice = $ctrl.rp.charas.length-1
+            $ctrl.msgBox.voice = $ctrl.rp.charas.length-1;
+            $ctrl.updateRecentCharas();
         })
     };
 
@@ -185,7 +207,10 @@ angular.module('rpnow')
 
     this.send = () => {
         let data = { name: this.name, color: this.color };
-        this.rp.addChara(data, () => $mdDialog.hide() );
+        this.rp.addChara(data, () => {
+            if (this.onComplete) this.onComplete();
+            $mdDialog.hide()
+        });
         this.sending = true;
     }
 }])
