@@ -1,1 +1,16 @@
-<h1>It's the archive.</h1>
+<div layout-fill layout="row">
+
+  <div flex layout="column">
+    <!-- MESSAGES PANE -->
+    <md-content flex layout="column">
+      <div id="message-container">
+        <rp-message ng-repeat="msg in $ctrl.msgs" msg="msg" show-details="false" quick-edit="$ctrl.pressEnterToSend"></rp-message>
+      </div>
+    </md-content>
+
+    <div layout="column" id="archive-jump-box">
+      Paginator here
+    </div>
+  </div>
+
+</div>

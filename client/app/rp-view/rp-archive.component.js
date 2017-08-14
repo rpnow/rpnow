@@ -12,9 +12,23 @@ angular.module('rpnow')
 
 .component('rpArchive', {
     templateUrl: '/rp-view/rp-archive.template.html',
-    controller: 'RpArchiveController'
+    controller: 'RpArchiveController',
+    bindings: {
+        rp: '<',
+        pressEnterToSend: '<',
+        showDetails: '<'
+    }
 })
 
-.controller('RpArchiveController', [function() {
-    console.log('archive');
+.controller('RpArchiveController', ['$stateParams', function($stateParams) {
+    const $ctrl = this;
+
+    const POSTS_PER_PAGE = 5;
+    
+    $ctrl.$onInit = function() {
+        $ctrl.page = +$stateParams.page;
+        $ctrl.numPages = Math.ceil($ctrl.rp.msgs.length/POSTS_PER_PAGE);
+        let startId = ($ctrl.page - 1) * POSTS_PER_PAGE;
+        $ctrl.msgs = $ctrl.rp.msgs.slice(startId, startId+POSTS_PER_PAGE);
+    }
 }])
