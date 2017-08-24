@@ -1,16 +1,39 @@
-<div layout-fill layout="row">
+<div layout-fill flex layout="column">
 
-  <div flex layout="column">
-    <!-- MESSAGES PANE -->
-    <md-content flex layout="column">
-      <div id="message-container">
-        <rp-message ng-repeat="msg in $ctrl.msgs" msg="msg" show-details="false" quick-edit="$ctrl.pressEnterToSend"></rp-message>
-      </div>
-    </md-content>
-
-    <div layout="column" id="archive-jump-box">
-      Paginator here
+  <!-- MESSAGES PANE -->
+  <md-content flex layout="column">
+    <div id="message-container">
+      <rp-message ng-repeat="msg in $ctrl.msgs" msg="msg" show-details="false" quick-edit="$ctrl.pressEnterToSend"></rp-message>
     </div>
-  </div>
+  </md-content>
+
+  <!-- PAGINATOR -->
+  <md-toolbar flex="none" id="paginator" class="md-toolbar-bottom">
+    <div layout="row" layout-align="center center" class="md-toolbar-tools noselect">
+      <md-button class="md-icon-button" aria-label="To first page" ui-sref="rp.archive({page:1})">
+        <md-tooltip ng-if="$root.hasMouse" md-direction="top">To first page</md-tooltip>
+        <md-icon>first_page</md-icon>
+      </md-button>
+
+      <md-button class="md-icon-button" aria-label="Previous page" ui-sref="rp.archive({page:{{$ctrl.prevPage}}})">
+        <md-tooltip ng-if="$root.hasMouse" md-direction="top">Previous page</md-tooltip>
+        <md-icon>chevron_left</md-icon>
+      </md-button>
+      
+      <span>
+        Page {{$ctrl.page}} of {{$ctrl.numPages}}
+      </span>
+
+      <md-button class="md-icon-button" aria-label="Next page" ui-sref="rp.archive({page:{{$ctrl.nextPage}}})">
+        <md-tooltip ng-if="$root.hasMouse" md-direction="top">Next page</md-tooltip>
+        <md-icon>chevron_right</md-icon>
+      </md-button>
+
+      <md-button class="md-icon-button" aria-label="To latest page" ui-sref="rp.archive({page:{{$ctrl.numPages}}})">
+        <md-tooltip ng-if="$root.hasMouse" md-direction="top">To latest page</md-tooltip>
+        <md-icon>last_page</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
 
 </div>

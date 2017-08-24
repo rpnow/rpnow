@@ -26,8 +26,12 @@ angular.module('rpnow')
     const POSTS_PER_PAGE = 5;
     
     $ctrl.$onInit = function() {
-        $ctrl.page = +$stateParams.page;
         $ctrl.numPages = Math.ceil($ctrl.rp.msgs.length/POSTS_PER_PAGE);
+
+        $ctrl.page = +$stateParams.page;
+        $ctrl.prevPage = Math.max($ctrl.page-1, 1);
+        $ctrl.nextPage = Math.min($ctrl.page+1, $ctrl.numPages);
+
         let startId = ($ctrl.page - 1) * POSTS_PER_PAGE;
         $ctrl.msgs = $ctrl.rp.msgs.slice(startId, startId+POSTS_PER_PAGE);
     }

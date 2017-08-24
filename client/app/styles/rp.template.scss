@@ -8,6 +8,10 @@ html[state^="rp"], html[state^="rp"] body {
     md-toolbar {
         border-bottom: 1px solid #999;
     }
+    md-toolbar.md-toolbar-bottom {
+        border-bottom: none;
+        border-top: 1px solid #999;
+    }
     #appBar h1, #leftDrawer h2 {
         text-align: center;
     }
