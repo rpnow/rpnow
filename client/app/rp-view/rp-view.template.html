@@ -97,9 +97,9 @@
           {{$ctrl.rp.title}}
         </h1>
         <div class="right-buttons" layout="row" layout-align="end center">
-          <button hide show-gt-xs class="md-button md-icon-button" aria-label="Invite friends" id="inviteButton" ng-click="$ctrl.showInviteDialog($event)">
-            <md-tooltip ng-if="$root.hasMouse">Invite friends</md-tooltip>
-            <md-icon>mail</md-icon>
+          <button hide show-gt-xs class="md-button md-icon-button" aria-label="Read archive" ui-sref="rp.feed">
+            <md-tooltip ng-if="$root.hasMouse">Chat</md-tooltip>
+            <md-icon>question_answer</md-icon>
           </button>
           <button hide show-gt-xs class="md-button md-icon-button" aria-label="Read archive" ui-sref="rp.archive({page:1})">
             <md-tooltip ng-if="$root.hasMouse">Read archive</md-tooltip>

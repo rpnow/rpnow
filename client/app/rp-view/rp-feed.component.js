@@ -34,6 +34,7 @@ angular.module('rpnow')
         roomSetting($ctrl.rp.rpCode).setting($ctrl.msgBox, 'voice', 'msgBox.voice');
         roomSetting($ctrl.rp.rpCode).setting($ctrl, 'recentCharasString');
         $ctrl.rp.onNewMessage = $ctrl.onNewMessage;
+        $ctrl.inviteUrl = location.href.split('#')[0];
     };
 
     $ctrl.msgBox = {

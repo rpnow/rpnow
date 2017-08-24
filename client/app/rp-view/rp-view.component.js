@@ -54,19 +54,6 @@ angular.module('rpnow')
         })
     }
 
-    $ctrl.showInviteDialog = function(evt) {
-        return $mdDialog.show({
-            controller: () => ({
-                hide: $mdDialog.cancel,
-                inviteUrl: location.href.split('#')[0]
-            }),
-            controllerAs: '$ctrl',
-            templateUrl: '/rp-view/invite-dialog.template.html',
-            parent: angular.element(document.body),
-            targetEvent: evt,
-            clickOutsideToClose: true
-        });
-    }
     $ctrl.showDownloadDialog = function(evt) {
         return $mdDialog.show({
             controller: ['saveRpService', 'globalSetting', function(saveRpService, globalSetting) {

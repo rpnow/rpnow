@@ -2,11 +2,30 @@
 
   <div flex layout="column">
     <!-- MESSAGES PANE -->
-    <md-content flex layout="column" scroll-glue="$ctrl.isStoryGlued">
+    <md-content ng-if="$ctrl.rp.msgs.length > 0" flex layout="column" scroll-glue="$ctrl.isStoryGlued">
       <div id="message-container">
         <rp-message ng-repeat="msg in $ctrl.rp.msgs.slice(-$ctrl.numMsgsToShow)" msg="msg" show-details="$ctrl.showDetails" quick-edit="$ctrl.pressEnterToSend"></rp-message>
       </div>
     </md-content>
+
+    <!-- TODO add information on inviting, welcoming, etc -->
+    <div flex ng-if="$ctrl.rp.msgs.length === 0" layout="column" layout-align="center center">
+      <span class="md-display-1">
+        This is your new RP!
+        <md-icon>favorite</md-icon>
+      </span>
+      <span class="md-subhead">Let's get started:</span>
+
+      <span class="md-title">Invite your friends! <md-icon>mail</md-icon></span>
+      <span>Just send them this room URL: <a class="link" href="{{$ctrl.inviteUrl}}">{{$ctrl.inviteUrl}}</a></span>
+
+      <span class="md-title">Create characters! <md-icon>face</md-icon></span>
+      <span>Click on the "Narrator" icon below.</span>
+
+      <span class="md-title">Start writing! <md-icon>edit</md-icon></span>
+      <span>That's it! Have fun!</span>
+    </div>
+
 
     <!-- MESSAGE BOX -->
     <div layout="column" id="message-input-box" ng-style="{'background-color': $ctrl.msgBox.color(), 'color':($ctrl.msgBox.color() | contrastColor:0.7) }" ng-class="($ctrl.msgBox.color() | contrastColor)==='white'?'dark':'light'">
