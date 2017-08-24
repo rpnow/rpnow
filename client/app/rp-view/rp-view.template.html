@@ -97,18 +97,18 @@
           {{$ctrl.rp.title}}
         </h1>
         <div class="right-buttons" layout="row" layout-align="end center">
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Invite friends" id="inviteButton" ng-click="$ctrl.showInviteDialog($event)">
+          <button hide show-gt-xs class="md-button md-icon-button" aria-label="Invite friends" id="inviteButton" ng-click="$ctrl.showInviteDialog($event)">
             <md-tooltip ng-if="$root.hasMouse">Invite friends</md-tooltip>
             <md-icon>mail</md-icon>
-          </md-button>
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Read archive" ui-sref="rp.archive({page:1})">
+          </button>
+          <button hide show-gt-xs class="md-button md-icon-button" aria-label="Read archive" ui-sref="rp.archive({page:1})">
             <md-tooltip ng-if="$root.hasMouse">Read archive</md-tooltip>
             <md-icon>import_contacts</md-icon>
-          </md-button>
-          <md-button hide show-gt-xs class="md-icon-button" aria-label="Download RP" ng-click="$ctrl.showDownloadDialog($event)">
+          </button>
+          <button hide show-gt-xs class="md-button md-icon-button" aria-label="Download RP" ng-click="$ctrl.showDownloadDialog($event)">
             <md-tooltip ng-if="$root.hasMouse">Download RP</md-tooltip>
             <md-icon>cloud_download</md-icon>
-          </md-button>
+          </button>
           <md-menu hide-gt-xs aria-hidden="true" md-position-mode="target-right target">
             <md-button class="md-icon-button" title="RP options" ng-click="$mdOpenMenu($event)">
               <md-icon md-menu-origin>expand_more</md-icon>
