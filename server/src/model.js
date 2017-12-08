@@ -1,12 +1,9 @@
 const request = require('request');
 const crypto = require('crypto');
-const mongojs = require('mongojs');
 const nJ = require('normalize-json');
 const promisify = require('util').promisify;
 const config = require('./config');
 const dao = require('./dao.mongo');
-
-const db = mongojs(`${config.get('DB_HOST')}/rpnow`, ['rooms']);
 
 const roomOptionsSchema = nJ({
     'title': [ String, config.get('maxTitleLength') ],
@@ -77,17 +74,7 @@ module.exports.createRp = function(input, callback) {
     }
 
     generateRpCode().then(rpCode => {
-        let room = {
-            rpCode: rpCode,
-            title: roomOptions.title,
-            desc: roomOptions.desc,
-            msgs: [],
-            charas: []
-        }
-        if (roomOptions.desc === undefined) delete room.desc;
-
-        db.rooms.insert(room, (err, rp) => {
-            if (err) return callback({ code: 'DB_ERROR', details: err.message });
+        dao.addRoom(rpCode, roomOptions).then(() => {
             callback(null, { rpCode });
         });
     });
@@ -95,16 +82,9 @@ module.exports.createRp = function(input, callback) {
 
 module.exports.getRp = function(rpCode, callback) {
     if (typeof rpCode !== 'string') return callback({code: 'BAD_RPCODE'});
-    
-    db.rooms.findOne({ rpCode: rpCode }, (err, rp) => {
-        if (!rp) return callback({code: 'RP_NOT_FOUND'});
-        
-        let data = {
-            id: rp._id,
-            rp: rp
-        }
-        delete data.rp._id;
-        delete data.rp.rpCode;
+
+    dao.getRoomByCode(rpCode).then(data => {
+        if (!data) return callback({code: 'RP_NOT_FOUND'});
         callback(null, data);
     });
 };
@@ -113,8 +93,7 @@ function pushToMsgs(rpid, msg, ipid, callback) {
     msg.timestamp = Date.now() / 1000;
     msg.ipid = ipid;
 
-    db.rooms.update({ _id: rpid }, {$push: {msgs: msg}}, (err, r) => {
-        if (err) return callback({ code: 'DB_ERROR', details: err.message });
+    dao.addMessage(rpid, msg).then(() => {
         callback(null, { msg });
     });
 }
@@ -131,10 +110,8 @@ module.exports.addMessage = function(rpid, input, ipid, callback) {
     // store & broadcast
     if (msg.type === 'chara') {
         // charas must be in the chara list
-        db.rooms.findOne({ _id: rpid }, { charas: 1 }, (err, rp) => {
-            if (err) return callback({ code: 'DB_ERROR', details: err });
-
-            if (msg.charaId >= rp.charas.length) return callback({code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`});
+        dao.charaExists(rpid, msg.charaId).then(exists => {
+            if (!exists) return callback({code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`});
 
             pushToMsgs(rpid, msg, ipid, callback);
         });
@@ -172,8 +149,7 @@ module.exports.addChara = function(rpid, inputChara, ipid, callback) {
     }
 
     // store & broadcast
-    db.rooms.update({ _id: rpid }, {$push: {charas: chara}}, (err) => {
-        if (err) return callback({ code: 'DB_ERROR', details: err });
+    dao.addChara(rpid, chara).then(() => {
         callback(null, { chara });
     });
 };
@@ -188,19 +164,14 @@ module.exports.editMessage = function(rpid, input, ipid, callback) {
     }
 
     // check if the message is there
-    db.rooms.findOne({ _id: rpid }, { _id: 0, msgs: {$slice:[editInfo.id,1]} }, (err, rp) => {
-        if (err) return callback({ code: 'DB_ERROR', details: err });
-
-        if (rp.msgs.length === 0) return callback({ code: 'BAD_MSG_ID' });
-
-        let msg = rp.msgs[0];
+    dao.getMessage(rpid, editInfo.id).then(msg => {
+        if (!msg) return callback({ code: 'BAD_MSG_ID' });
 
         if (!isCorrectSecret(editInfo.secret, msg.challenge)) return callback({ code: 'BAD_SECRET'});
 
         msg.content = editInfo.content;
         msg.edited = (Date.now() / 1000);
-        db.rooms.update({ _id: rpid }, { $set: { [`msgs.${editInfo.id}.content`]:msg.content, [`msgs.${editInfo.id}.edited`]:msg.edited }}, (err) => {
-            if (err) return callback({ code: 'DB_ERROR', details: err });
+        dao.editMessage(rpid, editInfo.id, msg).then(() => {
             callback(null, { msg });
         });
 
