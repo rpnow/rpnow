@@ -2,7 +2,9 @@ const request = require('request');
 const crypto = require('crypto');
 const mongojs = require('mongojs');
 const nJ = require('normalize-json');
+const promisify = require('util').promisify;
 const config = require('./config');
+const dao = require('./dao.mongo');
 
 const db = mongojs(`${config.get('DB_HOST')}/rpnow`, ['rooms']);
 
@@ -26,30 +28,21 @@ const editMessageSchema = nJ({
     'secret': [ String, 64 ]
 });
 
-function generateRpCode(callback) {
+async function generateRpCode() {
     let length = config.get('rpCodeLength');
     let characters = config.get('rpCodeChars');
 
     let numCryptoBytes = length * 2; // ample bytes just in case
-    crypto.randomBytes(numCryptoBytes, gotBytes);
-
-    function gotBytes(err, buffer) {
-        if (err) return callback(err);
+    while (true) {
+        let buffer = await promisify(crypto.randomBytes)(numCryptoBytes);
 
         let token = buffer.toString('base64');
         let rpCode = token.match(new RegExp(characters.split('').join('|'), 'g')).join('').substr(0, length);
         
-        // if it generated a bad rp code, try again
-        if (rpCode.length !== length) {
-            return crypto.randomBytes(numCryptoBytes, gotBytes);
-        }
-        // ensure code doesn't exist already
-        db.rooms.findOne({ rpCode: rpCode }, (err, rp) => {
-            if (err) return callback(err);
-            if (rp) return crypto.randomBytes(numCryptoBytes, gotBytes);
+        if (rpCode.length !== length) continue;
 
-            callback(null, rpCode);
-        });
+        let rp = await dao.getRoomByCode(rpCode);
+        if (!rp) return rpCode;
     }
 }
 
@@ -83,7 +76,7 @@ module.exports.createRp = function(input, callback) {
         return callback({code: 'BAD_RP', details: error.message});
     }
 
-    generateRpCode((err, rpCode) => {
+    generateRpCode().then(rpCode => {
         let room = {
             rpCode: rpCode,
             title: roomOptions.title,
