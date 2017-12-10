@@ -60,38 +60,38 @@ module.exports = function onConnection(socket) {
     })
     
     socket.on('add message', (msg, callback) => {
-        model.addMessage(rpid, msg, ipid, (err, data) => {
-            if (err) return callback(err);
-
+        model.addMessage(rpid, msg, ipid).then(data => {
             callback(null, data.msg);
             socket.to(rpid).broadcast.emit('add message', data.msg);
+        }).catch(err => {
+            callback(err);
         });
     });
 
     socket.on('edit message', (editInfo, callback) => {
-        model.editMessage(rpid, editInfo, ipid, (err, data) => {
-            if (err) return callback(err);
-
+        model.editMessage(rpid, editInfo, ipid).then(data => {
             callback(null, data.msg);
             socket.to(rpid).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
+        }).catch(err => {
+            callback(err);
         });
     })
 
     socket.on('add image', (url, callback) => {
-        model.addImage(rpid, url, ipid, (err, data) => {
-            if (err) return callback(err);
-
+        model.addImage(rpid, url, ipid).then(data =>{
             callback(null, data.msg);
             socket.to(rpid).broadcast.emit('add message', data.msg);
+        }).catch(err => {
+            callback(err);
         });
     })
 
     socket.on('add character', (chara, callback) => {
-        model.addChara(rpid, chara, ipid, (err, data) => {
-            if (err) return callback(err);
-
+        model.addChara(rpid, chara, ipid).then(data => {
             callback(null, data.chara);
             socket.to(rpid).broadcast.emit('add character', data.chara);
+        }).catch(err => {
+            callback(err);
         })
     });
 };

@@ -1,4 +1,4 @@
-const request = require('request');
+const request = require('request-promise-native');
 const crypto = require('crypto');
 const nJ = require('normalize-json');
 const promisify = require('util').promisify;
@@ -89,91 +89,85 @@ module.exports.getRp = function(rpCode, callback) {
     });
 };
 
-function pushToMsgs(rpid, msg, ipid, callback) {
+async function pushToMsgs(rpid, msg, ipid) {
     msg.timestamp = Date.now() / 1000;
     msg.ipid = ipid;
 
-    dao.addMessage(rpid, msg).then(() => {
-        callback(null, { msg });
-    });
+    await dao.addMessage(rpid, msg);
+    return { msg };
 }
 
-module.exports.addMessage = function(rpid, input, ipid, callback) {
+module.exports.addMessage = async function(rpid, input, ipid) {
     let msg;
     try {
         msg = addMessageSchema(input);
     }
     catch (error) {
-        return callback({code: 'BAD_MSG', details: error.message});
+        throw {code: 'BAD_MSG', details: error.message};
     }
     
     // store & broadcast
     if (msg.type === 'chara') {
         // charas must be in the chara list
-        dao.charaExists(rpid, msg.charaId).then(exists => {
-            if (!exists) return callback({code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`});
+        let exists = await dao.charaExists(rpid, msg.charaId);
+        if (!exists) throw {code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`};
+    }
 
-            pushToMsgs(rpid, msg, ipid, callback);
-        });
-    }
-    else {
-        pushToMsgs(rpid, msg, ipid, callback);
-    }
+    return await pushToMsgs(rpid, msg, ipid);
 };
 
-module.exports.addImage = function(rpid, url, ipid, callback) {
-    if (typeof url !== 'string') return callback({code: 'BAD_URL'});
+module.exports.addImage = async function(rpid, url, ipid) {
+    if (typeof url !== 'string') throw {code: 'BAD_URL'};
 
     // validate image
-    request.head(url, (err, res) => {
-        if (err) return callback({ code: 'URL_FAILED', details: err.message });
-        if (!res.headers['content-type']) return callback({ code: 'UNKNOWN_CONTENT' });
-        if (!res.headers['content-type'].startsWith('image/')) return callback({code: 'BAD_CONTENT'});
+    let res;
+    try {
+        res = await request.head(url);
+    }
+    catch (err) {
+        throw { code: 'URL_FAILED', details: err.message };
+    }
+    if (!res['content-type']) throw { code: 'UNKNOWN_CONTENT' };
+    if (!res['content-type'].startsWith('image/')) throw {code: 'BAD_CONTENT'};
 
-        // store & broadcast
-        let msg = {
-            type: 'image',
-            url: url
-        };
-        pushToMsgs(rpid, msg, ipid, callback);
-    });
+    // store & broadcast
+    let msg = {
+        type: 'image',
+        url: url
+    };
+    return await pushToMsgs(rpid, msg, ipid);
 };
 
-module.exports.addChara = function(rpid, inputChara, ipid, callback) {
+module.exports.addChara = async function(rpid, inputChara, ipid) {
     let chara;
     try {
         chara = addCharaSchema(inputChara);
     }
     catch (error) {
-        return callback({code: 'BAD_CHARA', details: error.message});
+        throw {code: 'BAD_CHARA', details: error.message};
     }
 
-    // store & broadcast
-    dao.addChara(rpid, chara).then(() => {
-        callback(null, { chara });
-    });
+    await dao.addChara(rpid, chara);
+    return { chara };
 };
 
-module.exports.editMessage = function(rpid, input, ipid, callback) {
+module.exports.editMessage = async function(rpid, input, ipid) {
     let editInfo;
     try {
         editInfo = editMessageSchema(input);
     }
     catch (error) {
-        return callback({code: 'BAD_EDIT', details: error.message});
+        throw {code: 'BAD_EDIT', details: error.message};
     }
 
     // check if the message is there
-    dao.getMessage(rpid, editInfo.id).then(msg => {
-        if (!msg) return callback({ code: 'BAD_MSG_ID' });
+    let msg = await dao.getMessage(rpid, editInfo.id);
+    if (!msg) throw { code: 'BAD_MSG_ID' };
 
-        if (!isCorrectSecret(editInfo.secret, msg.challenge)) return callback({ code: 'BAD_SECRET'});
+    if (!isCorrectSecret(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET'};
 
-        msg.content = editInfo.content;
-        msg.edited = (Date.now() / 1000);
-        dao.editMessage(rpid, editInfo.id, msg).then(() => {
-            callback(null, { msg });
-        });
-
-    });
+    msg.content = editInfo.content;
+    msg.edited = (Date.now() / 1000);
+    await dao.editMessage(rpid, editInfo.id, msg);
+    return { msg };
 };
