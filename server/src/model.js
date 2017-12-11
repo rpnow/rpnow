@@ -43,41 +43,34 @@ async function generateRpCode() {
     }
 }
 
-module.exports.generateChallenge = function(callback) {
-    crypto.randomBytes(32, (err, buf) => {
-        if (err) return callback({ code: 'INTERNAL_ERROR', details: err });
+module.exports.generateChallenge = async function() {
+    let buf = await promisify(crypto.randomBytes)(32);
 
-        let secret = buf.toString('hex');
-        let hash = crypto.createHash('sha512')
-            .update(secret)
-            .digest('hex');
+    let secret = buf.toString('hex');
+    let hash = createHash(secret);
 
-        callback(null, {secret, hash});
-    });
+    return {secret, hash};
 };
 
-function isCorrectSecret(guess, hash) {
-    let guessHash = crypto.createHash('sha512')
-        .update(guess)
+function createHash(secret) {
+    return crypto.createHash('sha512')
+        .update(secret)
         .digest('hex');
-
-    return guessHash === hash;
 }
 
-module.exports.createRp = function(input, callback) {
+module.exports.createRp = async function(input) {
     let roomOptions;
     try {
         roomOptions = roomOptionsSchema(input);
     }
     catch (error) {
-        return callback({code: 'BAD_RP', details: error.message});
+        throw {code: 'BAD_RP', details: error.message};
     }
 
-    generateRpCode().then(rpCode => {
-        dao.addRoom(rpCode, roomOptions).then(() => {
-            callback(null, { rpCode });
-        });
-    });
+    let rpCode = await generateRpCode();
+    await dao.addRoom(rpCode, roomOptions);
+
+    return { rpCode };
 };
 
 module.exports.getRp = function(rpCode, callback) {
@@ -164,7 +157,7 @@ module.exports.editMessage = async function(rpid, input, ipid) {
     let msg = await dao.getMessage(rpid, editInfo.id);
     if (!msg) throw { code: 'BAD_MSG_ID' };
 
-    if (!isCorrectSecret(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET'};
+    if (createHash(editInfo.secret) !== msg.challenge) throw { code: 'BAD_SECRET'};
 
     msg.content = editInfo.content;
     msg.edited = (Date.now() / 1000);

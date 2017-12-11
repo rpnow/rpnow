@@ -9,17 +9,15 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 router.post('/rp.json', (req, res, next) => {
     let roomOptions = req.body;
-    model.createRp(roomOptions, (err, data) => {
-        if (err) return next(err);
-        res.status(201).json(data);
-    });
+    model.createRp(roomOptions)
+        .then(data => res.status(201).json(data))
+        .catch(err => next(err))
 })
 
 router.get('/challenge.json', (req, res, next) => {
-    model.generateChallenge((err, data) => {
-        if (err) return next(err);
-        res.status(200).json(data);
-    });
+    model.generateChallenge()
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err))
 })
 
 router.all('*', (req, res, next) => {
