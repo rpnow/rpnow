@@ -73,13 +73,13 @@ module.exports.createRp = async function(input) {
     return { rpCode };
 };
 
-module.exports.getRp = function(rpCode, callback) {
-    if (typeof rpCode !== 'string') return callback({code: 'BAD_RPCODE'});
+module.exports.getRp = async function(rpCode) {
+    if (typeof rpCode !== 'string') throw {code: 'BAD_RPCODE'};
 
-    dao.getRoomByCode(rpCode).then(data => {
-        if (!data) return callback({code: 'RP_NOT_FOUND'});
-        callback(null, data);
-    });
+    let data = await dao.getRoomByCode(rpCode);
+    if (!data) throw {code: 'RP_NOT_FOUND'};
+
+    return data;
 };
 
 async function pushToMsgs(rpid, msg, ipid) {

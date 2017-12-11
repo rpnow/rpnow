@@ -16,27 +16,25 @@ const safecall = function(callback) {
 };
 
 module.exports = function onConnection(socket) {
-    let ip = config.get('trustProxy')
+    const ip = config.get('trustProxy')
         && socket.handshake.headers['x-forwarded-for']
         || socket.request.connection.remoteAddress;
-    let ipid = crypto.createHash('md5')
+    const ipid = crypto.createHash('md5')
         .update(ip)
         .digest('hex')
         .substr(0,18);
 
-    let rpCode = socket.handshake.query.rpCode;
+    const rpCode = socket.handshake.query.rpCode;
+
     let rpid;
-
-    let rpInit = new Promise((resolve, reject) => {
-        model.getRp(rpCode, (err, data) => {
-            if (err) return reject(err);
-
-            rpid = data.id;
-            socket.join(rpid);
-            socket.emit('load rp', data.rp);
-            return resolve(data);
-        });
-    }).catch(err => socket.emit('rp error', err));
+    const rpInit = model.getRp(rpCode).then(data => {
+        rpid = data.id;
+        socket.join(rpid);
+        socket.emit('load rp', data.rp);
+    }).catch(err => {
+        socket.emit('rp error', err);
+        socket.disconnect();
+    });
 
     socket.use((packet, next) => {
         // stall action packets until the rp has been loaded and sent
