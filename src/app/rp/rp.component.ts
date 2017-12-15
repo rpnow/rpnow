@@ -7,9 +7,7 @@ import { RpService } from '../rp.service';
 @Component({
   selector: 'app-rp',
   template: `
-    <p>
-      rp works! {{ rp$ | async }}
-    </p>
+    <pre>{{ rp$ | async | json }}</pre>
   `,
   styles: []
 })
