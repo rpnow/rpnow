@@ -53,43 +53,44 @@ module.exports = function onConnection(socket) {
 
     socket.use((packet, next) => {
         // sanitize callback function
-        packet[2] = safecall(packet[2]);
+        let cb = safecall(packet[2]);
+
+        // give promise resolve/reject functions to the socket.on calls
+        packet[2] = (promise) => promise
+            .then(data => cb(null, data))
+            .catch(err => {
+                logger.error(`ERR! (${ip}): ${rpCode}/"${packet[0]}" ${err}`);
+                cb(err)
+            })
+        
         next();
     })
     
-    socket.on('add message', (msg, callback) => {
-        model.addMessage(rpid, msg, ipid).then(data => {
-            callback(null, data.msg);
+    socket.on('add message', (msg, doPromise) => {
+        doPromise(model.addMessage(rpid, msg, ipid).then(data => {
             socket.to(rpid).broadcast.emit('add message', data.msg);
-        }).catch(err => {
-            callback(err);
-        });
+            return data.msg;
+        }));
     });
 
-    socket.on('edit message', (editInfo, callback) => {
-        model.editMessage(rpid, editInfo, ipid).then(data => {
-            callback(null, data.msg);
+    socket.on('edit message', (editInfo, doPromise) => {
+        doPromise(model.editMessage(rpid, editInfo, ipid).then(data => {
             socket.to(rpid).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
-        }).catch(err => {
-            callback(err);
-        });
+            return data.msg;
+        }));
     })
 
-    socket.on('add image', (url, callback) => {
-        model.addImage(rpid, url, ipid).then(data =>{
-            callback(null, data.msg);
+    socket.on('add image', (url, doPromise) => {
+        doPromise(model.addImage(rpid, url, ipid).then(data =>{
             socket.to(rpid).broadcast.emit('add message', data.msg);
-        }).catch(err => {
-            callback(err);
-        });
+            return data.msg;
+        }));
     })
 
-    socket.on('add character', (chara, callback) => {
-        model.addChara(rpid, chara, ipid).then(data => {
-            callback(null, data.chara);
+    socket.on('add character', (chara, doPromise) => {
+        doPromise(model.addChara(rpid, chara, ipid).then(data => {
             socket.to(rpid).broadcast.emit('add character', data.chara);
-        }).catch(err => {
-            callback(err);
-        })
+            return data.chara;
+        }));
     });
 };
