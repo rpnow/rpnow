@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const socketio = require('socket.io');
 
 const model = require('./model');
 const logger = require('./logger');
@@ -15,7 +16,15 @@ const safecall = function(callback) {
     }
 };
 
-module.exports = function onConnection(socket) {
+module.exports = function(httpServer) {
+    const io = socketio(httpServer, { serveClient: false })
+
+    io.on('connection', socket => onConnection(socket, io));
+
+    listenToModelEvents(io);
+}
+
+function onConnection(socket, io) {
     const ip = config.get('trustProxy')
         && socket.handshake.headers['x-forwarded-for']
         || socket.request.connection.remoteAddress;
@@ -67,30 +76,32 @@ module.exports = function onConnection(socket) {
     })
     
     socket.on('add message', (msg, doPromise) => {
-        doPromise(model.addMessage(rpid, msg, ipid).then(data => {
-            socket.to(rpid).broadcast.emit('add message', data.msg);
-            return data.msg;
-        }));
+        doPromise(model.addMessage(rpid, msg, ipid));
     });
 
     socket.on('edit message', (editInfo, doPromise) => {
-        doPromise(model.editMessage(rpid, editInfo, ipid).then(data => {
-            socket.to(rpid).broadcast.emit('edit message', {id: editInfo.id, msg: data.msg });
-            return data.msg;
-        }));
-    })
+        doPromise(model.editMessage(rpid, editInfo, ipid));
+    });
 
     socket.on('add image', (url, doPromise) => {
-        doPromise(model.addImage(rpid, url, ipid).then(data =>{
-            socket.to(rpid).broadcast.emit('add message', data.msg);
-            return data.msg;
-        }));
+        doPromise(model.addImage(rpid, url, ipid));
     })
 
     socket.on('add character', (chara, doPromise) => {
-        doPromise(model.addChara(rpid, chara, ipid).then(data => {
-            socket.to(rpid).broadcast.emit('add character', data.chara);
-            return data.chara;
-        }));
+        doPromise(model.addChara(rpid, chara, ipid));
     });
 };
+
+function listenToModelEvents(io) {
+    model.events.on('add message', (rpid, msg) => {
+        io.to(rpid).emit('add message', msg);
+    });
+
+    model.events.on('edit message', (rpid, msg, id) => {
+        io.to(rpid).emit('edit message', { id, msg });
+    });
+
+    model.events.on('add character', (rpid, chara) => {
+        io.to(rpid).emit('add character', chara);
+    });
+}

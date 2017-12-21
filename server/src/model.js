@@ -2,8 +2,12 @@ const request = require('request-promise-native');
 const crypto = require('crypto');
 const nJ = require('normalize-json');
 const promisify = require('util').promisify;
+const EventEmitter = require('events');
 const config = require('./config');
 const dao = require('./dao.mongo');
+
+class RpEventEmitter extends EventEmitter {}
+const events = module.exports.events = new RpEventEmitter();
 
 const roomOptionsSchema = nJ({
     'title': [ String, config.get('maxTitleLength') ],
@@ -82,12 +86,9 @@ module.exports.getRp = async function(rpCode) {
     return data;
 };
 
-async function pushToMsgs(rpid, msg, ipid) {
+function addMessageMetadata(msg, ipid) {
     msg.timestamp = Date.now() / 1000;
     msg.ipid = ipid;
-
-    await dao.addMessage(rpid, msg);
-    return { msg };
 }
 
 module.exports.addMessage = async function(rpid, input, ipid) {
@@ -106,7 +107,12 @@ module.exports.addMessage = async function(rpid, input, ipid) {
         if (!exists) throw {code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}`};
     }
 
-    return await pushToMsgs(rpid, msg, ipid);
+    addMessageMetadata(msg, ipid);
+
+    await dao.addMessage(rpid, msg);
+
+    events.emit('add message', rpid, msg);
+    return msg;
 };
 
 module.exports.addImage = async function(rpid, url, ipid) {
@@ -128,7 +134,13 @@ module.exports.addImage = async function(rpid, url, ipid) {
         type: 'image',
         url: url
     };
-    return await pushToMsgs(rpid, msg, ipid);
+
+    addMessageMetadata(msg, ipid);
+
+    await dao.addMessage(rpid, msg);
+
+    events.emit('add message', rpid, msg);
+    return msg;
 };
 
 module.exports.addChara = async function(rpid, inputChara, ipid) {
@@ -141,7 +153,9 @@ module.exports.addChara = async function(rpid, inputChara, ipid) {
     }
 
     await dao.addChara(rpid, chara);
-    return { chara };
+
+    events.emit('add character', rpid, chara);
+    return chara;
 };
 
 module.exports.editMessage = async function(rpid, input, ipid) {
@@ -161,6 +175,9 @@ module.exports.editMessage = async function(rpid, input, ipid) {
 
     msg.content = editInfo.content;
     msg.edited = (Date.now() / 1000);
+
     await dao.editMessage(rpid, editInfo.id, msg);
-    return { msg };
+
+    events.emit('edit message', rpid, editInfo.id, msg);
+    return msg;
 };

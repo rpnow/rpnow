@@ -7,8 +7,8 @@ logger.debug('Starting RPNow API...');
 let app = require('express')();
 let server = require('http').createServer(app);
 app.use('/api', require('./api.rest'));
-require('socket.io')(server, { serveClient: false })
-    .on('connection', require('./api.sockets'));
+
+require('./api.sockets')(server);
 
 let listener = server.listen(config.get('port'), (err) => {
     if (err) logger.error(err);
