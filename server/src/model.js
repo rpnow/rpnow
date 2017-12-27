@@ -91,7 +91,7 @@ function addMessageMetadata(msg, ipid) {
     msg.ipid = ipid;
 }
 
-module.exports.addMessage = async function(rpid, input, ipid) {
+module.exports.addMessage = async function(rpid, connectionId, input, ipid) {
     let msg;
     try {
         msg = addMessageSchema(input);
@@ -111,11 +111,11 @@ module.exports.addMessage = async function(rpid, input, ipid) {
 
     await dao.addMessage(rpid, msg);
 
-    events.emit('add message', rpid, msg);
+    events.emit('add message', rpid, connectionId, msg);
     return msg;
 };
 
-module.exports.addImage = async function(rpid, url, ipid) {
+module.exports.addImage = async function(rpid, connectionId, url, ipid) {
     if (typeof url !== 'string') throw {code: 'BAD_URL'};
 
     // validate image
@@ -139,11 +139,11 @@ module.exports.addImage = async function(rpid, url, ipid) {
 
     await dao.addMessage(rpid, msg);
 
-    events.emit('add message', rpid, msg);
+    events.emit('add message', rpid, connectionId, msg);
     return msg;
 };
 
-module.exports.addChara = async function(rpid, inputChara, ipid) {
+module.exports.addChara = async function(rpid, connectionId, inputChara, ipid) {
     let chara;
     try {
         chara = addCharaSchema(inputChara);
@@ -154,11 +154,11 @@ module.exports.addChara = async function(rpid, inputChara, ipid) {
 
     await dao.addChara(rpid, chara);
 
-    events.emit('add character', rpid, chara);
+    events.emit('add character', rpid, connectionId, chara);
     return chara;
 };
 
-module.exports.editMessage = async function(rpid, input, ipid) {
+module.exports.editMessage = async function(rpid, connectionId, input, ipid) {
     let editInfo;
     try {
         editInfo = editMessageSchema(input);
@@ -178,6 +178,6 @@ module.exports.editMessage = async function(rpid, input, ipid) {
 
     await dao.editMessage(rpid, editInfo.id, msg);
 
-    events.emit('edit message', rpid, editInfo.id, msg);
+    events.emit('edit message', rpid, connectionId, editInfo.id, msg);
     return msg;
 };
