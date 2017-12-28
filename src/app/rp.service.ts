@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 interface SocketEvent {type: string, data: any}
@@ -12,6 +13,7 @@ export class RpService {
   private rpCode$: BehaviorSubject<string> = new BehaviorSubject(null);
 
   private roomEvents$: Observable<SocketEvent>;
+  private _roomEventsSubject: Subject<any> = new Subject(); // used for the multicast() call in creating the roomEvents$ observable
 
   private initialRp$: Observable<SocketEvent>;
 
@@ -21,7 +23,7 @@ export class RpService {
   public charas$: Observable<any[]>;
 
   constructor() {
-    this.roomEvents$ = this.rpCode$.switchMap(rpCode => this.createRpObservable(rpCode));
+    this.roomEvents$ = this.rpCode$.switchMap(rpCode => this.createRpObservable(rpCode)).multicast(this._roomEventsSubject).refCount();
 
     this.initialRp$ = this.roomEvents$.filter(evt => evt.type === 'load rp').map(evt => evt.data);
 
