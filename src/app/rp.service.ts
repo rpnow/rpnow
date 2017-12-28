@@ -1,23 +1,50 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
 import * as io from 'socket.io-client';
+import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
+interface SocketEvent {type: string, data: any}
 
 @Injectable()
 export class RpService {
-  constructor() {}
-
   private readonly URL = 'http://localhost:3000';
 
-  getRp(rpCode): Observable<string> {
+  private rpCode$: BehaviorSubject<string> = new BehaviorSubject(null);
+
+  private roomEvents$: Observable<SocketEvent>;
+
+  private initialRp$: Observable<SocketEvent>;
+
+  public title$: Observable<string>;
+  public desc$: Observable<string>;
+  public messages$: Observable<any[]>;
+  public charas$: Observable<any[]>;
+
+  constructor() {
+    this.roomEvents$ = this.rpCode$.switchMap(rpCode => this.createRpObservable(rpCode));
+
+    this.initialRp$ = this.roomEvents$.filter(evt => evt.type === 'load rp').map(evt => evt.data);
+
+    this.title$ = this.initialRp$.map((rp:any) => rp.title);
+    this.desc$ = this.initialRp$.map((rp:any) => rp.desc);
+    this.messages$ = this.initialRp$.map((rp:any) => rp.msgs); // TODO use .scan to add messages
+    this.charas$ = this.initialRp$.map((rp:any) => rp.charas); // TODO use .scan to add charas
+  }
+
+  public join(rpCode: string) {
+    this.rpCode$.next(rpCode);
+  }
+
+  private createRpObservable(rpCode): Observable<SocketEvent> {
     return new Observable(observer => {
       let socket = io(this.URL, { query: 'rpCode='+rpCode });
 
-      socket.on('rp error', err => observer.error(err))
-
-      socket.on('load rp', data => observer.next(data))
-
-      socket.on('add message', data => observer.next(data))
+      ['load rp', 'add message', 'add chara', 'edit message'].forEach(type => {
+        socket.on(type, data => observer.next({type, data}));
+      });
+      ['rp error', 'error'].forEach(type => {
+        socket.on(type, data => observer.error({type, data}));
+      })
 
       return () => socket.close();
     })

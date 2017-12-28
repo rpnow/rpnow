@@ -1,28 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
 import { RpService } from '../rp.service';
 
 @Component({
   selector: 'app-rp',
   template: `
-    <pre>{{ rp$ | async | json }}</pre>
+    <h1>RP Title: {{ rp.title$ | async }}</h1>
+    <h2>Description: {{ rp.desc$ | async }}</h2>
+    <pre>{{ rp.charas$ | async | json }}</pre>
+    <hr />
+    <pre>{{ rp.messages$ | async | json }}</pre>
   `,
   styles: []
 })
 export class RpComponent implements OnInit {
 
-  rp$: Observable<string>;
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private service: RpService
+    private rp: RpService
   ) { }
 
   ngOnInit() {
-    this.rp$ = this.route.paramMap.switchMap((params:ParamMap) => this.service.getRp(params.get('rpCode')))
+    this.route.paramMap.subscribe((params:ParamMap) => {
+      let rpCode = params.get('rpCode');
+      this.rp.join(rpCode);
+    })
   }
 
 }

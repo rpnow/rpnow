@@ -4,6 +4,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatCheckboxModule } from '@angular/material';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/switchMap';
 
 import { AppComponent } from './app.component';
 import { TitleComponent } from './title/title.component';
@@ -34,7 +37,7 @@ const appRoutes: Routes = [
     RpComponent
   ],
   imports: [
-    RouterModule.forRoot(appRoutes, {enableTracing:true}),
+    RouterModule.forRoot(appRoutes),
     BrowserModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
