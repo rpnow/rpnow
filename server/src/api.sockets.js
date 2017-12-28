@@ -39,8 +39,10 @@ function onConnection(socket, io) {
     const rpInit = model.getRp(rpCode).then(data => {
         rpid = data.id;
         socket.join(rpid);
+        logger.info(`JOIN (${ip}): ${rpCode} - connection id ${socket.id}`);
         socket.emit('load rp', data.rp);
     }).catch(err => {
+        logger.info(`JERR (${ip}): ${rpCode} ${err && err.code || err}`);
         socket.emit('rp error', err);
         socket.disconnect();
     });
@@ -89,6 +91,10 @@ function onConnection(socket, io) {
 
     socket.on('add character', (chara, doPromise) => {
         doPromise(model.addChara(rpid, socket.id, chara, ipid));
+    });
+
+    socket.on('disconnect', () => {
+        logger.info(`EXIT (${ip}): ${rpCode} - connection id ${socket.id}`);
     });
 };
 
