@@ -6,16 +6,19 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 interface SocketEvent {type: string, data: any}
 
+const URL = 'http://localhost:3000';
+
+const MESSAGE_TYPES = ['load rp', 'add message', 'add chara', 'edit message'];
+const ERROR_MESSAGE_TYPES = ['rp error', 'error'];
+
 @Injectable()
 export class RpService {
-  private readonly URL = 'http://localhost:3000';
-
   private rpCode$: BehaviorSubject<string> = new BehaviorSubject(null);
 
   private roomEvents$: Observable<SocketEvent>;
   private _roomEventsSubject: Subject<any> = new Subject(); // used for the multicast() call in creating the roomEvents$ observable
 
-  private initialRp$: Observable<SocketEvent>;
+  private initialRp$: Observable<any>;
 
   public title$: Observable<string>;
   public desc$: Observable<string>;
@@ -25,12 +28,12 @@ export class RpService {
   constructor() {
     this.roomEvents$ = this.rpCode$.switchMap(rpCode => this.createRpObservable(rpCode)).multicast(this._roomEventsSubject).refCount();
 
-    this.initialRp$ = this.roomEvents$.filter(evt => evt.type === 'load rp').map(evt => evt.data);
+    this.initialRp$ = this.roomEvents$.filter(evt => evt.type === 'load rp').pluck('data');
 
-    this.title$ = this.initialRp$.map((rp:any) => rp.title);
-    this.desc$ = this.initialRp$.map((rp:any) => rp.desc);
-    this.messages$ = this.initialRp$.map((rp:any) => rp.msgs); // TODO use .scan to add messages
-    this.charas$ = this.initialRp$.map((rp:any) => rp.charas); // TODO use .scan to add charas
+    this.title$ = this.initialRp$.pluck('title');
+    this.desc$ = this.initialRp$.pluck('desc');
+    this.messages$ = this.initialRp$.pluck('msgs'); // TODO use .scan to add messages
+    this.charas$ = this.initialRp$.pluck('charas'); // TODO use .scan to add charas
   }
 
   public join(rpCode: string) {
@@ -39,12 +42,12 @@ export class RpService {
 
   private createRpObservable(rpCode): Observable<SocketEvent> {
     return new Observable(observer => {
-      let socket = io(this.URL, { query: 'rpCode='+rpCode });
+      let socket = io(URL, { query: 'rpCode='+rpCode });
 
-      ['load rp', 'add message', 'add chara', 'edit message'].forEach(type => {
+      MESSAGE_TYPES.forEach(type => {
         socket.on(type, data => observer.next({type, data}));
       });
-      ['rp error', 'error'].forEach(type => {
+      ERROR_MESSAGE_TYPES.forEach(type => {
         socket.on(type, data => observer.error({type, data}));
       })
 
