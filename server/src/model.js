@@ -178,6 +178,6 @@ module.exports.editMessage = async function(rpid, connectionId, input, ipid) {
 
     await dao.editMessage(rpid, editInfo.id, msg);
 
-    events.emit('edit message', rpid, connectionId, editInfo.id, msg);
+    events.emit('edit message', rpid, connectionId, msg, editInfo.id);
     return msg;
 };
