@@ -10,7 +10,7 @@ interface SocketEvent {type: string, data: any}
 
 const URL = 'http://localhost:3000';
 
-const MESSAGE_TYPES = ['load rp', 'add message', 'add chara', 'edit message'];
+const MESSAGE_TYPES = ['load rp', 'add message', 'add character', 'edit message'];
 const ERROR_MESSAGE_TYPES = ['rp error', 'error'];
 
 @Injectable()
@@ -55,13 +55,28 @@ export class Rp {
   public charas$: Subject<any[]> = new BehaviorSubject(null);
 
   constructor(private roomEvents$: Observable<SocketEvent>, private subscription: Subscription) {
-    let initialRp$ = this.roomEvents$.filter(evt => evt.type === 'load rp').pluck('data');
+    let initialRp$ = this.roomEvents$
+      .filter(evt => evt.type === 'load rp')
+      .pluck('data');
 
     initialRp$.pluck('title').subscribe(this.title$);
     initialRp$.pluck('desc').subscribe(this.desc$);
     initialRp$.pluck('msgs').subscribe(this.messages$);
     initialRp$.pluck('charas').subscribe(this.charas$);
 
+    this.roomEvents$
+      .filter(evt => evt.type === 'add message')
+      .pluck('data')
+      .scan((arr:any[], data) => arr.concat([data]), [])
+      .combineLatest(initialRp$.pluck('msgs'), (m2,m1:any[])=>m1.concat(m2))
+      .subscribe(this.messages$);
+
+    this.roomEvents$
+      .filter(evt => evt.type === 'add character')
+      .pluck('data')
+      .scan((arr:any[], data) => arr.concat([data]), [])
+      .combineLatest(initialRp$.pluck('charas'), (m2,m1:any[])=>m1.concat(m2))
+      .subscribe(this.charas$);
   }
 
   public close() {
