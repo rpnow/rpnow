@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Rx';
+import { BehaviorSubject } from 'rxjs/Rx';
+import { ConnectableObservable } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 
 interface SocketEvent {type: string, data: any}
 
@@ -13,32 +15,6 @@ const ERROR_MESSAGE_TYPES = ['rp error', 'error'];
 
 @Injectable()
 export class RpService {
-  private rpCode$: BehaviorSubject<string> = new BehaviorSubject(null);
-
-  private roomEvents$: Observable<SocketEvent>;
-  private _roomEventsSubject: Subject<any> = new Subject(); // used for the multicast() call in creating the roomEvents$ observable
-
-  private initialRp$: Observable<any>;
-
-  public title$: Observable<string>;
-  public desc$: Observable<string>;
-  public messages$: Observable<any[]>;
-  public charas$: Observable<any[]>;
-
-  constructor() {
-    this.roomEvents$ = this.rpCode$.switchMap(rpCode => this.createRpObservable(rpCode)).multicast(this._roomEventsSubject).refCount();
-
-    this.initialRp$ = this.roomEvents$.filter(evt => evt.type === 'load rp').pluck('data');
-
-    this.title$ = this.initialRp$.pluck('title');
-    this.desc$ = this.initialRp$.pluck('desc');
-    this.messages$ = this.initialRp$.pluck('msgs'); // TODO use .scan to add messages
-    this.charas$ = this.initialRp$.pluck('charas'); // TODO use .scan to add charas
-  }
-
-  public join(rpCode: string) {
-    this.rpCode$.next(rpCode);
-  }
 
   private createRpObservable(rpCode): Observable<SocketEvent> {
     return new Observable(observer => {
@@ -55,4 +31,40 @@ export class RpService {
     })
   }
 
+  public join(rpCode: string) {
+    return new Promise((resolve, reject) => {
+      let roomEvents$ = this.createRpObservable(rpCode)
+        .multicast(() => new Subject())
+      
+      let rp = new Rp(roomEvents$, roomEvents$.connect());
+
+      roomEvents$.subscribe(
+        () => resolve(rp),
+        (err) => reject(err)
+      )
+
+    })
+  }
+
+}
+
+export class Rp {
+  public title$: Subject<string> = new BehaviorSubject(null);
+  public desc$: Subject<string> = new BehaviorSubject(null);
+  public messages$: Subject<any[]> = new BehaviorSubject(null);
+  public charas$: Subject<any[]> = new BehaviorSubject(null);
+
+  constructor(private roomEvents$: Observable<SocketEvent>, private subscription: Subscription) {
+    let initialRp$ = this.roomEvents$.filter(evt => evt.type === 'load rp').pluck('data');
+
+    initialRp$.pluck('title').subscribe(this.title$);
+    initialRp$.pluck('desc').subscribe(this.desc$);
+    initialRp$.pluck('msgs').subscribe(this.messages$);
+    initialRp$.pluck('charas').subscribe(this.charas$);
+
+  }
+
+  public close() {
+    this.subscription.unsubscribe();
+  }
 }

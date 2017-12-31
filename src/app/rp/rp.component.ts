@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
-import { RpService } from '../rp.service';
+import { Rp } from '../rp.service';
 
 @Component({
   selector: 'app-rp',
@@ -13,19 +13,20 @@ import { RpService } from '../rp.service';
   `,
   styles: []
 })
-export class RpComponent implements OnInit {
+export class RpComponent implements OnInit, OnDestroy {
+
+  public rp: Rp;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private rp: RpService
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    this.route.paramMap.subscribe((params:ParamMap) => {
-      let rpCode = params.get('rpCode');
-      this.rp.join(rpCode);
-    })
+    this.route.data.pluck('rp').subscribe((rp:Rp) => this.rp = rp);
+  }
+
+  ngOnDestroy() {
+    this.rp.close();
   }
 
 }

@@ -15,11 +15,15 @@ import { TitleComponent } from './title/title.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { RpComponent } from './rp/rp.component';
 import { RpService } from './rp.service';
+import { RpResolverService } from './rp-resolver.service';
 
 const appRoutes: Routes = [
   {
     path: 'rp/:rpCode',
-    component: RpComponent
+    component: RpComponent,
+    resolve: {
+      rp: RpResolverService
+    }
   },
   {
     path: '',
@@ -45,7 +49,7 @@ const appRoutes: Routes = [
     FlexLayoutModule,
     MatCheckboxModule
   ],
-  providers: [RpService],
+  providers: [RpService, RpResolverService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
