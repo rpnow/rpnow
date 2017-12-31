@@ -17,14 +17,10 @@ export class RpComponent implements OnInit {
 
   public rp: Rp;
 
-  constructor(
-    private route: ActivatedRoute
-  ) { }
+  constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
-    console.log('on init');
     this.route.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
-    this.route
   }
 
   onRouteDeactivate() {

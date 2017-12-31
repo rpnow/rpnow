@@ -4,12 +4,8 @@ import { ChallengeService } from './challenge.service'
 
 const URL = 'http://localhost:3000';
 
-const MESSAGE_TYPES = ['load rp', 'add message', 'add character', 'edit message'];
-const ERROR_MESSAGE_TYPES = ['rp error', 'error'];
-
 @Injectable()
 export class RpService {
-
   constructor(private challengeService: ChallengeService) { }
 
   public async join(rpCode: string) {
@@ -17,7 +13,6 @@ export class RpService {
     await rp.loaded;
     return rp;
   }
-
 }
 
 function promiseFromEmit(socket: SocketIOClient.Socket, messageType: string, data: any) {
