@@ -6,7 +6,9 @@ import { Rp } from '../rp.service';
   selector: 'app-rp',
   template: `
     <h1>RP Title: {{ rp.title }}</h1>
-    <h2>Description: {{ rp.desc }}</h2>
+    <h2 *ngIf="rp.desc">Description: {{ rp.desc }}</h2>
+    <textarea [(ngModel)]="content"></textarea>
+    <button (click)="sendMessage()">Send</button>
     <pre>{{ rp.charas | json }}</pre>
     <hr />
     <pre>{{ rp.messages | json }}</pre>
@@ -17,6 +19,8 @@ export class RpComponent implements OnInit {
 
   public rp: Rp;
 
+  public content: '';
+
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
@@ -25,6 +29,10 @@ export class RpComponent implements OnInit {
 
   onRouteDeactivate() {
     this.rp.close();
+  }
+
+  public sendMessage() {
+    this.rp.addMessage({type:'narrator', content: this.content})
   }
 
 }
