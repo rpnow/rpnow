@@ -3,6 +3,7 @@ const nconf = module.exports = require('nconf')
     .env()
     .defaults({
         "trustProxy": true,
+        "allowCORS": true,
         "logLevel": "info",
 
         "port": 3000,

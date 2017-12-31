@@ -1,11 +1,14 @@
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const model = require('./model');
+const config = require('./config');
 
 let router = require('express').Router();
 router.use(require('compression')());
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+if (config.get('allowCORS')) router.use(cors());
 
 router.post('/rp.json', (req, res, next) => {
     let roomOptions = req.body;
