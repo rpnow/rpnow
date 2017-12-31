@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { Rp } from '../rp.service';
 
@@ -13,7 +13,7 @@ import { Rp } from '../rp.service';
   `,
   styles: []
 })
-export class RpComponent implements OnInit, OnDestroy {
+export class RpComponent implements OnInit {
 
   public rp: Rp;
 
@@ -22,10 +22,12 @@ export class RpComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    console.log('on init');
     this.route.data.pluck('rp').subscribe((rp:Rp) => this.rp = rp);
+    this.route
   }
 
-  ngOnDestroy() {
+  onRouteDeactivate() {
     this.rp.close();
   }
 
