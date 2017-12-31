@@ -5,11 +5,11 @@ import { Rp } from '../rp.service';
 @Component({
   selector: 'app-rp',
   template: `
-    <h1>RP Title: {{ rp.title$ | async }}</h1>
-    <h2>Description: {{ rp.desc$ | async }}</h2>
-    <pre>{{ rp.charas$ | async | json }}</pre>
+    <h1>RP Title: {{ rp.title }}</h1>
+    <h2>Description: {{ rp.desc }}</h2>
+    <pre>{{ rp.charas | json }}</pre>
     <hr />
-    <pre>{{ rp.messages$ | async | json }}</pre>
+    <pre>{{ rp.messages | json }}</pre>
   `,
   styles: []
 })
@@ -23,7 +23,7 @@ export class RpComponent implements OnInit {
 
   ngOnInit() {
     console.log('on init');
-    this.route.data.pluck('rp').subscribe((rp:Rp) => this.rp = rp);
+    this.route.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
     this.route
   }
 

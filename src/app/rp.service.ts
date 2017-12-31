@@ -1,12 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
-import { Observable } from 'rxjs/Rx';
-import { Subject } from 'rxjs/Rx';
-import { BehaviorSubject } from 'rxjs/Rx';
-import { ConnectableObservable } from 'rxjs/Rx';
-import { Subscription } from 'rxjs/Subscription';
-
-interface SocketEvent {type: string, data: any}
+import { ChallengeService } from './challenge.service'
 
 const URL = 'http://localhost:3000';
 
@@ -16,70 +10,100 @@ const ERROR_MESSAGE_TYPES = ['rp error', 'error'];
 @Injectable()
 export class RpService {
 
-  private createRpObservable(rpCode): Observable<SocketEvent> {
-    return new Observable(observer => {
-      let socket = io(URL, { query: 'rpCode='+rpCode });
+  constructor(private challengeService: ChallengeService) { }
 
-      MESSAGE_TYPES.forEach(type => {
-        socket.on(type, data => observer.next({type, data}));
-      });
-      ERROR_MESSAGE_TYPES.forEach(type => {
-        socket.on(type, data => observer.error({type, data}));
-      })
-
-      return () => socket.close();
-    })
-  }
-
-  public join(rpCode: string) {
-    return new Promise((resolve, reject) => {
-      let roomEvents$ = this.createRpObservable(rpCode)
-        .multicast(() => new Subject())
-      
-      let rp = new Rp(roomEvents$, roomEvents$.connect());
-
-      roomEvents$.subscribe(
-        () => resolve(rp),
-        (err) => reject(err)
-      )
-
-    })
+  public async join(rpCode: string) {
+    let rp = new Rp(rpCode, this.challengeService.challenge$);
+    await rp.loaded;
+    return rp;
   }
 
 }
 
+function promiseFromEmit(socket: SocketIOClient.Socket, messageType: string, data: any) {
+  return new Promise((resolve, reject) => {
+    socket.emit(messageType, data, (err, data) => err ? reject(err) : resolve(data));
+  });
+}
+
 export class Rp {
-  public title$: Subject<string> = new BehaviorSubject(null);
-  public desc$: Subject<string> = new BehaviorSubject(null);
-  public messages$: Subject<any[]> = new BehaviorSubject(null);
-  public charas$: Subject<any[]> = new BehaviorSubject(null);
+  private socket: SocketIOClient.Socket;
 
-  constructor(private roomEvents$: Observable<SocketEvent>, private subscription: Subscription) {
-    let initialRp$ = this.roomEvents$
-      .filter(evt => evt.type === 'load rp')
-      .pluck('data');
+  public loaded: Promise<void>;
 
-    initialRp$.pluck('title').subscribe(this.title$);
-    initialRp$.pluck('desc').subscribe(this.desc$);
-    initialRp$.pluck('msgs').subscribe(this.messages$);
-    initialRp$.pluck('charas').subscribe(this.charas$);
+  public title: string = null;
+  public desc: string = null;
+  public messages: any[] = null;
+  public charas: any[] = null;
 
-    this.roomEvents$
-      .filter(evt => evt.type === 'add message')
-      .pluck('data')
-      .scan((arr:any[], data) => arr.concat([data]), [])
-      .combineLatest(initialRp$.pluck('msgs'), (m2,m1:any[])=>m1.concat(m2))
-      .subscribe(this.messages$);
+  constructor(public rpCode: string, private challenge$: Promise<{secret:string, hash:string}>) {
+    this.socket = io(URL, { query: 'rpCode='+rpCode });
 
-    this.roomEvents$
-      .filter(evt => evt.type === 'add character')
-      .pluck('data')
-      .scan((arr:any[], data) => arr.concat([data]), [])
-      .combineLatest(initialRp$.pluck('charas'), (m2,m1:any[])=>m1.concat(m2))
-      .subscribe(this.charas$);
+    this.socket.on('load rp', (data) => {
+      this.title = data.title;
+      this.desc = data.desc;
+      this.messages = data.msgs;
+      this.charas = data.charas;
+    });
+
+    this.socket.on('add message', (msg) => {
+      this.messages.push(msg);
+    });
+
+    this.socket.on('add character', (chara) => {
+      this.charas.push(chara);
+    });
+
+    this.socket.on('edit message', (data) => {
+      console.log(data)
+      this.messages.splice(data.id, 1, data.msg);
+    });
+
+    this.loaded = new Promise((resolve, reject) => {
+      this.socket.on('load rp', () => resolve())
+      this.socket.on('rp error', reject)
+      this.socket.on('error', reject)
+    });
+  }
+
+  public async addMessage(msg: any) {
+    let placeholder = JSON.parse(JSON.stringify(msg));
+    placeholder.sending = true;
+    this.messages.push(placeholder);
+
+    let challenge = await this.challenge$;
+    msg.challenge = challenge.hash;
+
+    let receivedMsg = await promiseFromEmit(this.socket, 'add message', msg);
+    this.messages.splice(this.messages.indexOf(placeholder), 1);
+    this.messages.push(receivedMsg);
+
+    return receivedMsg;
+  }
+
+  public async addChara(chara: any) {
+    let receivedChara = await promiseFromEmit(this.socket, 'add character', chara);
+    this.charas.push(receivedChara);
+
+    return receivedChara;
+  }
+
+  public async addImage(url: string) {
+    let receivedMsg = await promiseFromEmit(this.socket, 'add image', url);
+    this.messages.push(receivedMsg);
+
+    return receivedMsg;
+  }
+
+  public async editMessage(id: number, content: string) {
+    let secret = (await this.challenge$).secret;
+    let editInfo = { id, content, secret };
+
+    let receivedMsg = await promiseFromEmit(this.socket, 'edit message', editInfo);
+    this.messages.splice(id, 1, receivedMsg);
   }
 
   public close() {
-    this.subscription.unsubscribe();
+    this.socket.close();
   }
 }
