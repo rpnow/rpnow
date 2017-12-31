@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import * as io from 'socket.io-client';
 import { ChallengeService } from './challenge.service'
 
@@ -6,12 +7,20 @@ const URL = 'http://localhost:3000';
 
 @Injectable()
 export class RpService {
-  constructor(private challengeService: ChallengeService) { }
+  constructor(
+    private http: HttpClient,
+    private challengeService: ChallengeService
+  ) { }
 
   public async join(rpCode: string) {
     let rp = new Rp(rpCode, this.challengeService.challenge$);
     await rp.loaded;
     return rp;
+  }
+
+  public async create(title: string, desc?: string) {
+    let data:any = await this.http.post(URL + '/api/rp.json', {title, desc}).toPromise();
+    return data.rpCode;
   }
 }
 

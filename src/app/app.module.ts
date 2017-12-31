@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, Injectable } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes, CanDeactivate } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatCheckboxModule } from '@angular/material';
@@ -12,6 +13,7 @@ import { RpComponent } from './rp/rp.component';
 import { RpService } from './rp.service';
 import { RpResolverService } from './rp-resolver.service';
 import { ChallengeService } from './challenge.service';
+import { FormsModule } from '@angular/forms';
 
 @Injectable()
 export class RpDeactivate implements CanDeactivate<RpComponent> {
@@ -51,6 +53,8 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes),
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
+    HttpClientModule,
     FlexLayoutModule,
     MatCheckboxModule
   ],
