@@ -9,6 +9,7 @@ import { Rp } from '../rp.service';
     <h2 *ngIf="rp.desc">Description: {{ rp.desc }}</h2>
     <nav>
       <a routerLink="./1">page 1</a>
+      <a routerLink="./2">page 2</a>
     </nav>
     <router-outlet></router-outlet>
   `,

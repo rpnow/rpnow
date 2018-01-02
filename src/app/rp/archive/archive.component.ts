@@ -8,11 +8,11 @@ import { Rp } from '../../rp.service';
     <p>
       Looking at page #{{page}}
     </p>
-    <div *ngIf="rp">
-    <p *ngFor="let msg of rp.messages">
-      {{msg.content}}
+    <p *ngFor="let msg of rp.messages; let i = index">
+      <ng-container *ngIf="i >= (page-1)*5 && i < (page)*5">
+        {{i}} &mdash; {{msg.content}}
+      </ng-container>
     </p>
-    </div>
   `,
   styles: []
 })
