@@ -1,5 +1,5 @@
 import { NgModule, Injectable } from '@angular/core';
-import { RouterModule, Routes, Resolve, ActivatedRouteSnapshot, CanDeactivate } from '@angular/router';
+import { RouterModule, Router, Routes, Resolve, ActivatedRouteSnapshot, CanDeactivate } from '@angular/router';
 
 import { RpComponent } from './rp/rp.component';
 import { NotFoundComponent } from './not-found/not-found.component';
@@ -10,11 +10,18 @@ import { RpService } from './rp.service';
 
 @Injectable()
 export class RpResolverService implements Resolve<any> {
-  constructor(private service: RpService) { }
+  constructor(private service: RpService, private router: Router) { }
 
   resolve(route: ActivatedRouteSnapshot) {
     let rpCode = route.paramMap.get('rpCode');
-    return this.service.join(rpCode);
+    return this.service.join(rpCode).catch(err => {
+      if (err.code === 'RP_NOT_FOUND') {
+        this.router.navigate(['/rp-not-found', rpCode])
+        return err;
+      }
+
+      throw err;
+    });
   }
 }
 
