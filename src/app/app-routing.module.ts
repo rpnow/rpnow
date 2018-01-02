@@ -5,6 +5,8 @@ import { RpComponent } from './rp/rp.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TitleComponent } from './title/title.component';
 import { RpResolverService } from './rp-resolver.service';
+import { ArchiveComponent } from './rp/archive/archive.component';
+import { ChatComponent } from './rp/chat/chat.component';
 
 @Injectable()
 export class RpDeactivate implements CanDeactivate<RpComponent> {
@@ -21,7 +23,17 @@ const appRoutes: Routes = [
     canDeactivate: [RpDeactivate],
     resolve: {
       rp: RpResolverService
-    }
+    },
+    children: [
+      {
+        path: '',
+        component: ChatComponent
+      },
+      {
+        path: ':page',
+        component: ArchiveComponent
+      }
+    ]
   },
   {
     path: '',

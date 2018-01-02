@@ -13,6 +13,8 @@ import { RpComponent } from './rp/rp.component';
 import { RpService } from './rp.service';
 import { ChallengeService } from './challenge.service';
 import { AppRoutingModule } from './app-routing.module';
+import { ArchiveComponent } from './rp/archive/archive.component';
+import { ChatComponent } from './rp/chat/chat.component';
 
 
 @NgModule({
@@ -20,7 +22,9 @@ import { AppRoutingModule } from './app-routing.module';
     AppComponent,
     TitleComponent,
     NotFoundComponent,
-    RpComponent
+    RpComponent,
+    ArchiveComponent,
+    ChatComponent
   ],
   imports: [
     BrowserModule,

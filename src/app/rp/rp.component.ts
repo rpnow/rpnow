@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, ParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Rp } from '../rp.service';
 
 @Component({
@@ -7,19 +7,16 @@ import { Rp } from '../rp.service';
   template: `
     <h1>RP Title: {{ rp.title }}</h1>
     <h2 *ngIf="rp.desc">Description: {{ rp.desc }}</h2>
-    <textarea [(ngModel)]="content"></textarea>
-    <button (click)="sendMessage()">Send</button>
-    <pre>{{ rp.charas | json }}</pre>
-    <hr />
-    <pre>{{ rp.messages | json }}</pre>
+    <nav>
+      <a routerLink="./1">page 1</a>
+    </nav>
+    <router-outlet></router-outlet>
   `,
   styles: []
 })
 export class RpComponent implements OnInit {
 
   public rp: Rp;
-
-  public content: '';
 
   constructor(private route: ActivatedRoute) { }
 
@@ -29,10 +26,6 @@ export class RpComponent implements OnInit {
 
   onRouteDeactivate() {
     this.rp.close();
-  }
-
-  public sendMessage() {
-    this.rp.addMessage({type:'narrator', content: this.content})
   }
 
 }
