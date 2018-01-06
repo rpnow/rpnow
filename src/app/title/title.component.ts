@@ -13,8 +13,8 @@ import { RpService } from '../rp.service';
 })
 export class TitleComponent implements OnInit {
 
-  private title: string;
-  private desc: string;
+  public title: string;
+  public desc: string;
 
   constructor(private service: RpService, private router: Router) { }
 
