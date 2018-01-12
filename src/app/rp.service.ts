@@ -5,6 +5,55 @@ import { ChallengeService } from './challenge.service'
 
 const URL = 'http://localhost:3000';
 
+export class RpMessage {
+  type: 'narrator'|'ooc'|'chara'|'image' = null;
+  timestamp: number = null;
+  sending: boolean = false;
+  content: string = null;
+  charaId?: number = null;
+
+  constructor(data:any, private rp:Rp) {
+    for (let prop in data) this[prop] = data[prop];
+  }
+
+  get id() {
+    return this.rp.messages.indexOf(this);
+  }
+
+  get chara() {
+    return this.rp.charas[this.charaId];
+  }
+
+  get canEdit() {
+    return false; // TODO determine by challenge
+  }
+
+  get color() {
+    return this.chara ? this.chara.color : null;
+  }
+
+  async edit(newContent: string) {
+    this.sending = true;
+    this.content = newContent;
+
+    return await this.rp.editMessage(this.id, newContent);
+  }
+
+}
+
+export class RpChara {
+  name: string = null;
+  color: string = null;
+
+  constructor(data:any, private rp:Rp) {
+    for (let prop in data) this[prop] = data[prop];
+  }
+
+  get id() {
+    return this.rp.charas.indexOf(this);
+  }
+}
+
 @Injectable()
 export class RpService {
   constructor(
@@ -37,8 +86,8 @@ export class Rp {
 
   public title: string = null;
   public desc: string = null;
-  public messages: any[] = null;
-  public charas: any[] = null;
+  public messages: RpMessage[] = null;
+  public charas: RpChara[] = null;
 
   constructor(public rpCode: string, private challenge$: Promise<{secret:string, hash:string}>) {
     this.socket = io(URL, { query: 'rpCode='+rpCode });
@@ -46,21 +95,20 @@ export class Rp {
     this.socket.on('load rp', (data) => {
       this.title = data.title;
       this.desc = data.desc;
-      this.messages = data.msgs;
-      this.charas = data.charas;
+      this.messages = data.msgs.map(data => new RpMessage(data, this));
+      this.charas = data.charas.map(data => new RpChara(data, this));
     });
 
     this.socket.on('add message', (msg) => {
-      this.messages.push(msg);
+      this.messages.push(new RpMessage(msg, this));
     });
 
     this.socket.on('add character', (chara) => {
-      this.charas.push(chara);
+      this.charas.push(new RpChara(chara, this));
     });
 
     this.socket.on('edit message', (data) => {
-      console.log(data)
-      this.messages.splice(data.id, 1, data.msg);
+      this.messages.splice(data.id, 1, new RpMessage(data.msg, this));
     });
 
     this.loaded = new Promise((resolve, reject) => {
@@ -71,14 +119,15 @@ export class Rp {
   }
 
   public async addMessage(msg: any) {
-    let placeholder = JSON.parse(JSON.stringify(msg));
+    let placeholder = new RpMessage(msg, this);
     placeholder.sending = true;
     this.messages.push(placeholder);
 
     let challenge = await this.challenge$;
     msg.challenge = challenge.hash;
 
-    let receivedMsg = await promiseFromEmit(this.socket, 'add message', msg);
+    let data = await promiseFromEmit(this.socket, 'add message', msg);
+    let receivedMsg = new RpMessage(data, this);
     this.messages.splice(this.messages.indexOf(placeholder), 1);
     this.messages.push(receivedMsg);
 
@@ -86,14 +135,16 @@ export class Rp {
   }
 
   public async addChara(chara: any) {
-    let receivedChara = await promiseFromEmit(this.socket, 'add character', chara);
+    let data = await promiseFromEmit(this.socket, 'add character', chara);
+    let receivedChara = new RpChara(data, this);
     this.charas.push(receivedChara);
 
     return receivedChara;
   }
 
   public async addImage(url: string) {
-    let receivedMsg = await promiseFromEmit(this.socket, 'add image', url);
+    let data = await promiseFromEmit(this.socket, 'add image', url);
+    let receivedMsg = new RpMessage(data, this);
     this.messages.push(receivedMsg);
 
     return receivedMsg;
@@ -103,8 +154,8 @@ export class Rp {
     let secret = (await this.challenge$).secret;
     let editInfo = { id, content, secret };
 
-    let receivedMsg = await promiseFromEmit(this.socket, 'edit message', editInfo);
-    this.messages.splice(id, 1, receivedMsg);
+    let data = await promiseFromEmit(this.socket, 'edit message', editInfo);
+    for (let prop in data) this.messages[id][prop] = data[prop];
   }
 
   public close() {

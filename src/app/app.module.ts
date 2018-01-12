@@ -20,6 +20,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { ArchiveComponent } from './rp/archive/archive.component';
 import { ChatComponent } from './rp/chat/chat.component';
 import { RpMessageComponent } from './rp/rp-message/rp-message.component';
+import { IpidComponent } from './rp/ipid/ipid.component';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { RpMessageComponent } from './rp/rp-message/rp-message.component';
     RpComponent,
     ArchiveComponent,
     ChatComponent,
-    RpMessageComponent
+    RpMessageComponent,
+    IpidComponent
   ],
   imports: [
     BrowserModule,

@@ -1,1 +1,19 @@
-<div>{{msg.content}}</div>
+<div [ngClass]="classes" [style.background-color]="msg.color||'auto'" [style.color]="msg.contrastColor||''">
+    <div *ngIf="msg.chara" class="name" [ngClass]="'message-'+msg.type">{{msg.chara.name}}</div>
+
+    <div class="message-details">
+        <span class="timestamp" [title]="'Posted '+timeAgo">{{timeAgo}}</span>
+        <span *ngIf="msg.edited" class="edited-text" [title]="'Edited '+edited">(Edited)</span>
+        <ipid *ngIf="msg.ipid" [ipid]="msg.ipid"></ipid>
+    </div>
+
+    <div class="content">
+        <ng-container *ngIf="msg.type !== 'image' && !editing">{{msg.content}}</ng-container>
+
+        <ng-container *ngIf="msg.type === 'image'">
+            <a [href]="msg.url" target="_blank">
+                <img [src]="msg.url"/>
+            </a>
+        </ng-container>
+    </div>
+</div>
