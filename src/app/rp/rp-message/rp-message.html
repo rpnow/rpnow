@@ -1,14 +1,29 @@
 <div [ngClass]="classes" [style.background-color]="msg.color||'auto'" [style.color]="msg.contrastColor||''">
-    <div *ngIf="msg.chara" class="name" [ngClass]="'message-'+msg.type">{{msg.chara.name}}</div>
+    <div *ngIf="msg.chara" class="name">{{msg.chara.name}}</div>
 
     <div class="message-details">
-        <span class="timestamp" [title]="'Posted '+timeAgo">{{timeAgo}}</span>
-        <span *ngIf="msg.edited" class="edited-text" [title]="'Edited '+edited">(Edited)</span>
-        <ipid *ngIf="msg.ipid" [ipid]="msg.ipid"></ipid>
+        <ng-container *ngIf="msg.sending">
+            <!-- spinner -->
+        </ng-container>
+        <ng-container *ngIf="!msg.sending">
+            <span class="timestamp" [title]="'Posted '+timeAgo">{{timeAgo}}</span>
+            <span *ngIf="msg.edited" class="edited-text" [title]="'Edited '+edited">(Edited)</span>
+            <ipid *ngIf="msg.ipid" [ipid]="msg.ipid"></ipid>
+        </ng-container>
+    </div>
+
+    <div *ngIf="msg.canEdit && !msg.sending" class="action-buttons">
+        <!-- buttons -->
     </div>
 
     <div class="content">
-        <ng-container *ngIf="msg.type !== 'image' && !editing">{{msg.content}}</ng-container>
+        <ng-container *ngIf="msg.type !== 'image' && !editing">
+            {{msg.content}}
+        </ng-container>
+
+        <ng-container *ngIf="editing">
+            <textarea class="content" [(ngModel)]="newContent" maxlength="10000" rows="4"></textarea>
+        </ng-container>
 
         <ng-container *ngIf="msg.type === 'image'">
             <a [href]="msg.url" target="_blank">
