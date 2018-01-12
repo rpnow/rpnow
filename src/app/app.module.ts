@@ -4,7 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatCheckboxModule } from '@angular/material';
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AppComponent } from './app.component';
 import { TitleComponent } from './title/title.component';
@@ -15,6 +19,7 @@ import { ChallengeService } from './challenge.service';
 import { AppRoutingModule } from './app-routing.module';
 import { ArchiveComponent } from './rp/archive/archive.component';
 import { ChatComponent } from './rp/chat/chat.component';
+import { RpMessageComponent } from './rp/rp-message/rp-message.component';
 
 
 @NgModule({
@@ -24,7 +29,8 @@ import { ChatComponent } from './rp/chat/chat.component';
     NotFoundComponent,
     RpComponent,
     ArchiveComponent,
-    ChatComponent
+    ChatComponent,
+    RpMessageComponent
   ],
   imports: [
     BrowserModule,
@@ -33,7 +39,10 @@ import { ChatComponent } from './rp/chat/chat.component';
     HttpClientModule,
     AppRoutingModule,
     FlexLayoutModule,
-    MatCheckboxModule
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatToolbarModule
   ],
   providers: [RpService, ChallengeService],
   bootstrap: [AppComponent]

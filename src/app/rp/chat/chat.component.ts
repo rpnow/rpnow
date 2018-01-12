@@ -3,14 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Rp } from '../../rp.service';
 
 @Component({
-  selector: 'app-chat',
-  template: `
-    <textarea [(ngModel)]="content"></textarea>
-    <button (click)="sendMessage()">Send</button>
-    <pre>{{ rp.charas | json }}</pre>
-    <hr />
-    <pre>{{ rp.messages | json }}</pre>
-  `,
+  templateUrl: 'chat.html',
   styles: []
 })
 export class ChatComponent implements OnInit {

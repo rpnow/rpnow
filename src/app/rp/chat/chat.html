@@ -1,0 +1,8 @@
+<div fxLayout="column">
+    <rp-message *ngFor="let msg of rp.messages" [msg]="msg"></rp-message>
+
+    <textarea [(ngModel)]="content"></textarea>
+    <button (click)="sendMessage()">Send</button>
+</div>
+<hr />
+<pre>{{ rp.charas | json }}</pre>
