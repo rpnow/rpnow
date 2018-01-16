@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as io from 'socket.io-client';
-import { ChallengeService } from './challenge.service'
+import { ChallengeService, Challenge } from './challenge.service'
 
 const URL = 'http://localhost:3000';
 
@@ -11,6 +11,7 @@ export class RpMessage {
   sending: boolean = false;
   content: string = null;
   charaId?: number = null;
+  challenge?: string = null;
 
   constructor(data:any, private rp:Rp) {
     for (let prop in data) this[prop] = data[prop];
@@ -25,7 +26,7 @@ export class RpMessage {
   }
 
   get canEdit() {
-    return false; // TODO determine by challenge
+    return this.rp.canEditMessage(this.id);
   }
 
   get color() {
@@ -36,7 +37,8 @@ export class RpMessage {
     this.sending = true;
     this.content = newContent;
 
-    return await this.rp.editMessage(this.id, newContent);
+    await this.rp.editMessage(this.id, newContent);
+    this.sending = false;
   }
 
 }
@@ -62,7 +64,7 @@ export class RpService {
   ) { }
 
   public async join(rpCode: string) {
-    let rp = new Rp(rpCode, this.challengeService.challenge$);
+    let rp = new Rp(rpCode, this.challengeService.challenge);
     await rp.loaded;
     return rp;
   }
@@ -89,7 +91,7 @@ export class Rp {
   public messages: RpMessage[] = null;
   public charas: RpChara[] = null;
 
-  constructor(public rpCode: string, private challenge$: Promise<{secret:string, hash:string}>) {
+  constructor(public rpCode: string, private challenge: Challenge) {
     this.socket = io(URL, { query: 'rpCode='+rpCode });
 
     this.socket.on('load rp', (data) => {
@@ -123,8 +125,7 @@ export class Rp {
     placeholder.sending = true;
     this.messages.push(placeholder);
 
-    let challenge = await this.challenge$;
-    msg.challenge = challenge.hash;
+    msg.challenge = this.challenge.hash;
 
     let data = await promiseFromEmit(this.socket, 'add message', msg);
     let receivedMsg = new RpMessage(data, this);
@@ -151,11 +152,15 @@ export class Rp {
   }
 
   public async editMessage(id: number, content: string) {
-    let secret = (await this.challenge$).secret;
+    let secret = this.challenge.secret;
     let editInfo = { id, content, secret };
 
     let data = await promiseFromEmit(this.socket, 'edit message', editInfo);
     for (let prop in data) this.messages[id][prop] = data[prop];
+  }
+
+  public canEditMessage(id: number) {
+    return this.messages[id].challenge === this.challenge.hash;
   }
 
   public close() {

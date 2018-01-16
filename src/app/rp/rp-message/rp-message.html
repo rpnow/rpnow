@@ -1,19 +1,31 @@
 <div [ngClass]="classes" [style.background-color]="msg.color||'auto'" [style.color]="msg.contrastColor||''">
     <div *ngIf="msg.chara" class="name">{{msg.chara.name}}</div>
 
-    <div class="message-details">
+    <div class="message-details" *ngIf="!editing">
         <ng-container *ngIf="msg.sending">
-            <!-- spinner -->
+            <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
         <ng-container *ngIf="!msg.sending">
             <span class="timestamp" [title]="'Posted '+timeAgo">{{timeAgo}}</span>
             <span *ngIf="msg.edited" class="edited-text" [title]="'Edited '+edited">(Edited)</span>
-            <ipid *ngIf="msg.ipid" [ipid]="msg.ipid"></ipid>
+            <ipid *ngIf="msg.ipid" [style.visibility]="msg.canEdit?'hidden':'visible'" [ipid]="msg.ipid"></ipid>
         </ng-container>
     </div>
 
     <div *ngIf="msg.canEdit && !msg.sending" class="action-buttons">
-        <!-- buttons -->
+        <ng-container *ngIf="!editing">
+            <button mat-icon-button (click)="beginEdit()">
+                <mat-icon aria-label="Edit post" matTooltip="Edit post">edit</mat-icon>
+            </button>
+        </ng-container>
+        <ng-container *ngIf="editing">
+            <button mat-icon-button (click)="confirmEdit()">
+                <mat-icon aria-label="Save edits" matTooltip="Save edits">save</mat-icon>
+            </button>
+            <button mat-icon-button (click)="cancelEdit()">
+                <mat-icon aria-label="Discard edits" matTooltip="Discard edits">cancel</mat-icon>
+            </button>
+        </ng-container>
     </div>
 
     <div class="content">
