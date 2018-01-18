@@ -22,6 +22,7 @@ import { ArchiveComponent } from './rp/archive/archive.component';
 import { ChatComponent } from './rp/chat/chat.component';
 import { RpMessageComponent } from './rp/rp-message/rp-message.component';
 import { IpidComponent } from './rp/ipid/ipid.component';
+import { MessageBoxComponent } from './rp/chat/message-box/message-box.component';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { IpidComponent } from './rp/ipid/ipid.component';
     ArchiveComponent,
     ChatComponent,
     RpMessageComponent,
-    IpidComponent
+    IpidComponent,
+    MessageBoxComponent
   ],
   imports: [
     BrowserModule,

@@ -1,6 +1,5 @@
 <div fxLayout="column">
     <rp-message *ngFor="let msg of rp.messages" [msg]="msg"></rp-message>
 
-    <textarea [(ngModel)]="content"></textarea>
-    <button (click)="sendMessage()">Send</button>
+    <rp-message-box (onMessage)="sendMessage($event)"></rp-message-box>
 </div>
