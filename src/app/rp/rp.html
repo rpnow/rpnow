@@ -1,4 +1,4 @@
-<mat-sidenav-container [style.height]="'100vh'">
+<mat-sidenav-container fxFill>
 
     <mat-sidenav #mainMenu position="start" mode="over">
 
@@ -22,7 +22,7 @@
 
     </mat-sidenav>
 
-    <div fxLayout="column">
+    <mat-sidenav-content fxLayout="column" [style.height]="'100%'">
 
         <mat-toolbar>
             <button mat-icon-button (click)="mainMenu.open()">
@@ -42,9 +42,12 @@
             </button>
         </mat-toolbar>
 
-        <router-outlet></router-outlet>
+        <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
+        <div style="flex: 1 1 auto; height: 0px">
+            <router-outlet></router-outlet>
+        </div>
 
-    </div>
+    </mat-sidenav-content>
 
     <mat-sidenav #charaMenu position="end" mode="side" [opened]="true">
         <mat-toolbar>

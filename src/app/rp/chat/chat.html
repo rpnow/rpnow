@@ -1,5 +1,11 @@
-<div fxLayout="column">
-    <rp-message *ngFor="let msg of rp.messages" [msg]="msg"></rp-message>
+<div fxLayout="column" fxFill>
 
-    <rp-message-box (onMessage)="sendMessage($event)"></rp-message-box>
+    <div style="flex: 1 1 auto; overflow-y: auto; height: 0px">
+        <rp-message *ngFor="let msg of rp.messages" [msg]="msg"></rp-message>
+    </div>
+
+    <div>
+        <rp-message-box (onMessage)="sendMessage($event)"></rp-message-box>
+    </div>
+
 </div>
