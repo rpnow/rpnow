@@ -1,6 +1,7 @@
-<mat-sidenav-container>
+<mat-sidenav-container [style.height]="'100vh'">
 
     <mat-sidenav #mainMenu position="start" mode="over">
+
         <mat-toolbar>
             <h1 style="flex: 1 1 auto">
                 RPNow
@@ -9,7 +10,16 @@
                 <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
             </button>
         </mat-toolbar>
-        <p>RPNow Menu</p>
+
+        <mat-nav-list>
+            <a mat-list-item routerLink="/">Home</a>
+            <a mat-list-item routerLink="/rp/dj95iZmY">RP 1</a>
+            <a mat-list-item routerLink="/rp/buDmYX4s">RP 2</a>
+            <a mat-list-item routerLink="/rp/HoDWoSoB">RP 3</a>
+            <a mat-list-item routerLink="/rp/aGpsvC3g">RP 4</a>
+            <a mat-list-item routerLink="/rp/00000000">RP bad</a>
+        </mat-nav-list>
+
     </mat-sidenav>
 
     <div fxLayout="column">
@@ -31,7 +41,7 @@
             </button>
         </mat-toolbar>
         <router-outlet></router-outlet>
-    </div>
+        </div>
 
     <mat-sidenav #charaMenu position="end" mode="side" [opened]="true">
         <mat-toolbar>
