@@ -23,6 +23,7 @@
     </mat-sidenav>
 
     <div fxLayout="column">
+
         <mat-toolbar>
             <button mat-icon-button (click)="mainMenu.open()">
                 <mat-icon aria-label="Main menu" matTooltip="Main menu">menu</mat-icon>
@@ -40,8 +41,10 @@
                 <mat-icon aria-label="Download RP" matTooltip="Download RP">cloud_download</mat-icon>
             </button>
         </mat-toolbar>
+
         <router-outlet></router-outlet>
-        </div>
+
+    </div>
 
     <mat-sidenav #charaMenu position="end" mode="side" [opened]="true">
         <mat-toolbar>
