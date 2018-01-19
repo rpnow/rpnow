@@ -1,0 +1,37 @@
+#message-input-box {
+    z-index: 3;
+
+    .message-box-inner-row {
+        width: 100%;
+        max-width: 700px;
+        margin: auto;
+    }
+    header {
+        border-top: 1px solid rgba(0,0,0,0.2);
+        border-bottom: 1px solid rgba(0,0,0,0.2);
+    }
+    header .message-box-inner-row {
+        height: 36px;
+        @media (min-width: 960px) {
+            padding-right: 10px;
+        }
+        @media (min-width: 600px) {
+            height: 48px;
+        }
+    }
+    md-icon {
+        color: inherit;
+    }
+    #voiceChangeBar {
+        height: 100%;
+        font-size: 120%;
+        md-icon {
+            margin: 0 12px;
+        }
+        .clickToChange {
+            font-size: 80%;
+            opacity: 0.7;
+            margin-left: 20px;
+        }
+    }
+}

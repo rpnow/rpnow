@@ -1,0 +1,27 @@
+<div id="message-input-box" fxLayout="column" [style.background-color]="'pink'">
+
+    <div id="voiceChangeBar" fxLayout="row" fxLayoutAlign="center center">
+
+        <div fxLayout="row" fxLayoutAlign="start center" matTooltip="Change character">
+            <ng-container *ngIf="type==='narrator'"><mat-icon>local_library</mat-icon> Narrator</ng-container>
+            <ng-container *ngIf="type==='ooc'"><mat-icon>chat</mat-icon> Out of character</ng-container>
+            <ng-container *ngIf="type==='chara'"><mat-icon>person</mat-icon> Chara</ng-container>
+        </div>
+
+        <button mat-icon-button>
+            <mat-icon aria-label="Post image" matTooltip="Post image">image</mat-icon>
+        </button>
+
+    </div>
+
+    <div fxLayout="row" fxLayoutAlign="center center">
+
+        <textarea [(ngModel)]="content" rows="4" placeholder="Type your message." maxlength="10000"></textarea>
+
+        <button mat-icon-button (click)="sendMessage()">
+            <mat-icon aria-label="Send" matTooltip="Send">send</mat-icon>
+        </button>
+
+    </div>
+
+</div>
