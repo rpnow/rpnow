@@ -13,7 +13,7 @@ export class ChatComponent implements OnInit {
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.route.parent.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
+    this.route.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
   }
 
   public sendMessage(message: any) {

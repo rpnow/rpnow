@@ -15,7 +15,7 @@ export class ArchiveComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(map => this.page = +map.get('page'));
-    this.route.parent.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
+    this.route.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
   }
 
 }
