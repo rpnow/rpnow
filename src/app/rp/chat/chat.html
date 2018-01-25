@@ -1,13 +1,37 @@
-<div fxLayout="column" fxFill>
+<mat-sidenav-container fxFill>
 
-    <title-bar [title]="rp.title" [desc]="rp.desc" [rpCode]="rp.rpCode" [rpCode]="rp.rpCode"></title-bar>
+    <mat-sidenav-content fxLayout="column">
 
-    <div style="flex: 1 1 auto; overflow-y: auto; height: 0px">
-        <rp-message *ngFor="let msg of rp.messages" [msg]="msg"></rp-message>
-    </div>
+        <title-bar [title]="rp.title" [desc]="rp.desc" [rpCode]="rp.rpCode" [rpCode]="rp.rpCode"></title-bar>
 
-    <div>
-        <rp-message-box (onMessage)="sendMessage($event)"></rp-message-box>
-    </div>
+        <div style="flex: 1 1 auto; overflow-y: auto; height: 0px">
+            <rp-message *ngFor="let msg of rp.messages" [msg]="msg"></rp-message>
+        </div>
 
-</div>
+        <div>
+            <rp-message-box (onMessage)="sendMessage($event)"></rp-message-box>
+        </div>
+
+    </mat-sidenav-content>
+
+    <mat-sidenav #charaMenu position="end" mode="side" [opened]="true">
+
+        <mat-toolbar>
+
+            <h1 style="flex: 1 1 auto">
+                Characters
+            </h1>
+
+            <button mat-icon-button (click)="charaMenu.close()">
+                <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
+            </button>
+
+        </mat-toolbar>
+
+        <p>
+            Characters
+        </p>
+
+    </mat-sidenav>
+
+</mat-sidenav-container>

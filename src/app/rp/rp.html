@@ -22,25 +22,11 @@
 
     </mat-sidenav>
 
-    <mat-sidenav-content fxLayout="column" [style.height]="'100%'">
+    <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
+    <mat-sidenav-content>
 
-        <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
-        <div style="flex: 1 1 auto; height: 0px">
-            <router-outlet></router-outlet>
-        </div>
+        <router-outlet></router-outlet>
 
     </mat-sidenav-content>
-
-    <mat-sidenav #charaMenu position="end" mode="side" [opened]="true">
-        <mat-toolbar>
-            <h1 style="flex: 1 1 auto">
-                Characters
-            </h1>
-            <button mat-icon-button (click)="charaMenu.close()">
-                <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
-            </button>
-        </mat-toolbar>
-        <p>Characters</p>
-    </mat-sidenav>
 
 </mat-sidenav-container>
