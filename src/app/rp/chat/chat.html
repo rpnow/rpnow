@@ -1,5 +1,7 @@
 <div fxLayout="column" fxFill>
 
+    <title-bar [title]="rp.title" [desc]="rp.desc" [rpCode]="rp.rpCode" [rpCode]="rp.rpCode"></title-bar>
+
     <div style="flex: 1 1 auto; overflow-y: auto; height: 0px">
         <rp-message *ngFor="let msg of rp.messages" [msg]="msg"></rp-message>
     </div>

@@ -24,24 +24,6 @@
 
     <mat-sidenav-content fxLayout="column" [style.height]="'100%'">
 
-        <mat-toolbar>
-            <button mat-icon-button (click)="mainMenu.open()">
-                <mat-icon aria-label="Main menu" matTooltip="Main menu">menu</mat-icon>
-            </button>
-            <h1 matTooltip="Hi" style="flex: 1 1 auto">
-                {{ rp.title }}
-            </h1>
-            <button mat-icon-button routerLink=".">
-                <mat-icon aria-label="Chat" matTooltip="Chat">question_answer</mat-icon>
-            </button>
-            <button mat-icon-button routerLink="./1">
-                <mat-icon aria-label="Read archive" matTooltip="Read archive">import_contacts</mat-icon>
-            </button>
-            <button mat-icon-button>
-                <mat-icon aria-label="Download RP" matTooltip="Download RP">cloud_download</mat-icon>
-            </button>
-        </mat-toolbar>
-
         <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
         <div style="flex: 1 1 auto; height: 0px">
             <router-outlet></router-outlet>

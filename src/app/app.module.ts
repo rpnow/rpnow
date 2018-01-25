@@ -25,6 +25,7 @@ import { ChatComponent } from './rp/chat/chat.component';
 import { RpMessageComponent } from './rp/rp-message/rp-message.component';
 import { IpidComponent } from './rp/ipid/ipid.component';
 import { MessageBoxComponent } from './rp/chat/message-box/message-box.component';
+import { TitleBarComponent } from './rp/title-bar/title-bar.component';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { MessageBoxComponent } from './rp/chat/message-box/message-box.component
     ChatComponent,
     RpMessageComponent,
     IpidComponent,
-    MessageBoxComponent
+    MessageBoxComponent,
+    TitleBarComponent
   ],
   imports: [
     BrowserModule,
