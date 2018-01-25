@@ -29,9 +29,27 @@
 
         </mat-toolbar>
 
-        <p>
-            Characters
-        </p>
+        <mat-nav-list>
+            <a mat-list-item (click)="setVoice('narrator')">
+                <mat-icon>local_library</mat-icon> <span fxFlex>Narrator</span> <mat-icon *ngIf="(currentChara$|async) === 'narrator'">check</mat-icon>
+            </a>
+            <a mat-list-item (click)="setVoice('ooc')">
+                <mat-icon>chat</mat-icon> <span fxFlex>Out of Character</span> <mat-icon *ngIf="(currentChara$|async) === 'ooc'">check</mat-icon>
+            </a>
+
+            <mat-divider></mat-divider>
+
+            <a mat-list-item (click)="newChara()">
+                <mat-icon>person_add</mat-icon> <span fxFlex>New Character...</span>
+            </a>
+
+            <mat-divider></mat-divider>
+
+            <a mat-list-item *ngFor="let chara of rp.charas" (click)="setVoice(chara)">
+                <mat-icon>person</mat-icon> <span fxFlex>{{chara.name}}</span> <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
+            </a>
+
+        </mat-nav-list>
 
     </mat-sidenav>
 

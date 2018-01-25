@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -49,6 +50,7 @@ import { TitleBarComponent } from './rp/title-bar/title-bar.component';
     AppRoutingModule,
     FlexLayoutModule,
     MatButtonModule,
+    MatDividerModule,
     MatIconModule,
     MatListModule,
     MatProgressSpinnerModule,

@@ -3,9 +3,9 @@
     <div id="voiceChangeBar" fxLayout="row" fxLayoutAlign="center center" (click)="openCharaSelector()">
 
         <div fxLayout="row" fxLayoutAlign="start center" matTooltip="Change character">
-            <ng-container *ngIf="type==='narrator'"><mat-icon>local_library</mat-icon> Narrator</ng-container>
-            <ng-container *ngIf="type==='ooc'"><mat-icon>chat</mat-icon> Out of character</ng-container>
-            <ng-container *ngIf="type==='chara'"><mat-icon>person</mat-icon> Chara</ng-container>
+            <ng-container *ngIf="(chara$|async)==='narrator'"><mat-icon>local_library</mat-icon> Narrator</ng-container>
+            <ng-container *ngIf="(chara$|async)==='ooc'"><mat-icon>chat</mat-icon> Out of character</ng-container>
+            <ng-container *ngIf="(chara$|async).id != null"><mat-icon>person</mat-icon> {{(chara$|async).name}}</ng-container>
         </div>
 
         <button mat-icon-button>
