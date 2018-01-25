@@ -1,6 +1,6 @@
 <div id="message-input-box" fxLayout="column" [style.background-color]="'pink'">
 
-    <div id="voiceChangeBar" fxLayout="row" fxLayoutAlign="center center">
+    <div id="voiceChangeBar" fxLayout="row" fxLayoutAlign="center center" (click)="openCharaSelector()">
 
         <div fxLayout="row" fxLayoutAlign="start center" matTooltip="Change character">
             <ng-container *ngIf="type==='narrator'"><mat-icon>local_library</mat-icon> Narrator</ng-container>
