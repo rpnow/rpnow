@@ -1,8 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MainMenuService } from './main-menu.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-root',
-  template: `<router-outlet></router-outlet>`,
-  styles: []
+  templateUrl: 'app.html',
+  styles: [],
+  providers: [MainMenuService]
 })
-export class AppComponent { }
+export class AppComponent implements OnInit {
+  @ViewChild('mainMenu') mainMenu: MatSidenav;
+
+  constructor(private mainMenuService: MainMenuService) { }
+
+  ngOnInit() {
+    this.mainMenuService.setInstance(this.mainMenu);
+  }
+}

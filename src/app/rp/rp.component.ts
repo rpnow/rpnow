@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Rp } from '../rp.service';
 
 @Component({
-  templateUrl: 'rp.html',
+  template: `<router-outlet></router-outlet>`,
   styles: []
 })
 export class RpComponent implements OnInit {
