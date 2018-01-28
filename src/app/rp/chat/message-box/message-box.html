@@ -16,7 +16,7 @@
 
     <div fxLayout="row" fxLayoutAlign="center center">
 
-        <textarea [(ngModel)]="content" rows="4" placeholder="Type your message." maxlength="10000"></textarea>
+        <textarea matTextareaAutosize matAutosizeMaxRows="4" [(ngModel)]="content" placeholder="Type your message." maxlength="10000"></textarea>
 
         <button mat-icon-button (click)="sendMessage()">
             <mat-icon aria-label="Send" matTooltip="Send">send</mat-icon>
