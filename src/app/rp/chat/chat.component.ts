@@ -4,6 +4,8 @@ import { Rp, RpChara } from '../../rp.service';
 import { CharaSelectorService } from './chara-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { MatDialog } from '@angular/material/dialog';
+import { NewCharaComponent } from './new-chara/new-chara.component';
 
 @Component({
   templateUrl: 'chat.html',
@@ -20,7 +22,8 @@ export class ChatComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private charaSelectorService: CharaSelectorService
+    private charaSelectorService: CharaSelectorService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -38,6 +41,9 @@ export class ChatComponent implements OnInit {
   }
 
   public newChara() {
-    alert('TO DO: open character dialog here')
+    let dialogRef = this.dialog.open(NewCharaComponent, { data: { rp: this.rp } });
+    dialogRef.beforeClose().subscribe(chara => {
+      if (chara) this.charaSelectorService.currentChara$.next(chara);
+    })
   }
 }

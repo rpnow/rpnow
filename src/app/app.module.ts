@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -27,6 +28,7 @@ import { RpMessageComponent } from './rp/rp-message/rp-message.component';
 import { IpidComponent } from './rp/ipid/ipid.component';
 import { MessageBoxComponent } from './rp/chat/message-box/message-box.component';
 import { TitleBarComponent } from './rp/title-bar/title-bar.component';
+import { NewCharaComponent } from './rp/chat/new-chara/new-chara.component';
 
 
 @NgModule({
@@ -40,7 +42,8 @@ import { TitleBarComponent } from './rp/title-bar/title-bar.component';
     RpMessageComponent,
     IpidComponent,
     MessageBoxComponent,
-    TitleBarComponent
+    TitleBarComponent,
+    NewCharaComponent
   ],
   imports: [
     BrowserModule,
@@ -50,6 +53,7 @@ import { TitleBarComponent } from './rp/title-bar/title-bar.component';
     AppRoutingModule,
     FlexLayoutModule,
     MatButtonModule,
+    MatDialogModule,
     MatDividerModule,
     MatIconModule,
     MatListModule,
@@ -59,6 +63,7 @@ import { TitleBarComponent } from './rp/title-bar/title-bar.component';
     MatToolbarModule
   ],
   providers: [RpService, ChallengeService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [NewCharaComponent]
 })
 export class AppModule { }

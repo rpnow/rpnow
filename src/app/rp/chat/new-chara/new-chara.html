@@ -1,0 +1,10 @@
+<h1>New Character</h1>
+
+<ng-container *ngIf="!loading">
+    <button (click)="submit()">OK</button>
+    <button (click)="cancel()">Cancel</button>
+</ng-container>
+
+<ng-container *ngIf="loading">
+    <mat-spinner></mat-spinner>
+</ng-container>
