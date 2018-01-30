@@ -16,6 +16,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { ColorPickerModule } from 'ngx-color-picker';
+
 import { AppComponent } from './app.component';
 import { TitleComponent } from './title/title.component';
 import { NotFoundComponent } from './not-found/not-found.component';
@@ -62,7 +64,8 @@ import { NewCharaComponent } from './rp/chat/new-chara/new-chara.component';
     MatProgressSpinnerModule,
     MatSidenavModule,
     MatTooltipModule,
-    MatToolbarModule
+    MatToolbarModule,
+    ColorPickerModule
   ],
   providers: [RpService, ChallengeService],
   bootstrap: [AppComponent],

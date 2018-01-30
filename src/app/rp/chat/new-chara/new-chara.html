@@ -1,8 +1,24 @@
-<h1>New Character</h1>
+<mat-toolbar>
+
+    <h1 fxFlex>
+        New Character
+    </h1>
+
+    <button mat-icon-button (click)="cancel()">
+        <mat-icon aria-label="Close new character dialog" matTooltip="Close">close</mat-icon>
+    </button>
+
+</mat-toolbar>
 
 <ng-container *ngIf="!loading">
-    <button (click)="submit()">OK</button>
-    <button (click)="cancel()">Cancel</button>
+    <mat-form-field>
+        <input matInput placeholder="Name this character:" [(ngModel)]="name" />
+    </mat-form-field>
+
+    <span [(colorPicker)]="color" [cpToggle]="true" cpDialogDisplay="inline" [cpDisableInput]="true"></span>
+
+    <button mat-raised-button (click)="submit()">OK</button>
+    <button mat-raised-button (click)="cancel()">Cancel</button>
 </ng-container>
 
 <ng-container *ngIf="loading">

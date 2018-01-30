@@ -11,6 +11,9 @@ export class NewCharaComponent implements OnInit {
 
   loading: boolean = false;
 
+  name: string = '';
+  color: string = '#556677';
+
   constructor(
     private dialogRef: MatDialogRef<NewCharaComponent>,
     @Inject(MAT_DIALOG_DATA) private data: { rp: Rp }
@@ -22,7 +25,7 @@ export class NewCharaComponent implements OnInit {
   async submit() {
     this.loading = true;
 
-    let chara = await this.data.rp.addChara({ name: 'max', color: '#556677' });
+    let chara = await this.data.rp.addChara({ name: this.name, color: this.color });
     this.dialogRef.close(chara);
   }
 
