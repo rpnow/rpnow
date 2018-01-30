@@ -32,6 +32,7 @@ import { IpidComponent } from './rp/ipid/ipid.component';
 import { MessageBoxComponent } from './rp/chat/message-box/message-box.component';
 import { TitleBarComponent } from './rp/title-bar/title-bar.component';
 import { NewCharaComponent } from './rp/chat/new-chara/new-chara.component';
+import { BlackOrWhitePipe } from './black-or-white.pipe';
 
 
 @NgModule({
@@ -46,7 +47,8 @@ import { NewCharaComponent } from './rp/chat/new-chara/new-chara.component';
     IpidComponent,
     MessageBoxComponent,
     TitleBarComponent,
-    NewCharaComponent
+    NewCharaComponent,
+    BlackOrWhitePipe
   ],
   imports: [
     BrowserModule,

@@ -1,4 +1,4 @@
-<div [ngClass]="classes" [style.background-color]="msg.color||'auto'" [style.color]="msg.contrastColor||''">
+<div [ngClass]="classes" [style.background-color]="msg.color||'auto'" [style.color]="(msg.color|bw)">
     <div *ngIf="msg.chara" class="name">{{msg.chara.name}}</div>
 
     <div class="message-details" *ngIf="!editing">
