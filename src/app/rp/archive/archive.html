@@ -1,10 +1,16 @@
-<title-bar [title]="rp.title" [desc]="rp.desc" [rpCode]="rp.rpCode"></title-bar>
+<section fxFill fxLayout="column">
 
-<p>
-    Looking at page #{{page}}
-</p>
-<p *ngFor="let msg of rp.messages; let i = index">
-    <ng-container *ngIf="i >= (page-1)*5 && i < (page)*5">
-        {{i}} &mdash; {{msg.content}}
-    </ng-container>
-</p>
+    <title-bar [title]="rp.title" [desc]="rp.desc" [rpCode]="rp.rpCode"></title-bar>
+
+    <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
+    <div style="flex: 1 1 auto; overflow-y: auto; height: 0px">
+        <ng-container *ngFor="let msg of rp.messages; let i = index">
+            <ng-container *ngIf="i >= (page-1)*size && i < (page)*size">
+                <rp-message [msg]="msg"></rp-message>
+            </ng-container>
+        </ng-container>
+    </div>
+
+    <mat-paginator [pageIndex]="page-1" [pageSize]="size" [length]="rp.messages.length" (page)="goToPage($event.pageIndex)"></mat-paginator>
+
+</section>
