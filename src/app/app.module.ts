@@ -7,6 +7,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -34,6 +35,7 @@ import { MessageBoxComponent } from './rp/chat/message-box/message-box.component
 import { TitleBarComponent } from './rp/title-bar/title-bar.component';
 import { NewCharaComponent } from './rp/chat/new-chara/new-chara.component';
 import { BlackOrWhitePipe } from './black-or-white.pipe';
+import { DownloadDialogComponent } from './rp/download-dialog/download-dialog.component';
 
 
 @NgModule({
@@ -49,7 +51,8 @@ import { BlackOrWhitePipe } from './black-or-white.pipe';
     MessageBoxComponent,
     TitleBarComponent,
     NewCharaComponent,
-    BlackOrWhitePipe
+    BlackOrWhitePipe,
+    DownloadDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -59,6 +62,7 @@ import { BlackOrWhitePipe } from './black-or-white.pipe';
     AppRoutingModule,
     FlexLayoutModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatDialogModule,
     MatDividerModule,
     MatIconModule,
@@ -73,6 +77,6 @@ import { BlackOrWhitePipe } from './black-or-white.pipe';
   ],
   providers: [RpService, ChallengeService],
   bootstrap: [AppComponent],
-  entryComponents: [NewCharaComponent]
+  entryComponents: [NewCharaComponent, DownloadDialogComponent]
 })
 export class AppModule { }
