@@ -12,6 +12,7 @@ export class RpMessage {
   content: string = null;
   charaId?: number = null;
   challenge?: string = null;
+  url?: string = null;
 
   constructor(data:any, private rp:Rp) {
     for (let prop in data) this[prop] = data[prop];

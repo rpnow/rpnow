@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Rp } from '../../rp.service';
+import { downloadTxt } from '../../download-functions/download-txt';
 
 @Component({
   selector: 'app-download-dialog',
@@ -24,7 +25,7 @@ export class DownloadDialogComponent implements OnInit {
   }
   
   printTxt() {
-    alert('txt');
+    downloadTxt(this.data.rp, this.showOOC);
   }
 
   printDocx() {
