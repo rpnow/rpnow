@@ -2,11 +2,13 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Rp } from '../../rp.service';
 import { downloadTxt } from '../../download-functions/download-txt';
+import { DownloadDocxService } from './download-docx.service';
 
 @Component({
   selector: 'app-download-dialog',
   templateUrl: 'download-dialog.html',
-  styles: []
+  styles: [],
+  providers: [DownloadDocxService]
 })
 export class DownloadDialogComponent implements OnInit {
 
@@ -14,7 +16,8 @@ export class DownloadDialogComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<DownloadDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) private data: { rp: Rp }
+    @Inject(MAT_DIALOG_DATA) private data: { rp: Rp },
+    private docxService: DownloadDocxService
   ) { }
 
   ngOnInit() {
@@ -29,7 +32,7 @@ export class DownloadDialogComponent implements OnInit {
   }
 
   printDocx() {
-    alert('docx');
+    this.docxService.downloadDocx(this.data.rp, this.showOOC);
   }
 
 }
