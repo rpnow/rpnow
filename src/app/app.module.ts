@@ -36,6 +36,7 @@ import { TitleBarComponent } from './rp/title-bar/title-bar.component';
 import { NewCharaComponent } from './rp/chat/new-chara/new-chara.component';
 import { BlackOrWhitePipe } from './black-or-white.pipe';
 import { DownloadDialogComponent } from './rp/download-dialog/download-dialog.component';
+import { OptionsService } from './options.service';
 
 
 @NgModule({
@@ -75,7 +76,7 @@ import { DownloadDialogComponent } from './rp/download-dialog/download-dialog.co
     MatToolbarModule,
     ColorPickerModule
   ],
-  providers: [RpService, ChallengeService],
+  providers: [RpService, ChallengeService, OptionsService],
   bootstrap: [AppComponent],
   entryComponents: [NewCharaComponent, DownloadDialogComponent]
 })
