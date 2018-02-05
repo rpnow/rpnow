@@ -10,7 +10,7 @@
 
 </mat-toolbar>
 
-<mat-checkbox [(ngModel)]="showOOC">Include OOC messages</mat-checkbox>
+<mat-checkbox [(ngModel)]="showOOC" (ngModelChange)="updateOocOption()">Include OOC messages</mat-checkbox>
 
 <button mat-raised-button (click)="printTxt()">
     .TXT

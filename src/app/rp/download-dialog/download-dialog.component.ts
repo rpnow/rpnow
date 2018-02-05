@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Rp } from '../../rp.service';
 import { DownloadTxtService } from './download-txt.service';
 import { DownloadDocxService } from './download-docx.service';
+import { OptionsService } from '../../options.service';
 
 @Component({
   selector: 'app-download-dialog',
@@ -18,10 +19,16 @@ export class DownloadDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<DownloadDialogComponent>,
     @Inject(MAT_DIALOG_DATA) private data: { rp: Rp },
     private txtService: DownloadTxtService,
-    private docxService: DownloadDocxService
+    private docxService: DownloadDocxService,
+    private options: OptionsService
   ) { }
 
   ngOnInit() {
+    this.showOOC = this.options.global.downloadOOC;
+  }
+
+  updateOocOption() {
+    this.options.global.downloadOOC = this.showOOC;
   }
 
   cancel() {

@@ -12,7 +12,16 @@ export class ChallengeService {
 
   public challenge: Challenge
 
-  constructor(private optionsService: OptionsService) {
+  constructor(private options: OptionsService) {
+    if (this.options.global.challenge) {
+      this.challenge = this.options.global.challenge;
+    }
+    else {
+      this.challenge = this.options.global.challenge = this.createChallenge();
+    }
+  }
+
+  private createChallenge(): Challenge {
     let bytes = new Uint32Array(64/8);
     window.crypto.getRandomValues(bytes);
 
@@ -20,9 +29,7 @@ export class ChallengeService {
 
     let hash = SHA512(secret).toString(enc.Hex)
 
-    this.challenge = { secret, hash };
-
-    this.optionsService.options.rpnow.global.challenge = this.challenge;
+    return { secret, hash };
   }
 
 }
