@@ -13,11 +13,11 @@ export class ChallengeService {
   public challenge: Challenge
 
   constructor(private options: OptionsService) {
-    if (this.options.global.challenge) {
-      this.challenge = this.options.global.challenge;
+    if (this.options.challenge) {
+      this.challenge = this.options.challenge;
     }
     else {
-      this.challenge = this.options.global.challenge = this.createChallenge();
+      this.challenge = this.options.challenge = this.createChallenge();
     }
   }
 

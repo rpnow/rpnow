@@ -22,13 +22,13 @@ export class NewCharaComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.color = this.options.global.lastColor || '#80c9ff';
+    this.color = this.options.lastColor || '#80c9ff';
   }
 
   async submit() {
     this.loading = true;
 
-    this.options.global.lastColor = this.color;
+    this.options.lastColor = this.color;
 
     let chara = await this.data.rp.addChara({ name: this.name, color: this.color });
     this.dialogRef.close(chara);

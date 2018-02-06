@@ -26,11 +26,11 @@ export class DownloadDialogComponent {
   }
   
   printTxt() {
-    this.txtService.downloadTxt(this.data.rp, this.options.global.downloadOOC);
+    this.txtService.downloadTxt(this.data.rp, this.options.downloadOOC);
   }
 
   printDocx() {
-    this.docxService.downloadDocx(this.data.rp, this.options.global.downloadOOC);
+    this.docxService.downloadDocx(this.data.rp, this.options.downloadOOC);
   }
 
 }
