@@ -11,36 +11,26 @@ import { OptionsService } from '../../options.service';
   styles: [],
   providers: [DownloadDocxService, DownloadTxtService]
 })
-export class DownloadDialogComponent implements OnInit {
-
-  public showOOC: boolean = false;
+export class DownloadDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<DownloadDialogComponent>,
     @Inject(MAT_DIALOG_DATA) private data: { rp: Rp },
     private txtService: DownloadTxtService,
     private docxService: DownloadDocxService,
-    private options: OptionsService
+    public options: OptionsService
   ) { }
-
-  ngOnInit() {
-    this.showOOC = this.options.global.downloadOOC;
-  }
-
-  updateOocOption() {
-    this.options.global.downloadOOC = this.showOOC;
-  }
 
   cancel() {
     this.dialogRef.close(null);
   }
   
   printTxt() {
-    this.txtService.downloadTxt(this.data.rp, this.showOOC);
+    this.txtService.downloadTxt(this.data.rp, this.options.global.downloadOOC);
   }
 
   printDocx() {
-    this.docxService.downloadDocx(this.data.rp, this.showOOC);
+    this.docxService.downloadDocx(this.data.rp, this.options.global.downloadOOC);
   }
 
 }
