@@ -22,7 +22,7 @@ export class NewCharaComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.color = this.options.lastColor || '#80c9ff';
+    this.color = this.options.lastColor;
   }
 
   async submit() {

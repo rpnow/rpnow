@@ -1,6 +1,7 @@
 import { Component, OnChanges, SimpleChanges, Input } from '@angular/core';
 import * as moment from 'moment-mini';
 import { RpMessage } from '../../rp.service';
+import { OptionsService } from '../../options.service';
 
 @Component({
   selector: 'rp-message',
@@ -8,6 +9,8 @@ import { RpMessage } from '../../rp.service';
   styleUrls: ['rp-message.css']
 })
 export class RpMessageComponent implements OnChanges {
+
+  constructor(public options: OptionsService) { }
 
   @Input('msg') msg: RpMessage;
 
@@ -24,8 +27,7 @@ export class RpMessageComponent implements OnChanges {
       'message': true,
       ['message-'+this.msg.type]: true,
       'message-sending': this.msg.sending,
-      'message-slim': false,
-      'message-mine': false
+      'message-slim': false
     }
   }
 

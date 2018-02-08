@@ -1,7 +1,7 @@
 <div [ngClass]="classes" [style.background-color]="msg.color||'auto'" [style.color]="(msg.color|bw)">
     <div *ngIf="msg.chara" class="name">{{msg.chara.name}}</div>
 
-    <div class="message-details" *ngIf="!editing">
+    <div class="message-details" *ngIf="!editing && options.showMessageDetails">
         <ng-container *ngIf="msg.sending">
             <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
