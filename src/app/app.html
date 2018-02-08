@@ -23,7 +23,7 @@
             <a mat-list-item (click)="options.pressEnterToSend = !options.pressEnterToSend" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
                 <mat-icon>send</mat-icon>
                 <span fxFlex>Press <kbd>Enter</kbd> to send</span>
-                <mat-checkbox [(ngModel)]="options.pressEnterToSend"></mat-checkbox>
+                <mat-checkbox [(ngModel)]="options.pressEnterToSend" (click)="false"></mat-checkbox>
             </a>
         
             <!-- <a mat-list-item (click)="0" title="Change the notification noise which will play when the tab is hidden, or just turn it off.">
@@ -39,13 +39,13 @@
             <a mat-list-item (click)="options.showMessageDetails = !options.showMessageDetails" title="Show or hide the timestamps and color-ID's on all messages.">
                 <mat-icon>account_box</mat-icon>
                 <span fxFlex>Show message details</span>
-                <mat-checkbox [(ngModel)]="options.showMessageDetails"></mat-checkbox>
+                <mat-checkbox [(ngModel)]="options.showMessageDetails" (click)="false"></mat-checkbox>
             </a>
         
             <a mat-list-item (click)="options.nightMode = !options.nightMode" title="Display the site in a darker color scheme">
                 <mat-icon>brightness_4</mat-icon>
                 <span fxFlex>Night mode</span>
-                <mat-checkbox [(ngModel)]="options.nightMode"></mat-checkbox>
+                <mat-checkbox [(ngModel)]="options.nightMode" (click)="false"></mat-checkbox>
             </a>
         
             <mat-divider></mat-divider>
