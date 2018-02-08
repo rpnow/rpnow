@@ -9,19 +9,12 @@ import { Challenge } from './challenge.service';
 // 	}
 // }
 
-// export interface GlobalOptions {
-// 	lastColor: string,
-// 	challenge: Readonly<{ hash: string, secret: string }>,
-// 	downloadOOC: boolean,
-// 	nightMode: boolean,
-// 	notificationNoise: number,
-// 	pressEnterToSend: boolean,
-// 	showMessageDetails: boolean
-// }
-
-
 @Injectable()
 export class OptionsService {
+
+	/*
+	 * Functions to manipulate and access localstorage
+	 */
 	private cache: any = {};
 
 	private get(propName: string) {
@@ -37,12 +30,56 @@ export class OptionsService {
 		localStorage.setItem('rpnow.global.'+propName, JSON.stringify(value));
 	}
 
-	public get lastColor(): string { return this.get('lastColor') }
-	public set lastColor(value: string) { this.set('lastColor', value) }
+	/*
+	 * Global options definitions
+	 */
+	public get lastColor(): string {
+		return this.get('lastColor')
+	}
+	public set lastColor(value: string) {
+		this.set('lastColor', value)
+	}
 
-	public get challenge(): Readonly<Challenge> { return this.get('challenge') }
-	public set challenge(value: Readonly<Challenge>) { this.set('challenge', value) }
+	public get challenge(): Readonly<Challenge> {
+		return this.get('challenge')
+	}
+	public set challenge(value: Readonly<Challenge>) {
+		this.set('challenge', value)
+	}
 
-	public get downloadOOC(): boolean { return this.get('downloadOOC') }
-	public set downloadOOC(value: boolean) { this.set('downloadOOC', value) }
+	public get downloadOOC(): boolean {
+		return this.get('downloadOOC')
+	}
+	public set downloadOOC(value: boolean) {
+		this.set('downloadOOC', value)
+	}
+
+	public get nightMode(): boolean {
+		return this.get('nightMode')
+	}
+	public set nightMode(value: boolean) {
+		this.set('nightMode', value)
+	}
+
+	public get notificationNoise(): number {
+		return this.get('notificationNoise')
+	}
+	public set notificationNoise(value: number) {
+		this.set('notificationNoise', value)
+	}
+
+	public get pressEnterToSend(): boolean {
+		return this.get('pressEnterToSend')
+	}
+	public set pressEnterToSend(value: boolean) {
+		this.set('pressEnterToSend', value)
+	}
+
+	public get showMessageDetails(): boolean {
+		return this.get('showMessageDetails')
+	}
+	public set showMessageDetails(value: boolean) {
+		this.set('showMessageDetails', value)
+	}
+
 }

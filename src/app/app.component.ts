@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AboutDialogComponent } from './info-dialogs/about-dialog/about-dialog.component';
 import { ContactDialogComponent } from './info-dialogs/contact-dialog/contact-dialog.component';
 import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.component';
+import { OptionsService } from './options.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private mainMenuService: MainMenuService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public options: OptionsService
   ) { }
 
   ngOnInit() {
