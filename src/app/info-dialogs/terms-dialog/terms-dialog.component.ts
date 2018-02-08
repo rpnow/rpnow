@@ -54,7 +54,9 @@ This site and the RPNow service are provided "as is" without warranty of any kin
 `);
 
 @Component({
-  template: `<mat-dialog-content>${template}</mat-dialog-content>`,
+  template: `<mat-dialog-content [innerHtml]="innerHtml"></mat-dialog-content>`,
   styles: []
 })
-export class TermsDialogComponent { }
+export class TermsDialogComponent {
+  public innerHtml: string = template;
+}

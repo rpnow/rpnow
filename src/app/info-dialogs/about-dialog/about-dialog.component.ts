@@ -43,7 +43,9 @@ RPNow was built by Nigel Nelson with extra graphic design guidance from Hannah L
 `);
 
 @Component({
-  template: `<mat-dialog-content>${template}</mat-dialog-content>`,
+  template: `<mat-dialog-content [innerHtml]="innerHtml"></mat-dialog-content>`,
   styles: []
 })
-export class AboutDialogComponent { }
+export class AboutDialogComponent { 
+  public innerHtml: string = template;
+}
