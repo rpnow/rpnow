@@ -37,6 +37,9 @@ import { NewCharaComponent } from './rp/chat/new-chara/new-chara.component';
 import { BlackOrWhitePipe } from './black-or-white.pipe';
 import { DownloadDialogComponent } from './rp/download-dialog/download-dialog.component';
 import { OptionsService } from './options.service';
+import { ContactDialogComponent } from './info-dialogs/contact-dialog/contact-dialog.component';
+import { AboutDialogComponent } from './info-dialogs/about-dialog/about-dialog.component';
+import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.component';
 
 
 @NgModule({
@@ -53,7 +56,10 @@ import { OptionsService } from './options.service';
     TitleBarComponent,
     NewCharaComponent,
     BlackOrWhitePipe,
-    DownloadDialogComponent
+    DownloadDialogComponent,
+    ContactDialogComponent,
+    AboutDialogComponent,
+    TermsDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -78,6 +84,12 @@ import { OptionsService } from './options.service';
   ],
   providers: [RpService, ChallengeService, OptionsService],
   bootstrap: [AppComponent],
-  entryComponents: [NewCharaComponent, DownloadDialogComponent]
+  entryComponents: [
+    NewCharaComponent,
+    DownloadDialogComponent,
+    ContactDialogComponent,
+    AboutDialogComponent,
+    TermsDialogComponent
+  ]
 })
 export class AppModule { }
