@@ -45,4 +45,16 @@ export class RpMessageComponent implements OnChanges {
     this.msg.edit(this.newContent);
   }
 
+  keypressCheckEnter($event: KeyboardEvent) {
+    let keyCode = $event.keyCode || $event.which;
+    if (keyCode !== 13) return;
+
+    if ($event.shiftKey) return;
+
+    if (this.options.pressEnterToSend || $event.ctrlKey) {
+      this.confirmEdit();
+      return false;
+    }
+  }
+
 }
