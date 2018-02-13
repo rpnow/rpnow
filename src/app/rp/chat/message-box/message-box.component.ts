@@ -25,6 +25,13 @@ export class MessageBoxComponent implements OnInit {
     this.chara$ = this.charaSelectorService.currentChara$;
   }
 
+  color() {
+    let chara = this.chara$.value;
+    if (chara === 'narrator') return this.options.nightMode? '#444444':'#ffffff'; 
+    if (chara === 'ooc') return this.options.nightMode? '#303030':'#fafafa'; 
+    return (<RpChara>chara).color;
+  }
+
   sendMessage() {
     let chara = this.chara$.value;
 
