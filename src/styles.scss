@@ -1,10 +1,33 @@
-// Import angular material default theme
-@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import '~@angular/material/theming';
+@include mat-core();
 
+// Light theme
+$light-theme: mat-light-theme(
+    mat-palette($mat-grey, 200, 500, 300),
+    mat-palette($mat-deep-purple, 300),
+    mat-palette($mat-deep-orange, 200)
+);
+
+// Dark theme
+$dark-theme: mat-dark-theme(
+    mat-palette($mat-grey),
+    mat-palette($mat-amber),
+    mat-palette($mat-deep-orange)
+);
+
+// max height for app
 body {
     margin: 0;
 }
 
 body, html {
     height: 100%;
+}
+
+// theme styles
+body.light-theme {
+    @include angular-material-theme($light-theme)
+}
+body.dark-theme {
+    @include angular-material-theme($dark-theme);
 }

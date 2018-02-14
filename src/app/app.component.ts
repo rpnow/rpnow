@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/platform-browser';
 import { MainMenuService } from './main-menu.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,11 +20,15 @@ export class AppComponent implements OnInit {
   constructor(
     private mainMenuService: MainMenuService,
     private dialog: MatDialog,
-    public options: OptionsService
+    public options: OptionsService,
+    @Inject(DOCUMENT) private document: Document
   ) { }
 
   ngOnInit() {
     this.mainMenuService.setInstance(this.mainMenu);
+    this.options.nightMode$.subscribe(nightMode => {
+      this.document.body.className = nightMode ? 'dark-theme' : 'light-theme';
+    })
   }
 
   showAboutDialog() {
