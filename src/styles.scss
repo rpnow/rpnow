@@ -13,6 +13,13 @@ $dark-theme: mat-dark-theme(
     mat-palette($mat-amber)
 );
 
+$body-typography: mat-typography-config(
+    $font-family: 'Alice'
+);
+$header-typography: mat-typography-config(
+    $font-family: 'Playfair Display'
+);
+
 // max height for app
 body {
     margin: 0;
@@ -28,4 +35,10 @@ body.light-theme {
 }
 body.dark-theme {
     @include angular-material-theme($dark-theme);
+}
+
+// fonts
+@include angular-material-typography($body-typography);
+h1, h2, h3 {
+    font-family: mat-font-family($header-typography) !important;
 }
