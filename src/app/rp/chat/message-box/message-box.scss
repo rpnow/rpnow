@@ -1,5 +1,18 @@
-#message-input-box {
+#message-box {
     z-index: 3;
+
+    &.message-box-narrator {
+        background-color: #ffffff;
+    }
+    :host-context(.dark-theme) &.message-box-narrator {
+        background-color: #444444;
+    }
+    &.message-box-ooc {
+        background-color: #fafafa;
+    }
+    :host-context(.dark-theme) &.message-box-ooc {
+        background-color: #303030;
+    }
 
     .message-box-inner-row {
         width: 100%;

@@ -1,4 +1,4 @@
-<div id="message-input-box" fxLayout="column" [style.background-color]="color()">
+<div id="message-box" fxLayout="column" [class]="class$|async" [style.background-color]="(chara$|async)?.color">
 
     <div id="voiceChangeBar" fxLayout="row" fxLayoutAlign="center center" (click)="openCharaSelector()">
 

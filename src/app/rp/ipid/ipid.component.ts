@@ -25,10 +25,10 @@ import { Component, Input } from '@angular/core';
         width: 6px;
         height: 100%;
     }
+    :host-context(.dark-theme) .color-ip-box {
+        border-color: rgba(255,255,255,0.7);
+    }
   `]
-    // .dark .message .color-ip-box {
-    //     border-color: rgba(255,255,255,0.7);
-    // }
 })
 export class IpidComponent {
 

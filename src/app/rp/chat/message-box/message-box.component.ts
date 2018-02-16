@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CharaSelectorService } from '../chara-selector.service';
+import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { RpChara } from '../../../rp.service';
 import { OptionsService } from '../../../options.service';
@@ -18,18 +19,15 @@ export class MessageBoxComponent implements OnInit {
 
   public content: '';
   public chara$: BehaviorSubject<string|RpChara>;
+  public class$: Observable<string|RpChara>;
 
   @Output() onMessage: EventEmitter<{content: string, type: string, charaId?: number}> = new EventEmitter();
 
   ngOnInit() {
     this.chara$ = this.charaSelectorService.currentChara$;
-  }
-
-  color() {
-    let chara = this.chara$.value;
-    if (chara === 'narrator') return this.options.nightMode? '#444444':'#ffffff'; 
-    if (chara === 'ooc') return this.options.nightMode? '#303030':'#fafafa'; 
-    return (<RpChara>chara).color;
+    this.class$ = this.chara$.map(chara => {
+      return (chara instanceof RpChara) ? 'message-box-chara' : 'message-box-'+chara;
+    })
   }
 
   sendMessage() {
