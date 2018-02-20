@@ -43,6 +43,7 @@ import { OptionsService } from './options.service';
 import { ContactDialogComponent } from './info-dialogs/contact-dialog/contact-dialog.component';
 import { AboutDialogComponent } from './info-dialogs/about-dialog/about-dialog.component';
 import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.component';
+import { FormatGuideDialog } from './info-dialogs/format-guide-dialog/format-guide-dialog.component';
 
 
 @NgModule({
@@ -62,7 +63,8 @@ import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.c
     DownloadDialogComponent,
     ContactDialogComponent,
     AboutDialogComponent,
-    TermsDialogComponent
+    TermsDialogComponent,
+    FormatGuideDialog
   ],
   imports: [
     BrowserModule,
@@ -93,7 +95,8 @@ import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.c
     DownloadDialogComponent,
     ContactDialogComponent,
     AboutDialogComponent,
-    TermsDialogComponent
+    TermsDialogComponent,
+    FormatGuideDialog
   ]
 })
 export class AppModule { }

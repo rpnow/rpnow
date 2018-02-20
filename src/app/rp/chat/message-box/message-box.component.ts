@@ -4,6 +4,8 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { RpChara } from '../../../rp.service';
 import { OptionsService } from '../../../options.service';
+import { MatDialog } from '@angular/material/dialog';
+import { FormatGuideDialog } from '../../../info-dialogs/format-guide-dialog/format-guide-dialog.component';
 
 @Component({
   selector: 'rp-message-box',
@@ -14,6 +16,7 @@ export class MessageBoxComponent implements OnInit {
 
   constructor(
     private charaSelectorService: CharaSelectorService,
+    private dialog: MatDialog,
     private options: OptionsService
   ) { }
 
@@ -57,5 +60,9 @@ export class MessageBoxComponent implements OnInit {
       this.sendMessage();
       return false;
     }
+  }
+
+  showFormatGuideDialog() {
+    this.dialog.open(FormatGuideDialog);
   }
 }
