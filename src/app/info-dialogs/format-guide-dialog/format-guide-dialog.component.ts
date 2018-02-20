@@ -11,6 +11,7 @@ Here's how to do bold, italics, and other things.
 *   Use \`_underscores_\` or \`/slashes/\` to *italicize text.*
 *   Use \`__two underscores__\` to **bold text.**
 *   Use \`___three underscores___\` to ***do both.***
+*   Use \`~~two tildes~~\` to <del>strike out text</del>.
 *   \`*Asterisks*\` denote an action done by a character.
 *   Pressing \`Enter\` will send your message. To disable this, uncheck the "Press enter to send" option in the menu.
     *   \`Shift + Enter\` will always start a new paragraph, regardless of this setting.
