@@ -44,6 +44,7 @@ import { ContactDialogComponent } from './info-dialogs/contact-dialog/contact-di
 import { AboutDialogComponent } from './info-dialogs/about-dialog/about-dialog.component';
 import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.component';
 import { FormatGuideDialog } from './info-dialogs/format-guide-dialog/format-guide-dialog.component';
+import { RpMessagePipe } from './rp/rp-message/rp-message.pipe';
 
 
 @NgModule({
@@ -64,7 +65,8 @@ import { FormatGuideDialog } from './info-dialogs/format-guide-dialog/format-gui
     ContactDialogComponent,
     AboutDialogComponent,
     TermsDialogComponent,
-    FormatGuideDialog
+    FormatGuideDialog,
+    RpMessagePipe
   ],
   imports: [
     BrowserModule,

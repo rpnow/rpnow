@@ -28,19 +28,21 @@
         </ng-container>
     </div>
 
-    <div class="content">
-        <ng-container *ngIf="msg.type !== 'image' && !editing">
-            {{msg.content}}
-        </ng-container>
+    <ng-container *ngIf="msg.type !== 'image' && !editing">
+        <div class="content" [innerHtml]="msg.content|msgFormat:msg.color"></div>
+    </ng-container>
 
-        <ng-container *ngIf="editing">
+    <ng-container *ngIf="editing">
+        <div class="content">
             <textarea class="content" [(ngModel)]="newContent" maxlength="10000" rows="4" (keypress)="keypressCheckEnter($event)"></textarea>
-        </ng-container>
+        </div>
+    </ng-container>
 
-        <ng-container *ngIf="msg.type === 'image'">
+    <ng-container *ngIf="msg.type === 'image'">
+        <div class="content">
             <a [href]="msg.url" target="_blank">
                 <img [src]="msg.url"/>
             </a>
-        </ng-container>
-    </div>
+        </div>
+    </ng-container>
 </div>
