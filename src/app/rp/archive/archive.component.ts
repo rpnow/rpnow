@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Rp } from '../../rp.service';
+import { Rp } from '../rp.service';
 
 @Component({
   templateUrl: 'archive.html',

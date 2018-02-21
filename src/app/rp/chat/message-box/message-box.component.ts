@@ -2,10 +2,10 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CharaSelectorService } from '../chara-selector.service';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { RpChara } from '../../../rp.service';
-import { OptionsService } from '../../../options.service';
+import { RpChara } from '../../rp.service';
+import { OptionsService } from '../../options.service';
 import { MatDialog } from '@angular/material/dialog';
-import { FormatGuideDialog } from '../../../info-dialogs/format-guide-dialog/format-guide-dialog.component';
+import { FormatGuideDialog } from '../../info-dialogs/format-guide-dialog/format-guide-dialog.component';
 
 @Component({
   selector: 'rp-message-box',

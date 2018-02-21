@@ -6,7 +6,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { TitleComponent } from './title/title.component';
 import { ArchiveComponent } from './rp/archive/archive.component';
 import { ChatComponent } from './rp/chat/chat.component';
-import { RpService } from './rp.service';
+import { RpService } from './rp/rp.service';
 
 @Injectable()
 export class RpResolverService implements Resolve<any> {

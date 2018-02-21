@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { RpChara } from '../../rp.service';
+import { RpChara } from '../rp.service';
 
 @Injectable()
 export class CharaSelectorService {

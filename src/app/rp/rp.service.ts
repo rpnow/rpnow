@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import * as io from 'socket.io-client';
 import { ChallengeService, Challenge } from './challenge.service'
 
@@ -60,7 +59,6 @@ export class RpChara {
 @Injectable()
 export class RpService {
   constructor(
-    private http: HttpClient,
     private challengeService: ChallengeService
   ) { }
 
@@ -68,11 +66,6 @@ export class RpService {
     let rp = new Rp(rpCode, this.challengeService.challenge);
     await rp.loaded;
     return rp;
-  }
-
-  public async create(title: string, desc?: string) {
-    let data:any = await this.http.post(URL + '/api/rp.json', {title, desc}).toPromise();
-    return data.rpCode;
   }
 }
 

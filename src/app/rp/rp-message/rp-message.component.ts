@@ -1,7 +1,7 @@
 import { Component, OnChanges, SimpleChanges, Input } from '@angular/core';
 import * as moment from 'moment-mini';
-import { RpMessage } from '../../rp.service';
-import { OptionsService } from '../../options.service';
+import { RpMessage } from '../rp.service';
+import { OptionsService } from '../options.service';
 
 @Component({
   selector: 'rp-message',

@@ -1,8 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { MainMenuService } from '../../main-menu.service';
+import { MainMenuService } from '../main-menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
-import { Rp } from '../../rp.service';
+import { Rp } from '../rp.service';
 
 @Component({
   selector: 'title-bar',

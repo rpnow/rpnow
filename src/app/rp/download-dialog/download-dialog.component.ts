@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Rp } from '../../rp.service';
+import { Rp } from '../rp.service';
 import { DownloadTxtService } from './download-txt.service';
 import { DownloadDocxService } from './download-docx.service';
-import { OptionsService } from '../../options.service';
+import { OptionsService } from '../options.service';
 
 @Component({
   selector: 'app-download-dialog',

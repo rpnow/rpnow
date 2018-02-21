@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { BlackOrWhitePipe } from '../../black-or-white.pipe';
+import { BlackOrWhitePipe } from '../black-or-white.pipe';
 
 @Pipe({
   name: 'msgFormat'
