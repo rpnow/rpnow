@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'ipid',
   template: `
-    <span class="color-ip-box" title="User color ID">
+    <span class="color-ip-box" matTooltip="Anonymous user ID">
       <span *ngFor="let color of colors" [style.background-color]="color"></span>
     </span>
   `,
