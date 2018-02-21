@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
 import { ChallengeService, Challenge } from './challenge.service'
-
-const URL = 'http://localhost:3000';
+import { API_URL } from '../app.constants';
 
 export class RpMessage {
   type: 'narrator'|'ooc'|'chara'|'image' = null;
@@ -86,7 +85,7 @@ export class Rp {
   public charas: RpChara[] = null;
 
   constructor(public rpCode: string, private challenge: Challenge) {
-    this.socket = io(URL, { query: 'rpCode='+rpCode });
+    this.socket = io(API_URL, { query: 'rpCode='+rpCode });
 
     this.socket.on('load rp', (data) => {
       this.title = data.title;

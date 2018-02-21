@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { API_URL } from '../app.constants';
 
 @Component({
   selector: 'app-title',
@@ -25,7 +26,7 @@ export class TitleComponent implements OnInit {
   }
 
   public async createRp() {
-    let data:any = await this.http.post(URL + '/api/rp.json', {title: this.title, desc: this.desc}).toPromise();
+    let data:any = await this.http.post(API_URL + '/api/rp.json', {title: this.title, desc: this.desc}).toPromise();
     let rpCode = data.rpCode;
     this.router.navigate(['/rp/' + rpCode]);
   }
