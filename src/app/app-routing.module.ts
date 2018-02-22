@@ -1,10 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { RpComponent } from './rp/rp.component';
 import { NotFoundComponent } from './not-found/not-found.component';
-import { TitleComponent } from './title/title.component';
-import { ArchiveComponent } from './rp/archive/archive.component';
 
 const appRoutes: Routes = [
   {
@@ -13,7 +10,7 @@ const appRoutes: Routes = [
   },
   {
     path: '',
-    component: TitleComponent
+    loadChildren: 'app/title/title.module#TitleModule'
   },
   {
     path: '**',
