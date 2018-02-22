@@ -1,5 +1,5 @@
-import { NgModule, Injectable } from '@angular/core';
-import { RouterModule, Router, Routes, Resolve, ActivatedRouteSnapshot, CanDeactivate } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
 import { RpComponent } from './rp/rp.component';
 import { NotFoundComponent } from './not-found/not-found.component';
