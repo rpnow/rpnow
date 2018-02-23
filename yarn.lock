@@ -1202,6 +1202,10 @@ cookie@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.3.1.tgz#e7e0a1f9ef43b4c8ba925c5c5a96e806d16873bb"
 
+coolstory.js@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/coolstory.js/-/coolstory.js-0.1.2.tgz#054ee7ed19ed44b1d94cd8e8acb8ccd1ef0b61a9"
+
 copy-concurrently@^1.0.0:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/copy-concurrently/-/copy-concurrently-1.0.5.tgz#92297398cae34937fcafd6ec8139c18051f0b5e0"

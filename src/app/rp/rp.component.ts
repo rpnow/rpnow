@@ -32,7 +32,7 @@ export class RpComponent implements OnInit {
     this.mainMenuService.setInstance(this.mainMenu);
     this.route.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
     this.options.nightMode$.subscribe(nightMode => {
-      this.document.body.className = nightMode ? 'dark-theme' : 'light-theme';
+      this.document.body.className = nightMode ? 'dark-theme' : '';
     })
   }
 

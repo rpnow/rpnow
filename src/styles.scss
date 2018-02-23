@@ -30,7 +30,7 @@ body, html {
 }
 
 // theme styles
-body.light-theme {
+body:not(.dark-theme) {
     @include angular-material-theme($light-theme)
 }
 body.dark-theme {

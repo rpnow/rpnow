@@ -1,0 +1,53 @@
+<section fxFlex fxLayout="column" fxLayoutAlign="center center" style="height:100%;width:90vw;max-width:400px; margin: auto">
+
+	<span style="height:10vh"></span>
+
+	<header title="Let's RPNow">
+		<aside class="mat-display-1" style="max-width:150px;transform:rotate(-10deg); margin-bottom:0">Let's</aside>
+		<h1 class="mat-display-3" style="margin:0;text-align:center">RPNow</h1>
+	</header>
+
+	<span style="height:10vh"></span>
+
+	<div *ngIf="!submitted" fxLayout="column">
+
+		<div fxLayout="row">
+
+			<mat-form-field color="accent">
+				<input matInput [(ngModel)]="title" maxlength="30" placeholder="Name your story">
+			</mat-form-field>
+
+			<button mat-icon-button (click)="spinTitle()">
+				<mat-icon matTooltip="Random title!">casino</mat-icon>
+			</button>
+
+		</div>
+
+		<mat-form-field color="accent" *ngIf="showMoreOptions">
+
+			<textarea matInput [(ngModel)]="desc" maxlength="255" rows="4" placeholder="Enter a description..."></textarea>
+
+		</mat-form-field>
+
+		<div fxLayout="row" fxLayoutAlign="space-around center">
+
+			<button mat-raised-button color="accent" (click)="createRp()">
+				<mat-icon>check</mat-icon>
+				Create RP
+			</button>	
+
+			<button *ngIf="!showMoreOptions" mat-raised-button (click)="showMoreOptions=true">
+				<mat-icon>more_horiz</mat-icon>
+				Options
+			</button>	
+
+		</div>
+
+	</div>
+
+	<div *ngIf="submitted">
+		<mat-spinner [diameter]="96" color="accent"></mat-spinner>
+	</div>
+
+	<span fxFlex></span>
+</section>
