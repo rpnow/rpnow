@@ -1,5 +1,5 @@
-<div [ngClass]="classes" [style.background-color]="msg.color||'auto'" [style.color]="(msg.color|bw)">
-    <div *ngIf="msg.chara" class="name">{{msg.chara.name}}</div>
+<div [ngClass]="classes" [style.background-color]="chara?.color||'auto'" [style.color]="(chara?.color|bw)">
+    <div *ngIf="chara" class="name">{{chara.name}}</div>
 
     <div class="message-details" *ngIf="!editing && options.showMessageDetails">
         <ng-container *ngIf="sending">
@@ -29,7 +29,7 @@
     </div>
 
     <ng-container *ngIf="msg.type !== 'image' && !editing">
-        <div class="content" [innerHtml]="msg.content|msgFormat:msg.color"></div>
+        <div class="content" [innerHtml]="msg.content|msgFormat:chara?.color"></div>
     </ng-container>
 
     <ng-container *ngIf="editing">

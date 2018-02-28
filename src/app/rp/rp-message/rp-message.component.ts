@@ -1,6 +1,6 @@
 import { Component, OnChanges, SimpleChanges, Input } from '@angular/core';
 import * as moment from 'moment-mini';
-import { RpMessage, RpService } from '../rp.service';
+import { RpMessage, RpService, RpChara } from '../rp.service';
 import { OptionsService } from '../options.service';
 
 @Component({
@@ -13,6 +13,8 @@ export class RpMessageComponent implements OnChanges {
   constructor(public rp: RpService, public options: OptionsService) { }
 
   @Input() msg: RpMessage;
+
+  chara: RpChara;
 
   sending: boolean = false;
   editing: boolean = false;
@@ -30,6 +32,8 @@ export class RpMessageComponent implements OnChanges {
       'message-sending': this.sending,
       'message-slim': false
     }
+
+    this.chara = this.msg.charaId >= 0 ? this.rp.charas[this.msg.charaId] : null;
   }
 
   public canEdit() {
