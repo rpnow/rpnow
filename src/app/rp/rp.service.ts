@@ -74,19 +74,22 @@ export class RpService implements OnDestroy {
       this.charas = data.charas;
 
       this.messages.forEach((msg, id) => msg.id = id); // TODO add id on server
+      this.charas.forEach((chara, id) => chara.id = id); // TODO add id on server
     });
 
-    this.socket.on('add message', (msg) => {
+    this.socket.on('add message', (msg:RpMessage) => {
       this.messages.push(msg);
 
       msg.id = this.messages.indexOf(msg); // TODO add id on server
     });
 
-    this.socket.on('add character', (chara) => {
+    this.socket.on('add character', (chara:RpChara) => {
       this.charas.push(chara);
+
+      chara.id = this.charas.indexOf(chara); // TODO add id on server
     });
 
-    this.socket.on('edit message', ({msg, id}) => {
+    this.socket.on('edit message', ({msg, id}:{msg:RpMessage, id:number}) => {
       this.messages.splice(id, 1, msg);
 
       msg.id = this.messages.indexOf(msg); // TODO add id on server
@@ -116,10 +119,12 @@ export class RpService implements OnDestroy {
   }
 
   public async addChara({ name, color }: { name: string, color: string }) {
-    let receivedChara  = await this.socketEmit('add character', { name, color });
-    this.charas.push(receivedChara);
+    let chara  = await this.socketEmit('add character', { name, color });
+    this.charas.push(chara);
 
-    return receivedChara;
+    chara.id = this.charas.indexOf(chara); // TODO add id on server
+
+    return chara;
   }
 
   public async addImage(url: string) {
