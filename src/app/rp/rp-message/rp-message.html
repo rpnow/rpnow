@@ -2,17 +2,17 @@
     <div *ngIf="msg.chara" class="name">{{msg.chara.name}}</div>
 
     <div class="message-details" *ngIf="!editing && options.showMessageDetails">
-        <ng-container *ngIf="msg.sending">
+        <ng-container *ngIf="sending">
             <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
-        <ng-container *ngIf="!msg.sending">
+        <ng-container *ngIf="!sending">
             <span class="timestamp" [title]="'Posted '+timeAgo">{{timeAgo}}</span>
             <span *ngIf="msg.edited" class="edited-text" [title]="'Edited '+edited">(Edited)</span>
-            <ipid *ngIf="msg.ipid" [style.visibility]="msg.canEdit?'hidden':'visible'" [ipid]="msg.ipid"></ipid>
+            <ipid *ngIf="msg.ipid" [style.visibility]="canEdit()?'hidden':'visible'" [ipid]="msg.ipid"></ipid>
         </ng-container>
     </div>
 
-    <div *ngIf="msg.canEdit && !msg.sending" class="action-buttons">
+    <div *ngIf="canEdit() && !sending" class="action-buttons">
         <ng-container *ngIf="!editing">
             <button mat-icon-button (click)="beginEdit()">
                 <mat-icon aria-label="Edit post" matTooltip="Edit post">edit</mat-icon>

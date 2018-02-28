@@ -1,6 +1,6 @@
 import { Component, OnChanges, SimpleChanges, Input } from '@angular/core';
 import * as moment from 'moment-mini';
-import { RpMessage } from '../rp.service';
+import { RpMessage, RpService } from '../rp.service';
 import { OptionsService } from '../options.service';
 
 @Component({
@@ -10,10 +10,11 @@ import { OptionsService } from '../options.service';
 })
 export class RpMessageComponent implements OnChanges {
 
-  constructor(public options: OptionsService) { }
+  constructor(public rp: RpService, public options: OptionsService) { }
 
-  @Input('msg') msg: RpMessage;
+  @Input() msg: RpMessage;
 
+  sending: boolean = false;
   editing: boolean = false;
   newContent: string = '';
 
@@ -26,9 +27,13 @@ export class RpMessageComponent implements OnChanges {
     this.classes = {
       'message': true,
       ['message-'+this.msg.type]: true,
-      'message-sending': this.msg.sending,
+      'message-sending': this.sending,
       'message-slim': false
     }
+  }
+
+  public canEdit() {
+    return this.msg.challenge === this.options.challenge.hash;
   }
 
   beginEdit() {
@@ -40,10 +45,12 @@ export class RpMessageComponent implements OnChanges {
     this.editing = false;
   }
 
-  confirmEdit() {
+  async confirmEdit() {
     this.editing = false;
-    alert('TODO confirm edit');
-    // this.msg.edit(this.newContent);
+    this.sending = true;
+    this.msg.content = this.newContent;
+    await this.rp.editMessage(this.msg.id, this.newContent);
+    this.sending = false;
   }
 
   keypressCheckEnter($event: KeyboardEvent) {

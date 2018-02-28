@@ -5,13 +5,6 @@ import { API_URL } from '../app.constants';
 import { Route, Router, ActivatedRoute } from '@angular/router';
 import { Subject, BehaviorSubject, Observable } from 'rxjs/Rx';
 
-  // async edit(newContent: string) {
-  //   this.sending = true;
-  //   this.content = newContent;
-
-  //   await this.rp.editMessage(this.id, newContent);
-  //   this.sending = false;
-  // }
 
     // let placeholder = new RpMessage(msg, this);
     // placeholder.sending = true;
@@ -29,12 +22,12 @@ export interface RpMessage {
   id: number;
   type: 'narrator'|'ooc'|'chara'|'image';
   timestamp: number;
-  sending: boolean;
+  edited?: number;
   content: string;
   charaId?: number;
   challenge?: string;
   url?: string;
-  ip: string;
+  ipid: string;
 }
 
 export interface RpChara {
@@ -110,7 +103,7 @@ export class RpService implements OnDestroy {
   }
 
   public async addMessage({ content, type, charaId }: {content:string, type:string, charaId?:number}) {
-    let msg = await this.socketEmit('add message', { content, type, charaId, challenge: this.challenge.hash });
+    let msg:RpMessage = await this.socketEmit('add message', { content, type, charaId, challenge: this.challenge.hash });
     this.messages.push(msg);
 
     msg.id = this.messages.indexOf(msg); // TODO add id on server
@@ -119,7 +112,7 @@ export class RpService implements OnDestroy {
   }
 
   public async addChara({ name, color }: { name: string, color: string }) {
-    let chara  = await this.socketEmit('add character', { name, color });
+    let chara:RpChara = await this.socketEmit('add character', { name, color });
     this.charas.push(chara);
 
     chara.id = this.charas.indexOf(chara); // TODO add id on server
@@ -128,7 +121,7 @@ export class RpService implements OnDestroy {
   }
 
   public async addImage(url: string) {
-    let receivedMsg  = await this.socketEmit('add image', url);
+    let receivedMsg:RpMessage = await this.socketEmit('add image', url);
     this.messages.push(receivedMsg);
 
     receivedMsg.id = this.messages.indexOf(receivedMsg); // TODO add id on server
@@ -140,12 +133,8 @@ export class RpService implements OnDestroy {
     let secret = this.challenge.secret;
     let editInfo = { id, content, secret };
 
-    let data = await this.socketEmit('edit message', editInfo);
-    for (let prop in data) this.messages[id][prop] = data[prop];
-  }
-
-  public canEditMessage(id: number) {
-    return this.messages[id].challenge === this.challenge.hash;
+    let msg:RpMessage = await this.socketEmit('edit message', editInfo);
+    this.messages.splice(id, 1, msg);
   }
 
   public ngOnDestroy() {
