@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewContainerRef } from '@angular/core';
 import { CharaSelectorService } from '../chara-selector.service';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -6,6 +6,7 @@ import { RpVoice, RpService } from '../../rp.service';
 import { OptionsService } from '../../options.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FormatGuideDialog } from '../../info-dialogs/format-guide-dialog/format-guide-dialog.component';
+import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
 
 @Component({
   selector: 'rp-message-box',
@@ -18,6 +19,7 @@ export class MessageBoxComponent implements OnInit {
     public rp: RpService,
     private charaSelectorService: CharaSelectorService,
     private dialog: MatDialog,
+    private viewContainerRef: ViewContainerRef,
     private options: OptionsService
   ) { }
 
@@ -45,6 +47,10 @@ export class MessageBoxComponent implements OnInit {
 
   openCharaSelector() {
     this.charaSelectorService.menu.open();
+  }
+
+  showImageDialog() {
+    let dialogRef = this.dialog.open(ImageDialogComponent, { viewContainerRef: this.viewContainerRef });
   }
 
   keypressCheckEnter($event: KeyboardEvent) {

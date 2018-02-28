@@ -41,6 +41,7 @@ import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.c
 import { FormatGuideDialog } from './info-dialogs/format-guide-dialog/format-guide-dialog.component';
 import { RpMessagePipe } from './rp-message/rp-message.pipe';
 import { RpRoutingModule } from './rp-routing.module';
+import { ImageDialogComponent } from './chat/image-dialog/image-dialog.component';
 
 
 @NgModule({
@@ -55,6 +56,7 @@ import { RpRoutingModule } from './rp-routing.module';
     NewCharaComponent,
     BlackOrWhitePipe,
     DownloadDialogComponent,
+    ImageDialogComponent,
     ContactDialogComponent,
     AboutDialogComponent,
     TermsDialogComponent,
@@ -86,6 +88,7 @@ import { RpRoutingModule } from './rp-routing.module';
   entryComponents: [
     NewCharaComponent,
     DownloadDialogComponent,
+    ImageDialogComponent,
     ContactDialogComponent,
     AboutDialogComponent,
     TermsDialogComponent,

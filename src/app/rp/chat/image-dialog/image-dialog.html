@@ -1,0 +1,24 @@
+<mat-toolbar color="primary">
+
+    <h1 fxFlex>
+        Post Image
+    </h1>
+
+    <button mat-icon-button (click)="cancel()">
+        <mat-icon aria-label="Close image dialog" matTooltip="Close">close</mat-icon>
+    </button>
+
+</mat-toolbar>
+
+<ng-container *ngIf="!loading">
+    <mat-form-field>
+        <input matInput placeholder="Enter a URL:" [(ngModel)]="url" />
+    </mat-form-field>
+
+    <button mat-raised-button (click)="submit()">OK</button>
+    <button mat-raised-button (click)="cancel()">Cancel</button>
+</ng-container>
+
+<ng-container *ngIf="loading">
+    <mat-spinner></mat-spinner>
+</ng-container>

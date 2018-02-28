@@ -8,12 +8,12 @@
             <ng-container *ngIf="(chara$|async).id != null"><mat-icon>person</mat-icon> {{(chara$|async).name}}</ng-container>
         </div>
 
-        <button mat-icon-button (click)="showFormatGuideDialog()">
-            <mat-icon aria-label="Open post format guide" matTooltip="Formatting info">text_fields</mat-icon>
+        <button mat-icon-button (click)="showImageDialog()">
+            <mat-icon aria-label="Post image" matTooltip="Post image">image</mat-icon>
         </button>
 
-        <button mat-icon-button>
-            <mat-icon aria-label="Post image" matTooltip="Post image">image</mat-icon>
+        <button mat-icon-button (click)="showFormatGuideDialog()">
+            <mat-icon aria-label="Open post format guide" matTooltip="Formatting info">text_fields</mat-icon>
         </button>
 
     </div>
