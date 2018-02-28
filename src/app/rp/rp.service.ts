@@ -121,12 +121,12 @@ export class RpService implements OnDestroy {
   }
 
   public async addImage(url: string) {
-    let receivedMsg:RpMessage = await this.socketEmit('add image', url);
-    this.messages.push(receivedMsg);
+    let msg:RpMessage = await this.socketEmit('add image', url);
+    this.messages.push(msg);
 
-    receivedMsg.id = this.messages.indexOf(receivedMsg); // TODO add id on server
+    msg.id = this.messages.indexOf(msg); // TODO add id on server
 
-    return receivedMsg;
+    return msg;
   }
 
   public async editMessage(id: number, content: string) {
@@ -135,6 +135,8 @@ export class RpService implements OnDestroy {
 
     let msg:RpMessage = await this.socketEmit('edit message', editInfo);
     this.messages.splice(id, 1, msg);
+
+    msg.id = this.messages.indexOf(msg); // TODO add id on server
   }
 
   public ngOnDestroy() {
