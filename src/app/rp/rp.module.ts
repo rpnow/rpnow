@@ -1,5 +1,7 @@
-import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import 'rxjs/add/operator/map';
@@ -39,7 +41,6 @@ import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.c
 import { FormatGuideDialog } from './info-dialogs/format-guide-dialog/format-guide-dialog.component';
 import { RpMessagePipe } from './rp-message/rp-message.pipe';
 import { RpRoutingModule } from './rp-routing.module';
-import { CommonModule } from '@angular/common';
 
 
 @NgModule({
@@ -63,6 +64,7 @@ import { CommonModule } from '@angular/common';
   imports: [
     CommonModule,
     FormsModule,
+    HttpClientModule,
     FlexLayoutModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -80,7 +82,7 @@ import { CommonModule } from '@angular/common';
     ColorPickerModule,
     RpRoutingModule
   ],
-  providers: [RpService, ChallengeService, OptionsService],
+  providers: [ChallengeService, OptionsService],
   entryComponents: [
     NewCharaComponent,
     DownloadDialogComponent,

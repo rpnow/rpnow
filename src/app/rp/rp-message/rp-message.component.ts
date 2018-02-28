@@ -42,7 +42,8 @@ export class RpMessageComponent implements OnChanges {
 
   confirmEdit() {
     this.editing = false;
-    this.msg.edit(this.newContent);
+    alert('TODO confirm edit');
+    // this.msg.edit(this.newContent);
   }
 
   keypressCheckEnter($event: KeyboardEvent) {

@@ -1,26 +1,26 @@
 import { Injectable } from '@angular/core';
-import { Rp } from '../rp.service';
 import * as wrap from 'word-wrap';
 import { saveAs } from 'file-saver';
+import { RpService } from '../rp.service';
 
 @Injectable()
 export class DownloadTxtService {
 
-  constructor() { }
+  constructor(private rp: RpService) { }
 
-  public downloadTxt(rp: Rp, includeOOC: boolean) {
+  public downloadTxt(includeOOC: boolean) {
     // get rp formatted text
-    let text = this.rpText(rp, includeOOC)
+    let text = this.rpText(this.rp, includeOOC)
     
     // windows-compatible newlines
     text = text.replace('\n', '\r\n');
 
     // save as file
     let blob = new Blob([text], { type: 'text/plain;charset=utf-8'});
-    saveAs(blob, `${rp.title}.txt`);
+    saveAs(blob, `${this.rp.title}.txt`);
   }
 
-  private rpText(rp: Rp, includeOOC: boolean): string {
+  private rpText(rp: RpService, includeOOC: boolean): string {
     // get messages
     let msgs = rp.messages;
 

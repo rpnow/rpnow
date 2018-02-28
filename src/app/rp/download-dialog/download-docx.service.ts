@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
-import { Rp } from '../rp.service';
+import { RpService } from '../rp.service';
 import * as Docxtemplater from 'docxtemplater';
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -8,23 +8,23 @@ import { saveAs } from 'file-saver';
 @Injectable()
 export class DownloadDocxService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private rp: RpService) { }
 
   private docxTemplateRequest = this.http.get('/assets/template.docx', {responseType: 'blob'}).toPromise();
 
-  public downloadDocx(rp: Rp, includeOOC: boolean) {
+  public downloadDocx(includeOOC: boolean) {
     let data = {
-      title: rp.title,
-      desc: rp.desc,
-      hasDesc: !!rp.desc,
-      msgs: rp.messages.map(({type, content, url, chara}) => ({
+      title: this.rp.title,
+      desc: this.rp.desc,
+      hasDesc: !!this.rp.desc,
+      msgs: this.rp.messages.map(({type, content, url, charaId}) => ({
         content, 
         url, 
         isNarrator: (type === 'narrator'),
         isOOC: (type === 'ooc'),
         isImage: (type === 'image'),
         isChara: (type === 'chara'),
-        name: (chara ? chara.name.toUpperCase() : undefined)
+        name: (charaId ? this.rp.charas[charaId].name.toUpperCase() : undefined)
       })).filter(msg => includeOOC || !msg.isOOC)
     }
 
@@ -38,7 +38,7 @@ export class DownloadDocxService {
           type: 'blob',
           mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         });
-        saveAs(file, rp.title + '.docx');;
+        saveAs(file, this.rp.title + '.docx');;
       }
       reader.readAsArrayBuffer(blob);
     })

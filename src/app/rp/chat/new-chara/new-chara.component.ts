@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Rp } from '../../rp.service';
 import { OptionsService } from '../../options.service';
+import { RpService } from '../../rp.service';
 
 @Component({
   selector: 'app-new-chara',
@@ -16,8 +16,8 @@ export class NewCharaComponent implements OnInit {
   color: string = '#556677';
 
   constructor(
+    public rp: RpService,
     private dialogRef: MatDialogRef<NewCharaComponent>,
-    @Inject(MAT_DIALOG_DATA) private data: { rp: Rp },
     private options: OptionsService
   ) { }
 
@@ -30,7 +30,7 @@ export class NewCharaComponent implements OnInit {
 
     this.options.lastColor = this.color;
 
-    let chara = await this.data.rp.addChara({ name: this.name, color: this.color });
+    let chara = await this.rp.addChara({ name: this.name, color: this.color });
     this.dialogRef.close(chara);
   }
 

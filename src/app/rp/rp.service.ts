@@ -1,80 +1,56 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import * as io from 'socket.io-client';
 import { ChallengeService, Challenge } from './challenge.service'
 import { API_URL } from '../app.constants';
+import { Route, Router, ActivatedRoute } from '@angular/router';
+import { Subject, BehaviorSubject, Observable } from 'rxjs/Rx';
 
-export class RpMessage {
-  type: 'narrator'|'ooc'|'chara'|'image' = null;
-  timestamp: number = null;
-  sending: boolean = false;
-  content: string = null;
-  charaId?: number = null;
-  challenge?: string = null;
-  url?: string = null;
+  // async edit(newContent: string) {
+  //   this.sending = true;
+  //   this.content = newContent;
 
-  constructor(data:any, private rp:Rp) {
-    for (let prop in data) this[prop] = data[prop];
-  }
+  //   await this.rp.editMessage(this.id, newContent);
+  //   this.sending = false;
+  // }
 
-  get id() {
-    return this.rp.messages.indexOf(this);
-  }
+    // let placeholder = new RpMessage(msg, this);
+    // placeholder.sending = true;
+    // this.messages.push(placeholder);
 
-  get chara() {
-    return this.rp.charas[this.charaId];
-  }
+    // msg.challenge = this.challenge.hash;
 
-  get canEdit() {
-    return this.rp.canEditMessage(this.id);
-  }
+    // // ...
 
-  get color() {
-    return this.chara ? this.chara.color : null;
-  }
+    // this.messages.splice(this.messages.indexOf(placeholder), 1);
 
-  async edit(newContent: string) {
-    this.sending = true;
-    this.content = newContent;
 
-    await this.rp.editMessage(this.id, newContent);
-    this.sending = false;
-  }
 
+export interface RpMessage {
+  id: number;
+  type: 'narrator'|'ooc'|'chara'|'image';
+  timestamp: number;
+  sending: boolean;
+  content: string;
+  charaId?: number;
+  challenge?: string;
+  url?: string;
+  ip: string;
 }
 
-export class RpChara {
-  name: string = null;
-  color: string = null;
-
-  constructor(data:any, private rp:Rp) {
-    for (let prop in data) this[prop] = data[prop];
-  }
-
-  get id() {
-    return this.rp.charas.indexOf(this);
-  }
+export interface RpChara {
+  id: number;
+  name: string;
+  color: string;
 }
+
+export type RpVoice = RpChara|'narrator'|'ooc';
 
 @Injectable()
-export class RpService {
-  constructor(
-    private challengeService: ChallengeService
-  ) { }
+export class RpService implements OnDestroy {
 
-  public async join(rpCode: string) {
-    let rp = new Rp(rpCode, this.challengeService.challenge);
-    await rp.loaded;
-    return rp;
-  }
-}
+  public rpCode: string;
+  private challenge: Challenge;
 
-function promiseFromEmit(socket: SocketIOClient.Socket, messageType: string, data: any) {
-  return new Promise((resolve, reject) => {
-    socket.emit(messageType, data, (err, data) => err ? reject(err) : resolve(data));
-  });
-}
-
-export class Rp {
   private socket: SocketIOClient.Socket;
 
   public loaded: Promise<void>;
@@ -84,26 +60,36 @@ export class Rp {
   public messages: RpMessage[] = null;
   public charas: RpChara[] = null;
 
-  constructor(public rpCode: string, private challenge: Challenge) {
-    this.socket = io(API_URL, { query: 'rpCode='+rpCode });
+  constructor(challengeService: ChallengeService, route: ActivatedRoute) {
+
+    this.rpCode = route.snapshot.paramMap.get('rpCode');
+    this.challenge = challengeService.challenge;
+
+    this.socket = io(API_URL, { query: 'rpCode='+this.rpCode });
 
     this.socket.on('load rp', (data) => {
       this.title = data.title;
       this.desc = data.desc;
-      this.messages = data.msgs.map(data => new RpMessage(data, this));
-      this.charas = data.charas.map(data => new RpChara(data, this));
+      this.messages = data.msgs;
+      this.charas = data.charas;
+
+      this.messages.forEach((msg, id) => msg.id = id); // TODO add id on server
     });
 
     this.socket.on('add message', (msg) => {
-      this.messages.push(new RpMessage(msg, this));
+      this.messages.push(msg);
+
+      msg.id = this.messages.indexOf(msg); // TODO add id on server
     });
 
     this.socket.on('add character', (chara) => {
-      this.charas.push(new RpChara(chara, this));
+      this.charas.push(chara);
     });
 
-    this.socket.on('edit message', (data) => {
-      this.messages.splice(data.id, 1, new RpMessage(data.msg, this));
+    this.socket.on('edit message', ({msg, id}) => {
+      this.messages.splice(id, 1, msg);
+
+      msg.id = this.messages.indexOf(msg); // TODO add id on server
     });
 
     this.loaded = new Promise((resolve, reject) => {
@@ -111,35 +97,36 @@ export class Rp {
       this.socket.on('rp error', reject)
       this.socket.on('error', reject)
     });
+
   }
 
-  public async addMessage(msg: any) {
-    let placeholder = new RpMessage(msg, this);
-    placeholder.sending = true;
-    this.messages.push(placeholder);
-
-    msg.challenge = this.challenge.hash;
-
-    let data = await promiseFromEmit(this.socket, 'add message', msg);
-    let receivedMsg = new RpMessage(data, this);
-    this.messages.splice(this.messages.indexOf(placeholder), 1);
-    this.messages.push(receivedMsg);
-
-    return receivedMsg;
+  private socketEmit(messageType: string, data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.socket.emit(messageType, data, (err, data) => err ? reject(err) : resolve(data));
+    });
   }
 
-  public async addChara(chara: any) {
-    let data = await promiseFromEmit(this.socket, 'add character', chara);
-    let receivedChara = new RpChara(data, this);
+  public async addMessage({ content, type, charaId }: {content:string, type:string, charaId?:number}) {
+    let msg = await this.socketEmit('add message', { content, type, charaId, challenge: this.challenge.hash });
+    this.messages.push(msg);
+
+    msg.id = this.messages.indexOf(msg); // TODO add id on server
+
+    return msg;
+  }
+
+  public async addChara({ name, color }: { name: string, color: string }) {
+    let receivedChara  = await this.socketEmit('add character', { name, color });
     this.charas.push(receivedChara);
 
     return receivedChara;
   }
 
   public async addImage(url: string) {
-    let data = await promiseFromEmit(this.socket, 'add image', url);
-    let receivedMsg = new RpMessage(data, this);
+    let receivedMsg  = await this.socketEmit('add image', url);
     this.messages.push(receivedMsg);
+
+    receivedMsg.id = this.messages.indexOf(receivedMsg); // TODO add id on server
 
     return receivedMsg;
   }
@@ -148,7 +135,7 @@ export class Rp {
     let secret = this.challenge.secret;
     let editInfo = { id, content, secret };
 
-    let data = await promiseFromEmit(this.socket, 'edit message', editInfo);
+    let data = await this.socketEmit('edit message', editInfo);
     for (let prop in data) this.messages[id][prop] = data[prop];
   }
 
@@ -156,7 +143,8 @@ export class Rp {
     return this.messages[id].challenge === this.challenge.hash;
   }
 
-  public close() {
+  public ngOnDestroy() {
     this.socket.close();
   }
+
 }

@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Rp, RpChara } from '../rp.service';
+import { RpService, RpVoice } from '../rp.service';
 import { CharaSelectorService } from './chara-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -16,32 +16,26 @@ export class ChatComponent implements OnInit {
 
   @ViewChild('charaMenu') charaMenu: MatSidenav;
 
-  public rp: Rp;
-
-  public currentChara$: BehaviorSubject<string|RpChara>;
+  public currentChara$: BehaviorSubject<RpVoice>;
 
   constructor(
-    private route: ActivatedRoute,
+    public rp: RpService,
     private charaSelectorService: CharaSelectorService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private viewContainerRef: ViewContainerRef
   ) { }
 
   ngOnInit() {
-    this.route.data.subscribe((data:{rp:Rp}) => this.rp = data.rp);
     this.charaSelectorService.setInstance(this.charaMenu);
     this.currentChara$ = this.charaSelectorService.currentChara$;
   }
 
-  public sendMessage(message: any) {
-    this.rp.addMessage(message);
-  }
-
-  public setVoice(voice: string|RpChara) {
+  public setVoice(voice: RpVoice) {
     this.charaSelectorService.currentChara$.next(voice);
   }
 
   public newChara() {
-    let dialogRef = this.dialog.open(NewCharaComponent, { data: { rp: this.rp } });
+    let dialogRef = this.dialog.open(NewCharaComponent, { viewContainerRef: this.viewContainerRef });
     dialogRef.beforeClose().subscribe(chara => {
       if (chara) this.charaSelectorService.currentChara$.next(chara);
     })
