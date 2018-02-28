@@ -11,6 +11,6 @@
         </ng-container>
     </div>
 
-    <mat-paginator [pageIndex]="page-1" [pageSize]="size" [length]="rp.messages.length" (page)="goToPage($event.pageIndex)"></mat-paginator>
+    <mat-paginator [pageIndex]="page-1" [pageSize]="size" [length]="rp.messages?.length" (page)="goToPage($event.pageIndex)"></mat-paginator>
 
 </section>

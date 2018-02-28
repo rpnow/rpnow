@@ -13,8 +13,13 @@ export class ArchiveComponent {
 
   constructor(
     public rp: RpService,
+    private route: ActivatedRoute,
     private router: Router
   ) { }
+
+  ngOnInit() {
+    this.route.paramMap.subscribe(map => this.page = +map.get('page'));
+  }
 
   goToPage(page: number) {
     this.router.navigate(['rp', this.rp.rpCode, page+1]);
