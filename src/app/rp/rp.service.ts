@@ -3,7 +3,8 @@ import * as io from 'socket.io-client';
 import { ChallengeService, Challenge } from './challenge.service'
 import { API_URL } from '../app.constants';
 import { Route, Router, ActivatedRoute } from '@angular/router';
-import { Subject, BehaviorSubject, Observable } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
 
 
     // let placeholder = new RpMessage(msg, this);
