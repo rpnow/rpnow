@@ -45,7 +45,7 @@
 
             <mat-divider></mat-divider>
 
-            <a mat-list-item *ngFor="let chara of rp.charas" (click)="setVoice(chara)">
+            <a mat-list-item *ngFor="let chara of (rp.charas$|async); trackBy: rp.trackById" (click)="setVoice(chara)">
                 <mat-icon>person</mat-icon> <span fxFlex>{{chara.name}}</span> <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
             </a>
 

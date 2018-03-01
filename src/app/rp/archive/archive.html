@@ -4,7 +4,7 @@
 
     <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
     <div style="flex: 1 1 auto; overflow-y: auto; height: 0px">
-        <ng-container *ngFor="let msg of rp.messages; let i = index">
+        <ng-container *ngFor="let msg of rp.messages; trackBy: rp.trackById; let i = index">
             <ng-container *ngIf="i >= (page-1)*size && i < (page)*size">
                 <rp-message [msg]="msg"></rp-message>
             </ng-container>
