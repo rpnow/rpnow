@@ -1,0 +1,69 @@
+<mat-toolbar color="primary">
+    <h1 fxFlex>
+        RPNow
+    </h1>
+    <button mat-icon-button (click)="mainMenu.close()">
+        <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-nav-list>
+
+    <a mat-list-item routerLink="/" title="Return to the homepage to create a new RP">
+        <mat-icon>note_add</mat-icon>
+        <span fxFlex>Create new RP</span>
+    </a>
+
+    <mat-divider></mat-divider>
+
+    <a mat-list-item (click)="options.pressEnterToSend = !options.pressEnterToSend" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
+        <mat-icon>send</mat-icon>
+        <span fxFlex>Press <kbd>Enter</kbd> to send</span>
+        <mat-checkbox [(ngModel)]="options.pressEnterToSend" (click)="false"></mat-checkbox>
+    </a>
+
+    <!-- <a mat-list-item (click)="0" title="Change the notification noise which will play when the tab is hidden, or just turn it off.">
+        <mat-icon>notifications</mat-icon>
+        <span fxFlex>Notification noise</span>
+        <mat-select [(ngModel)]="options.notificationNoise">
+            <mat-option *ngFor="let noise of noteNoiseOptions; let i = index" [value]="i" (click)="noise.audio.play()">
+                {{noise.name}}
+            </mat-option>
+        </mat-select>
+    </a> -->
+
+    <a mat-list-item (click)="options.showMessageDetails = !options.showMessageDetails" title="Show or hide the timestamps and color-ID's on all messages.">
+        <mat-icon>account_box</mat-icon>
+        <span fxFlex>Show message details</span>
+        <mat-checkbox [(ngModel)]="options.showMessageDetails" (click)="false"></mat-checkbox>
+    </a>
+
+    <a mat-list-item (click)="options.nightMode = !options.nightMode" title="Display the site in a darker color scheme">
+        <mat-icon>brightness_4</mat-icon>
+        <span fxFlex>Night mode</span>
+        <mat-checkbox [(ngModel)]="options.nightMode" (click)="false"></mat-checkbox>
+    </a>
+
+    <mat-divider></mat-divider>
+
+    <a mat-list-item (click)="showContactDialog()" title="Get in touch with RPNow administration and support">
+        <mat-icon>help</mat-icon>
+        <span fxFlex>Contact RPNow</span>
+    </a>
+
+    <a mat-list-item (click)="showAboutDialog()" title="Get to know us!">
+        <mat-icon>mood</mat-icon>
+        <span fxFlex>About us</span>
+    </a>
+
+    <a mat-list-item href="https://www.patreon.com/rpnow" target="_blank" title="Every dollar is appreciated  :D">
+        <mat-icon>favorite</mat-icon>
+        <span fxFlex>Donate @ Patreon</span>
+    </a>
+
+    <a mat-list-item (click)="showTermsDialog()" title="Terms of use and privacy information for using RPNow">
+        <mat-icon>account_balance</mat-icon>
+        <span fxFlex>Terms &amp; Privacy</span>
+    </a>
+
+</mat-nav-list>

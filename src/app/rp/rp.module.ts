@@ -46,6 +46,7 @@ import { FormatGuideDialog } from './info-dialogs/format-guide-dialog/format-gui
 import { RpMessagePipe } from './rp-message/rp-message.pipe';
 import { RpRoutingModule } from './rp-routing.module';
 import { ImageDialogComponent } from './chat/image-dialog/image-dialog.component';
+import { MainMenuComponent } from './main-menu/main-menu.component';
 
 
 @NgModule({
@@ -65,7 +66,8 @@ import { ImageDialogComponent } from './chat/image-dialog/image-dialog.component
     AboutDialogComponent,
     TermsDialogComponent,
     FormatGuideDialog,
-    RpMessagePipe
+    RpMessagePipe,
+    MainMenuComponent
   ],
   imports: [
     CommonModule,
