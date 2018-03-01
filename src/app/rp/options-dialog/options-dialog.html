@@ -1,33 +1,46 @@
-<h1>Preferences</h1>
+<mat-dialog-content>
 
-<mat-nav-list>
+    <h2>Preferences</h2>
 
-    <a mat-list-item (click)="options.pressEnterToSend = !options.pressEnterToSend" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
-        <mat-icon>send</mat-icon>
-        <span fxFlex>Press <kbd>Enter</kbd> to send</span>
-        <mat-checkbox [(ngModel)]="options.pressEnterToSend" (click)="false"></mat-checkbox>
-    </a>
+    <mat-list>
 
-    <!-- <a mat-list-item (click)="0" title="Change the notification noise which will play when the tab is hidden, or just turn it off.">
-        <mat-icon>notifications</mat-icon>
-        <span fxFlex>Notification noise</span>
-        <mat-select [(ngModel)]="options.notificationNoise">
-            <mat-option *ngFor="let noise of noteNoiseOptions; let i = index" [value]="i" (click)="noise.audio.play()">
-                {{noise.name}}
-            </mat-option>
-        </mat-select>
-    </a> -->
+        <h3 matSubheader>Display</h3>
 
-    <a mat-list-item (click)="options.showMessageDetails = !options.showMessageDetails" title="Show or hide the timestamps and color-ID's on all messages.">
-        <mat-icon>account_box</mat-icon>
-        <span fxFlex>Show message details</span>
-        <mat-checkbox [(ngModel)]="options.showMessageDetails" (click)="false"></mat-checkbox>
-    </a>
+        <mat-list-item title="Display the site in a darker color scheme">
+            <mat-icon>brightness_4</mat-icon>
+            <span fxFlex>Night mode</span>
+            <mat-checkbox [(ngModel)]="options.nightMode"></mat-checkbox>
+        </mat-list-item>
 
-    <a mat-list-item (click)="options.nightMode = !options.nightMode" title="Display the site in a darker color scheme">
-        <mat-icon>brightness_4</mat-icon>
-        <span fxFlex>Night mode</span>
-        <mat-checkbox [(ngModel)]="options.nightMode" (click)="false"></mat-checkbox>
-    </a>
+        <mat-divider></mat-divider>
 
-</mat-nav-list>
+        <h3 matSubheader>Notifications</h3>
+
+        <mat-list-item title="Change the notification noise which will play when the tab is hidden, or just turn it off.">
+            <mat-icon>notifications</mat-icon>
+            <mat-select [(ngModel)]="options.notificationNoise">
+                <mat-option *ngFor="let noise of noteNoiseOptions; let i = index" [value]="i" (click)="noise.audio?.play()">
+                    {{noise.name}}
+                </mat-option>
+            </mat-select>
+        </mat-list-item>
+
+        <mat-divider></mat-divider>
+
+        <h3 matSubheader>Messages</h3>
+
+        <mat-list-item title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
+            <mat-icon>send</mat-icon>
+            <span fxFlex>Press <kbd>Enter</kbd> to send</span>
+            <mat-checkbox [(ngModel)]="options.pressEnterToSend"></mat-checkbox>
+        </mat-list-item>
+
+        <mat-list-item title="Show or hide the timestamps and color-ID's on all messages.">
+            <mat-icon>account_box</mat-icon>
+            <span fxFlex>Show message details</span>
+            <mat-checkbox [(ngModel)]="options.showMessageDetails"></mat-checkbox>
+        </mat-list-item>
+
+    </mat-list>
+
+</mat-dialog-content>

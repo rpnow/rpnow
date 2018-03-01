@@ -5,11 +5,12 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MainMenuService } from './main-menu.service';
 import { OptionsService } from './options.service';
 import { DOCUMENT } from '@angular/platform-browser';
+import { NotifyService } from './notify.service';
 
 @Component({
   templateUrl: 'rp.html',
   styles: [],
-  providers: [MainMenuService, RpService]
+  providers: [MainMenuService, RpService, NotifyService]
 })
 export class RpComponent implements OnInit {
   @ViewChild('mainMenu') mainMenu: MatSidenav;
@@ -17,7 +18,8 @@ export class RpComponent implements OnInit {
   constructor(
     private mainMenuService: MainMenuService,
     public options: OptionsService,
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    notifyService: NotifyService
   ) { }
 
   ngOnInit() {
