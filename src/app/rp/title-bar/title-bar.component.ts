@@ -13,9 +13,7 @@ export class TitleBarComponent implements OnInit {
 
   constructor(
     public rp: RpService,
-    private mainMenuService: MainMenuService,
-    private dialog: MatDialog,
-    private viewContainerRef: ViewContainerRef
+    private mainMenuService: MainMenuService
   ) { }
 
   ngOnInit() {
@@ -23,10 +21,6 @@ export class TitleBarComponent implements OnInit {
 
   public openMenu() {
     this.mainMenuService.menu.open();
-  }
-
-  public openDownloadDialog() {
-    let dialogRef = this.dialog.open(DownloadDialogComponent, { viewContainerRef: this.viewContainerRef });
   }
 
 }

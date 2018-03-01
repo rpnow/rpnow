@@ -10,18 +10,6 @@
         {{ rp.title }}
     </h1>
 
-    <span fxFlex fxLayoutAlign="end center">
-        <button mat-icon-button [routerLink]="'/rp/'+rp.rpCode">
-            <mat-icon aria-label="Chat" matTooltip="Chat">question_answer</mat-icon>
-        </button>
-
-        <button mat-icon-button [routerLink]="'/rp/'+rp.rpCode+'/1'">
-            <mat-icon aria-label="Read archive" matTooltip="Read archive">import_contacts</mat-icon>
-        </button>
-
-        <button mat-icon-button (click)="openDownloadDialog()">
-            <mat-icon aria-label="Download RP" matTooltip="Download RP">cloud_download</mat-icon>
-        </button>
-    </span>
+    <span fxFlex></span>
 
 </mat-toolbar>

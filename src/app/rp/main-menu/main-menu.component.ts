@@ -6,6 +6,8 @@ import { TermsDialogComponent } from '../info-dialogs/terms-dialog/terms-dialog.
 import { OptionsService } from '../options.service';
 import { OptionsDialogComponent } from '../options-dialog/options-dialog.component';
 import { MainMenuService } from '../main-menu.service';
+import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
+import { RpService } from '../rp.service';
 
 @Component({
   selector: 'main-menu-content',
@@ -15,12 +17,17 @@ import { MainMenuService } from '../main-menu.service';
 export class MainMenuComponent implements OnInit {
 
   constructor(
+    private rp: RpService,
     private dialog: MatDialog,
     private mainMenu: MainMenuService,
     private viewContainerRef: ViewContainerRef
   ) { }
 
   ngOnInit() {
+  }
+
+  openDownloadDialog() {
+    let dialogRef = this.dialog.open(DownloadDialogComponent, { viewContainerRef: this.viewContainerRef });
   }
 
   showAboutDialog() {
