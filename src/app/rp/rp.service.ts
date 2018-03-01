@@ -41,52 +41,39 @@ export type RpVoice = RpChara|'narrator'|'ooc';
 @Injectable()
 export class RpService implements OnDestroy {
 
-  public rpCode: string;
-  private challenge: Challenge;
+  private readonly challenge: Challenge;
+  private readonly socket: SocketIOClient.Socket;
 
-  private socket: SocketIOClient.Socket;
-
-  public loaded: Promise<void>;
-
+  public readonly loaded: Promise<void>;
+  public readonly rpCode: string;
   public title: string = null;
   public desc: string = null;
-  public messages: RpMessage[] = null;
-  public charas: RpChara[] = null;
+
+  public messages: Readonly<RpMessage>[] = null;
+  public charas: Readonly<RpChara>[] = null;
+
+  private readonly newMessagesSubject: Subject<RpMessage> = new Subject();
+  private readonly editedMessagesSubject: Subject<{msg: RpMessage, id: number}> = new Subject();
+
+  private readonly newCharasSubject: Subject<RpChara> = new Subject();
+
+  public readonly newMessages$: Observable<RpMessage>;
+  public readonly editedMessages$: Observable<{msg: RpMessage, id: number}>;
+  public readonly messages$: Observable<RpMessage[]>;
+  public readonly messagesById$: Observable<{[id:number]: RpMessage}>;
+
+  public readonly newCharas$: Observable<RpChara>;
+  public readonly charas$: Observable<RpChara[]>;
+  public readonly charasById$: Observable<{[id:number]: RpChara}>;
+
 
   constructor(challengeService: ChallengeService, route: ActivatedRoute) {
 
     this.rpCode = route.snapshot.paramMap.get('rpCode');
     this.challenge = challengeService.challenge;
 
+    // socket.io events
     this.socket = io(API_URL, { query: 'rpCode='+this.rpCode });
-
-    this.socket.on('load rp', (data) => {
-      this.title = data.title;
-      this.desc = data.desc;
-      this.messages = data.msgs;
-      this.charas = data.charas;
-
-      this.messages.forEach((msg, id) => msg.id = id); // TODO add id on server
-      this.charas.forEach((chara, id) => chara.id = id); // TODO add id on server
-    });
-
-    this.socket.on('add message', (msg:RpMessage) => {
-      this.messages.push(msg);
-
-      msg.id = this.messages.indexOf(msg); // TODO add id on server
-    });
-
-    this.socket.on('add character', (chara:RpChara) => {
-      this.charas.push(chara);
-
-      chara.id = this.charas.indexOf(chara); // TODO add id on server
-    });
-
-    this.socket.on('edit message', ({msg, id}:{msg:RpMessage, id:number}) => {
-      this.messages.splice(id, 1, msg);
-
-      msg.id = this.messages.indexOf(msg); // TODO add id on server
-    });
 
     this.loaded = new Promise((resolve, reject) => {
       this.socket.on('load rp', () => resolve())
@@ -94,8 +81,66 @@ export class RpService implements OnDestroy {
       this.socket.on('error', reject)
     });
 
+    this.socket.on('load rp', (data) => {
+      this.title = data.title;
+      this.desc = data.desc;
+
+      data.msgs.forEach(msg => this.newMessagesSubject.next(msg))
+      data.charas.forEach(chara => this.newCharasSubject.next(chara))
+    });
+
+    this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
+
+    this.socket.on('add character', chara => this.newCharasSubject.next(chara));
+
+    this.socket.on('edit message', data => this.editedMessagesSubject.next(data));
+
+    // observable structure
+    this.newMessages$ = this.newMessagesSubject.asObservable();
+
+    this.editedMessages$ = this.editedMessagesSubject.asObservable();
+
+    let messageOperations$: Observable<((msgs:RpMessage[]) => RpMessage[])> = Observable.merge(
+      Observable.of(() => []),
+      this.newMessages$.map(msg => (msgs: RpMessage[]) => {
+        return [...msgs, msg];
+      }),
+      this.editedMessages$.map(({id, msg}) => (msgs: RpMessage[]) => {
+        msgs.splice(id, 1, msg);
+        return msgs;
+      })
+    )
+
+    this.messages$ = messageOperations$.scan((arr, fn) => fn(arr), <RpMessage[]>[])
+      .map(msgs => msgs.map((msg, id) => ({...msg, id }))) // TODO add id on server
+    
+    this.messagesById$ = this.messages$.map(msgs =>
+      msgs.reduce((map, msg) => ({ ...map, [msg.id]: msg}), {})
+    )
+
+    this.newCharas$ = this.newCharasSubject.asObservable();
+
+    let charaOperations$: Observable<((charas:RpChara[]) => RpChara[])> = Observable.merge(
+      Observable.of(() => []),
+      this.newCharas$.map(chara => (charas: RpChara[]) => {
+        return [...charas, chara];
+      })
+    )
+
+    this.charas$ = charaOperations$.scan((arr, fn) => fn(arr), <RpChara[]>[])
+      .map(charas => charas.map((chara, id) => ({...chara, id }))) // TODO add id on server
+
+    this.charasById$ = this.charas$.map(charas =>
+      charas.reduce((map, chara) => ({ ...map, [chara.id]: chara }), {})
+    )
+
+    // access values directly
+    this.messages$.subscribe(messages => this.messages = messages);
+    this.charas$.subscribe(charas => this.charas = charas);
+
   }
 
+  // helper to let us 'await' on a socket emit completing
   private socketEmit(messageType: string, data: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.socket.emit(messageType, data, (err, data) => err ? reject(err) : resolve(data));
@@ -104,43 +149,38 @@ export class RpService implements OnDestroy {
 
   public async addMessage({ content, type, charaId }: {content:string, type:string, charaId?:number}) {
     let msg:RpMessage = await this.socketEmit('add message', { content, type, charaId, challenge: this.challenge.hash });
-    this.messages.push(msg);
+    this.newMessagesSubject.next(msg);
 
-    msg.id = this.messages.indexOf(msg); // TODO add id on server
-
-    return msg;
+    return this.messages[this.messages.length-1]; // TODO we can return this directly after id is returned from server
   }
 
   public async addChara({ name, color }: { name: string, color: string }) {
     let chara:RpChara = await this.socketEmit('add character', { name, color });
-    this.charas.push(chara);
+    this.newCharasSubject.next(chara);
 
-    chara.id = this.charas.indexOf(chara); // TODO add id on server
-
-    return chara;
+    return this.charas[this.charas.length-1]; // TODO we can return this directly after id is returned from server
   }
 
   public async addImage(url: string) {
     let msg:RpMessage = await this.socketEmit('add image', url);
-    this.messages.push(msg);
+    this.newMessagesSubject.next(msg);
 
-    msg.id = this.messages.indexOf(msg); // TODO add id on server
-
-    return msg;
+    return this.messages[this.messages.length-1]; // TODO we can return this directly after id is returned from server
   }
 
   public async editMessage(id: number, content: string) {
-    let secret = this.challenge.secret;
-    let editInfo = { id, content, secret };
-
-    let msg:RpMessage = await this.socketEmit('edit message', editInfo);
-    this.messages.splice(id, 1, msg);
-
-    msg.id = this.messages.indexOf(msg); // TODO add id on server
+    let msg:RpMessage = await this.socketEmit('edit message', { id, content, secret: this.challenge.secret });
+    this.editedMessagesSubject.next({ msg, id });
   }
 
+  // because rp service is provided in rp component, this is called when navigating away from an rp
   public ngOnDestroy() {
     this.socket.close();
+  }
+
+  // use in ngFor
+  public trackById(item: RpMessage|RpChara) {
+    return item.id;
   }
 
 }
