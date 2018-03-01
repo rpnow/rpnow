@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { OptionsService } from './options.service';
 import { RpService } from './rp.service';
+import { DOCUMENT } from '@angular/platform-browser';
 
 const audioDir = '/assets/sounds/';
 
@@ -19,13 +20,17 @@ export class NotifyService {
 
   constructor(
     private rp: RpService,
-    private options: OptionsService
+    private options: OptionsService,
+    @Inject(DOCUMENT) document: Document,
   ) {
+
     this.rp.newMessages$.subscribe(msg => {
+      if (document.visibilityState === 'visible') return;
+
       let audio = noises[options.notificationNoise].audio;
-      
       if (audio) audio.play();
     })
+
   }
 
 }
