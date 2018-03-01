@@ -2,7 +2,7 @@
     <h1 fxFlex>
         RPNow
     </h1>
-    <button mat-icon-button (click)="mainMenu.close()">
+    <button mat-icon-button (click)="close()">
         <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
     </button>
 </mat-toolbar>
@@ -16,32 +16,9 @@
 
     <mat-divider></mat-divider>
 
-    <a mat-list-item (click)="options.pressEnterToSend = !options.pressEnterToSend" title="When turned on, pressing the 'Enter' key will send a message. When turned off, pressing 'Enter' will insert a paragraph break.">
-        <mat-icon>send</mat-icon>
-        <span fxFlex>Press <kbd>Enter</kbd> to send</span>
-        <mat-checkbox [(ngModel)]="options.pressEnterToSend" (click)="false"></mat-checkbox>
-    </a>
-
-    <!-- <a mat-list-item (click)="0" title="Change the notification noise which will play when the tab is hidden, or just turn it off.">
-        <mat-icon>notifications</mat-icon>
-        <span fxFlex>Notification noise</span>
-        <mat-select [(ngModel)]="options.notificationNoise">
-            <mat-option *ngFor="let noise of noteNoiseOptions; let i = index" [value]="i" (click)="noise.audio.play()">
-                {{noise.name}}
-            </mat-option>
-        </mat-select>
-    </a> -->
-
-    <a mat-list-item (click)="options.showMessageDetails = !options.showMessageDetails" title="Show or hide the timestamps and color-ID's on all messages.">
-        <mat-icon>account_box</mat-icon>
-        <span fxFlex>Show message details</span>
-        <mat-checkbox [(ngModel)]="options.showMessageDetails" (click)="false"></mat-checkbox>
-    </a>
-
-    <a mat-list-item (click)="options.nightMode = !options.nightMode" title="Display the site in a darker color scheme">
-        <mat-icon>brightness_4</mat-icon>
-        <span fxFlex>Night mode</span>
-        <mat-checkbox [(ngModel)]="options.nightMode" (click)="false"></mat-checkbox>
+    <a mat-list-item (click)="showOptionsDialog()" title="Options for how you experience RPNow">
+        <mat-icon>settings</mat-icon>
+        <span fxFlex>Preferences</span>
     </a>
 
     <mat-divider></mat-divider>

@@ -47,6 +47,7 @@ import { RpMessagePipe } from './rp-message/rp-message.pipe';
 import { RpRoutingModule } from './rp-routing.module';
 import { ImageDialogComponent } from './chat/image-dialog/image-dialog.component';
 import { MainMenuComponent } from './main-menu/main-menu.component';
+import { OptionsDialogComponent } from './options-dialog/options-dialog.component';
 
 
 @NgModule({
@@ -67,7 +68,8 @@ import { MainMenuComponent } from './main-menu/main-menu.component';
     TermsDialogComponent,
     FormatGuideDialog,
     RpMessagePipe,
-    MainMenuComponent
+    MainMenuComponent,
+    OptionsDialogComponent
   ],
   imports: [
     CommonModule,
@@ -98,7 +100,8 @@ import { MainMenuComponent } from './main-menu/main-menu.component';
     ContactDialogComponent,
     AboutDialogComponent,
     TermsDialogComponent,
-    FormatGuideDialog
+    FormatGuideDialog,
+    OptionsDialogComponent
   ]
 })
 export class RpModule { }
