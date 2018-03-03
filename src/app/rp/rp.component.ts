@@ -6,11 +6,18 @@ import { MainMenuService } from './main-menu.service';
 import { OptionsService } from './options.service';
 import { DOCUMENT } from '@angular/platform-browser';
 import { NotifyService } from './notify.service';
+import { ChallengeService } from './challenge.service';
 
 @Component({
   templateUrl: 'rp.html',
   styles: [],
-  providers: [MainMenuService, RpService, NotifyService]
+  providers: [
+    MainMenuService,
+    RpService,
+    NotifyService,
+    OptionsService,
+    ChallengeService
+  ]
 })
 export class RpComponent implements OnInit {
   @ViewChild('mainMenu') mainMenu: MatSidenav;

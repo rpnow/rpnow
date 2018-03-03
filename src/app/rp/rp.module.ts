@@ -28,8 +28,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { RpComponent } from './rp.component';
-import { RpService } from './rp.service';
-import { ChallengeService } from './challenge.service';
 import { ArchiveComponent } from './archive/archive.component';
 import { ChatComponent } from './chat/chat.component';
 import { RpMessageComponent } from './rp-message/rp-message.component';
@@ -39,7 +37,6 @@ import { TitleBarComponent } from './title-bar/title-bar.component';
 import { NewCharaComponent } from './chat/new-chara/new-chara.component';
 import { BlackOrWhitePipe } from './black-or-white.pipe';
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
-import { OptionsService } from './options.service';
 import { ContactDialogComponent } from './info-dialogs/contact-dialog/contact-dialog.component';
 import { AboutDialogComponent } from './info-dialogs/about-dialog/about-dialog.component';
 import { TermsDialogComponent } from './info-dialogs/terms-dialog/terms-dialog.component';
@@ -95,7 +92,6 @@ import { CharaDrawerComponent } from './chat/chara-drawer/chara-drawer.component
     ColorPickerModule,
     RpRoutingModule
   ],
-  providers: [ChallengeService, OptionsService],
   entryComponents: [
     NewCharaComponent,
     DownloadDialogComponent,

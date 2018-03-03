@@ -23,7 +23,6 @@ export class MessageBoxComponent implements OnInit {
     private options: OptionsService
   ) { }
 
-  public content: '';
   public chara$: BehaviorSubject<RpVoice>;
   public class$: Observable<string>;
 
@@ -36,13 +35,14 @@ export class MessageBoxComponent implements OnInit {
 
   sendMessage() {
     let chara = this.chara$.value;
+    let content = this.options.msgBoxContent;
     let msg = (typeof chara === 'string') ?
-      { content: this.content, type: chara } :
-      { content: this.content, type: 'chara', charaId: chara.id };
+      { content, type: chara } :
+      { content, type: 'chara', charaId: chara.id };
 
     this.rp.addMessage(msg);
 
-    this.content = '';
+    this.options.msgBoxContent = '';
   }
 
   openCharaSelector() {
