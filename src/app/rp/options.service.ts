@@ -19,7 +19,6 @@ export class OptionsService {
 			`rpnow.global.${propName}` :
 			`rpnow.rp.${this.rpCode}.${propName}`
 		
-		console.log(localStorageKey);
 		let stringValue = localStorage.getItem(localStorageKey);
 		let value = (stringValue != null) ? JSON.parse(stringValue) : defaultValue;
 
