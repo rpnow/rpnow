@@ -23,6 +23,7 @@ export class RpComponent implements OnInit {
   @ViewChild('mainMenu') mainMenu: MatSidenav;
 
   constructor(
+    public rp: RpService,
     private mainMenuService: MainMenuService,
     public options: OptionsService,
     @Inject(DOCUMENT) private document: Document,

@@ -8,7 +8,7 @@
 
     <mat-sidenav-content>
 
-        <router-outlet></router-outlet>
+        <router-outlet *ngIf="rp.loaded|async"></router-outlet>
 
     </mat-sidenav-content>
 

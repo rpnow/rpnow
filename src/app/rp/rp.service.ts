@@ -45,7 +45,7 @@ export class RpService implements OnDestroy {
   private readonly challenge: Challenge;
   private readonly socket: SocketIOClient.Socket;
 
-  public readonly loaded: Promise<void>;
+  public readonly loaded: Promise<boolean>;
   public readonly rpCode: string;
   public title: string = null;
   public desc: string = null;
@@ -77,7 +77,7 @@ export class RpService implements OnDestroy {
     this.socket = io(API_URL, { query: 'rpCode='+this.rpCode });
 
     this.loaded = new Promise((resolve, reject) => {
-      this.socket.on('load rp', () => resolve())
+      this.socket.on('load rp', () => resolve(true))
       this.socket.on('rp error', reject)
       this.socket.on('error', reject)
     });
