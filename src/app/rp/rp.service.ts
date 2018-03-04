@@ -52,7 +52,9 @@ export class RpService implements OnDestroy {
   public desc: string = null;
 
   public messages: Readonly<RpMessage>[] = null;
+  public messagesById: {[id:number]: Readonly<RpMessage>} = null;
   public charas: Readonly<RpChara>[] = null;
+  public charasById: {[id:number]: Readonly<RpChara>} = null;
 
   private readonly newMessagesSubject: Subject<RpMessage> = new Subject();
   private readonly editedMessagesSubject: Subject<{msg: RpMessage, id: number}> = new Subject();
@@ -142,7 +144,9 @@ export class RpService implements OnDestroy {
 
     // access values directly
     this.messages$.subscribe(messages => this.messages = messages);
+    this.messagesById$.subscribe(messagesById => this.messagesById = messagesById);
     this.charas$.subscribe(charas => this.charas = charas);
+    this.charasById$.subscribe(charasById => this.charasById = charasById);
 
   }
 
