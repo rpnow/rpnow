@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NewCharaComponent } from '../new-chara/new-chara.component';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { OptionsService } from '../../options.service';
 
 @Component({
   selector: 'chara-drawer-contents',
@@ -21,6 +22,7 @@ export class CharaDrawerComponent implements OnInit {
 
   constructor(
     public rp: RpService,
+    private options: OptionsService,
     private charaSelectorService: CharaSelectorService,
     private dialog: MatDialog,
     private viewContainerRef: ViewContainerRef
@@ -33,9 +35,10 @@ export class CharaDrawerComponent implements OnInit {
       .filter(chara => typeof chara !== 'string')
       .scan((arr:RpChara[], chara:RpChara) => [
         chara, ...arr.filter(c => c.id !== chara.id)
-      ].slice(0,5), [])
+      ].slice(0,5), this.options.recentCharas.map(id => this.rp.charasById[id]))
+      .do((charas:RpChara[]) => this.options.recentCharas = charas.map(c => c.id)) // TODO should probably subscribe here, not use 'do' operator
       .map((charas:RpChara[]) => [...charas].sort((a,b) => a.name.localeCompare(b.name))) as Observable<RpChara[]>
-
+    
     this.allCharas$ = this.rp.charas$.map(charas => [...charas].sort((a,b) => a.name.localeCompare(b.name)))
 
     this.hasManyCharacters$ = this.rp.charas$.map(charas => charas.length >= 10);
