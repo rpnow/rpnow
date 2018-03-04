@@ -4,6 +4,7 @@ import { ChallengeService, Challenge } from './challenge.service'
 import { API_URL } from '../app.constants';
 import { Route, Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 
 
@@ -60,11 +61,11 @@ export class RpService implements OnDestroy {
 
   public readonly newMessages$: Observable<RpMessage>;
   public readonly editedMessages$: Observable<{msg: RpMessage, id: number}>;
-  public readonly messages$: Observable<RpMessage[]>;
+  public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
   public readonly messagesById$: Observable<{[id:number]: RpMessage}>;
 
   public readonly newCharas$: Observable<RpChara>;
-  public readonly charas$: Observable<RpChara[]>;
+  public readonly charas$: Observable<RpChara[]> = new ReplaySubject(1);
   public readonly charasById$: Observable<{[id:number]: RpChara}>;
 
 
@@ -112,8 +113,10 @@ export class RpService implements OnDestroy {
       })
     )
 
-    this.messages$ = messageOperations$.scan((arr, fn) => fn(arr), <RpMessage[]>[])
+    messageOperations$
+      .scan((arr, fn) => fn(arr), <RpMessage[]>[])
       .map(msgs => msgs.map((msg, id) => ({...msg, id }))) // TODO add id on server
+      .subscribe(this.messages$ as Subject<RpMessage[]>)
     
     this.messagesById$ = this.messages$.map(msgs =>
       msgs.reduce((map, msg) => ({ ...map, [msg.id]: msg}), {})
@@ -128,8 +131,10 @@ export class RpService implements OnDestroy {
       })
     )
 
-    this.charas$ = charaOperations$.scan((arr, fn) => fn(arr), <RpChara[]>[])
+    charaOperations$
+      .scan((arr, fn) => fn(arr), <RpChara[]>[])
       .map(charas => charas.map((chara, id) => ({...chara, id }))) // TODO add id on server
+      .subscribe(this.charas$ as Subject<RpChara[]>)
 
     this.charasById$ = this.charas$.map(charas =>
       charas.reduce((map, chara) => ({ ...map, [chara.id]: chara }), {})
