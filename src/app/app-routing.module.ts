@@ -9,10 +9,6 @@ const appRoutes: Routes = [
     loadChildren: 'app/rp/rp.module#RpModule'
   },
   {
-    path: '',
-    loadChildren: 'app/title/title.module#TitleModule'
-  },
-  {
     path: '**',
     component: NotFoundComponent
   }
