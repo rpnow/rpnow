@@ -48,6 +48,7 @@ import { ImageDialogComponent } from './chat/image-dialog/image-dialog.component
 import { MainMenuComponent } from './main-menu/main-menu.component';
 import { OptionsDialogComponent } from './options-dialog/options-dialog.component';
 import { CharaDrawerComponent } from './chat/chara-drawer/chara-drawer.component';
+import { BannerMessageComponent } from './banner-message/banner-message.component';
 
 
 @NgModule({
@@ -70,7 +71,8 @@ import { CharaDrawerComponent } from './chat/chara-drawer/chara-drawer.component
     RpMessagePipe,
     MainMenuComponent,
     OptionsDialogComponent,
-    CharaDrawerComponent
+    CharaDrawerComponent,
+    BannerMessageComponent
   ],
   imports: [
     CommonModule,

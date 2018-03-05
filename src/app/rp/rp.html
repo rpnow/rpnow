@@ -6,9 +6,13 @@
 
     </mat-sidenav>
 
-    <mat-sidenav-content>
+    <mat-sidenav-content fxLayout="column">
 
-        <router-outlet *ngIf="rp.loaded|async"></router-outlet>
+        <banner-message></banner-message>
+
+        <div fxFlex>
+            <router-outlet *ngIf="rp.loaded|async"></router-outlet>
+        </div>
 
     </mat-sidenav-content>
 
