@@ -17,7 +17,7 @@ import { RpService } from '../rp.service';
 export class MainMenuComponent implements OnInit {
 
   constructor(
-    private rp: RpService,
+    public rp: RpService,
     private dialog: MatDialog,
     private mainMenu: MainMenuService,
     private viewContainerRef: ViewContainerRef

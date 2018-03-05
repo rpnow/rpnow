@@ -33,16 +33,23 @@ export class MessageBoxComponent implements OnInit {
     })
   }
 
+  public get content() {
+    return this.options.msgBoxContent;
+  }
+  public set content(value) {
+    this.options.msgBoxContent = value;
+  }
+
   sendMessage() {
     let chara = this.chara$.value;
-    let content = this.options.msgBoxContent;
+    let content = this.content;
     let msg = (typeof chara === 'string') ?
       { content, type: chara } :
       { content, type: 'chara', charaId: chara.id };
 
     this.rp.addMessage(msg);
 
-    this.options.msgBoxContent = '';
+    this.content = '';
   }
 
   openCharaSelector() {
