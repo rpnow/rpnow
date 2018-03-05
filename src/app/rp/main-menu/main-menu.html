@@ -9,6 +9,8 @@
 
 <mat-nav-list>
 
+    <h3 matSubheader>{{rp.title}}</h3>
+
     <a mat-list-item [routerLink]="'/rp/'+rp.rpCode">
         <mat-icon>question_answer</mat-icon>
         <span fxFlex>Chat</span>
@@ -16,15 +18,17 @@
 
     <a mat-list-item [routerLink]="'/rp/'+rp.rpCode+'/1'">
         <mat-icon>import_contacts</mat-icon>
-        <span fxFlex>Read archive</span>
+        <span fxFlex>Archive</span>
     </a>
 
     <a mat-list-item (click)="openDownloadDialog()">
         <mat-icon>cloud_download</mat-icon>
-        <span fxFlex>Download RP</span>
+        <span fxFlex>Download</span>
     </a>
 
     <mat-divider></mat-divider>
+
+    <h3 matSubheader>Options</h3>
 
     <a mat-list-item (click)="showOptionsDialog()" title="Options for how you experience RPNow">
         <mat-icon>settings</mat-icon>
@@ -32,6 +36,8 @@
     </a>
 
     <mat-divider></mat-divider>
+
+    <h3 matSubheader>RPNow</h3>
 
     <a mat-list-item routerLink="/" title="Return to the homepage to create a new RP">
         <mat-icon>note_add</mat-icon>
