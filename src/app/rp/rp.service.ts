@@ -85,12 +85,15 @@ export class RpService implements OnDestroy {
       this.socket.on('error', reject)
     });
 
+    let firstMessages: Subject<RpMessage[]> = new Subject();
+    let firstCharas: Subject<RpChara[]> = new Subject();
+
     this.socket.on('load rp', (data) => {
       this.title = data.title;
       this.desc = data.desc;
 
-      data.msgs.forEach(msg => this.newMessagesSubject.next(msg))
-      data.charas.forEach(chara => this.newCharasSubject.next(chara))
+      firstMessages.next(data.msgs);
+      firstCharas.next(data.charas);
     });
 
     this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
@@ -105,7 +108,7 @@ export class RpService implements OnDestroy {
     this.editedMessages$ = this.editedMessagesSubject.asObservable();
 
     let messageOperations$: Observable<((msgs:RpMessage[]) => RpMessage[])> = Observable.merge(
-      Observable.of(() => []),
+      firstMessages.map(msgs => () => msgs),
       this.newMessages$.map(msg => (msgs: RpMessage[]) => {
         return [...msgs, msg];
       }),
@@ -127,7 +130,7 @@ export class RpService implements OnDestroy {
     this.newCharas$ = this.newCharasSubject.asObservable();
 
     let charaOperations$: Observable<((charas:RpChara[]) => RpChara[])> = Observable.merge(
-      Observable.of(() => []),
+      firstCharas.map(charas => () => charas),
       this.newCharas$.map(chara => (charas: RpChara[]) => {
         return [...charas, chara];
       })
