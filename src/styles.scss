@@ -42,3 +42,18 @@ body.dark-theme {
 h1, h2, h3 {
     font-family: mat-font-family($header-typography) !important;
 }
+
+// color picker styles
+color-picker .hue-alpha.box, color-picker .color-picker {
+    border: none;
+    background-color: inherit;
+}
+color-picker .hue-alpha.box .left {
+    padding-top: 4px;
+}
+color-picker .hue-alpha.box .selected-color {
+    top: 4px;
+}
+color-picker .hue-alpha.box .right {
+    padding-top: 0;
+}
