@@ -63,7 +63,8 @@ body, html {
     overscroll-behavior: none;
 }
 mat-sidenav {
-    width: 280px;
+    width: 320px;
+    max-width: 80%;
 }
 mat-toolbar.flat-toolbar {
     background-color: inherit !important;
