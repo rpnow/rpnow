@@ -49,6 +49,7 @@ import { MainMenuComponent } from './main-menu/main-menu.component';
 import { OptionsDialogComponent } from './options-dialog/options-dialog.component';
 import { CharaDrawerComponent } from './chat/chara-drawer/chara-drawer.component';
 import { BannerMessageComponent } from './banner-message/banner-message.component';
+import { CharaIconDirective } from './chat/chara-drawer/chara-icon.directive';
 
 
 @NgModule({
@@ -72,7 +73,8 @@ import { BannerMessageComponent } from './banner-message/banner-message.componen
     MainMenuComponent,
     OptionsDialogComponent,
     CharaDrawerComponent,
-    BannerMessageComponent
+    BannerMessageComponent,
+    CharaIconDirective
   ],
   imports: [
     CommonModule,
