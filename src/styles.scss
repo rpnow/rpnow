@@ -59,6 +59,9 @@ color-picker .hue-alpha.box .right {
 }
 
 // mat component styles
+body, html {
+    overscroll-behavior: none;
+}
 mat-sidenav {
     width: 280px;
 }
