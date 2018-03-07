@@ -59,9 +59,6 @@ color-picker .hue-alpha.box .right {
 }
 
 // mat component styles
-body, html {
-    overscroll-behavior: none;
-}
 mat-sidenav {
     width: 320px;
     max-width: 80%;
@@ -69,4 +66,15 @@ mat-sidenav {
 mat-toolbar.flat-toolbar {
     background-color: inherit !important;
     border-bottom: 1px solid #999;
+}
+
+// misc
+body, html {
+    overscroll-behavior: none;
+}
+.flex-scroll-container {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    height: 0px;
+    overscroll-behavior: contain;
 }
