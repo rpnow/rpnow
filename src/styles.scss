@@ -62,3 +62,7 @@ color-picker .hue-alpha.box .right {
 mat-sidenav {
     width: 280px;
 }
+mat-toolbar.flat-toolbar {
+    background-color: inherit !important;
+    border-bottom: 1px solid #999;
+}
