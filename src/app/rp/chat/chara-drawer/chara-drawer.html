@@ -12,16 +12,21 @@
 
 <mat-nav-list>
     <a mat-list-item (click)="setVoice('narrator')">
-        <mat-icon>local_library</mat-icon> <span fxFlex>Narrator</span> <mat-icon *ngIf="(currentChara$|async) === 'narrator'">check</mat-icon>
+        <mat-icon mat-list-icon>local_library</mat-icon>
+        <p mat-line>Narrator</p>
+        <mat-icon *ngIf="(currentChara$|async) === 'narrator'">check</mat-icon>
     </a>
     <a mat-list-item (click)="setVoice('ooc')">
-        <mat-icon>chat</mat-icon> <span fxFlex>Out of Character</span> <mat-icon *ngIf="(currentChara$|async) === 'ooc'">check</mat-icon>
+        <mat-icon mat-list-icon>chat</mat-icon>
+        <p mat-line>Out of Character</p>
+        <mat-icon *ngIf="(currentChara$|async) === 'ooc'">check</mat-icon>
     </a>
 
     <mat-divider></mat-divider>
 
     <a mat-list-item (click)="newChara()">
-        <mat-icon>person_add</mat-icon> <span fxFlex>New Character...</span>
+        <mat-icon mat-list-icon>person_add</mat-icon>
+        <p mat-line>New Character...</p>
     </a>
 
     <mat-divider></mat-divider>
@@ -31,7 +36,9 @@
         <h3 matSubheader>Recent</h3>
 
         <a mat-list-item *ngFor="let chara of (recentCharas$|async); trackBy: rp.trackById" (click)="setVoice(chara)">
-            <mat-icon>person</mat-icon> <span fxFlex>{{chara.name}}</span> <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
+            <mat-icon mat-list-icon>person</mat-icon>
+            <p mat-line>{{chara.name}}</p>
+            <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
         </a>
 
         <mat-divider></mat-divider>
@@ -41,7 +48,9 @@
     <h3 matSubheader *ngIf="hasManyCharacters$|async">All Characters</h3>
 
     <a mat-list-item *ngFor="let chara of (allCharas$|async); trackBy: rp.trackById" (click)="setVoice(chara)">
-        <mat-icon>person</mat-icon> <span fxFlex>{{chara.name}}</span> <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
+        <mat-icon mat-list-icon>person</mat-icon>
+        <p mat-line>{{chara.name}}</p>
+        <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
     </a>
 
 </mat-nav-list>
