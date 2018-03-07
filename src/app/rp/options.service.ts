@@ -3,6 +3,7 @@ import { Challenge } from './challenge.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { RpService } from './rp.service';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 
 const GLOBAL = 'GLOBAL';
 const ROOM = 'ROOM';
@@ -14,6 +15,8 @@ export class OptionsService {
 
 	private rpCode: string = this.route.snapshot.paramMap.get('rpCode');
 
+	private subscriptions: Subscription[] = [];
+
 	private subject<T>(propName: string, global: 'GLOBAL'|'ROOM', defaultValue: T): BehaviorSubject<T> {
 		let localStorageKey = global === 'GLOBAL' ?
 			`rpnow.global.${propName}` :
@@ -24,9 +27,13 @@ export class OptionsService {
 
 		let subj = new BehaviorSubject(value);
 
-		subj.subscribe(value => localStorage.setItem(localStorageKey, JSON.stringify(value)));
+		this.subscriptions.push(subj.subscribe(value => localStorage.setItem(localStorageKey, JSON.stringify(value))));
 
 		return subj;
+	}
+
+	ngOnDestroy() {
+		this.subscriptions.forEach(s => s.unsubscribe());
 	}
 
 	public readonly lastColor$: BehaviorSubject<string> = this.subject('lastColor', GLOBAL, '#80c9ff');

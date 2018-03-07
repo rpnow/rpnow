@@ -1,7 +1,8 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, Inject, OnDestroy } from '@angular/core';
 import { OptionsService } from './options.service';
 import { RpService } from './rp.service';
 import { DOCUMENT } from '@angular/platform-browser';
+import { Subscription } from 'rxjs/Subscription';
 
 const audioDir = '/assets/sounds/';
 
@@ -16,7 +17,9 @@ export const noises = [
 ]
 
 @Injectable()
-export class NotifyService {
+export class NotifyService implements OnDestroy {
+
+  private subscription: Subscription;
 
   constructor(
     private rp: RpService,
@@ -24,13 +27,17 @@ export class NotifyService {
     @Inject(DOCUMENT) document: Document,
   ) {
 
-    this.rp.newMessages$.subscribe(msg => {
+    this.subscription = this.rp.newMessages$.subscribe(msg => {
       if (document.visibilityState === 'visible') return;
 
       let audio = noises[options.notificationNoise].audio;
       if (audio) audio.play();
     })
 
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
 }

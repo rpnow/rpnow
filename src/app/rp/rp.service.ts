@@ -6,6 +6,7 @@ import { Route, Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 
     // let placeholder = new RpMessage(msg, this);
@@ -93,7 +94,9 @@ export class RpService implements OnDestroy {
       this.desc = data.desc;
 
       firstMessages.next(data.msgs);
+      firstMessages.complete();
       firstCharas.next(data.charas);
+      firstCharas.complete();
     });
 
     this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
@@ -189,6 +192,9 @@ export class RpService implements OnDestroy {
   // because rp service is provided in rp component, this is called when navigating away from an rp
   public ngOnDestroy() {
     this.socket.close();
+    this.newMessagesSubject.complete();
+    this.editedMessagesSubject.complete();
+    this.newCharasSubject.complete();
   }
 
   // use in ngFor

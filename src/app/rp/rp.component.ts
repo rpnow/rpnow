@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RpService } from './rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -7,6 +7,7 @@ import { OptionsService } from './options.service';
 import { DOCUMENT } from '@angular/platform-browser';
 import { NotifyService } from './notify.service';
 import { ChallengeService } from './challenge.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   templateUrl: 'rp.html',
@@ -19,8 +20,10 @@ import { ChallengeService } from './challenge.service';
     ChallengeService
   ]
 })
-export class RpComponent implements OnInit {
+export class RpComponent implements OnInit, OnDestroy {
   @ViewChild('mainMenu') mainMenu: MatSidenav;
+
+  public subscription: Subscription;
 
   constructor(
     public rp: RpService,
@@ -32,9 +35,13 @@ export class RpComponent implements OnInit {
 
   ngOnInit() {
     this.mainMenuService.setInstance(this.mainMenu);
-    this.options.nightMode$.subscribe(nightMode => {
+    this.subscription = this.options.nightMode$.subscribe(nightMode => {
       this.document.body.className = nightMode ? 'dark-theme' : '';
     })
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
 }
