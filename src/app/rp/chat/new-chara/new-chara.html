@@ -1,24 +1,24 @@
-<mat-toolbar>
+<div fxLayout="row" fxLayoutAlign="center center">
 
-    <h1 fxFlex>
-        New Character
-    </h1>
+    <h3 mat-dialog-title fxFlex>New Character</h3>
 
-    <button mat-icon-button (click)="cancel()">
-        <mat-icon aria-label="Close new character dialog" matTooltip="Close">close</mat-icon>
+    <button mat-icon-button mat-dialog-title (click)="cancel()">
+        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
     </button>
 
-</mat-toolbar>
+</div>
 
 <ng-container *ngIf="!loading">
     <mat-form-field>
-        <input matInput placeholder="Name this character:" [(ngModel)]="name" />
+        <input matInput placeholder="Name this character:" [(ngModel)]="name" cdkFocusInitial>
     </mat-form-field>
 
     <span [(colorPicker)]="color" [cpToggle]="true" cpDialogDisplay="inline" [cpDisableInput]="true"></span>
 
-    <button mat-raised-button (click)="submit()">OK</button>
-    <button mat-raised-button (click)="cancel()">Cancel</button>
+    <mat-dialog-actions>
+        <button mat-raised-button [style.background-color]="color" [style.color]="color|bw" (click)="submit()">OK</button>
+        <button mat-raised-button (click)="cancel()">Cancel</button>
+    </mat-dialog-actions>
 </ng-container>
 
 <ng-container *ngIf="loading">
