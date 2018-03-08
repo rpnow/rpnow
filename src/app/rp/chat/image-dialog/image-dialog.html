@@ -1,22 +1,24 @@
-<mat-toolbar>
+<div fxLayout="row" fxLayoutAlign="center center">
 
-    <h1 fxFlex>
-        Post Image
-    </h1>
+    <h3 mat-dialog-title fxFlex>Post Image</h3>
 
-    <button mat-icon-button (click)="cancel()">
-        <mat-icon aria-label="Close image dialog" matTooltip="Close">close</mat-icon>
+    <button mat-icon-button mat-dialog-title (click)="cancel()">
+        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
     </button>
 
-</mat-toolbar>
+</div>
 
 <ng-container *ngIf="!loading">
+
     <mat-form-field>
         <input matInput placeholder="Enter a URL:" [(ngModel)]="url" />
     </mat-form-field>
 
-    <button mat-raised-button (click)="submit()">OK</button>
-    <button mat-raised-button (click)="cancel()">Cancel</button>
+    <mat-dialog-actions>
+        <button mat-raised-button color="primary" (click)="submit()">OK</button>
+        <button mat-raised-button (click)="cancel()">Cancel</button>
+    </mat-dialog-actions>
+
 </ng-container>
 
 <ng-container *ngIf="loading">
