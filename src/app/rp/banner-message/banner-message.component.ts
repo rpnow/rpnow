@@ -5,7 +5,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 @Component({
   selector: 'banner-message',
   template: `
-    <div *ngIf="message">
+    <div *ngIf="message" fxLayout="row" fxLayoutAlign="center center">
 
       <span [innerHTML]="message"></span>
       
