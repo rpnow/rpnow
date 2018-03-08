@@ -33,9 +33,7 @@
     </ng-container>
 
     <ng-container *ngIf="editing">
-        <div class="content">
-            <textarea class="content" [(ngModel)]="newContent" maxlength="10000" rows="4" (keypress)="keypressCheckEnter($event)"></textarea>
-        </div>
+        <textarea class="content" [(ngModel)]="newContent" maxlength="10000" rows="4" (keypress)="keypressCheckEnter($event)"></textarea>
     </ng-container>
 
     <ng-container *ngIf="msg.type === 'image'">

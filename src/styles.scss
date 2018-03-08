@@ -78,3 +78,7 @@ body, html {
     height: 0px;
     overscroll-behavior: contain;
 }
+textarea {
+    font-size: inherit;
+    font-family: inherit;
+}
