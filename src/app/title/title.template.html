@@ -13,7 +13,7 @@
 
 		<div fxLayout="row">
 
-			<mat-form-field color="accent">
+			<mat-form-field>
 				<input matInput [(ngModel)]="title" maxlength="30" placeholder="Name your story">
 			</mat-form-field>
 
@@ -23,7 +23,7 @@
 
 		</div>
 
-		<mat-form-field color="accent" *ngIf="showMoreOptions">
+		<mat-form-field *ngIf="showMoreOptions">
 
 			<textarea matInput [(ngModel)]="desc" maxlength="255" rows="4" placeholder="Enter a description..."></textarea>
 
@@ -31,7 +31,7 @@
 
 		<div fxLayout="row" fxLayoutAlign="space-around center">
 
-			<button mat-raised-button color="accent" (click)="createRp()">
+			<button mat-raised-button color="primary" (click)="createRp()">
 				<mat-icon>check</mat-icon>
 				Create RP
 			</button>	
@@ -46,7 +46,7 @@
 	</div>
 
 	<div *ngIf="submitted">
-		<mat-spinner [diameter]="96" color="accent"></mat-spinner>
+		<mat-spinner [diameter]="96"></mat-spinner>
 	</div>
 
 	<span fxFlex></span>

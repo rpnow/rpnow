@@ -3,13 +3,13 @@
 
 // Light theme
 $light-theme: mat-light-theme(
-    mat-palette($mat-grey, 50, 500, 200),
+    mat-palette($mat-deep-purple, "A200"),
     mat-palette($mat-deep-purple, "A200")
 );
 
 // Dark theme
 $dark-theme: mat-dark-theme(
-    mat-palette($mat-grey, 800),
+    mat-palette($mat-amber),
     mat-palette($mat-amber)
 );
 
