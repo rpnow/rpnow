@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import * as marked from 'marked';
+import { MatDialogRef } from '@angular/material/dialog';
 
 const template = marked(`
-
-# About RPNow
 
 Gather up your friends &mdash; it's time to go on an adventure! Give your story a title, name your characters, customize their colors, and start writing together!
 
@@ -11,7 +10,7 @@ That's what RPNow is all about. **[RPNow](https://rpnow.net/) is the Dead-Simple
 
 Simply put, it's the best place on the web to start your next RP.
 
-## Donations
+#### Donations
 
 RPNow is entirely supported by user donations. Over the past six months, our generous users have donated over $200 USD to RPNow's continued existence. **If you want to support RPNow, [please become our patron on Patreon!](https://www.patreon.com/rpnow)**
 
@@ -25,7 +24,7 @@ The following people actively support RPNow by donating $5 or more per month:
 *   Mika
 *   ... and 1 more who chose not to be listed.
 
-## Talk to Us
+#### Talk to Us
 
 Need to get in touch with us? E-mail us at [rpnow.net@gmail.com](mailto:rpnow.net@gmail.com)!
 
@@ -36,16 +35,25 @@ Alternatively, you can find us on social media:
 *   Tumblr: [@rpnow](https://rpnow.tumblr.com/)
 *   Patreon: [patreon.com/rpnow](https://www.patreon.com/rpnow)
 
-## Credits
+#### Credits
 
 RPNow was built by Nigel Nelson with extra graphic design guidance from Hannah Liddell, and feedback from our many users.
 
 `);
 
 @Component({
-  template: `<mat-dialog-content [innerHtml]="innerHtml"></mat-dialog-content>`,
+  templateUrl: './about-dialog.html',
   styles: []
 })
 export class AboutDialogComponent { 
+
   public innerHtml: string = template;
+
+  constructor(
+    private dialogRef: MatDialogRef<AboutDialogComponent>
+  ) {}
+
+  close() {
+    this.dialogRef.close();
+  }
 }

@@ -1,11 +1,9 @@
 
 import { Component } from '@angular/core';
 import * as marked from 'marked';
+import { MatDialogRef } from '@angular/material/dialog';
 
 const template = marked(`
-
-# RP Formatting
-
 Here's how to do bold, italics, and other things.
 
 *   Use \`_underscores_\` or \`/slashes/\` to *italicize text.*
@@ -17,7 +15,7 @@ Here's how to do bold, italics, and other things.
     *   \`Shift + Enter\` will always start a new paragraph, regardless of this setting.
     *   On the other hand, \`Ctrl +  Enter\` will always send the message.
 
-## Shortcuts
+#### Shortcuts
 
 Use these shortcuts to RP faster.
 
@@ -29,9 +27,18 @@ Use these shortcuts to RP faster.
 `);
 
 @Component({
-  template: `<mat-dialog-content [innerHtml]="innerHtml"></mat-dialog-content>`,
+  templateUrl: 'format-guide-dialog.html',
   styles: []
 })
 export class FormatGuideDialog {
+
   public innerHtml: string = template;
+
+  constructor(
+    private dialogRef: MatDialogRef<FormatGuideDialog>
+  ) {}
+
+  close() {
+    this.dialogRef.close();
+  }
 }
