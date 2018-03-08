@@ -46,12 +46,13 @@ export class CharaDrawerComponent implements OnInit {
 
   public setVoice(voice: RpVoice) {
     this.charaSelectorService.currentChara$.next(voice);
+    this.close();
   }
 
   public newChara() {
     let dialogRef = this.dialog.open(NewCharaComponent, { viewContainerRef: this.viewContainerRef });
     dialogRef.beforeClose().subscribe(chara => {
-      if (chara) this.charaSelectorService.currentChara$.next(chara);
+      if (chara) this.setVoice(chara);
     })
   }
 

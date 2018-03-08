@@ -11,12 +11,12 @@
 
         <h3 matSubheader>{{rp.title}}</h3>
 
-        <a mat-list-item [routerLink]="'/rp/'+rp.rpCode">
+        <a mat-list-item [routerLink]="'/rp/'+rp.rpCode" (click)="close()">
             <mat-icon mat-list-icon>question_answer</mat-icon>
             <p mat-line>Chat</p>
         </a>
 
-        <a mat-list-item [routerLink]="'/rp/'+rp.rpCode+'/1'">
+        <a mat-list-item [routerLink]="'/rp/'+rp.rpCode+'/1'" (click)="close()">
             <mat-icon mat-list-icon>import_contacts</mat-icon>
             <p mat-line>Archive</p>
         </a>
