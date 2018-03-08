@@ -4,13 +4,11 @@
 
     <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
     <div class="flex-scroll-container" style="padding: 10px 10px 20px">
-        <ng-container *ngFor="let msg of rp.messages; trackBy: rp.trackById; let i = index">
-            <ng-container *ngIf="i >= (page-1)*size && i < (page)*size">
-                <rp-message [msg]="msg"></rp-message>
-            </ng-container>
+        <ng-container *ngFor="let msg of (messages$|async); trackBy: rp.trackById">
+            <rp-message [msg]="msg"></rp-message>
         </ng-container>
     </div>
 
-    <mat-paginator [pageIndex]="page-1" [pageSize]="size" [length]="rp.messages?.length" (page)="goToPage($event.pageIndex)"></mat-paginator>
+    <mat-paginator [pageIndex]="(pageNum$|async)-1" [pageSize]="size" [length]="(rp.messages$|async).length" (page)="goToPage($event.pageIndex)"></mat-paginator>
 
 </section>

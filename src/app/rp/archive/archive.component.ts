@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RpService } from '../rp.service';
-import { Subscription } from 'rxjs/Subscription';
+import { RpService, RpMessage } from '../rp.service';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   templateUrl: 'archive.html',
@@ -9,10 +9,9 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class ArchiveComponent {
 
-  public page: number;
+  public pageNum$: Observable<number>;
+  public messages$: Observable<RpMessage[]>;
   public size: number = 20;
-
-  public subscription: Subscription;
 
   constructor(
     public rp: RpService,
@@ -21,15 +20,17 @@ export class ArchiveComponent {
   ) { }
 
   ngOnInit() {
-    this.subscription = this.route.paramMap.subscribe(map => this.page = +map.get('page'));
+    this.pageNum$ = this.route.paramMap.map(map => +map.get('page'));
+
+    this.messages$ = Observable.combineLatest(
+      this.rp.messages$,
+      this.pageNum$,
+      (msgs, page) => msgs.slice((page-1)*this.size, page*this.size)
+    )
   }
 
   goToPage(page: number) {
     this.router.navigate(['rp', this.rp.rpCode, page+1]);
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 
 }
