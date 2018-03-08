@@ -4,13 +4,17 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
-import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/observable/interval';
 import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/of';
 
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/scan';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/takeUntil';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
