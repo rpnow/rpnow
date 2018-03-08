@@ -5,7 +5,7 @@
         <title-bar></title-bar>
 
         <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
-        <div #messageContainer class="flex-scroll-container">
+        <div #messageContainer class="flex-scroll-container" style="padding: 10px 10px 20px">
             <rp-message *ngFor="let msg of rp.messages; trackBy: rp.trackById" [msg]="msg"></rp-message>
         </div>
 
