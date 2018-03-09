@@ -23,7 +23,7 @@ export class ChallengeService {
 
   private createChallenge(): Challenge {
     let bytes = new Uint32Array(64/8);
-    window.crypto.getRandomValues(bytes);
+    (window.crypto || <Crypto>window['msCrypto']).getRandomValues(bytes); // TODO fix me for IE11, which doesn't have crypto.getRandomValues
 
     let secret = Array.from(bytes, str => str.toString(16).padStart(8, '0')).join('');
 
