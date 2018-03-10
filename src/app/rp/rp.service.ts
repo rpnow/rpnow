@@ -53,9 +53,9 @@ export class RpService implements OnDestroy {
   public desc: string = null;
 
   public messages: Readonly<RpMessage>[] = null;
-  public messagesById: {[id:number]: Readonly<RpMessage>} = null;
+  public messagesById: Map<number, RpMessage> = null;
   public charas: Readonly<RpChara>[] = null;
-  public charasById: {[id:number]: Readonly<RpChara>} = null;
+  public charasById: Map<number, RpChara> = null;
 
   private readonly newMessagesSubject: Subject<RpMessage> = new Subject();
   private readonly editedMessagesSubject: Subject<{msg: RpMessage, id: number}> = new Subject();
@@ -65,11 +65,11 @@ export class RpService implements OnDestroy {
   public readonly newMessages$: Observable<RpMessage>;
   public readonly editedMessages$: Observable<{msg: RpMessage, id: number}>;
   public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
-  public readonly messagesById$: Observable<{[id:number]: RpMessage}>;
+  public readonly messagesById$: Observable<Map<number, RpMessage>>;
 
   public readonly newCharas$: Observable<RpChara>;
   public readonly charas$: Observable<RpChara[]> = new ReplaySubject(1);
-  public readonly charasById$: Observable<{[id:number]: RpChara}>;
+  public readonly charasById$: Observable<Map<number, RpChara>>;
 
 
   constructor(challengeService: ChallengeService, route: ActivatedRoute) {
@@ -127,7 +127,7 @@ export class RpService implements OnDestroy {
       .subscribe(this.messages$ as Subject<RpMessage[]>)
     
     this.messagesById$ = this.messages$.map(msgs =>
-      msgs.reduce((map, msg) => ({ ...map, [msg.id]: msg}), {})
+      msgs.reduce((map, msg) => map.set(msg.id, msg), new Map())
     )
 
     this.newCharas$ = this.newCharasSubject.asObservable();
@@ -145,7 +145,7 @@ export class RpService implements OnDestroy {
       .subscribe(this.charas$ as Subject<RpChara[]>)
 
     this.charasById$ = this.charas$.map(charas =>
-      charas.reduce((map, chara) => ({ ...map, [chara.id]: chara }), {})
+      charas.reduce((map, chara) => map.set(chara.id, chara), new Map())
     )
 
     // access values directly
