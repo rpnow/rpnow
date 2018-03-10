@@ -22,6 +22,11 @@ module.exports = function(httpServer) {
     io.on('connection', socket => onConnection(socket, io));
 
     listenToModelEvents(io);
+
+    process.on('SIGINT', () => {
+        // force close
+        io.close();
+    });
 }
 
 function onConnection(socket, io) {
