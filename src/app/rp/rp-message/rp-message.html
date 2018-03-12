@@ -19,7 +19,7 @@
             </button>
         </ng-container>
         <ng-container *ngIf="editing">
-            <button mat-icon-button (click)="confirmEdit()">
+            <button mat-icon-button [disabled]="!validEdit()" (click)="confirmEdit()">
                 <mat-icon aria-label="Save edits" matTooltip="Save edits">save</mat-icon>
             </button>
             <button mat-icon-button (click)="cancelEdit()">

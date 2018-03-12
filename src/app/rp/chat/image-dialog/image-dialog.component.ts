@@ -9,6 +9,9 @@ import { RpService } from '../../rp.service';
 })
 export class ImageDialogComponent {
 
+  //https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
+  private urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
+
   loading: boolean = false;
 
   url: string = '';
@@ -19,6 +22,10 @@ export class ImageDialogComponent {
   ) { }
 
   ngOnInit() {
+  }
+
+  valid() {
+    return this.url.match(this.urlRegex);
   }
 
   async submit() {

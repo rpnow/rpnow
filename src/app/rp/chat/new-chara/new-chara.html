@@ -10,13 +10,13 @@
 
 <ng-container *ngIf="!loading">
     <mat-form-field>
-        <input matInput placeholder="Name this character:" [(ngModel)]="name" cdkFocusInitial>
+        <input matInput maxlength="30" placeholder="Name this character:" [(ngModel)]="name" cdkFocusInitial>
     </mat-form-field>
 
     <span [(colorPicker)]="color" [cpToggle]="true" cpDialogDisplay="inline" [cpDisableInput]="true"></span>
 
     <mat-dialog-actions>
-        <button mat-raised-button [style.background-color]="color" [style.color]="color|bw" (click)="submit()">OK</button>
+        <button mat-raised-button [disabled]="!valid()" [style.background-color]="valid() ? color : ''" [style.color]="valid() ? (color|bw) : ''" (click)="submit()">OK</button>
         <button mat-raised-button (click)="cancel()">Cancel</button>
     </mat-dialog-actions>
 </ng-container>

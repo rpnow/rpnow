@@ -41,6 +41,8 @@ export class MessageBoxComponent implements OnInit {
   }
 
   sendMessage() {
+    if (!this.content.trim()) return;
+
     let chara = this.chara$.value;
     let content = this.content;
     let msg = (typeof chara === 'string') ?

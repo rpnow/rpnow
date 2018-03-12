@@ -49,6 +49,10 @@ export class RpMessageComponent implements OnChanges {
     this.editing = false;
   }
 
+  validEdit() {
+    return this.newContent.trim() && this.newContent !== this.msg.content;
+  }
+
   async confirmEdit() {
     this.editing = false;
     this.sending = true;

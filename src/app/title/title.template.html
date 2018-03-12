@@ -31,7 +31,7 @@
 
 		<div fxLayout="row" fxLayoutAlign="space-around center">
 
-			<button mat-raised-button color="primary" (click)="createRp()">
+			<button mat-raised-button color="primary" (click)="createRp()" [disabled]="!title">
 				<mat-icon>check</mat-icon>
 				Create RP
 			</button>	

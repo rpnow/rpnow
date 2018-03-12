@@ -25,7 +25,13 @@ export class NewCharaComponent implements OnInit {
     this.color = this.options.lastColor;
   }
 
+  valid() {
+    return this.name.trim() && this.color;
+  }
+
   async submit() {
+    if (!this.valid()) return;
+
     this.loading = true;
 
     this.options.lastColor = this.color;
