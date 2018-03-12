@@ -46,7 +46,7 @@ export class NotifyService {
           if (msg.type === 'narrator') return '* The narrator says...'
           if (msg.type === 'ooc') return '* OOC message...'
           if (msg.type === 'image') return '* Image posted...'
-          if (msg.type === 'chara') return `* ${this.rp.charasById[msg.charaId].name} says...`
+          if (msg.type === 'chara') return `* ${this.rp.charasById.get(msg.charaId).name} says...`
           return '* New message...';
         })
         .do(title => document.title = title)
