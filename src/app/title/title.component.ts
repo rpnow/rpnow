@@ -5,6 +5,7 @@ import { API_URL } from '../app.constants';
 import * as coolstory from 'coolstory.js';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   templateUrl: 'title.template.html',
@@ -22,10 +23,12 @@ export class TitleComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) { }
 
   ngOnInit() {
+    this.titleService.setTitle('RPNow: Registration-Free Roleplay Chat Service')
   }
 
   public async createRp() {

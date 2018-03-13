@@ -28,7 +28,7 @@ export class NotifyService {
     @Inject(DOCUMENT) document: Document,
   ) {
 
-    let oldTitle = document.title;
+    let oldTitle; // set upon first alert
 
     let alerts$ = this.rp.newMessages$
       .filter(() => document.visibilityState !== 'visible')
@@ -39,6 +39,7 @@ export class NotifyService {
     })
 
     let titleChanges$ = alerts$
+      .do(() => oldTitle = oldTitle || document.title)
       .switchMap(msg => Observable.interval(500)
         .map(i => {
           if (i % 2 === 1) return document.title = oldTitle
