@@ -33,7 +33,7 @@ export class RpMessageComponent implements OnChanges {
       'message-slim': false
     }
 
-    this.chara = this.msg.charaId >= 0 ? this.rp.charas[this.msg.charaId] : null;
+    this.chara = this.msg.charaId >= 0 ? this.rp.charasById.get(this.msg.charaId) : null;
   }
 
   public canEdit() {
