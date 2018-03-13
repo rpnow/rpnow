@@ -198,7 +198,7 @@ export class RpService implements OnDestroy {
   }
 
   // use in ngFor
-  public trackById(item: RpMessage|RpChara) {
+  public trackById(index: number, item: RpMessage|RpChara) {
     return item.id;
   }
 
