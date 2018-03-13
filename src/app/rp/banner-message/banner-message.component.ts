@@ -7,7 +7,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   template: `
     <div *ngIf="message" fxLayout="row" fxLayoutAlign="center center">
 
-      <span [innerHTML]="message"></span>
+      <span class="generated-links-contrast" [innerHTML]="message"></span>
       
       <button mat-icon-button (click)="message=''">
         <mat-icon>close</mat-icon>

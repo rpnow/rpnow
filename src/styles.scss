@@ -82,3 +82,30 @@ textarea {
     font-size: inherit;
     font-family: inherit;
 }
+
+
+.generated-links a,
+.generated-links-contrast a {
+    text-decoration: none;
+    border-bottom: 1px dotted rgb(124, 77, 255);
+    color: rgb(124, 77, 255);
+    opacity: 0.87;
+}
+.generated-links a:hover,
+.generated-links-contrast a:hover {
+    opacity: 1;
+}
+.dark-theme .generated-links a {
+    color: rgb(255,193,7);
+    border-bottom-color: rgb(255,193,7);
+}
+.generated-links-contrast a {
+    font-weight: bold;
+    opacity: 0.7;
+    color: white;
+    border-bottom-color: white;
+}
+.dark-theme .generated-links-contrast a {
+    color: black;
+    border-bottom-color: black;
+}
