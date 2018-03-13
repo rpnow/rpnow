@@ -40,8 +40,12 @@ export class MessageBoxComponent implements OnInit {
     this.options.msgBoxContent = value;
   }
 
+  valid() {
+    return this.content.trim();
+  }
+
   sendMessage() {
-    if (!this.content.trim()) return;
+    if (!this.valid()) return;
 
     let chara = this.chara$.value;
     let content = this.content;
