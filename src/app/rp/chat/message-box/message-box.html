@@ -1,29 +1,29 @@
 <div id="message-box" fxLayout="column" [class]="class$|async" [style.background-color]="(chara$|async)?.color" [style.color]="(chara$|async)?.color|bw">
 
-    <div id="voiceChangeBar" fxLayout="row" fxLayoutAlign="center center">
+    <div id="voice-bar" fxLayout="row" fxLayoutAlign="center center">
 
-        <div fxLayout="row" fxLayoutAlign="start center" matTooltip="Change character" (click)="openCharaSelector()">
+        <div fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
             <ng-container *ngIf="(chara$|async)==='narrator'"><mat-icon>local_library</mat-icon> Narrator</ng-container>
             <ng-container *ngIf="(chara$|async)==='ooc'"><mat-icon>chat</mat-icon> Out of character</ng-container>
             <ng-container *ngIf="(chara$|async).id != null"><mat-icon>person</mat-icon> {{(chara$|async).name}}</ng-container>
         </div>
 
         <button mat-icon-button (click)="showImageDialog()">
-            <mat-icon aria-label="Post image" matTooltip="Post image">image</mat-icon>
+            <mat-icon aria-label="Post image" matTooltip="Post image" matTooltipPosition="above">image</mat-icon>
         </button>
 
         <button mat-icon-button (click)="showFormatGuideDialog()">
-            <mat-icon aria-label="Open post format guide" matTooltip="Formatting info">text_fields</mat-icon>
+            <mat-icon aria-label="Open post format guide" matTooltip="Formatting info" matTooltipPosition="above">text_fields</mat-icon>
         </button>
 
     </div>
 
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div id="typing-area" fxLayout="row" fxLayoutAlign="center center">
 
-        <textarea matTextareaAutosize matAutosizeMaxRows="4" [(ngModel)]="content" placeholder="Type your message." maxlength="10000" (keypress)="keypressCheckEnter($event)"></textarea>
+        <textarea fxFlex matTextareaAutosize matAutosizeMinRows="3" matAutosizeMaxRows="5" [(ngModel)]="content" placeholder="Type your message." maxlength="10000" (keypress)="keypressCheckEnter($event)"></textarea>
 
         <button mat-icon-button (click)="sendMessage()">
-            <mat-icon aria-label="Send" matTooltip="Send">send</mat-icon>
+            <mat-icon aria-label="Send" matTooltip="Send" matTooltipPosition="above">send</mat-icon>
         </button>
 
     </div>

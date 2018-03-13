@@ -1,6 +1,28 @@
 #message-box {
     z-index: 3;
 
+    @media (max-width: 719px) {
+        // padding-right: 10px;
+        border-top: 1px solid #999;
+
+        > * {
+            padding: 0 12px;
+        }
+    }
+    @media (min-width: 720px) {
+        max-width: 700px;
+        margin: auto;
+
+        border: 1px solid #999;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+
+        > * {
+            padding: 0 50px;
+        }
+    }
+
     &.message-box-narrator {
         background-color: #ffffff;
     }
@@ -14,37 +36,36 @@
         background-color: #303030;
     }
 
-    .message-box-inner-row {
-        width: 100%;
-        max-width: 700px;
-        margin: auto;
-    }
-    header {
-        border-top: 1px solid rgba(0,0,0,0.2);
-        border-bottom: 1px solid rgba(0,0,0,0.2);
-    }
-    header .message-box-inner-row {
+    #voice-bar {
+        border-bottom: 1px solid #999;
+
         height: 36px;
-        @media (min-width: 960px) {
-            padding-right: 10px;
-        }
         @media (min-width: 600px) {
             height: 48px;
         }
-    }
-    md-icon {
-        color: inherit;
-    }
-    #voiceChangeBar {
-        height: 100%;
+
         font-size: 120%;
-        md-icon {
-            margin: 0 12px;
-        }
         .clickToChange {
             font-size: 80%;
             opacity: 0.7;
             margin-left: 20px;
         }
+    }
+
+    #typing-area {
+        background-color: rgba(255,255,255,0.8);
+        color: black;
+
+        textarea {
+            padding: 8px 0;
+            border: none;
+            background: transparent;
+            color: inherit;
+            resize: none;
+        }
+    }
+    :host-context(.dark-theme) & #typing-area {
+        background-color: rgba(0,0,0,0.8);
+        color: white;
     }
 }
