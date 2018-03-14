@@ -4,6 +4,7 @@ import { CharaSelectorService } from './chara-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   templateUrl: 'chat.html',
@@ -24,6 +25,7 @@ export class ChatComponent implements OnInit {
   constructor(
     public rp: RpService,
     private charaSelectorService: CharaSelectorService,
+    private snackbar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -49,6 +51,12 @@ export class ChatComponent implements OnInit {
   updateScroll() {
     if (this.isAtBottom()) {
       setImmediate(() => this.el.scrollTop = this.el.scrollHeight);
+    }
+    else {
+      this.snackbar.open('New messages below!','Close', {
+        duration: 2000,
+        verticalPosition: 'top'
+      })
     }
   }
 
