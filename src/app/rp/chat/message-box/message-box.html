@@ -2,7 +2,7 @@
 
     <div id="voice-bar" fxLayout="row" fxLayoutAlign="center center">
 
-        <div fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
+        <div id="click-to-change" fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
             <ng-container *ngIf="(chara$|async)==='narrator'"><mat-icon>local_library</mat-icon> Narrator</ng-container>
             <ng-container *ngIf="(chara$|async)==='ooc'"><mat-icon>chat</mat-icon> Out of character</ng-container>
             <ng-container *ngIf="(chara$|async).id != null"><mat-icon>person</mat-icon> {{(chara$|async).name}}</ng-container>
