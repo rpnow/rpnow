@@ -1,14 +1,15 @@
-import { Component, OnChanges, SimpleChanges, Input } from '@angular/core';
-import * as moment from 'moment-mini';
+import { Component, OnChanges, SimpleChanges, Input, OnInit, OnDestroy } from '@angular/core';
 import { RpMessage, RpService, RpChara } from '../rp.service';
 import { OptionsService } from '../options.service';
+import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'rp-message',
   templateUrl: 'rp-message.html',
   styleUrls: ['rp-message.css']
 })
-export class RpMessageComponent implements OnChanges {
+export class RpMessageComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(public rp: RpService, public options: OptionsService) { }
 
@@ -20,12 +21,22 @@ export class RpMessageComponent implements OnChanges {
   editing: boolean = false;
   newContent: string = '';
 
+  timestampDate: Date;
+  editedDate: Date;
   timeAgo: string = '';
   classes: {[key:string]: boolean} = {};
 
-  ngOnChanges(changes: SimpleChanges) {
-    this.timeAgo = this.msg.timestamp ? moment(this.msg.timestamp*1000).fromNow() : '';
+  timerHandle: number;
 
+  ngOnInit() {
+    this.timerHandle = setInterval(() => this.updateTimeAgo(), 60*1000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.timerHandle);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
     this.classes = {
       'message': true,
       ['message-'+this.msg.type]: true,
@@ -34,6 +45,15 @@ export class RpMessageComponent implements OnChanges {
     }
 
     this.chara = this.msg.charaId >= 0 ? this.rp.charasById.get(this.msg.charaId) : null;
+
+    this.timestampDate = this.msg.timestamp ? new Date(this.msg.timestamp*1000) : null;
+    this.editedDate = this.msg.edited ? new Date(this.msg.edited*1000) : null;
+
+    this.updateTimeAgo()
+  }
+
+  updateTimeAgo() {
+    this.timeAgo = this.msg.timestamp ? distanceInWordsToNow(this.msg.timestamp*1000) : '';
   }
 
   public canEdit() {
