@@ -50,8 +50,8 @@ export class MessageBoxComponent implements OnInit {
     let chara = this.chara$.value;
     let content = this.content;
     let msg = (typeof chara === 'string') ?
-      { content, type: chara } :
-      { content, type: 'chara', charaId: chara.id };
+      { content, type: <'narrator'|'ooc'>chara } :
+      { content, type: <'chara'>'chara', charaId: chara.id };
 
     this.rp.addMessage(msg);
 

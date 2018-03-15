@@ -16,7 +16,7 @@ export class RpMessageComponent implements OnChanges {
 
   chara: RpChara;
 
-  sending: boolean = false;
+  @Input() sending: boolean = false;
   editing: boolean = false;
   newContent: string = '';
 

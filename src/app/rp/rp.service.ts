@@ -59,6 +59,8 @@ export class RpService implements OnDestroy {
 
   private readonly newMessagesSubject: Subject<RpMessage> = new Subject();
   private readonly editedMessagesSubject: Subject<{msg: RpMessage, id: number}> = new Subject();
+  private readonly sendingMessagesSubject: Subject<RpMessage> = new Subject();
+  private readonly sentMessagesSubject: Subject<{status:'sending'|'sent', msg: Partial<RpMessage>}> = new Subject();
 
   private readonly newCharasSubject: Subject<RpChara> = new Subject();
 
@@ -66,6 +68,7 @@ export class RpService implements OnDestroy {
   public readonly editedMessages$: Observable<{msg: RpMessage, id: number}>;
   public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
   public readonly messagesById$: Observable<Map<number, RpMessage>>;
+  public readonly sendingMessages$: Observable<Partial<RpMessage>[]>;
 
   public readonly newCharas$: Observable<RpChara>;
   public readonly charas$: Observable<RpChara[]> = new ReplaySubject(1);
@@ -130,6 +133,9 @@ export class RpService implements OnDestroy {
       msgs.reduce((map, msg) => map.set(msg.id, msg), new Map())
     )
 
+    this.sendingMessages$ = this.sentMessagesSubject
+      .scan((msgs, {status, msg}) => status === 'sending' ? [...msgs, msg] : msgs.filter(x => x !== msg), <RpMessage[]>[])
+
     this.newCharas$ = this.newCharasSubject.asObservable();
 
     let charaOperations$: Observable<((charas:RpChara[]) => RpChara[])> = Observable.merge(
@@ -163,9 +169,13 @@ export class RpService implements OnDestroy {
     });
   }
 
-  public async addMessage({ content, type, charaId }: {content:string, type:string, charaId?:number}) {
+  public async addMessage({ content, type, charaId }: {content:string, type:'narrator'|'ooc'|'chara', charaId?:number}) {
+    let tmpMsg = { content, type, charaId, id: null };
+    this.sentMessagesSubject.next({msg: tmpMsg, status: 'sending'});
+
     let msg:RpMessage = await this.socketEmit('add message', { content, type, charaId, challenge: this.challenge.hash });
     this.newMessagesSubject.next(msg);
+    this.sentMessagesSubject.next({msg: tmpMsg, status: 'sent'});
 
     return this.messages[this.messages.length-1]; // TODO we can return this directly after id is returned from server
   }
