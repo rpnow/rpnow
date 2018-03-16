@@ -5,6 +5,8 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { scan, map } from 'rxjs/operators';
+import { merge } from 'rxjs/observable/merge';
 
 @Component({
   templateUrl: 'chat.html',
@@ -34,16 +36,17 @@ export class ChatComponent implements OnInit {
 
     this.charaSelectorService.setInstance(this.charaMenu);
 
-    this.messages$ = this.rp.messages$
-      .scan(({firstIdx}, msgs) => {
+    this.messages$ = this.rp.messages$.pipe(
+      scan(({firstIdx}:{firstIdx:number, msgs:RpMessage[]}, msgs:RpMessage[]) => {
         if (this.isAtBottom()) return { msgs, firstIdx: Math.max(msgs.length-10, 0) };
         else return { msgs, firstIdx }
-      }, {firstIdx: 0, msgs: <RpMessage[]>null})
-      .map(({msgs, firstIdx}) => msgs.slice(firstIdx))
+      }, {firstIdx: 0, msgs: <RpMessage[]>null}),
+      map(({msgs, firstIdx}) => msgs.slice(firstIdx))
+    )
     
     this.sendingMessages$ = this.rp.sendingMessages$;
 
-    this.subscription = Observable.merge(this.rp.newMessages$, this.rp.sendingMessages$).subscribe(() => this.updateScroll())
+    this.subscription = merge(this.rp.newMessages$, this.rp.sendingMessages$).subscribe(() => this.updateScroll())
     this.updateScroll();
   }
 

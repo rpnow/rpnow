@@ -7,6 +7,7 @@ import { OptionsService } from '../../options.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FormatGuideDialog } from '../../info-dialogs/format-guide-dialog/format-guide-dialog.component';
 import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'rp-message-box',
@@ -28,9 +29,9 @@ export class MessageBoxComponent implements OnInit {
 
   ngOnInit() {
     this.chara$ = this.charaSelectorService.currentChara$;
-    this.class$ = this.chara$.map(chara => {
-      return (typeof chara === 'string') ? 'message-box-'+chara : 'message-box-chara';
-    })
+    this.class$ = this.chara$.pipe(
+      map(chara => (typeof chara === 'string') ? 'message-box-'+chara : 'message-box-chara')
+    )
   }
 
   public get content() {

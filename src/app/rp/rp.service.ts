@@ -7,6 +7,8 @@ import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import { merge } from 'rxjs/observable/merge';
+import { map, scan } from 'rxjs/operators';
 
 
     // let placeholder = new RpMessage(msg, this);
@@ -113,45 +115,59 @@ export class RpService implements OnDestroy {
 
     this.editedMessages$ = this.editedMessagesSubject.asObservable();
 
-    let messageOperations$: Observable<((msgs:RpMessage[]) => RpMessage[])> = Observable.merge(
-      firstMessages.map(msgs => () => msgs),
-      this.newMessages$.map(msg => (msgs: RpMessage[]) => {
-        return [...msgs, msg];
-      }),
-      this.editedMessages$.map(({id, msg}) => (msgs: RpMessage[]) => {
-        msgs.splice(id, 1, msg);
-        return msgs;
-      })
+    let messageOperations$: Observable<{(msgs:RpMessage[]): RpMessage[]}> = merge(
+      firstMessages.pipe(
+        map(msgs => () => msgs)
+      ),
+      this.newMessages$.pipe(
+        map(msg => (msgs: RpMessage[]) => [...msgs, msg])
+      ),
+      this.editedMessages$.pipe(
+        map(({id, msg}) => (msgs: RpMessage[]) => {
+          msgs.splice(id, 1, msg);
+          return msgs;
+        })
+      )
     )
 
-    messageOperations$
-      .scan((arr, fn) => fn(arr), <RpMessage[]>[])
-      .map(msgs => msgs.map((msg, id) => ({...msg, id }))) // TODO add id on server
-      .subscribe(this.messages$ as Subject<RpMessage[]>)
+    messageOperations$.pipe(
+      scan((arr, fn:{(msgs:RpMessage[]): RpMessage[]}) => fn(arr), <RpMessage[]>[]),
+      map(msgs => msgs.map((msg, id) => ({...msg, id }))) // TODO add id on server
+    ).subscribe(
+      this.messages$ as Subject<RpMessage[]>
+    )
     
-    this.messagesById$ = this.messages$.map(msgs =>
-      msgs.reduce((map, msg) => map.set(msg.id, msg), new Map())
+    this.messagesById$ = this.messages$.pipe(
+      map(msgs => msgs.reduce((map, msg) => map.set(msg.id, msg), new Map()))
     )
 
-    this.sendingMessages$ = this.sentMessagesSubject
-      .scan((msgs, {status, msg}) => status === 'sending' ? [...msgs, msg] : msgs.filter(x => x !== msg), <RpMessage[]>[])
+    this.sendingMessages$ = this.sentMessagesSubject.pipe(
+      scan((msgs, {status, msg}:{status:'sending'|'sent', msg:RpMessage}) => {
+        if (status === 'sending') return [...msgs, msg];
+        else return msgs.filter(x => x !== msg)
+      }, <RpMessage[]>[])
+    )
 
     this.newCharas$ = this.newCharasSubject.asObservable();
 
-    let charaOperations$: Observable<((charas:RpChara[]) => RpChara[])> = Observable.merge(
-      firstCharas.map(charas => () => charas),
-      this.newCharas$.map(chara => (charas: RpChara[]) => {
-        return [...charas, chara];
-      })
+    let charaOperations$: Observable<((charas:RpChara[]) => RpChara[])> = merge(
+      firstCharas.pipe(
+        map(charas => () => charas)
+      ),
+      this.newCharas$.pipe(
+        map(chara => (charas: RpChara[]) => [...charas, chara])
+      )
     )
 
-    charaOperations$
-      .scan((arr, fn) => fn(arr), <RpChara[]>[])
-      .map(charas => charas.map((chara, id) => ({...chara, id }))) // TODO add id on server
-      .subscribe(this.charas$ as Subject<RpChara[]>)
+    charaOperations$.pipe(
+      scan((arr, fn:{(charas)}) => fn(arr), <RpChara[]>[]),
+      map(charas => charas.map((chara, id) => ({...chara, id }))) // TODO add id on server
+    ).subscribe(
+      this.charas$ as Subject<RpChara[]>
+    )
 
-    this.charasById$ = this.charas$.map(charas =>
-      charas.reduce((map, chara) => map.set(chara.id, chara), new Map())
+    this.charasById$ = this.charas$.pipe(
+      map(charas => charas.reduce((map, chara) => map.set(chara.id, chara), new Map()))
     )
 
     // access values directly

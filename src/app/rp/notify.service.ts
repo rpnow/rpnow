@@ -4,6 +4,10 @@ import { RpService } from './rp.service';
 import { DOCUMENT } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import { filter, tap, switchMap, map, takeUntil } from 'rxjs/operators';
+import { interval } from 'rxjs/observable/interval';
+import { fromEvent } from 'rxjs/observable/fromEvent';
+import { merge } from 'rxjs/observable/merge';
 
 const audioDir = '/assets/sounds/';
 
@@ -30,18 +34,21 @@ export class NotifyService {
 
     let oldTitle; // set upon first alert
 
-    let alerts$ = this.rp.newMessages$
-      .filter(() => document.visibilityState !== 'visible')
+    let alerts$ = this.rp.newMessages$.pipe(
+      filter(() => document.visibilityState !== 'visible')
+    );
     
-    let noises$ = alerts$.do(() => {
-      let audio = noises[options.notificationNoise].audio;
-      if (audio) audio.play();
-    })
+    let noises$ = alerts$.pipe(
+      tap(() => {
+        let audio = noises[options.notificationNoise].audio;
+        if (audio) audio.play();
+      })
+    );
 
-    let titleChanges$ = alerts$
-      .do(() => oldTitle = oldTitle || document.title)
-      .switchMap(msg => Observable.interval(500)
-        .map(i => {
+    let titleChanges$ = alerts$.pipe(
+      tap(() => oldTitle = oldTitle || document.title),
+      switchMap(msg => interval(500).pipe(
+        map(i => {
           if (i % 2 === 1) return document.title = oldTitle
 
           if (msg.type === 'narrator') return '* The narrator says...'
@@ -49,15 +56,17 @@ export class NotifyService {
           if (msg.type === 'image') return '* Image posted...'
           if (msg.type === 'chara') return `* ${this.rp.charasById.get(msg.charaId).name} says...`
           return '* New message...';
-        })
-        .do(title => document.title = title)
-        .takeUntil(Observable.fromEvent(document, 'visibilitychange').do(() => document.title = oldTitle))
-      )
+        }),
+        tap(title => document.title = title),
+        takeUntil(
+          fromEvent(document, 'visibilitychange').pipe(
+            tap(() => document.title = oldTitle)
+          )
+        )
+      ))
+    )
 
-    this.subscription = Observable.merge(
-      noises$,
-      titleChanges$
-    ).subscribe();
+    this.subscription = merge(noises$, titleChanges$).subscribe();
 
   }
 

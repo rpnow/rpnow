@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RpService, RpMessage } from '../rp.service';
 import { Observable } from 'rxjs/Observable';
+import { combineLatest } from 'rxjs/observable/combineLatest'
+import { map } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'archive.html',
@@ -31,19 +33,25 @@ export class ArchiveComponent {
   ) { }
 
   ngOnInit() {
-    this.pageNum$ = this.route.paramMap.map(map => +map.get('page'));
+    this.pageNum$ = this.route.paramMap.pipe(
+      map(map => +map.get('page'))
+    );
 
-    this.pageCount$ = this.rp.messages$.map(msgs => Math.ceil(msgs.length/this.size));
+    this.pageCount$ = this.rp.messages$.pipe(
+      map(msgs => Math.ceil(msgs.length/this.size))
+    );
 
-    this.hasNextPage$ = Observable.combineLatest(
+    this.hasNextPage$ = combineLatest(
       this.pageNum$,
       this.pageCount$,
       (page, count) => page < count
     )
 
-    this.hasPrevPage$ = this.pageNum$.map(num => num > 1);
+    this.hasPrevPage$ = this.pageNum$.pipe(
+      map(num => num > 1)
+    );
 
-    this.messages$ = Observable.combineLatest(
+    this.messages$ = combineLatest(
       this.rp.messages$,
       this.pageNum$,
       (msgs, page) => msgs.slice((page-1)*this.size, page*this.size)
