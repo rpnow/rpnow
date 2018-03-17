@@ -10,8 +10,13 @@
 
         <banner-message></banner-message>
 
-        <div fxFlex>
-            <router-outlet *ngIf="rp.loaded|async"></router-outlet>
+        <div *ngIf="rp.loaded|async" fxFlex>
+            <router-outlet></router-outlet>
+        </div>
+
+        <div *ngIf="!(rp.loaded|async)" fxFlex fxLayout="column" fxLayoutAlign="center center">
+            <p>Loading your RP...</p>
+            <mat-spinner></mat-spinner>
         </div>
 
     </mat-sidenav-content>
