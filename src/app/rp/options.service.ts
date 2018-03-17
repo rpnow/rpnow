@@ -64,6 +64,10 @@ export class OptionsService {
 	public get showMessageDetails() { return this.showMessageDetails$.value; }
 	public set showMessageDetails(value) { this.showMessageDetails$.next(value); }
 
+	public readonly lastBannerSeen$: BehaviorSubject<string> = this.subject('lastBannerSeen', GLOBAL, null);
+	public get lastBannerSeen() { return this.lastBannerSeen$.value; }
+	public set lastBannerSeen(value) { this.lastBannerSeen$.next(value); }
+
 	public readonly msgBoxContent$: BehaviorSubject<string> = this.subject('msgBoxContent', ROOM, '');
 	public get msgBoxContent() { return this.msgBoxContent$.value; }
 	public set msgBoxContent(value) { this.msgBoxContent$.next(value); }
