@@ -11,18 +11,6 @@ import { merge } from 'rxjs/observable/merge';
 import { map, scan } from 'rxjs/operators';
 
 
-    // let placeholder = new RpMessage(msg, this);
-    // placeholder.sending = true;
-    // this.messages.push(placeholder);
-
-    // msg.challenge = this.challenge.hash;
-
-    // // ...
-
-    // this.messages.splice(this.messages.indexOf(placeholder), 1);
-
-
-
 export interface RpMessage {
   id: number;
   type: 'narrator'|'ooc'|'chara'|'image';
@@ -220,6 +208,8 @@ export class RpService implements OnDestroy {
     this.socket.close();
     this.newMessagesSubject.complete();
     this.editedMessagesSubject.complete();
+    this.sendingMessagesSubject.complete();
+    this.sentMessagesSubject.complete();
     this.newCharasSubject.complete();
   }
 
