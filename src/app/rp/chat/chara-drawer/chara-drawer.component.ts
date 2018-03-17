@@ -6,7 +6,10 @@ import { NewCharaComponent } from '../new-chara/new-chara.component';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { OptionsService } from '../../options.service';
-import { filter, scan, tap, map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators/filter';
+import { scan } from 'rxjs/operators/scan';
+import { tap } from 'rxjs/operators/tap';
+import { map } from 'rxjs/operators/map';
 
 @Component({
   selector: 'chara-drawer-contents',

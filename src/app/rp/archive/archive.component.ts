@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RpService, RpMessage } from '../rp.service';
 import { Observable } from 'rxjs/Observable';
 import { combineLatest } from 'rxjs/observable/combineLatest'
-import { map } from 'rxjs/operators';
+import { map } from 'rxjs/operators/map';
 
 @Component({
   templateUrl: 'archive.html',

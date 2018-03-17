@@ -8,7 +8,8 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { merge } from 'rxjs/observable/merge';
-import { map, scan } from 'rxjs/operators';
+import { map } from 'rxjs/operators/map';
+import { scan } from 'rxjs/operators/scan';
 
 
 export interface RpMessage {

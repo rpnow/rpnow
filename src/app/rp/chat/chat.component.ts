@@ -5,7 +5,8 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scan, map } from 'rxjs/operators';
+import { scan } from 'rxjs/operators/scan';
+import { map } from 'rxjs/operators/map';
 import { merge } from 'rxjs/observable/merge';
 
 @Component({

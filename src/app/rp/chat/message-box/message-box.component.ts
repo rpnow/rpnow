@@ -7,7 +7,7 @@ import { OptionsService } from '../../options.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FormatGuideDialog } from '../../info-dialogs/format-guide-dialog/format-guide-dialog.component';
 import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
-import { map } from 'rxjs/operators';
+import { map } from 'rxjs/operators/map';
 
 @Component({
   selector: 'rp-message-box',
