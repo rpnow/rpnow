@@ -8,7 +8,7 @@
 
     <mat-sidenav-content fxLayout="column">
 
-        <banner-message></banner-message>
+        <banner-message *ngIf="rp.loaded|async"></banner-message>
 
         <div *ngIf="rp.loaded|async" fxFlex>
             <router-outlet></router-outlet>
