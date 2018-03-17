@@ -11,7 +11,7 @@
 <ng-container *ngIf="!loading">
 
     <mat-form-field>
-        <input matInput placeholder="Enter a URL:" [(ngModel)]="url" />
+        <input matInput placeholder="Enter a URL:" [(ngModel)]="url" cdkFocusInitial (keyup.enter)="submit()">
     </mat-form-field>
 
     <mat-dialog-actions>

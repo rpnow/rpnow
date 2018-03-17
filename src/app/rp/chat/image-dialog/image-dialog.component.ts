@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { RpService } from '../../rp.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-image-dialog',
@@ -18,7 +19,8 @@ export class ImageDialogComponent {
 
   constructor(
     public rp: RpService,
-    private dialogRef: MatDialogRef<ImageDialogComponent>
+    private dialogRef: MatDialogRef<ImageDialogComponent>,
+    private snackbar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -29,9 +31,18 @@ export class ImageDialogComponent {
   }
 
   async submit() {
+    if (!this.valid()) return;
+
     this.loading = true;
-    await this.rp.addImage(this.url);
-    this.dialogRef.close();
+
+    try {
+      await this.rp.addImage(this.url);
+      this.dialogRef.close();
+    }
+    catch (ex) {
+      this.snackbar.open("Invalid image URL. Make sure it's correct or try a different image.", 'Close', {duration:5000, verticalPosition:'top'});
+      this.loading = false;
+    }
   }
 
   cancel() {
