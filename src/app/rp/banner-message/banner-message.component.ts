@@ -6,7 +6,7 @@ import { OptionsService } from '../options.service';
 @Component({
   selector: 'banner-message',
   template: `
-    <div *ngIf="message" fxLayout="row" fxLayoutAlign="center center">
+    <div *ngIf="messageHtml" fxLayout="row" fxLayoutAlign="center center">
 
       <span class="generated-links-contrast" [innerHTML]="messageHtml"></span>
       
