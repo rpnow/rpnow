@@ -39,6 +39,7 @@ export class RpService implements OnDestroy {
   private readonly socket: SocketIOClient.Socket;
 
   public readonly loaded: Promise<boolean>;
+  public readonly notFound: Promise<boolean>;
   public readonly rpCode: string;
   public title: string = null;
   public desc: string = null;
@@ -76,8 +77,12 @@ export class RpService implements OnDestroy {
 
     this.loaded = new Promise((resolve, reject) => {
       this.socket.on('load rp', () => resolve(true))
-      this.socket.on('rp error', reject)
-      this.socket.on('error', reject)
+      this.socket.on('rp error', () => resolve(false))
+    });
+
+    this.notFound = new Promise((resolve, reject) => {
+      this.socket.on('load rp', () => resolve(false))
+      this.socket.on('rp error', () => resolve(true))
     });
 
     let firstMessages: Subject<RpMessage[]> = new Subject();

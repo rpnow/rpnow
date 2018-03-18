@@ -42,7 +42,10 @@ export class RpComponent implements OnInit, OnDestroy {
     })
 
     this.title.setTitle('Loading... | RPNow');
-    this.rp.loaded.then(() => this.title.setTitle(this.rp.title + ' | RPNow'));
+    this.rp.loaded.then(found => {
+      if (found) this.title.setTitle(this.rp.title + ' | RPNow')
+      else this.title.setTitle('Not Found | RPNow');
+    });
   }
 
   ngOnDestroy() {

@@ -8,15 +8,24 @@
 
     <mat-sidenav-content fxLayout="column">
 
-        <banner-message *ngIf="rp.loaded|async"></banner-message>
-
-        <div *ngIf="rp.loaded|async" fxFlex>
-            <router-outlet></router-outlet>
-        </div>
-
-        <div *ngIf="!(rp.loaded|async)" fxFlex fxLayout="column" fxLayoutAlign="center center">
+        <div *ngIf="!(rp.loaded|async) && !(rp.notFound|async)" fxFlex fxLayout="column" fxLayoutAlign="center center">
             <p>Loading your RP...</p>
             <mat-spinner></mat-spinner>
+        </div>
+
+        <ng-container *ngIf="rp.loaded|async">
+            <banner-message></banner-message>
+            <div fxFlex>
+                <router-outlet></router-outlet>
+            </div>
+        </ng-container> 
+
+        <div *ngIf="rp.notFound|async" fxFlex fxLayout="column" fxLayoutAlign="center center">
+            <h1>RP Not Found!</h1>
+
+            <p>We couldn't find an RP at <code>/rp/{{rp.rpCode}}</code>. Make sure you've spelled the URL correctly.</p>
+            
+            <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
         </div>
 
     </mat-sidenav-content>
