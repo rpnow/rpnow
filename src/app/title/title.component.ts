@@ -28,7 +28,7 @@ export class TitleComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.titleService.setTitle('RPNow: Registration-Free Roleplay Chat Service')
+    this.titleService.setTitle('RPNow: No-Registration Roleplay Chat Service')
   }
 
   public async createRp() {
