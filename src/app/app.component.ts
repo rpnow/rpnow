@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel } from '@angular/router';
 import { filter } from 'rxjs/operators/filter';
+import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,10 @@ import { filter } from 'rxjs/operators/filter';
   `]
 })
 export class AppComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    angulartics2GoogleAnalytics: Angulartics2GoogleAnalytics
+  ) {}
   loading = false;
 
   ngOnInit() {

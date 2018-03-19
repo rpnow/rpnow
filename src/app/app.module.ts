@@ -9,6 +9,8 @@ import { AppComponent } from './app.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AppRoutingModule } from './app-routing.module';
 import { TitleModule } from './title/title.module';
+import { Angulartics2Module } from 'angulartics2';
+import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,8 @@ import { TitleModule } from './title/title.module';
     MatProgressSpinnerModule,
     ServiceWorkerModule.register('/ngsw-worker.js', {enabled: environment.production}),
     TitleModule,
-    AppRoutingModule
+    AppRoutingModule,
+    Angulartics2Module.forRoot([Angulartics2GoogleAnalytics])
   ],
   bootstrap: [AppComponent]
 })
