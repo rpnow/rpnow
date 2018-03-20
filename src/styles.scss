@@ -41,6 +41,7 @@ body.dark-theme {
 @include angular-material-typography($body-typography);
 h1, h2, h3 {
     font-family: mat-font-family($header-typography) !important;
+    font-size: 120%;
 }
 
 // color picker styles
@@ -64,9 +65,15 @@ mat-sidenav {
     max-width: 80%;
 }
 mat-toolbar.flat-toolbar {
+    h1 {
+        font-size: 24px;
+    }
     background-color: inherit !important;
 }
 mat-toolbar.shadow-toolbar {
+    h1 {
+        font-size: 24px;
+    }
     background-color: inherit !important;
     box-shadow: 0 0px 10px rgba(0,0,0,0.1);
     :host-context(.dark-theme) & {
