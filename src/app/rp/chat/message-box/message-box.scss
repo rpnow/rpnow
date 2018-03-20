@@ -81,6 +81,7 @@
             background: transparent;
             color: inherit;
             resize: none;
+            max-height: 40vh;
         }
     }
     :host-context(.dark-theme) & #typing-area {
