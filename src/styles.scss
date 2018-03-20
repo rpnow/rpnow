@@ -75,10 +75,10 @@ mat-toolbar.shadow-toolbar {
         font-size: 24px;
     }
     background-color: inherit !important;
-    box-shadow: 0 0px 10px rgba(0,0,0,0.1);
-    :host-context(.dark-theme) & {
-        box-shadow: 0 0px 10px rgba(0,0,0,0.9);
-    }
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.dark-theme mat-toolbar.shadow-toolbar {
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
 
 // misc
