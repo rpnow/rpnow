@@ -65,7 +65,13 @@ mat-sidenav {
 }
 mat-toolbar.flat-toolbar {
     background-color: inherit !important;
-    border-bottom: 1px solid #999;
+}
+mat-toolbar.shadow-toolbar {
+    background-color: inherit !important;
+    box-shadow: 0 0px 10px rgba(0,0,0,0.1);
+    :host-context(.dark-theme) & {
+        box-shadow: 0 0px 10px rgba(0,0,0,0.9);
+    }
 }
 
 // misc

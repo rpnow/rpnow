@@ -1,20 +1,26 @@
 #message-box {
     z-index: 3;
 
+    border-color: rgba(0,0,0,0.15);
+    :host-context(.dark-theme) & {
+        border-color: rgba(255,255,255,0.4);
+    }
+
     @media (max-width: 719px) {
         // padding-right: 10px;
-        border-top: 1px solid #999;
-
+        border-top-width: 1px;
+        border-top-style: solid;
         > * {
-            padding: 0 12px;
+            padding-left: 8px;
         }
     }
     @media (min-width: 720px) {
         max-width: 700px;
         margin: auto;
 
-        border: 1px solid #999;
-        border-radius: 8px;
+        border-width: 1px;
+        border-style: solid;
+
         margin-bottom: 10px;
         overflow: hidden;
 
@@ -37,23 +43,30 @@
     }
 
     #voice-bar {
-        border-bottom: 1px solid #999;
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
 
-        height: 36px;
-        @media (min-width: 600px) {
-            height: 48px;
+        border-bottom-color: rgba(0,0,0,0.15);
+        :host-context(.dark-theme) & {
+            border-bottom-color: rgba(255,255,255,0.4);
         }
+
+        height: 48px;
 
         font-size: 120%;
         #click-to-change {
             height: 100%;
-            margin-left: -5px;
-            padding-left: 5px;
+            // margin-left: -5px;
+            // padding-left: 5px;
             transition: background-color .4s cubic-bezier(.25,.8,.25,1);
             cursor: pointer;
             &:hover {
                 background-color: rgba(128,128,128,.3);
             }
+        }
+        > .mat-mini-fab {
+            background-color: inherit !important;
+            color: inherit !important;
         }
     }
 
@@ -62,6 +75,7 @@
         color: black;
 
         textarea {
+            margin: 0;
             padding: 8px 0;
             border: none;
             background: transparent;
