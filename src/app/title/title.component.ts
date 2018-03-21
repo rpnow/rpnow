@@ -6,6 +6,7 @@ import * as coolstory from 'coolstory.js';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { Title } from '@angular/platform-browser';
+import { TrackService } from '../track.service';
 
 @Component({
   templateUrl: 'title.template.html',
@@ -24,7 +25,8 @@ export class TitleComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private titleService: Title
+    private titleService: Title,
+    public track: TrackService
   ) { }
 
   ngOnInit() {

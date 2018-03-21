@@ -2,13 +2,19 @@ import { Injectable } from '@angular/core';
 import * as wrap from 'word-wrap';
 import { saveAs } from 'file-saver';
 import { RpService } from '../rp.service';
+import { TrackService } from '../../track.service';
 
 @Injectable()
 export class DownloadTxtService {
 
-  constructor(private rp: RpService) { }
+  constructor(
+    private rp: RpService,
+    private track: TrackService
+  ) { }
 
   public downloadTxt(includeOOC: boolean) {
+    this.track.event('Download', 'txt', includeOOC ? 'ooc: yes' : 'ooc: no', this.rp.messages.length);
+
     // get rp formatted text
     let text = this.rpText(this.rp, includeOOC)
     

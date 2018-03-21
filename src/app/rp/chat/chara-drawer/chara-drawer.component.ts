@@ -10,6 +10,7 @@ import { filter } from 'rxjs/operators/filter';
 import { scan } from 'rxjs/operators/scan';
 import { tap } from 'rxjs/operators/tap';
 import { map } from 'rxjs/operators/map';
+import { TrackService } from '../../../track.service';
 
 @Component({
   selector: 'chara-drawer-contents',
@@ -29,7 +30,8 @@ export class CharaDrawerComponent implements OnInit {
     private options: OptionsService,
     private charaSelectorService: CharaSelectorService,
     private dialog: MatDialog,
-    private viewContainerRef: ViewContainerRef
+    private viewContainerRef: ViewContainerRef,
+    private track: TrackService
   ) {}
 
   ngOnInit() {
@@ -54,6 +56,8 @@ export class CharaDrawerComponent implements OnInit {
   }
 
   public setVoice(voice: RpVoice) {
+    this.track.event('Charas', 'pick', typeof voice === 'string' ? voice : 'chara');
+    
     this.charaSelectorService.currentChara$.next(voice);
     this.close();
   }

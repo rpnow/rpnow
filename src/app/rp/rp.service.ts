@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { merge } from 'rxjs/observable/merge';
 import { map } from 'rxjs/operators/map';
 import { scan } from 'rxjs/operators/scan';
+import { TrackService } from '../track.service';
 
 
 export interface RpMessage {
@@ -67,7 +68,11 @@ export class RpService implements OnDestroy {
   public readonly charasById$: Observable<Map<number, RpChara>>;
 
 
-  constructor(challengeService: ChallengeService, route: ActivatedRoute) {
+  constructor(
+    challengeService: ChallengeService,
+    route: ActivatedRoute,
+    private track: TrackService
+  ) {
 
     this.rpCode = route.snapshot.paramMap.get('rpCode');
     this.challenge = challengeService.challenge;
@@ -180,6 +185,8 @@ export class RpService implements OnDestroy {
   }
 
   public async addMessage({ content, type, charaId }: {content:string, type:'narrator'|'ooc'|'chara', charaId?:number}) {
+    this.track.event('Messages', 'create', type, content.length);
+    
     let tmpMsg = { content, type, charaId, id: null };
     this.sentMessagesSubject.next({msg: tmpMsg, status: 'sending'});
 
@@ -191,6 +198,8 @@ export class RpService implements OnDestroy {
   }
 
   public async addChara({ name, color }: { name: string, color: string }) {
+    this.track.event('Charas', 'create');
+    
     let chara:RpChara = await this.socketEmit('add character', { name, color });
     this.newCharasSubject.next(chara);
 
@@ -198,6 +207,8 @@ export class RpService implements OnDestroy {
   }
 
   public async addImage(url: string) {
+    this.track.event('Messages', 'create', 'image');
+    
     let msg:RpMessage = await this.socketEmit('add image', url);
     this.newMessagesSubject.next(msg);
 
@@ -205,6 +216,8 @@ export class RpService implements OnDestroy {
   }
 
   public async editMessage(id: number, content: string) {
+    this.track.event('Messages', 'edit', null, content.length);
+    
     let msg:RpMessage = await this.socketEmit('edit message', { id, content, secret: this.challenge.secret });
     this.editedMessagesSubject.next({ msg, id });
   }

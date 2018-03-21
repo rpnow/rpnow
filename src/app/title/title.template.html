@@ -14,10 +14,13 @@
 		<div fxLayout="row">
 
 			<mat-form-field>
-				<input matInput [(ngModel)]="title" maxlength="30" placeholder="Name your story">
+				<input matInput [(ngModel)]="title" maxlength="30" placeholder="Name your story"
+					(focus)="track.event('Title','focus')"
+					(change)="track.event('Title','change')"
+					>
 			</mat-form-field>
 
-			<button mat-icon-button (click)="spinTitle()">
+			<button mat-icon-button (click)="spinTitle(); track.event('Title', 'spin')">
 				<mat-icon matTooltip="Random title!">casino</mat-icon>
 			</button>
 
@@ -25,18 +28,22 @@
 
 		<mat-form-field *ngIf="showMoreOptions">
 
-			<textarea matInput [(ngModel)]="desc" maxlength="255" rows="4" placeholder="Enter a description..."></textarea>
+			<textarea matInput [(ngModel)]="desc" maxlength="255" rows="4" placeholder="Enter a description..."
+				(focus)="track.event('Desc','focus')"
+				(change)="track.event('Desc','change')"
+				>
+			</textarea>
 
 		</mat-form-field>
 
 		<div fxLayout="row" fxLayoutAlign="space-around center">
 
-			<button mat-raised-button color="primary" (click)="createRp()" [disabled]="!title">
+			<button mat-raised-button color="primary" (click)="createRp(); track.event('Room', 'create')" [disabled]="!title">
 				<mat-icon>check</mat-icon>
 				Create RP
 			</button>	
 
-			<button *ngIf="!showMoreOptions" mat-raised-button (click)="showMoreOptions=true">
+			<button *ngIf="!showMoreOptions" mat-raised-button (click)="showMoreOptions=true; track.event('Desc', 'reveal')">
 				<mat-icon>more_horiz</mat-icon>
 				Options
 			</button>	

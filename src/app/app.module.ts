@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { TitleModule } from './title/title.module';
 import { Angulartics2Module } from 'angulartics2';
 import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
+import { TrackService } from './track.service';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
     AppRoutingModule,
     Angulartics2Module.forRoot([Angulartics2GoogleAnalytics])
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  providers: [TrackService]
 })
 export class AppModule { }

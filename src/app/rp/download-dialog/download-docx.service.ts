@@ -4,15 +4,22 @@ import { RpService } from '../rp.service';
 import * as Docxtemplater from 'docxtemplater';
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { TrackService } from '../../track.service';
 
 @Injectable()
 export class DownloadDocxService {
 
-  constructor(private http: HttpClient, private rp: RpService) { }
+  constructor(
+    private http: HttpClient,
+    private rp: RpService,
+    private track: TrackService
+  ) { }
 
   private docxTemplateRequest = this.http.get('/assets/template.docx', {responseType: 'blob'}).toPromise();
 
   public downloadDocx(includeOOC: boolean) {
+    this.track.event('Download', 'docx', includeOOC ? 'ooc: yes' : 'ooc: no', this.rp.messages.length);
+
     let data = {
       title: this.rp.title,
       desc: this.rp.desc,
