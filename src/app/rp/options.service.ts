@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { RpService } from './rp.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
+import { migrateOptions } from './options.migrations';
 
 const GLOBAL = 'GLOBAL';
 const ROOM = 'ROOM';
@@ -18,6 +19,8 @@ export class OptionsService {
 	private subscriptions: Subscription[] = [];
 
 	private subject<T>(propName: string, global: 'GLOBAL'|'ROOM', defaultValue: T): BehaviorSubject<T> {
+		migrateOptions();
+
 		let localStorageKey = global === 'GLOBAL' ?
 			`rpnow.global.${propName}` :
 			`rpnow.rp.${this.rpCode}.${propName}`
