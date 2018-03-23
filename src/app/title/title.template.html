@@ -28,7 +28,7 @@
 
 		<mat-form-field *ngIf="showMoreOptions">
 
-			<textarea matInput [(ngModel)]="desc" maxlength="255" rows="4" placeholder="Enter a description..."
+			<textarea matInput [(ngModel)]="desc" maxlength="255" matTextareaAutosize placeholder="Enter a description..."
 				(focus)="track.event('Desc','focus')"
 				(change)="track.event('Desc','change')"
 				>
