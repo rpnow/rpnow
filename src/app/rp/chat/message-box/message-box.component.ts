@@ -54,6 +54,24 @@ export class MessageBoxComponent implements OnInit {
       { content, type: <'narrator'|'ooc'>chara } :
       { content, type: <'chara'>'chara', charaId: chara.id };
 
+    
+    // shortcut to send ooc messages; if not on the actual OOC character,
+    //  you can send a message inside of (()) et all, as a shortcut to change
+    //  that specific message to an OOC message
+    if (msg.type !== 'ooc') {
+      [
+        /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( message text ))
+        /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
+        /^\/\/\s*(.*[^\s])\s*$/g // //message text
+      ].find(regex => {
+        let match = regex.exec(msg.content);
+        if (match) msg = { content: match[1], type: 'ooc' };
+        return !!match;
+      })
+    }
+
+    if (!msg.content.trim()) return;
+
     this.rp.addMessage(msg);
 
     this.content = '';
