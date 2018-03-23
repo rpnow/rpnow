@@ -14,8 +14,8 @@ import { TrackService } from '../track.service';
 })
 export class TitleComponent implements OnInit {
 
-  public title = '';
-  public desc = '';
+  public title: string;
+  public desc: string;
 
   public showMoreOptions: boolean = false;
   public submitted: boolean = false;
