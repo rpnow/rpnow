@@ -14,8 +14,8 @@ import { TrackService } from '../track.service';
 })
 export class TitleComponent implements OnInit {
 
-  public title: string;
-  public desc: string;
+  public title: string = '';
+  public desc: string = '';
 
   public showMoreOptions: boolean = false;
   public submitted: boolean = false;
@@ -35,7 +35,7 @@ export class TitleComponent implements OnInit {
 
   public async createRp() {
     this.submitted = true;
-    let data:any = await this.http.post(API_URL + '/api/rp.json', {title: this.title, desc: this.desc}).toPromise();
+    let data:any = await this.http.post(API_URL + '/api/rp', {title: this.title, desc: this.desc}).toPromise();
     let rpCode = data.rpCode;
     this.router.navigate(['/rp/' + rpCode]);
   }
