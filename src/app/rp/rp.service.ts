@@ -78,7 +78,7 @@ export class RpService implements OnDestroy {
     this.challenge = challengeService.challenge;
 
     // socket.io events
-    this.socket = io(API_URL, { query: 'rpCode='+this.rpCode });
+    this.socket = io(API_URL+'/room', { query: 'rpCode='+this.rpCode });
 
     this.loaded = new Promise((resolve, reject) => {
       this.socket.on('load rp', () => resolve(true))
