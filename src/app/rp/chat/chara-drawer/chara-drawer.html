@@ -40,7 +40,7 @@
             <a mat-list-item *ngFor="let chara of (recentCharas$|async); trackBy: rp.trackById" (click)="setVoice(chara)">
                 <mat-icon mat-list-icon [charaIconColor]="chara.color">person</mat-icon>
                 <p mat-line>{{chara.name}}</p>
-                <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
+                <mat-icon *ngIf="(currentChara$|async)._id === chara._id">check</mat-icon>
             </a>
 
             <mat-divider></mat-divider>
@@ -52,7 +52,7 @@
         <a mat-list-item *ngFor="let chara of (allCharas$|async); trackBy: rp.trackById" (click)="setVoice(chara)">
             <mat-icon mat-list-icon [charaIconColor]="chara.color">person</mat-icon>
             <p mat-line>{{chara.name}}</p>
-            <mat-icon *ngIf="(currentChara$|async).id === chara.id">check</mat-icon>
+            <mat-icon *ngIf="(currentChara$|async)._id === chara._id">check</mat-icon>
         </a>
 
     </mat-nav-list>

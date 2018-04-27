@@ -40,9 +40,9 @@ export class CharaDrawerComponent implements OnInit {
     this.recentCharas$ = this.currentChara$.pipe(
       filter(chara => typeof chara !== 'string'),
       scan((arr:RpChara[], chara:RpChara) => [
-        chara, ...arr.filter(c => c.id !== chara.id)
+        chara, ...arr.filter(c => c._id !== chara._id)
       ].slice(0,5), this.options.recentCharas.map(id => this.rp.charasById.get(id))),
-      tap((charas:RpChara[]) => this.options.recentCharas = charas.map(c => c.id)), // TODO should probably subscribe here, not use 'do' operator
+      tap((charas:RpChara[]) => this.options.recentCharas = charas.map(c => c._id)), // TODO should probably subscribe here, not use 'do' operator
       map((charas:RpChara[]) => [...charas].sort((a,b) => a.name.localeCompare(b.name)))
     ) as Observable<RpChara[]>
     

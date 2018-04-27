@@ -24,7 +24,6 @@ export class ChatComponent implements OnInit {
   private subscription: Subscription;
 
   public messages$: Observable<RpMessage[]>
-  public sendingMessages$: Observable<Partial<RpMessage>[]>
 
   constructor(
     public rp: RpService,
@@ -45,9 +44,7 @@ export class ChatComponent implements OnInit {
       map(({msgs, firstIdx}) => msgs.slice(firstIdx))
     )
     
-    this.sendingMessages$ = this.rp.sendingMessages$;
-
-    this.subscription = merge(this.rp.newMessages$, this.rp.sendingMessages$).subscribe(() => this.updateScroll())
+    this.subscription = merge(this.rp.newMessages$, /* sending messages */).subscribe(() => this.updateScroll())
     this.updateScroll();
   }
 

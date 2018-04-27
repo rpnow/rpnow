@@ -36,7 +36,7 @@ export class NewCharaComponent implements OnInit {
 
     this.options.lastColor = this.color;
 
-    let chara = await this.rp.addChara({ name: this.name, color: this.color });
+    let chara = await this.rp.addChara(this.name, this.color);
     this.dialogRef.close(chara);
   }
 

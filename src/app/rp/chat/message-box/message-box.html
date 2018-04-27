@@ -11,7 +11,7 @@
                 Out of character
             </ng-container>
 
-            <ng-container *ngIf="(chara$|async).id != null">
+            <ng-container *ngIf="(chara$|async)._id != null">
                 {{(chara$|async).name}}
             </ng-container>
         </div>

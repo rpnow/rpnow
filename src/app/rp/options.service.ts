@@ -75,11 +75,11 @@ export class OptionsService {
 	public get msgBoxContent() { return this.msgBoxContent$.value; }
 	public set msgBoxContent(value) { this.msgBoxContent$.next(value); }
 
-	public readonly msgBoxVoice$: BehaviorSubject<'narrator'|'ooc'|number> = this.subject('msgBoxVoice', ROOM, 'narrator') as BehaviorSubject<'narrator'|'ooc'|number>;
+	public readonly msgBoxVoice$: BehaviorSubject<string> = this.subject('msgBoxVoice', ROOM, 'narrator');
 	public get msgBoxVoice() { return this.msgBoxVoice$.value; }
 	public set msgBoxVoice(value) { this.msgBoxVoice$.next(value); }
 
-	public readonly recentCharas$: BehaviorSubject<number[]> = this.subject('recentCharas', ROOM, []);
+	public readonly recentCharas$: BehaviorSubject<string[]> = this.subject('recentCharas', ROOM, []);
 	public get recentCharas() { return this.recentCharas$.value; }
 	public set recentCharas(value) { this.recentCharas$.next(value); }
 

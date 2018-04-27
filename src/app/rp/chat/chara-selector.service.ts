@@ -23,10 +23,10 @@ export class CharaSelectorService implements OnDestroy {
   public readonly currentChara$: BehaviorSubject<RpVoice>
 
   constructor(options: OptionsService, rp: RpService) {
-    let voice = (typeof options.msgBoxVoice === 'string') ? options.msgBoxVoice : rp.charasById.get(options.msgBoxVoice);
+    let voice = rp.getVoice(options.msgBoxVoice)
     this.currentChara$ = new BehaviorSubject(voice);
 
-    this.subscription = this.currentChara$.subscribe(voice => options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice.id));
+    this.subscription = this.currentChara$.subscribe(voice => options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice._id));
   }
 
   ngOnDestroy(): void {

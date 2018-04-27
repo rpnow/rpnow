@@ -44,7 +44,7 @@ export class RpMessageComponent implements OnInit, OnChanges, OnDestroy {
       'message-slim': false
     }
 
-    this.chara = this.msg.charaId >= 0 ? this.rp.charasById.get(this.msg.charaId) : null;
+    this.chara = (this.msg.type === 'chara') ? this.rp.charasById.get(this.msg.charaId) : null;
 
     this.timestampDate = this.msg.timestamp ? new Date(this.msg.timestamp*1000) : null;
     this.editedDate = this.msg.edited ? new Date(this.msg.edited*1000) : null;
@@ -77,7 +77,7 @@ export class RpMessageComponent implements OnInit, OnChanges, OnDestroy {
     this.editing = false;
     this.sending = true;
     this.msg.content = this.newContent;
-    await this.rp.editMessage(this.msg.id, this.newContent);
+    await this.rp.editMessage(this.msg._id, this.newContent);
     this.sending = false;
   }
 
