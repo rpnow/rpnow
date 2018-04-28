@@ -7,7 +7,6 @@ import { Observable } from 'rxjs/Observable';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { scan } from 'rxjs/operators/scan';
 import { map } from 'rxjs/operators/map';
-import { merge } from 'rxjs/observable/merge';
 
 @Component({
   templateUrl: 'chat.html',
@@ -44,7 +43,7 @@ export class ChatComponent implements OnInit {
       map(({msgs, firstIdx}) => msgs.slice(firstIdx))
     )
     
-    this.subscription = merge(this.rp.newMessages$, /* sending messages */).subscribe(() => this.updateScroll())
+    this.subscription = this.rp.newMessages$.subscribe(() => this.updateScroll())
     this.updateScroll();
   }
 

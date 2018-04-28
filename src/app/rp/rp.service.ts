@@ -7,6 +7,10 @@ import { Observable } from 'rxjs/Observable';
 import { merge } from 'rxjs/observable/merge';
 import { map } from 'rxjs/operators/map';
 import { scan } from 'rxjs/operators/scan';
+import { pairwise } from 'rxjs/operators/pairwise';
+import { filter } from 'rxjs/operators/filter';
+import { mergeMap } from 'rxjs/operators/mergeMap';
+import { of } from 'rxjs/observable/of';
 import { TrackService } from '../track.service';
 import PouchDB from 'pouchdb';
 import { REMOTE_COUCH } from '../app.constants';
@@ -51,10 +55,9 @@ export class RpService implements OnDestroy {
   public charas: Readonly<RpChara>[] = null;
   public charasById: Map<string, RpChara> = null;
 
-  public readonly newMessages$: Observable<RpMessage> = new Subject();
-  
   public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
   public readonly messagesById$: Observable<Map<string, RpMessage>>;
+  public readonly newMessages$: Observable<RpMessage> = new Subject();
 
   public readonly charas$: Observable<RpChara[]> = new ReplaySubject(1);
   public readonly charasById$: Observable<Map<string, RpChara>>;
@@ -89,6 +92,16 @@ export class RpService implements OnDestroy {
 
     this.charasById$ = this.charas$.pipe(
       map(charas => charas.reduce((map, chara) => map.set(chara._id, chara), new Map()))
+    )
+
+    this.newMessages$ = this.messagesById$.pipe(
+      pairwise(),
+      filter(([a, b]) => a.size < b.size),
+      mergeMap(([a, b]) => {
+        let newMsgs: RpMessage[] = []
+        b.forEach((msg, id) => { if (!a.has(id)) newMsgs.push(msg) })
+        return of(...newMsgs)
+      })
     )
 
     // access values directly
@@ -189,7 +202,6 @@ export class RpService implements OnDestroy {
   // because rp service is provided in rp component, this is called when navigating away from an rp
   public ngOnDestroy() {
     this.db.close();
-    (this.newMessages$ as Subject<any>).complete();
     (this.messages$ as Subject<any>).complete();
     (this.charas$ as Subject<any>).complete();
   }
