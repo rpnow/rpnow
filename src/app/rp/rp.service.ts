@@ -10,6 +10,7 @@ import { scan } from 'rxjs/operators/scan';
 import { TrackService } from '../track.service';
 import PouchDB from 'pouchdb';
 import { REMOTE_COUCH } from '../app.constants';
+import * as cuid from 'cuid';
 
 
 export interface RpMessage {
@@ -18,7 +19,7 @@ export interface RpMessage {
   type: 'narrator'|'ooc'|'chara'|'image';
   timestamp?: number;
   edited?: number;
-  content: string;
+  content?: string;
   charaId?: string;
   challenge?: string;
   url?: string;
@@ -61,6 +62,7 @@ export class RpService implements OnDestroy {
   private readonly db: PouchDB.Database<RpMessage | RpChara>;
   private readonly remoteDb: PouchDB.Database<RpMessage | RpChara>;
   private syncHandler: PouchDB.Replication.Sync<RpMessage | RpChara>;
+  private backoff: number = 1000
 
   constructor(
     challengeService: ChallengeService,
@@ -71,8 +73,6 @@ export class RpService implements OnDestroy {
     this.rpCode = route.snapshot.paramMap.get('rpCode');
     this.challenge = challengeService.challenge;
     // TODO change all these
-    this.loaded = Promise.resolve(true);
-    this.notFound = Promise.resolve(false);
     this.title = 'FAKE TITLE';
     this.desc = 'FAKE DESC';
 
@@ -97,37 +97,48 @@ export class RpService implements OnDestroy {
     this.charas$.subscribe(charas => this.charas = charas);
     this.charasById$.subscribe(charasById => this.charasById = charasById);
 
+    // initial offline update
+    let updated = this.update()
+    this.loaded = updated.then(() => true)
+    this.notFound = updated.then(() => false)
     // begin sync
     this.sync()
 
   }
 
   private sync() {
+    if (this.syncHandler) {
+      this.syncHandler.removeAllListeners()
+      this.syncHandler.cancel()
+    }
     this.syncHandler = this.db.sync(this.remoteDb, {live: true})
       .on('paused', err => {
         if (err) return console.error('BISECTED')
-        else this.update()
+        this.update()
+        this.backoff = 1000
       })
       .on('error', err => {
-        setTimeout(() => this.sync(), 1000)
+        setTimeout(() => this.sync(), this.backoff)
+        this.backoff += 1000
       })
   }
 
   private update() {
-    this.db.allDocs({include_docs: true}).then(res => {
+    return this.db.allDocs({include_docs: true}).then(res => {
       let docs = res.rows.map(row => row.doc)
       let msgs = docs.filter((doc:any) => doc.schema === 'message') as RpMessage[]
       let charas = docs.filter((doc:any) => doc.schema === 'chara') as RpChara[]
 
       (this.messages$ as Subject<RpMessage[]>).next(msgs);
       (this.charas$ as Subject<RpChara[]>).next(charas);
-    });
 
-    // this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
+      // this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
+    });
   }
 
   public async addMessage(content:string, voice: RpVoice) {
     let msg: RpMessage = {
+      _id: cuid(),
       schema: 'message',
       content,
       ... this.typeFromVoice(voice),
@@ -135,24 +146,32 @@ export class RpService implements OnDestroy {
     }
     this.track.event('Messages', 'create', msg.type, content.length);
     
-    await this.db.post(msg)
+    await this.db.put(msg)
+    await this.update()
   }
 
   public async addChara(name: string, color: string) {
     let chara: RpChara = {
+      _id: cuid(),
       schema: 'chara',
       name,
       color
     }
     this.track.event('Charas', 'create');
     
-    return await this.db.post(chara).then(({id}) => {
-      chara._id = id;
-      return chara
-    })
+    await this.db.put(chara)
+    await this.update()
+    return chara
   }
 
   public async addImage(url: string) {
+    let msg: RpMessage = {
+      _id: cuid(),
+      schema: 'message',
+      type: 'image',
+      url,
+      challenge: this.challenge.hash
+    }
     this.track.event('Messages', 'create', 'image');
     
     // let msg:RpMessage = await this.socketEmit('add image', url);
@@ -194,7 +213,7 @@ export class RpService implements OnDestroy {
       return voiceStr as 'narrator'|'ooc'
     }
     else {
-      return this.charasById[voiceStr]
+      return this.charasById.get(voiceStr)
     }
   }
 
