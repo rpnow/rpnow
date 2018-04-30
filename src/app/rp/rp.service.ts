@@ -81,9 +81,9 @@ export class RpService implements OnDestroy {
 
     // if it's safari, use the websql adapter, since the indexeddb one doesn't seem to work
     let adapter = navigator.userAgent.match(/Version\/[\d\.]+.*Safari/) ? 'websql' : undefined;
-    this.db = new PouchDB('rpnow_'+this.rpCode, { adapter });
+    this.db = new PouchDB(`room_${this.rpCode}`, { adapter });
 
-    this.remoteDb = new PouchDB(`${REMOTE_COUCH}/testrp`);
+    this.remoteDb = new PouchDB(`${REMOTE_COUCH}/room_${this.rpCode}`);
 
     // observables
     this.messagesById$ = this.messages$.pipe(
