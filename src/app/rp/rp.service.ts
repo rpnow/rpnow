@@ -114,8 +114,9 @@ export class RpService implements OnDestroy {
     let updated = this.update()
     this.loaded = updated.then(() => true)
     this.notFound = updated.then(() => false)
+
     // begin sync
-    this.sync()
+    this.remoteDb.replicate.to(this.db, { batch_size: 1000 }).on('complete', () => this.sync())
 
   }
 
