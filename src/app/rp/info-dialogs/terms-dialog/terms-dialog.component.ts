@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
 import { MatDialogRef } from '@angular/material/dialog';
 
@@ -45,7 +45,8 @@ This site and the RPNow service are provided "as is" without warranty of any kin
 
 @Component({
   templateUrl: 'terms-dialog.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TermsDialogComponent {
 

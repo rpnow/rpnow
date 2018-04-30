@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { OptionsService } from '../../options.service';
 import { RpService } from '../../rp.service';
@@ -6,7 +6,8 @@ import { RpService } from '../../rp.service';
 @Component({
   selector: 'app-new-chara',
   templateUrl: 'new-chara.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewCharaComponent implements OnInit {
 

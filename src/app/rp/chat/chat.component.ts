@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { RpService, RpMessage } from '../rp.service';
 import { CharaSelectorService } from './chara-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -11,7 +11,8 @@ import { map } from 'rxjs/operators/map';
 @Component({
   templateUrl: 'chat.html',
   styles: [],
-  providers: [CharaSelectorService]
+  providers: [CharaSelectorService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatComponent implements OnInit {
 

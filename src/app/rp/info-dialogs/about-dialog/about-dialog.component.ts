@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
 import { MatDialogRef } from '@angular/material/dialog';
 
@@ -43,7 +43,8 @@ RPNow was built by Nigel Nelson with extra graphic design guidance from Hannah L
 
 @Component({
   templateUrl: './about-dialog.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AboutDialogComponent { 
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DownloadTxtService } from './download-txt.service';
 import { DownloadDocxService } from './download-docx.service';
@@ -8,7 +8,8 @@ import { OptionsService } from '../options.service';
   selector: 'app-download-dialog',
   templateUrl: 'download-dialog.html',
   styles: [],
-  providers: [DownloadDocxService, DownloadTxtService]
+  providers: [DownloadDocxService, DownloadTxtService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DownloadDialogComponent {
 

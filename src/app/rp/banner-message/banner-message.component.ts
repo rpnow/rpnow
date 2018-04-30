@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BannerMessageService } from './banner-message.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { OptionsService } from '../options.service';
@@ -17,7 +17,8 @@ import { OptionsService } from '../options.service';
     </div>
   `,
   styleUrls: ['banner-message.scss'],
-  providers: [BannerMessageService]
+  providers: [BannerMessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BannerMessageComponent implements OnInit {
 

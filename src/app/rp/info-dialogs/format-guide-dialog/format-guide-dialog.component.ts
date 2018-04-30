@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
 import { MatDialogRef } from '@angular/material/dialog';
 
@@ -28,7 +28,8 @@ Use these shortcuts to RP faster.
 
 @Component({
   templateUrl: 'format-guide-dialog.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormatGuideDialog {
 

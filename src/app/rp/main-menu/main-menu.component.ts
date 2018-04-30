@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AboutDialogComponent } from '../info-dialogs/about-dialog/about-dialog.component';
 import { ContactDialogComponent } from '../info-dialogs/contact-dialog/contact-dialog.component';
@@ -12,7 +12,8 @@ import { RpService } from '../rp.service';
 @Component({
   selector: 'main-menu-content',
   templateUrl: 'main-menu.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainMenuComponent implements OnInit {
 

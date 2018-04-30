@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_URL } from '../app.constants';
@@ -10,7 +10,8 @@ import { TrackService } from '../track.service';
 
 @Component({
   templateUrl: 'title.template.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TitleComponent implements OnInit {
 

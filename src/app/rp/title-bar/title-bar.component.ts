@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, Input, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { MainMenuService } from '../main-menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
@@ -7,7 +7,8 @@ import { RpService } from '../rp.service';
 @Component({
   selector: 'title-bar',
   templateUrl: 'title-bar.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TitleBarComponent implements OnInit {
 

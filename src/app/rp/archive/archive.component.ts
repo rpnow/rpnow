@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RpService, RpMessage } from '../rp.service';
 import { Observable } from 'rxjs/Observable';
@@ -14,7 +14,8 @@ import { map } from 'rxjs/operators/map';
     :host-context(.dark-theme) #pager {
       background-color: #555;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArchiveComponent {
 

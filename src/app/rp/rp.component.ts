@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RpService } from './rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -18,7 +18,8 @@ import { Subscription } from 'rxjs/Subscription';
     NotifyService,
     OptionsService,
     ChallengeService
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RpComponent implements OnInit, OnDestroy {
   @ViewChild('mainMenu') mainMenu: MatSidenav;

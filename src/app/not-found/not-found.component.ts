@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
 @Component({
@@ -23,7 +23,8 @@ import { Title } from '@angular/platform-browser';
       max-width: 400px;
       padding: 10px;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NotFoundComponent implements OnInit {
 

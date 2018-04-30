@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { CharaSelectorService } from '../chara-selector.service';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -12,7 +12,8 @@ import { map } from 'rxjs/operators/map';
 @Component({
   selector: 'rp-message-box',
   templateUrl: 'message-box.html',
-  styleUrls: ['message-box.scss']
+  styleUrls: ['message-box.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MessageBoxComponent implements OnInit {
 

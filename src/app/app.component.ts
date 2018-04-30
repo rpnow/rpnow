@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel } from '@angular/router';
 import { filter } from 'rxjs/operators/filter';
 import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
@@ -20,7 +20,8 @@ import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
       align-items: center;
       justify-content: center;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {
   constructor(

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { RpVoice, RpService, RpChara } from '../../rp.service';
 import { CharaSelectorService } from '../chara-selector.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,7 +15,8 @@ import { TrackService } from '../../../track.service';
 @Component({
   selector: 'chara-drawer-contents',
   templateUrl: 'chara-drawer.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CharaDrawerComponent implements OnInit {
 

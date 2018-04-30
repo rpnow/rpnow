@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { OptionsService } from '../options.service';
 import { noises } from '../notify.service';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -8,7 +8,8 @@ import { MatDialogRef } from '@angular/material/dialog';
   templateUrl: 'options-dialog.html',
   styles: [`
     mat-select { max-width: 200px; }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OptionsDialogComponent implements OnInit {
 
