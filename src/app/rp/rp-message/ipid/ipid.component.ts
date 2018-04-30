@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'ipid',
@@ -28,7 +28,8 @@ import { Component, Input } from '@angular/core';
     :host-context(.dark-theme) .color-ip-box {
         border-color: rgba(255,255,255,0.7);
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IpidComponent {
 

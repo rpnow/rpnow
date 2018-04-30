@@ -1,4 +1,4 @@
-import { Component, OnChanges, SimpleChanges, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, Input, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RpMessage, RpService, RpChara } from '../rp.service';
 import { OptionsService } from '../options.service';
 import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
@@ -7,7 +7,8 @@ import { format } from 'date-fns';
 @Component({
   selector: 'rp-message',
   templateUrl: 'rp-message.html',
-  styleUrls: ['rp-message.css']
+  styleUrls: ['rp-message.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RpMessageComponent implements OnInit, OnChanges, OnDestroy {
 
