@@ -4,17 +4,17 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
-import { merge } from 'rxjs/observable/merge';
 import { map } from 'rxjs/operators/map';
-import { scan } from 'rxjs/operators/scan';
 import { pairwise } from 'rxjs/operators/pairwise';
 import { filter } from 'rxjs/operators/filter';
 import { mergeMap } from 'rxjs/operators/mergeMap';
+import { first } from 'rxjs/operators/first';
 import { of } from 'rxjs/observable/of';
 import { TrackService } from '../track.service';
 import PouchDB from 'pouchdb';
 import { REMOTE_COUCH } from '../app.constants';
 import * as cuid from 'cuid';
+import sortedIndexBy from 'lodash-es/sortedIndexBy';
 
 
 export interface RpMessage {
@@ -39,6 +39,8 @@ export interface RpChara {
 
 export type RpVoice = RpChara|'narrator'|'ooc';
 
+export type RpDoc = RpChara|RpMessage
+
 @Injectable()
 export class RpService implements OnDestroy {
 
@@ -55,16 +57,19 @@ export class RpService implements OnDestroy {
   public charas: Readonly<RpChara>[] = null;
   public charasById: Map<string, RpChara> = null;
 
-  public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
-  public readonly messagesById$: Observable<Map<string, RpMessage>>;
-  public readonly newMessages$: Observable<RpMessage> = new Subject();
+  private readonly docsSubject: Subject<RpDoc[]> = new ReplaySubject(1)
 
-  public readonly charas$: Observable<RpChara[]> = new ReplaySubject(1);
+  public readonly messages$: Observable<RpMessage[]>
+  public readonly messagesById$: Observable<Map<string, RpMessage>>;
+  public readonly newMessages$: Observable<RpMessage>
+
+  public readonly charas$: Observable<RpChara[]>
   public readonly charasById$: Observable<Map<string, RpChara>>;
 
-  private readonly db: PouchDB.Database<RpMessage | RpChara>;
-  private readonly remoteDb: PouchDB.Database<RpMessage | RpChara>;
-  private syncHandler: PouchDB.Replication.Sync<RpMessage | RpChara>;
+  private readonly db: PouchDB.Database<RpDoc>;
+  private readonly remoteDb: PouchDB.Database<RpDoc>;
+
+  private syncHandler: PouchDB.Replication.Sync<RpDoc>;
   private backoff: number = 1000
 
   constructor(
@@ -86,6 +91,42 @@ export class RpService implements OnDestroy {
     this.remoteDb = new PouchDB(`${REMOTE_COUCH}/room_${this.rpCode}`);
 
     // observables
+    (async () => {
+
+      let docs: RpDoc[] = (
+        await this.db.allDocs({include_docs:true})
+      ).rows.map(row => row.doc)
+
+      this.docsSubject.next(docs)
+
+      this.db.changes({
+        since: 'now', live: true, include_docs: true
+      }).on('change', change => {
+        if (change.deleted) throw new Error('not yet implemented')
+
+        let idx = sortedIndexBy(docs, change.doc, x => x._id)
+        // update
+        if (docs[idx] && docs[idx]._id === change.id) {
+          docs = [...docs]
+          docs[idx] = change.doc
+        }
+        // insert
+        else {
+          docs = [...docs.slice(0,idx), change.doc, ...docs.slice(idx)]
+        }
+        this.docsSubject.next(docs)
+      })
+
+    })()
+
+    this.messages$ = this.docsSubject.pipe(
+      map(docs => docs.filter(doc => doc.schema === 'message'))
+    ) as Observable<RpMessage[]>
+
+    this.charas$ = this.docsSubject.pipe(
+      map(docs => docs.filter(doc => doc.schema === 'chara'))
+    ) as Observable<RpChara[]>
+
     this.messagesById$ = this.messages$.pipe(
       map(msgs => msgs.reduce((map, msg) => map.set(msg._id, msg), new Map()))
     )
@@ -111,12 +152,16 @@ export class RpService implements OnDestroy {
     this.charasById$.subscribe(charasById => this.charasById = charasById);
 
     // initial offline update
-    let updated = this.update()
-    this.loaded = updated.then(() => true)
-    this.notFound = updated.then(() => false)
+    let loaded = this.docsSubject.pipe(first()).toPromise()
+    this.loaded = loaded.then(() => true)
+    this.notFound = this.loaded.then(loaded => !loaded)
 
     // begin sync
-    this.remoteDb.replicate.to(this.db, { batch_size: 1000 }).on('complete', () => this.sync())
+    loaded.then(() => {
+      this.db.replicate.from(
+        this.remoteDb, { batch_size: 1000 }
+      ).on('complete', () => this.sync())
+    })
 
   }
 
@@ -128,26 +173,12 @@ export class RpService implements OnDestroy {
     this.syncHandler = this.db.sync(this.remoteDb, {live: true})
       .on('paused', err => {
         if (err) return console.error('BISECTED')
-        this.update()
         this.backoff = 1000
       })
       .on('error', err => {
         setTimeout(() => this.sync(), this.backoff)
         this.backoff += 1000
       })
-  }
-
-  private update() {
-    return this.db.allDocs({include_docs: true}).then(res => {
-      let docs = res.rows.map(row => row.doc)
-      let msgs = docs.filter((doc:any) => doc.schema === 'message') as RpMessage[]
-      let charas = docs.filter((doc:any) => doc.schema === 'chara') as RpChara[]
-
-      (this.messages$ as Subject<RpMessage[]>).next(msgs);
-      (this.charas$ as Subject<RpChara[]>).next(charas);
-
-      // this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
-    });
   }
 
   public async addMessage(content:string, voice: RpVoice) {
@@ -161,7 +192,6 @@ export class RpService implements OnDestroy {
     this.track.event('Messages', 'create', msg.type, content.length);
     
     await this.db.put(msg)
-    await this.update()
   }
 
   public async addChara(name: string, color: string) {
@@ -174,7 +204,6 @@ export class RpService implements OnDestroy {
     this.track.event('Charas', 'create');
     
     await this.db.put(chara)
-    await this.update()
     return chara
   }
 
@@ -203,8 +232,7 @@ export class RpService implements OnDestroy {
   // because rp service is provided in rp component, this is called when navigating away from an rp
   public ngOnDestroy() {
     this.db.close();
-    (this.messages$ as Subject<any>).complete();
-    (this.charas$ as Subject<any>).complete();
+    this.docsSubject.complete();
   }
 
   // use in ngFor
