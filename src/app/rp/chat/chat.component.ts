@@ -39,7 +39,7 @@ export class ChatComponent implements OnInit {
     this.messages$ = this.rp.messages$.pipe(
       scan(({firstIdx}:{firstIdx:number, msgs:RpMessage[]}, msgs:RpMessage[]) => {
         if (this.isAtBottom()) return { msgs, firstIdx: Math.max(msgs.length-60, 0) };
-        else return { msgs, firstIdx }
+        else return { msgs, firstIdx: Math.max(msgs.length-300, 0, firstIdx) }
       }, {firstIdx: 0, msgs: <RpMessage[]>null}),
       map(({msgs, firstIdx}) => msgs.slice(firstIdx))
     )
