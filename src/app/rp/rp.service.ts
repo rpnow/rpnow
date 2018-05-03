@@ -9,6 +9,7 @@ import { pairwise } from 'rxjs/operators/pairwise';
 import { filter } from 'rxjs/operators/filter';
 import { mergeMap } from 'rxjs/operators/mergeMap';
 import { first } from 'rxjs/operators/first';
+import { debounceTime } from 'rxjs/operators/debounceTime';
 import { of } from 'rxjs/observable/of';
 import { TrackService } from '../track.service';
 import PouchDB from 'pouchdb';
@@ -119,11 +120,15 @@ export class RpService implements OnDestroy {
 
     })()
 
-    this.messages$ = this.docsSubject.pipe(
+    let debouncedDocs$ = this.docsSubject.pipe(
+      debounceTime(100)
+    )
+
+    this.messages$ = debouncedDocs$.pipe(
       map(docs => docs.filter(doc => doc.schema === 'message'))
     ) as Observable<RpMessage[]>
 
-    this.charas$ = this.docsSubject.pipe(
+    this.charas$ = debouncedDocs$.pipe(
       map(docs => docs.filter(doc => doc.schema === 'chara'))
     ) as Observable<RpChara[]>
 
@@ -152,7 +157,7 @@ export class RpService implements OnDestroy {
     this.charasById$.subscribe(charasById => this.charasById = charasById);
 
     // initial offline update
-    let loaded = this.docsSubject.pipe(first()).toPromise()
+    let loaded = debouncedDocs$.pipe(first()).toPromise()
     this.loaded = loaded.then(() => true)
     this.notFound = this.loaded.then(loaded => !loaded)
 
