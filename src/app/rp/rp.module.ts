@@ -21,10 +21,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { RpComponent } from './rp.component';
-import { ArchiveComponent } from './archive/archive.component';
+import { ArchiveComponent } from './CONTAINERS/archive.component';
 import { ChatComponent } from './chat/chat.component';
 import { RpMessageComponent } from './rp-message/rp-message.component';
-import { IpidComponent } from './rp-message/ipid/ipid.component';
+import { IpidComponent } from './COMPONENTS/ipid.component';
+import { PaginatorComponent } from './COMPONENTS/paginator.component';
 import { MessageBoxComponent } from './chat/message-box/message-box.component';
 import { TitleBarComponent } from './title-bar/title-bar.component';
 import { NewCharaComponent } from './chat/new-chara/new-chara.component';
@@ -51,6 +52,7 @@ import { CharaIconDirective } from './chat/chara-drawer/chara-icon.directive';
     ChatComponent,
     RpMessageComponent,
     IpidComponent,
+    PaginatorComponent,
     MessageBoxComponent,
     TitleBarComponent,
     NewCharaComponent,

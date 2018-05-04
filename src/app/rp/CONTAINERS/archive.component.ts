@@ -6,15 +6,22 @@ import { combineLatest } from 'rxjs/observable/combineLatest'
 import { map } from 'rxjs/operators/map';
 
 @Component({
-  templateUrl: 'archive.html',
-  styles: [`
-    #pager {
-      background-color: #eee;
-    }
-    :host-context(.dark-theme) #pager {
-      background-color: #555;
-    }
-  `],
+  template: `
+    <section fxFill fxLayout="column">
+
+      <title-bar style="z-index:1"></title-bar>
+
+      <rp-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rp-paginator>
+
+      <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
+      <div class="flex-scroll-container" style="padding: 10px 10px 20px">
+        <ng-container *ngFor="let msg of (messages$|async); trackBy: rp.trackById">
+          <rp-message [msg]="msg"></rp-message>
+        </ng-container>
+      </div>
+
+    </section>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArchiveComponent {
@@ -23,8 +30,6 @@ export class ArchiveComponent {
 
   public pageNum$: Observable<number>;
   public pageCount$: Observable<number>;
-  public hasNextPage$: Observable<boolean>;
-  public hasPrevPage$: Observable<boolean>;
   public messages$: Observable<RpMessage[]>;
 
   constructor(
@@ -42,21 +47,15 @@ export class ArchiveComponent {
       map(msgs => Math.ceil(msgs.length/this.size))
     );
 
-    this.hasNextPage$ = combineLatest(
-      this.pageNum$,
-      this.pageCount$,
-      (page, count) => page < count
-    )
-
-    this.hasPrevPage$ = this.pageNum$.pipe(
-      map(num => num > 1)
-    );
-
     this.messages$ = combineLatest(
       this.rp.messages$,
       this.pageNum$,
       (msgs, page) => msgs.slice((page-1)*this.size, page*this.size)
     )
+  }
+
+  pageNumChange(page: number) {
+    this.router.navigate(['../', page], { relativeTo: this.route })
   }
 
 }
