@@ -22,7 +22,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 
 import { RpComponent } from './rp.component';
 import { ArchiveComponent } from './CONTAINERS/archive.component';
-import { ChatComponent } from './chat/chat.component';
+import { ChatComponent } from './CONTAINERS/chat.component';
 import { RpMessageComponent } from './rp-message/rp-message.component';
 import { IpidComponent } from './COMPONENTS/ipid.component';
 import { PaginatorComponent } from './COMPONENTS/paginator.component';

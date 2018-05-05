@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { RpService, RpMessage } from '../rp.service';
-import { CharaSelectorService } from './chara-selector.service';
+import { CharaSelectorService } from '../chat/chara-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -9,7 +9,29 @@ import { scan } from 'rxjs/operators/scan';
 import { map } from 'rxjs/operators/map';
 
 @Component({
-  templateUrl: 'chat.html',
+  template: `
+    <mat-sidenav-container fxFill>
+
+      <mat-sidenav-content fxLayout="column">
+
+        <title-bar style="z-index:1"></title-bar>
+
+        <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
+
+        <div>
+          <rp-message-box></rp-message-box>
+        </div>
+
+      </mat-sidenav-content>
+
+      <mat-sidenav #charaMenu position="end" mode="over">
+
+        <chara-drawer-contents></chara-drawer-contents>
+
+      </mat-sidenav>
+
+    </mat-sidenav-container>
+  `,
   styles: [],
   providers: [CharaSelectorService],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { RpComponent } from './rp.component';
 import { ArchiveComponent } from './CONTAINERS/archive.component';
-import { ChatComponent } from './chat/chat.component';
+import { ChatComponent } from './CONTAINERS/chat.component';
 
 const routes: Routes = [
   {
