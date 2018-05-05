@@ -62,7 +62,9 @@
     "component": {
       "spec": false,
       "inlineStyle": true,
-      "inlineTemplate": true
+      "inlineTemplate": true,
+      "flat": true,
+      "changeDetection": "OnPush"
     },
     "directive": {
       "spec": false
@@ -77,7 +79,8 @@
       "spec": false
     },
     "service": {
-      "spec": false
+      "spec": false,
+      "flat": true
     }
   }
 }
