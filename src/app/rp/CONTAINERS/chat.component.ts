@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { scan } from 'rxjs/operators/scan';
 import { map } from 'rxjs/operators/map';
+import { MainMenuService } from '../main-menu.service';
 
 @Component({
   template: `
@@ -14,7 +15,7 @@ import { map } from 'rxjs/operators/map';
 
       <mat-sidenav-content fxLayout="column">
 
-        <title-bar style="z-index:1"></title-bar>
+        <title-bar [title]="rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></title-bar>
 
         <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
 
@@ -49,6 +50,7 @@ export class ChatComponent implements OnInit {
 
   constructor(
     public rp: RpService,
+    public mainMenuService: MainMenuService,
     private charaSelectorService: CharaSelectorService,
     private snackbar: MatSnackBar
   ) { }
@@ -89,4 +91,9 @@ export class ChatComponent implements OnInit {
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
+
+  openMenu() {
+    this.mainMenuService.menu.open();
+  }
+
 }

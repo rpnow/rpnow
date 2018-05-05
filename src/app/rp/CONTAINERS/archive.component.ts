@@ -4,12 +4,13 @@ import { RpService, RpMessage } from '../rp.service';
 import { Observable } from 'rxjs/Observable';
 import { combineLatest } from 'rxjs/observable/combineLatest'
 import { map } from 'rxjs/operators/map';
+import { MainMenuService } from '../main-menu.service';
 
 @Component({
   template: `
     <section fxFill fxLayout="column">
 
-      <title-bar style="z-index:1"></title-bar>
+      <title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></title-bar>
 
       <rp-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rp-paginator>
 
@@ -29,6 +30,7 @@ export class ArchiveComponent {
 
   constructor(
     public rp: RpService,
+    public mainMenuService: MainMenuService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
@@ -51,6 +53,10 @@ export class ArchiveComponent {
 
   pageNumChange(page: number) {
     this.router.navigate(['../', page], { relativeTo: this.route })
+  }
+
+  openMenu() {
+    this.mainMenuService.menu.open();
   }
 
 }

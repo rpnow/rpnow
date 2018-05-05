@@ -27,7 +27,7 @@ import { RpMessageComponent } from './rp-message/rp-message.component';
 import { IpidComponent } from './COMPONENTS/ipid.component';
 import { PaginatorComponent } from './COMPONENTS/paginator.component';
 import { MessageBoxComponent } from './chat/message-box/message-box.component';
-import { TitleBarComponent } from './title-bar/title-bar.component';
+import { TitleBarComponent } from './COMPONENTS/title-bar.component';
 import { NewCharaComponent } from './chat/new-chara/new-chara.component';
 import { BlackOrWhitePipe } from './black-or-white.pipe';
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
