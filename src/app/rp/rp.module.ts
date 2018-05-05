@@ -44,6 +44,7 @@ import { CharaDrawerComponent } from './chat/chara-drawer/chara-drawer.component
 import { BannerMessageComponent } from './banner-message/banner-message.component';
 import { CharaIconDirective } from './chat/chara-drawer/chara-icon.directive';
 import { TimeagoComponent } from './COMPONENTS/timeago.component';
+import { MessageListComponent } from './COMPONENTS/message-list.component';
 
 
 @NgModule({
@@ -70,7 +71,8 @@ import { TimeagoComponent } from './COMPONENTS/timeago.component';
     CharaDrawerComponent,
     BannerMessageComponent,
     CharaIconDirective,
-    TimeagoComponent
+    TimeagoComponent,
+    MessageListComponent
   ],
   imports: [
     CommonModule,

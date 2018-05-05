@@ -13,12 +13,7 @@ import { map } from 'rxjs/operators/map';
 
       <rp-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rp-paginator>
 
-      <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
-      <div class="flex-scroll-container" style="padding: 10px 10px 20px">
-        <ng-container *ngFor="let msg of (messages$|async); trackBy: rp.trackById">
-          <rp-message [msg]="msg"></rp-message>
-        </ng-container>
-      </div>
+      <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
 
     </section>
   `,

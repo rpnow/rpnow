@@ -18,7 +18,7 @@ export class ChatComponent implements OnInit {
 
   @ViewChild('charaMenu') charaMenu: MatSidenav;
 
-  @ViewChild('messageContainer') messageContainer: ElementRef;
+  @ViewChild('messageContainer', { read: ElementRef }) messageContainer: ElementRef;
   private el: HTMLDivElement;
 
   private subscription: Subscription;

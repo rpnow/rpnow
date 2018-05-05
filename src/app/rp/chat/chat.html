@@ -4,11 +4,7 @@
 
         <title-bar style="z-index:1"></title-bar>
 
-        <!-- https://stackoverflow.com/questions/14962468/flexbox-and-vertical-scroll-in-a-full-height-app-using-newer-flexbox-api -->
-        <div #messageContainer class="flex-scroll-container" style="padding: 10px 10px 20px">
-            <rp-message *ngFor="let msg of (messages$|async); trackBy: rp.trackById" [msg]="msg"></rp-message>
-            <!-- <rp-message *ngFor="let msg of (sendingMessages$|async)" [msg]="msg" [sending]="true"></rp-message> -->
-        </div>
+        <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
 
         <div>
             <rp-message-box></rp-message-box>
