@@ -1,8 +1,6 @@
-import { Component, OnChanges, SimpleChanges, Input, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, Input, ChangeDetectionStrategy } from '@angular/core';
 import { RpMessage, RpService, RpChara } from '../rp.service';
 import { OptionsService } from '../options.service';
-import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
-import { format } from 'date-fns';
 
 @Component({
   selector: 'rp-message',
@@ -10,7 +8,7 @@ import { format } from 'date-fns';
   styleUrls: ['rp-message.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RpMessageComponent implements OnInit, OnChanges, OnDestroy {
+export class RpMessageComponent implements OnChanges {
 
   constructor(public rp: RpService, public options: OptionsService) { }
 
@@ -22,20 +20,7 @@ export class RpMessageComponent implements OnInit, OnChanges, OnDestroy {
   editing: boolean = false;
   newContent: string = '';
 
-  timestampDate: Date;
-  editedDate: Date;
-  timeAgo: string = '';
   classes: {[key:string]: boolean} = {};
-
-  timerHandle: number;
-
-  ngOnInit() {
-    this.timerHandle = setInterval(() => this.updateTimeAgo(), 60*1000);
-  }
-
-  ngOnDestroy() {
-    clearInterval(this.timerHandle);
-  }
 
   ngOnChanges(changes: SimpleChanges) {
     this.classes = {
@@ -46,18 +31,9 @@ export class RpMessageComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.chara = (this.msg.type === 'chara') ? this.rp.charasById.get(this.msg.charaId) : null;
-
-    this.timestampDate = this.msg.timestamp ? new Date(this.msg.timestamp*1000) : null;
-    this.editedDate = this.msg.edited ? new Date(this.msg.edited*1000) : null;
-
-    this.updateTimeAgo()
   }
 
-  updateTimeAgo() {
-    this.timeAgo = this.msg.timestamp ? distanceInWordsToNow(this.msg.timestamp*1000) : '';
-  }
-
-  public canEdit() {
+  canEdit() {
     return this.msg.challenge === this.options.challenge.hash;
   }
 

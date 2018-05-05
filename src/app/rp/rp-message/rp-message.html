@@ -6,8 +6,7 @@
             <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
         <ng-container *ngIf="!sending">
-            <span class="timestamp" [title]="'Posted '+(timestampDate|date:'short')">{{timeAgo}} ago</span>
-            <span *ngIf="msg.edited" class="edited-text" [title]="'Edited '+(editedDate|date:'short')">(Edited)</span>
+            <span class="timestamp" [timeAgo]="msg.createdAt" [timeAgoEdited]="msg.editedAt"></span>
             <ipid *ngIf="msg.ipid" [style.visibility]="canEdit()?'hidden':'visible'" [ipid]="msg.ipid"></ipid>
         </ng-container>
     </div>

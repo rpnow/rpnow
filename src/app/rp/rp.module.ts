@@ -43,6 +43,7 @@ import { OptionsDialogComponent } from './options-dialog/options-dialog.componen
 import { CharaDrawerComponent } from './chat/chara-drawer/chara-drawer.component';
 import { BannerMessageComponent } from './banner-message/banner-message.component';
 import { CharaIconDirective } from './chat/chara-drawer/chara-icon.directive';
+import { TimeagoComponent } from './COMPONENTS/timeago.component';
 
 
 @NgModule({
@@ -68,7 +69,8 @@ import { CharaIconDirective } from './chat/chara-drawer/chara-icon.directive';
     OptionsDialogComponent,
     CharaDrawerComponent,
     BannerMessageComponent,
-    CharaIconDirective
+    CharaIconDirective,
+    TimeagoComponent
   ],
   imports: [
     CommonModule,

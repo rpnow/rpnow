@@ -36,8 +36,7 @@
 .message-slim .message-details {
     visibility: hidden;
 }
-.message .timestamp,
-.message .edited-text {
+.message .timestamp {
     margin-right: 4px;
     opacity: 0.66;
 }

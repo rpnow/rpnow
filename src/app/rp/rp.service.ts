@@ -21,9 +21,9 @@ import sortedIndexBy from 'lodash-es/sortedIndexBy';
 export interface RpMessage {
   schema: 'message';
   _id?: string;
+  createdAt: string;
+  editedAt?: string;
   type: 'narrator'|'ooc'|'chara'|'image';
-  timestamp?: number;
-  edited?: number;
   content?: string;
   charaId?: string;
   challenge?: string;
@@ -33,6 +33,8 @@ export interface RpMessage {
 
 export interface RpChara {
   schema: 'chara';
+  createdAt: string;
+  editedAt?: string;
   _id?: string;
   name: string;
   color: string;
@@ -189,6 +191,7 @@ export class RpService implements OnDestroy {
   public async addMessage(content:string, voice: RpVoice) {
     let msg: RpMessage = {
       _id: cuid(),
+      createdAt: new Date().toISOString(),
       schema: 'message',
       content,
       ... this.typeFromVoice(voice),
@@ -202,6 +205,7 @@ export class RpService implements OnDestroy {
   public async addChara(name: string, color: string) {
     let chara: RpChara = {
       _id: cuid(),
+      createdAt: new Date().toISOString(),
       schema: 'chara',
       name,
       color
@@ -215,6 +219,7 @@ export class RpService implements OnDestroy {
   public async addImage(url: string) {
     let msg: RpMessage = {
       _id: cuid(),
+      createdAt: new Date().toISOString(),
       schema: 'message',
       type: 'image',
       url,
