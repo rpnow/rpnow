@@ -16,7 +16,22 @@ import { OptionsService } from '../options.service';
 
     </div>
   `,
-  styleUrls: ['banner-message.scss'],
+  styles: [`
+    /* TODO figure out how to import this in an inline styles declaration */
+    /* @import '~@angular/material/theming'; */
+
+    div {
+      text-align: center;
+      padding: 5px;
+
+      color: white;
+      background-color: #7c4dff; /* mat-color($mat-deep-purple, "A200"); */
+    }
+    :host-context(.dark-theme) div {
+      color: black;
+      background-color: #ffab40; /* mat-color($mat-orange, "A200"); */
+    }
+  `],
   providers: [BannerMessageService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
