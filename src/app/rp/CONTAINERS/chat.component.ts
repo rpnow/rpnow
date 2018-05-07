@@ -21,7 +21,7 @@ import { OptionsService } from '../options.service';
 
         <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
 
-        <send-box [voice]="currentChara$|async" [pressEnterToSend]="options.pressEnterToSend$|async" (onSendMessage)="sendMessage($event[0],$event[1])" (changeCharacter)="openCharaSelector()"></send-box>
+        <send-box [(content)]="options.msgBoxContent" [voice]="currentChara$|async" [pressEnterToSend]="options.pressEnterToSend$|async" (onSendMessage)="sendMessage($event[0],$event[1])" (changeCharacter)="openCharaSelector()"></send-box>
 
       </mat-sidenav-content>
 

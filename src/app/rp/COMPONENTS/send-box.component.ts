@@ -41,7 +41,7 @@ import { ImageDialogComponent } from '../chat/image-dialog/image-dialog.componen
 
         <div id="typing-area" fxLayout="row" fxLayoutAlign="center center">
 
-            <textarea fxFlex matTextareaAutosize matAutosizeMinRows="3" [(ngModel)]="content" placeholder="Type your message." maxlength="10000" (keypress)="keypressCheckEnter($event)"></textarea>
+            <textarea fxFlex matTextareaAutosize matAutosizeMinRows="3" [(ngModel)]="content" (ngModelChange)="contentChange.emit($event)" placeholder="Type your message." maxlength="10000" (keypress)="keypressCheckEnter($event)"></textarea>
 
             <button mat-icon-button [disabled]="!valid()" (click)="sendMessage()">
                 <mat-icon aria-label="Send" matTooltip="Send" matTooltipPosition="above">send</mat-icon>
