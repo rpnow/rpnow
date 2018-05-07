@@ -1,18 +1,18 @@
-<div id="message-box" fxLayout="column" [class]="class$|async" [style.background-color]="(chara$|async)?.color" [style.color]="(chara$|async)?.color|bw">
+<div id="message-box" fxLayout="column" [class]="class" [style.background-color]="chara?.color" [style.color]="chara?.color|bw">
 
     <div id="voice-bar" fxLayout="row" fxLayoutAlign="center center">
 
         <div id="click-to-change" fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
-            <ng-container *ngIf="(chara$|async)==='narrator'">
+            <ng-container *ngIf="chara==='narrator'">
                 Narrator
             </ng-container>
 
-            <ng-container *ngIf="(chara$|async)==='ooc'">
+            <ng-container *ngIf="chara==='ooc'">
                 Out of character
             </ng-container>
 
-            <ng-container *ngIf="(chara$|async)._id != null">
-                {{(chara$|async).name}}
+            <ng-container *ngIf="chara._id != null">
+                {{chara.name}}
             </ng-container>
         </div>
 

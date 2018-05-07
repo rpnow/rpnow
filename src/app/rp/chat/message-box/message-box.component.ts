@@ -1,13 +1,9 @@
-import { Component, OnInit, Output, EventEmitter, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Output, EventEmitter, ViewContainerRef, ChangeDetectionStrategy, Input } from '@angular/core';
 import { CharaSelectorService } from '../chara-selector.service';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { RpVoice, RpService } from '../../rp.service';
-import { OptionsService } from '../../options.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FormatGuideDialog } from '../../info-dialogs/format-guide-dialog/format-guide-dialog.component';
 import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
-import { map } from 'rxjs/operators/map';
 
 @Component({
   selector: 'rp-message-box',
@@ -15,43 +11,34 @@ import { map } from 'rxjs/operators/map';
   styleUrls: ['message-box.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessageBoxComponent implements OnInit {
+export class MessageBoxComponent {
+
+  @Input() chara: RpVoice;
+  @Input() content: string = '';
+  @Input() pressEnterToSend: boolean;
+  @Output() contentChange: EventEmitter<string> = new EventEmitter();
+  @Output() onSendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
+  @Output() changeCharacter: EventEmitter<void> = new EventEmitter();
 
   constructor(
-    public rp: RpService,
-    private charaSelectorService: CharaSelectorService,
     private dialog: MatDialog,
     private viewContainerRef: ViewContainerRef,
-    private options: OptionsService
   ) { }
 
-  public chara$: BehaviorSubject<RpVoice>;
-  public class$: Observable<string>;
-
-  ngOnInit() {
-    this.chara$ = this.charaSelectorService.currentChara$;
-    this.class$ = this.chara$.pipe(
-      map(chara => (typeof chara === 'string') ? 'message-box-'+chara : 'message-box-chara')
-    )
-  }
-
-  public get content() {
-    return this.options.msgBoxContent;
-  }
-  public set content(value) {
-    this.options.msgBoxContent = value;
+  get class() {
+    return (typeof this.chara === 'string') ? 'message-box-'+this.chara : 'message-box-chara';
   }
 
   valid() {
-    return this.content.trim();
+    return this.content.trim().length > 0;
   }
 
   sendMessage() {
     if (!this.valid()) return;
 
-    let voice = this.chara$.value;
+    let voice = this.chara;
     let content = this.content;
-    
+
     // shortcut to send ooc messages; if not on the actual OOC character,
     //  you can send a message inside of (()) et all, as a shortcut to change
     //  that specific message to an OOC message
@@ -72,13 +59,13 @@ export class MessageBoxComponent implements OnInit {
 
     if (!content.trim()) return;
 
-    this.rp.addMessage(content, voice);
+    this.onSendMessage.emit([content, voice]);
 
     this.content = '';
   }
 
   openCharaSelector() {
-    this.charaSelectorService.menu.open();
+    this.changeCharacter.emit()
   }
 
   showImageDialog() {
@@ -91,7 +78,7 @@ export class MessageBoxComponent implements OnInit {
 
     if ($event.shiftKey) return;
 
-    if (this.options.pressEnterToSend || $event.ctrlKey) {
+    if (this.pressEnterToSend || $event.ctrlKey) {
       this.sendMessage();
       return false;
     }

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
-import { RpService, RpMessage } from '../rp.service';
+import { RpService, RpMessage, RpChara, RpVoice } from '../rp.service';
 import { CharaSelectorService } from '../chat/chara-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
@@ -8,6 +8,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { scan } from 'rxjs/operators/scan';
 import { map } from 'rxjs/operators/map';
 import { MainMenuService } from '../main-menu.service';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { OptionsService } from '../options.service';
 
 @Component({
   template: `
@@ -19,9 +21,7 @@ import { MainMenuService } from '../main-menu.service';
 
         <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
 
-        <div>
-          <rp-message-box></rp-message-box>
-        </div>
+        <rp-message-box [chara]="currentChara$|async" [pressEnterToSend]="options.pressEnterToSend$|async" (onSendMessage)="sendMessage($event[0],$event[1])" (changeCharacter)="openCharaSelector()"></rp-message-box>
 
       </mat-sidenav-content>
 
@@ -47,10 +47,12 @@ export class ChatComponent implements OnInit {
   private subscription: Subscription;
 
   public messages$: Observable<RpMessage[]>
+  public currentChara$: BehaviorSubject<RpVoice>;
 
   constructor(
     public rp: RpService,
-    public mainMenuService: MainMenuService,
+    public options: OptionsService,
+    private mainMenuService: MainMenuService,
     private charaSelectorService: CharaSelectorService,
     private snackbar: MatSnackBar
   ) { }
@@ -59,6 +61,8 @@ export class ChatComponent implements OnInit {
     this.el = this.messageContainer.nativeElement as HTMLDivElement;
 
     this.charaSelectorService.setInstance(this.charaMenu);
+
+    this.currentChara$ = this.charaSelectorService.currentChara$;
 
     this.messages$ = this.rp.messages$.pipe(
       scan(({firstIdx}:{firstIdx:number, msgs:RpMessage[]}, msgs:RpMessage[]) => {
@@ -94,6 +98,14 @@ export class ChatComponent implements OnInit {
 
   openMenu() {
     this.mainMenuService.menu.open();
+  }
+
+  openCharaSelector() {
+    this.charaSelectorService.menu.open();
+  }
+
+  sendMessage(content:string, voice:RpChara) {
+    this.rp.addMessage(content, voice);
   }
 
 }
