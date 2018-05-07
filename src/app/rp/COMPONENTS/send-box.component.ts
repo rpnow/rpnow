@@ -5,9 +5,9 @@ import { FormatGuideDialog } from '../info-dialogs/format-guide-dialog/format-gu
 import { ImageDialogComponent } from '../chat/image-dialog/image-dialog.component';
 
 @Component({
-  selector: 'rp-message-box',
+  selector: 'send-box',
   template: `
-    <div id="message-box" fxLayout="column" [class]="elementClass" [style.background-color]="chara?.color" [style.color]="chara?.color|bw">
+    <div id="send-box" fxLayout="column" [class]="elementClass" [style.background-color]="chara?.color" [style.color]="chara?.color|bw">
 
         <div id="voice-bar" fxLayout="row" fxLayoutAlign="center center">
 
@@ -51,10 +51,10 @@ import { ImageDialogComponent } from '../chat/image-dialog/image-dialog.componen
 
     </div>
   `,
-  styleUrls: ['./message-box.scss'],
+  styleUrls: ['./send-box.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessageBoxComponent {
+export class SendBoxComponent {
 
   @Input() voice: RpVoice;
   @Input() content: string = '';
@@ -85,7 +85,7 @@ export class MessageBoxComponent {
   }
 
   get elementClass() {
-    return this.isChara ? 'message-box-chara' : 'message-box-'+this.voice;
+    return this.isChara ? 'send-box-chara' : 'send-box-'+this.voice;
   }
 
   valid() {

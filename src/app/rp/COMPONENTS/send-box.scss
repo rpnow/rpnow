@@ -1,4 +1,4 @@
-#message-box {
+#send-box {
     z-index: 3;
 
     border-color: rgba(0,0,0,0.15);
@@ -29,16 +29,16 @@
         }
     }
 
-    &.message-box-narrator {
+    &.send-box-narrator {
         background-color: #ffffff;
     }
-    :host-context(.dark-theme) &.message-box-narrator {
+    :host-context(.dark-theme) &.send-box-narrator {
         background-color: #444444;
     }
-    &.message-box-ooc {
+    &.send-box-ooc {
         background-color: #fafafa;
     }
-    :host-context(.dark-theme) &.message-box-ooc {
+    :host-context(.dark-theme) &.send-box-ooc {
         background-color: #303030;
     }
 

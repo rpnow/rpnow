@@ -26,7 +26,7 @@ import { ChatComponent } from './CONTAINERS/chat.component';
 import { RpMessageComponent } from './rp-message/rp-message.component';
 import { IpidComponent } from './COMPONENTS/ipid.component';
 import { PaginatorComponent } from './COMPONENTS/paginator.component';
-import { MessageBoxComponent } from './COMPONENTS/message-box.component';
+import { SendBoxComponent } from './COMPONENTS/send-box.component';
 import { TitleBarComponent } from './COMPONENTS/title-bar.component';
 import { NewCharaComponent } from './chat/new-chara/new-chara.component';
 import { BlackOrWhitePipe } from './black-or-white.pipe';
@@ -55,7 +55,7 @@ import { MessageListComponent } from './COMPONENTS/message-list.component';
     RpMessageComponent,
     IpidComponent,
     PaginatorComponent,
-    MessageBoxComponent,
+    SendBoxComponent,
     TitleBarComponent,
     NewCharaComponent,
     BlackOrWhitePipe,
