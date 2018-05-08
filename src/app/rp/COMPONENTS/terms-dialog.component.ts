@@ -1,4 +1,3 @@
-
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -44,13 +43,24 @@ This site and the RPNow service are provided "as is" without warranty of any kin
 `);
 
 @Component({
-  templateUrl: 'terms-dialog.html',
-  styles: [],
+  template: `
+    <div fxLayout="row" fxLayoutAlign="center center">
+
+      <h3 mat-dialog-title fxFlex>Terms &amp; Privacy</h3>
+
+      <button mat-icon-button mat-dialog-title (click)="close()">
+        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
+      </button>
+
+    </div>
+
+    <mat-dialog-content class="generated-links" [innerHtml]="innerHtml"></mat-dialog-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TermsDialogComponent {
 
-  public innerHtml: string = template;
+  innerHtml: string = template;
 
   constructor(
     private dialogRef: MatDialogRef<TermsDialogComponent>

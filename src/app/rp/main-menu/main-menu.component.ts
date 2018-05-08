@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AboutDialogComponent } from '../info-dialogs/about-dialog/about-dialog.component';
-import { ContactDialogComponent } from '../info-dialogs/contact-dialog/contact-dialog.component';
-import { TermsDialogComponent } from '../info-dialogs/terms-dialog/terms-dialog.component';
+import { AboutDialogComponent } from '../COMPONENTS/about-dialog.component';
+import { ContactDialogComponent } from '../COMPONENTS/contact-dialog.component';
+import { TermsDialogComponent } from '../COMPONENTS/terms-dialog.component';
 import { OptionsService } from '../options.service';
 import { OptionsDialogComponent } from '../options-dialog/options-dialog.component';
 import { MainMenuService } from '../main-menu.service';

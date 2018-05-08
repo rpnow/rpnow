@@ -42,13 +42,24 @@ RPNow was built by Nigel Nelson with extra graphic design guidance from Hannah L
 `);
 
 @Component({
-  templateUrl: './about-dialog.html',
-  styles: [],
+  template: `
+    <div fxLayout="row" fxLayoutAlign="center center">
+
+      <h3 mat-dialog-title fxFlex>About RPNow</h3>
+
+      <button mat-icon-button mat-dialog-title (click)="close()">
+        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
+      </button>
+
+    </div>
+
+    <mat-dialog-content class="generated-links" [innerHtml]="innerHtml"></mat-dialog-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AboutDialogComponent { 
 
-  public innerHtml: string = template;
+  innerHtml: string = template;
 
   constructor(
     private dialogRef: MatDialogRef<AboutDialogComponent>
