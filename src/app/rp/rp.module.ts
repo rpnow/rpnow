@@ -40,9 +40,9 @@ import { RpRoutingModule } from './rp-routing.module';
 import { ImageDialogComponent } from './chat/image-dialog/image-dialog.component';
 import { MainMenuComponent } from './main-menu/main-menu.component';
 import { OptionsDialogComponent } from './options-dialog/options-dialog.component';
-import { CharaDrawerComponent } from './chat/chara-drawer/chara-drawer.component';
+import { CharaDrawerComponent } from './COMPONENTS/chara-drawer.component';
 import { BannerMessageComponent } from './banner-message/banner-message.component';
-import { CharaIconDirective } from './chat/chara-drawer/chara-icon.directive';
+import { CharaIconDirective } from './COMPONENTS/chara-icon.directive';
 import { TimeagoComponent } from './COMPONENTS/timeago.component';
 import { MessageListComponent } from './COMPONENTS/message-list.component';
 

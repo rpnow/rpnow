@@ -245,11 +245,6 @@ export class RpService implements OnDestroy {
     this.docsSubject.complete();
   }
 
-  // use in ngFor
-  public trackById(index: number, item: RpMessage|RpChara) {
-    return item._id;
-  }
-
   public isSpecialVoice(voiceStr: string) {
     return ['narrator', 'ooc'].includes(voiceStr)
   }
