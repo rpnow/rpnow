@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RpService } from '../rp.service';
 import { Observable } from 'rxjs/Observable';
@@ -31,6 +31,8 @@ import { RpMessage } from '../models/rp-message';
 })
 export class ArchiveComponent {
 
+  @ViewChild('messageContainer', { read: ElementRef }) messageContainer: ElementRef;
+
   public readonly size: number = 20;
 
   public pageNum$: Observable<number>;
@@ -62,7 +64,8 @@ export class ArchiveComponent {
   }
 
   pageNumChange(page: number) {
-    this.router.navigate(['../', page], { relativeTo: this.route })
+    this.router.navigate(['../', page], { relativeTo: this.route });
+    (this.messageContainer.nativeElement as HTMLElement).scrollTop = 0;
   }
 
   openMenu() {
