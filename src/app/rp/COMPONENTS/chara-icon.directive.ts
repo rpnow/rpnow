@@ -1,5 +1,5 @@
 import { Directive, ElementRef, Input } from '@angular/core';
-import { BlackOrWhitePipe } from '../black-or-white.pipe';
+import { BlackOrWhitePipe } from '../pipes/black-or-white.pipe';
 
 const regex = /^#[0-9a-f]{6}$/i;
 
