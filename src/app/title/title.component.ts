@@ -10,8 +10,7 @@ import { TrackService } from '../track.service';
 
 @Component({
   templateUrl: 'title.template.html',
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class TitleComponent implements OnInit {
 

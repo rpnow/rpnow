@@ -21,7 +21,7 @@ import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
       justify-content: center;
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class AppComponent implements OnInit {
   constructor(
