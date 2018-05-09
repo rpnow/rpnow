@@ -1,7 +1,6 @@
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
-import { MatDialogRef } from '@angular/material/dialog';
 
 const template = marked(`
 Here's how to do bold, italics, and other things.
@@ -32,7 +31,7 @@ Use these shortcuts to RP faster.
 
       <h3 mat-dialog-title fxFlex>Formatting Guide</h3>
 
-      <button mat-icon-button mat-dialog-title (click)="close()">
+      <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
       </button>
 
@@ -43,14 +42,5 @@ Use these shortcuts to RP faster.
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormatGuideDialog {
-
   innerHtml: string = template;
-
-  constructor(
-    private dialogRef: MatDialogRef<FormatGuideDialog>
-  ) {}
-
-  close() {
-    this.dialogRef.close();
-  }
 }

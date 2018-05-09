@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
-import { MatDialogRef } from '@angular/material/dialog';
 
 const template = marked(`
 By using RPNow, you agree to the terms listed in this document.
@@ -48,7 +47,7 @@ This site and the RPNow service are provided "as is" without warranty of any kin
 
       <h3 mat-dialog-title fxFlex>Terms &amp; Privacy</h3>
 
-      <button mat-icon-button mat-dialog-title (click)="close()">
+      <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
       </button>
 
@@ -59,14 +58,5 @@ This site and the RPNow service are provided "as is" without warranty of any kin
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TermsDialogComponent {
-
   innerHtml: string = template;
-
-  constructor(
-    private dialogRef: MatDialogRef<TermsDialogComponent>
-  ) {}
-
-  close() {
-    this.dialogRef.close();
-  }
 }

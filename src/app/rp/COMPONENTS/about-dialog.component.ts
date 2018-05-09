@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
-import { MatDialogRef } from '@angular/material/dialog';
 
 const template = marked(`
 
@@ -47,7 +46,7 @@ RPNow was built by Nigel Nelson with extra graphic design guidance from Hannah L
 
       <h3 mat-dialog-title fxFlex>About RPNow</h3>
 
-      <button mat-icon-button mat-dialog-title (click)="close()">
+      <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
       </button>
 
@@ -58,14 +57,5 @@ RPNow was built by Nigel Nelson with extra graphic design guidance from Hannah L
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AboutDialogComponent { 
-
   innerHtml: string = template;
-
-  constructor(
-    private dialogRef: MatDialogRef<AboutDialogComponent>
-  ) {}
-
-  close() {
-    this.dialogRef.close();
-  }
 }

@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
-import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   template: `
@@ -9,7 +8,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 
         <h3 mat-dialog-title fxFlex>Contact RPNow</h3>
 
-        <button mat-icon-button mat-dialog-title (click)="close()">
+        <button mat-icon-button mat-dialog-title mat-dialog-close>
             <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
         </button>
 
@@ -56,17 +55,12 @@ export class ContactDialogComponent {
 
   constructor(
     iconRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer,
-    private dialogRef: MatDialogRef<ContactDialogComponent>
+    sanitizer: DomSanitizer
   ) {
     iconRegistry.addSvgIcon('facebook', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/facebook.svg'))
     iconRegistry.addSvgIcon('twitter', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/twitter.svg'))
     iconRegistry.addSvgIcon('tumblr', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/tumblr.svg'))
     iconRegistry.addSvgIcon('discord', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/discord.svg'))
-  }
-
-  close() {
-    this.dialogRef.close();
   }
 
 }
