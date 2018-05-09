@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
-import { RpService } from '../rp.service';
+import { RpService } from './rp.service';
 import * as Docxtemplater from 'docxtemplater';
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';

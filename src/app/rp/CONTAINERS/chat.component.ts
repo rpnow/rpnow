@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, ViewContainerRef } from '@angular/core';
-import { RpService } from '../rp.service';
+import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -10,7 +10,7 @@ import { filter } from 'rxjs/operators/filter';
 import { tap } from 'rxjs/operators/tap';
 import { MainMenuService } from '../main-menu.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { OptionsService } from '../options.service';
+import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewCharaComponent } from '../chat/new-chara/new-chara.component';

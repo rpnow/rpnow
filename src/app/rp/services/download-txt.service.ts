@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as wrap from 'word-wrap';
 import { saveAs } from 'file-saver';
-import { RpService } from '../rp.service';
+import { RpService } from './rp.service';
 import { TrackService } from '../../track.service';
 
 @Injectable()

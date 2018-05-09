@@ -11,14 +11,14 @@ import { mergeMap } from 'rxjs/operators/mergeMap';
 import { first } from 'rxjs/operators/first';
 import { debounceTime } from 'rxjs/operators/debounceTime';
 import { of } from 'rxjs/observable/of';
-import { TrackService } from '../track.service';
+import { TrackService } from '../../track.service';
 import PouchDB from 'pouchdb';
-import { REMOTE_COUCH } from '../app.constants';
+import { REMOTE_COUCH } from '../../app.constants';
 import * as cuid from 'cuid';
 import sortedIndexBy from 'lodash-es/sortedIndexBy';
-import { RpChara } from './models/rp-chara';
-import { RpMessage } from './models/rp-message';
-import { RpVoice } from './models/rp-voice';
+import { RpChara } from '../models/rp-chara';
+import { RpMessage } from '../models/rp-message';
+import { RpVoice } from '../models/rp-voice';
 
 export type RpDoc = RpChara|RpMessage;
 

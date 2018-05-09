@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DownloadTxtService } from './download-txt.service';
-import { DownloadDocxService } from './download-docx.service';
-import { OptionsService } from '../options.service';
+import { DownloadTxtService } from '../services/download-txt.service';
+import { DownloadDocxService } from '../services/download-docx.service';
+import { OptionsService } from '../services/options.service';
 
 @Component({
   selector: 'app-download-dialog',

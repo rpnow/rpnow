@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, Inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { RpService } from '../rp.service';
+import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MainMenuService } from '../main-menu.service';
-import { OptionsService } from '../options.service';
+import { OptionsService } from '../services/options.service';
 import { DOCUMENT, Title } from '@angular/platform-browser';
-import { NotifyService } from '../notify.service';
-import { ChallengeService } from '../challenge.service';
+import { NotifyService } from '../services/notify.service';
+import { ChallengeService } from '../services/challenge.service';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({

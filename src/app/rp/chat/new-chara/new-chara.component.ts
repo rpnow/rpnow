@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { OptionsService } from '../../options.service';
-import { RpService } from '../../rp.service';
+import { OptionsService } from '../../services/options.service';
+import { RpService } from '../../services/rp.service';
 
 @Component({
   selector: 'app-new-chara',

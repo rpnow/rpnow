@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
-import { OptionsService } from '../options.service';
+import { OptionsService } from '../services/options.service';
 
 @Component({
   selector: 'rp-message',

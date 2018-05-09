@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { BannerMessageService } from './banner-message.service';
+import { BannerMessageService } from '../services/banner-message.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { OptionsService } from '../options.service';
+import { OptionsService } from '../services/options.service';
 
 @Component({
   selector: 'banner-message',

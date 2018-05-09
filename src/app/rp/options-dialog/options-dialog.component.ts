@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { OptionsService } from '../options.service';
-import { noises } from '../notify.service';
+import { OptionsService } from '../services/options.service';
+import { noises } from '../services/notify.service';
 import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({

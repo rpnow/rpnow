@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { RpService } from '../../rp.service';
+import { RpService } from '../../services/rp.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({

@@ -3,11 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { AboutDialogComponent } from '../COMPONENTS/about-dialog.component';
 import { ContactDialogComponent } from '../COMPONENTS/contact-dialog.component';
 import { TermsDialogComponent } from '../COMPONENTS/terms-dialog.component';
-import { OptionsService } from '../options.service';
+import { OptionsService } from '../services/options.service';
 import { OptionsDialogComponent } from '../options-dialog/options-dialog.component';
 import { MainMenuService } from '../main-menu.service';
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
-import { RpService } from '../rp.service';
+import { RpService } from '../services/rp.service';
 
 @Component({
   selector: 'main-menu-content',

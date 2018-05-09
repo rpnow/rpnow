@@ -1,11 +1,11 @@
 import { Component, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RpService } from '../rp.service';
+import { RpService } from '../services/rp.service';
 import { Observable } from 'rxjs/Observable';
 import { combineLatest } from 'rxjs/observable/combineLatest'
 import { map } from 'rxjs/operators/map';
 import { MainMenuService } from '../main-menu.service';
-import { OptionsService } from '../options.service';
+import { OptionsService } from '../services/options.service';
 import { RpMessage } from '../models/rp-message';
 
 @Component({
