@@ -5,8 +5,34 @@ import { RpService } from '../../services/rp.service';
 
 @Component({
   selector: 'app-new-chara',
-  templateUrl: 'new-chara.html',
-  styles: [],
+  template: `
+    <div fxLayout="row" fxLayoutAlign="center center">
+
+        <h3 mat-dialog-title fxFlex>New Character</h3>
+
+        <button mat-icon-button mat-dialog-title mat-dialog-close>
+            <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
+        </button>
+
+    </div>
+
+    <ng-container *ngIf="!loading">
+        <mat-form-field>
+            <input matInput maxlength="30" placeholder="Name this character:" [(ngModel)]="name" cdkFocusInitial>
+        </mat-form-field>
+
+        <span [(colorPicker)]="color" [cpToggle]="true" cpDialogDisplay="inline" [cpDisableInput]="true"></span>
+
+        <mat-dialog-actions>
+            <button mat-raised-button [disabled]="!valid()" [style.background-color]="submitButtonColor()" [style.color]="submitButtonColor()|bw" (click)="submit()">OK</button>
+            <button mat-raised-button mat-dialog-close>Cancel</button>
+        </mat-dialog-actions>
+    </ng-container>
+
+    <ng-container *ngIf="loading">
+        <mat-spinner></mat-spinner>
+    </ng-container>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewCharaComponent implements OnInit {
@@ -30,6 +56,10 @@ export class NewCharaComponent implements OnInit {
     return this.name.trim() && this.color;
   }
 
+  submitButtonColor() {
+    return this.valid() ? this.color : null;
+  }
+
   async submit() {
     if (!this.valid()) return;
 
@@ -39,10 +69,6 @@ export class NewCharaComponent implements OnInit {
 
     let chara = await this.rp.addChara(this.name, this.color);
     this.dialogRef.close(chara);
-  }
-
-  cancel() {
-    this.dialogRef.close(null);
   }
 
 }

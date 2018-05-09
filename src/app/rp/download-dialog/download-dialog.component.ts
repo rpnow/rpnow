@@ -1,28 +1,42 @@
 import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DownloadTxtService } from '../services/download-txt.service';
 import { DownloadDocxService } from '../services/download-docx.service';
 import { OptionsService } from '../services/options.service';
 
 @Component({
   selector: 'app-download-dialog',
-  templateUrl: 'download-dialog.html',
-  styles: [],
+  template: `
+    <div fxLayout="row" fxLayoutAlign="center center">
+        <h3 mat-dialog-title fxFlex>Download RP</h3>
+
+        <button mat-icon-button mat-dialog-title mat-dialog-close>
+            <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
+        </button>
+    </div>
+
+    <mat-checkbox [(ngModel)]="options.downloadOOC">Include OOC messages</mat-checkbox>
+
+    <mat-dialog-actions>
+        <button mat-raised-button color="primary" (click)="printTxt()">
+            <mat-icon>file_download</mat-icon>
+            .TXT
+        </button>
+        <button mat-raised-button color="primary" (click)="printDocx()">
+            <mat-icon>file_download</mat-icon>
+            .DOCX
+        </button>
+    </mat-dialog-actions>
+  `,
   providers: [DownloadDocxService, DownloadTxtService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DownloadDialogComponent {
 
   constructor(
-    private dialogRef: MatDialogRef<DownloadDialogComponent>,
     private txtService: DownloadTxtService,
     private docxService: DownloadDocxService,
     public options: OptionsService
   ) { }
-
-  cancel() {
-    this.dialogRef.close(null);
-  }
   
   printTxt() {
     this.txtService.downloadTxt(this.options.downloadOOC);
