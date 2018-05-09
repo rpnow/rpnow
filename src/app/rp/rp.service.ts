@@ -237,7 +237,11 @@ export class RpService implements OnDestroy {
     this.track.event('Messages', 'edit', null, content.length);
     
     let msg: RpMessage = (await this.db.get(id)) as RpMessage
-    msg = {...msg, content}
+    msg = {
+      ...msg,
+      content,
+      editedAt: new Date().toISOString()
+    }
     await this.db.put(msg);
     return msg
   }
