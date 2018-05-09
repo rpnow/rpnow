@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input } from '@angular/core';
-import { RpVoice, RpChara } from '../rp.service';
+import { RpChara } from '../models/rp-chara';
+import { RpVoice } from '../models/rp-voice';
 
 @Component({
   selector: 'chara-drawer-contents',

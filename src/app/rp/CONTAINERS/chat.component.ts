@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, ViewContainerRef } from '@angular/core';
-import { RpService, RpMessage, RpChara, RpVoice } from '../rp.service';
+import { RpService } from '../rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -14,6 +14,9 @@ import { OptionsService } from '../options.service';
 import { TrackService } from '../../track.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewCharaComponent } from '../chat/new-chara/new-chara.component';
+import { RpMessage } from '../models/rp-message';
+import { RpChara } from '../models/rp-chara';
+import { RpVoice } from '../models/rp-voice';
 
 @Component({
   template: `

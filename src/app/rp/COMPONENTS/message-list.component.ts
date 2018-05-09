@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
-import { RpMessage, RpChara } from '../rp.service';
+import { RpMessage } from '../models/rp-message';
+import { RpChara } from '../models/rp-chara';
 
 @Component({
   selector: 'rp-message-list',

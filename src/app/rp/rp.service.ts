@@ -16,33 +16,11 @@ import PouchDB from 'pouchdb';
 import { REMOTE_COUCH } from '../app.constants';
 import * as cuid from 'cuid';
 import sortedIndexBy from 'lodash-es/sortedIndexBy';
+import { RpChara } from './models/rp-chara';
+import { RpMessage } from './models/rp-message';
+import { RpVoice } from './models/rp-voice';
 
-
-export interface RpMessage {
-  schema: 'message';
-  _id?: string;
-  createdAt: string;
-  editedAt?: string;
-  type: 'narrator'|'ooc'|'chara'|'image';
-  content?: string;
-  charaId?: string;
-  challenge?: string;
-  url?: string;
-  ipid?: string;
-}
-
-export interface RpChara {
-  schema: 'chara';
-  createdAt: string;
-  editedAt?: string;
-  _id?: string;
-  name: string;
-  color: string;
-}
-
-export type RpVoice = RpChara|'narrator'|'ooc';
-
-export type RpDoc = RpChara|RpMessage
+export type RpDoc = RpChara|RpMessage;
 
 @Injectable()
 export class RpService implements OnDestroy {
