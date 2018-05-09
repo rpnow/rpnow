@@ -20,7 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ColorPickerModule } from 'ngx-color-picker';
 
-import { RpComponent } from './rp.component';
+import { RpComponent } from './CONTAINERS/rp.component';
 import { ArchiveComponent } from './CONTAINERS/archive.component';
 import { ChatComponent } from './CONTAINERS/chat.component';
 import { RpMessageComponent } from './COMPONENTS/rp-message.component';

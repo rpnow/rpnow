@@ -1,7 +1,7 @@
 import { NgModule, Injectable } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { RpComponent } from './rp.component';
+import { RpComponent } from './CONTAINERS/rp.component';
 import { ArchiveComponent } from './CONTAINERS/archive.component';
 import { ChatComponent } from './CONTAINERS/chat.component';
 
