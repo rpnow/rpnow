@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { combineLatest } from 'rxjs/observable/combineLatest'
 import { map } from 'rxjs/operators/map';
 import { MainMenuService } from '../main-menu.service';
+import { OptionsService } from '../options.service';
 
 @Component({
   template: `
@@ -14,7 +15,14 @@ import { MainMenuService } from '../main-menu.service';
 
       <rp-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rp-paginator>
 
-      <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
+      <rp-message-list class="flex-scroll-container" #messageContainer
+        [messages]="messages$|async"
+        [charas]="rp.charas$|async"
+        [challenge]="(options.challenge$|async).hash"
+        [showMessageDetails]="options.showMessageDetails$|async"
+        [pressEnterToSend]="options.pressEnterToSend$|async"
+        (editMessageContent)="editMessageContent($event[0], $event[1])"
+      ></rp-message-list>
 
     </section>
   `,
@@ -30,6 +38,7 @@ export class ArchiveComponent {
 
   constructor(
     public rp: RpService,
+    public options: OptionsService,
     public mainMenuService: MainMenuService,
     private route: ActivatedRoute,
     private router: Router
@@ -57,6 +66,10 @@ export class ArchiveComponent {
 
   openMenu() {
     this.mainMenuService.menu.open();
+  }
+
+  editMessageContent(id: string, content: string) {
+    this.rp.editMessage(id, content)
   }
 
 }

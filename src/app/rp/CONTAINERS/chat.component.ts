@@ -23,7 +23,14 @@ import { NewCharaComponent } from '../chat/new-chara/new-chara.component';
 
         <title-bar [title]="rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></title-bar>
 
-        <rp-message-list class="flex-scroll-container" #messageContainer [messages]="messages$|async"></rp-message-list>
+        <rp-message-list class="flex-scroll-container" #messageContainer
+          [messages]="messages$|async"
+          [charas]="rp.charas$|async"
+          [challenge]="(options.challenge$|async).hash"
+          [showMessageDetails]="options.showMessageDetails$|async"
+          [pressEnterToSend]="options.pressEnterToSend$|async"
+          (editMessageContent)="editMessageContent($event[0], $event[1])"
+        ></rp-message-list>
 
         <send-box [(content)]="options.msgBoxContent" [voice]="currentChara$|async" [pressEnterToSend]="options.pressEnterToSend$|async" (onSendMessage)="sendMessage($event[0],$event[1])" (changeCharacter)="openCharaSelector()"></send-box>
 
@@ -144,6 +151,10 @@ export class ChatComponent implements OnInit {
 
   sendMessage(content:string, voice:RpChara) {
     this.rp.addMessage(content, voice);
+  }
+
+  editMessageContent(id: string, content: string) {
+    this.rp.editMessage(id, content)
   }
 
 }

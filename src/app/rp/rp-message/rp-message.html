@@ -1,17 +1,17 @@
-<div [ngClass]="classes" [style.background-color]="chara?.color||''" [style.color]="(chara?.color|bw)">
-    <div *ngIf="chara" class="name">{{chara.name}}</div>
+<div [ngClass]="elementClasses" [style.background-color]="charaColor||''" [style.color]="(charaColor|bw)">
+    <div *ngIf="isChara" class="name">{{charaName}}</div>
 
-    <div class="message-details" *ngIf="!editing && options.showMessageDetails">
+    <div class="message-details" *ngIf="!editing && showMessageDetails">
         <ng-container *ngIf="sending">
             <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
         <ng-container *ngIf="!sending">
-            <span class="timestamp" [timeAgo]="msg.createdAt" [timeAgoEdited]="msg.editedAt"></span>
-            <ipid *ngIf="msg.ipid" [style.visibility]="canEdit()?'hidden':'visible'" [ipid]="msg.ipid"></ipid>
+            <span class="timestamp" [timeAgo]="createdAt" [timeAgoEdited]="editedAt"></span>
+            <ipid *ngIf="ipid" [style.visibility]="canEdit?'hidden':'visible'" [ipid]="ipid"></ipid>
         </ng-container>
     </div>
 
-    <div *ngIf="canEdit() && !sending" class="action-buttons">
+    <div *ngIf="canEdit && !sending" class="action-buttons">
         <ng-container *ngIf="!editing">
             <button mat-icon-button (click)="beginEdit()">
                 <mat-icon aria-label="Edit post" matTooltip="Edit post">edit</mat-icon>
@@ -27,18 +27,18 @@
         </ng-container>
     </div>
 
-    <ng-container *ngIf="msg.type !== 'image' && !editing">
-        <div class="content generated-links" [innerHtml]="msg.content|msgFormat:chara?.color"></div>
+    <ng-container *ngIf="type !== 'image' && !editing">
+        <div class="content generated-links" [innerHtml]="content|msgFormat:charaColor"></div>
     </ng-container>
 
     <ng-container *ngIf="editing">
         <textarea class="content" [(ngModel)]="newContent" maxlength="10000" rows="4" (keypress)="keypressCheckEnter($event)"></textarea>
     </ng-container>
 
-    <ng-container *ngIf="msg.type === 'image'">
+    <ng-container *ngIf="type === 'image'">
         <div class="content">
-            <a [href]="msg.url" target="_blank">
-                <img [src]="msg.url"/>
+            <a [href]="url" target="_blank">
+                <img [src]="url"/>
             </a>
         </div>
     </ng-container>

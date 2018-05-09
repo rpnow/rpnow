@@ -236,7 +236,10 @@ export class RpService implements OnDestroy {
   public async editMessage(id: string, content: string) {
     this.track.event('Messages', 'edit', null, content.length);
     
-    // await this.socketEmit('edit message', { id, content, secret: this.challenge.secret });
+    let msg: RpMessage = (await this.db.get(id)) as RpMessage
+    msg = {...msg, content}
+    await this.db.put(msg);
+    return msg
   }
 
   // because rp service is provided in rp component, this is called when navigating away from an rp

@@ -1,5 +1,5 @@
-import { Component, OnChanges, SimpleChanges, Input, ChangeDetectionStrategy } from '@angular/core';
-import { RpMessage, RpService, RpChara } from '../rp.service';
+import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
+import { RpMessage, RpService, RpChara, RpVoice } from '../rp.service';
 import { OptionsService } from '../options.service';
 
 @Component({
@@ -8,38 +8,52 @@ import { OptionsService } from '../options.service';
   styleUrls: ['rp-message.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RpMessageComponent implements OnChanges {
+export class RpMessageComponent {
 
-  constructor(public rp: RpService, public options: OptionsService) { }
+  @Input() content: string;
+  @Input() url: string;
+  @Input() type: string;
+  @Input() createdAt: number;
+  @Input() editedAt: number;
+  @Input() ipid: string;
 
-  @Input() msg: RpMessage;
+  @Input() charaName: string;
+  @Input() charaColor: string;
 
-  chara: RpChara;
+  @Input() canEdit: boolean = false;
+  @Input() pressEnterToSend: boolean = false;
+  @Input() showMessageDetails: boolean = false;
 
-  @Input() sending: boolean = false;
+  @Output() editContent: EventEmitter<string> = new EventEmitter();
+
   editing: boolean = false;
   newContent: string = '';
+  sending: boolean = false;
 
-  classes: {[key:string]: boolean} = {};
+  get isNarrator() {
+    return this.type === 'narrator';
+  }
 
-  ngOnChanges(changes: SimpleChanges) {
-    this.classes = {
+  get isOOC() {
+    return this.type === 'ooc';
+  }
+
+  get isChara() {
+    return this.type === 'chara';
+  }
+
+  get elementClasses() {
+    return {
       'message': true,
-      ['message-'+this.msg.type]: true,
+      ['message-'+this.type]: true,
       'message-sending': this.sending,
       'message-slim': false
     }
-
-    this.chara = (this.msg.type === 'chara') ? this.rp.charasById.get(this.msg.charaId) : null;
-  }
-
-  canEdit() {
-    return this.msg.challenge === this.options.challenge.hash;
   }
 
   beginEdit() {
     this.editing = true;
-    this.newContent = this.msg.content;
+    this.newContent = this.content;
   }
 
   cancelEdit() {
@@ -47,15 +61,13 @@ export class RpMessageComponent implements OnChanges {
   }
 
   validEdit() {
-    return this.newContent.trim() && this.newContent !== this.msg.content;
+    return this.newContent.trim() && this.newContent !== this.content;
   }
 
-  async confirmEdit() {
+  confirmEdit() {
     this.editing = false;
-    this.sending = true;
-    this.msg.content = this.newContent;
-    await this.rp.editMessage(this.msg._id, this.newContent);
-    this.sending = false;
+    this.editContent.emit(this.newContent);
+    // TODO when do we set? this.sending = true and false;
   }
 
   keypressCheckEnter($event: KeyboardEvent) {
@@ -64,7 +76,7 @@ export class RpMessageComponent implements OnChanges {
 
     if ($event.shiftKey) return;
 
-    if (this.options.pressEnterToSend || $event.ctrlKey) {
+    if (this.pressEnterToSend || $event.ctrlKey) {
       this.confirmEdit();
       return false;
     }

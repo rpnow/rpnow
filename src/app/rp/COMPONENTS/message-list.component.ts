@@ -1,29 +1,55 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
 import { RpMessage, RpChara } from '../rp.service';
 
 @Component({
   selector: 'rp-message-list',
   template: `
     <div style="padding: 10px 10px 20px">
-      <rp-message *ngFor="let msg of messages; trackBy: trackById" [msg]="msg"></rp-message>
+      <rp-message *ngFor="let msg of messages; trackBy: trackById"
+        [content]="msg.content"
+        [url]="msg.url"
+        [type]="msg.type"
+        [createdAt]="msg.createdAt"
+        [editedAt]="msg.editedAt"
+        [ipid]="msg.ipid"
+
+        [charaName]="charaFor(msg)?.name"
+        [charaColor]="charaFor(msg)?.color"
+
+        [canEdit]="canEdit(msg)"
+        [pressEnterToSend]="pressEnterToSend"
+        [showMessageDetails]="showMessageDetails"
+
+        (editContent)="editMessage(msg._id, $event)"
+      ></rp-message>
     </div>
   `,
-  styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessageListComponent implements OnInit {
+export class MessageListComponent {
 
   @Input() messages: RpMessage[]
-  // @Input() charas: RpChara[]
-  // @Input() challenge: string
-  // @Input() showMessageDetails: boolean
-  // @Input() pressEnterToSend: boolean
+  @Input() charas: RpChara[]
+  @Input() challenge: string
+  @Input() showMessageDetails: boolean
+  @Input() pressEnterToSend: boolean
 
-  ngOnInit() {
-  }
+  @Output() editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
 
   trackById(index: number, item: RpMessage) {
     return item._id;
+  }
+
+  canEdit(msg: RpMessage) {
+    return msg.challenge === this.challenge;
+  }
+
+  charaFor(msg: RpMessage) {
+    return this.charas && (msg.type === 'chara') ? this.charas.find(c => c._id === msg.charaId) : null;
+  }
+
+  editMessage(id: string, content: string) {
+    this.editMessageContent.emit([id, content]);
   }
 
 }

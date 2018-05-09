@@ -33,9 +33,6 @@
 .message .message-details * {
     z-index: 1;
 }
-.message-slim .message-details {
-    visibility: hidden;
-}
 .message .timestamp {
     margin-right: 4px;
     opacity: 0.66;
