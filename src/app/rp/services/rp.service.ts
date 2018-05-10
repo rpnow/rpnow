@@ -16,9 +16,9 @@ import PouchDB from 'pouchdb';
 import { REMOTE_COUCH } from '../../app.constants';
 import * as cuid from 'cuid';
 import sortedIndexBy from 'lodash-es/sortedIndexBy';
-import { RpChara } from '../models/rp-chara';
-import { RpMessage } from '../models/rp-message';
-import { RpVoice } from '../models/rp-voice';
+import { RpChara, RpCharaId } from '../models/rp-chara';
+import { RpMessage, RpMessageId } from '../models/rp-message';
+import { RpVoice, RpVoiceSerialized } from '../models/rp-voice';
 
 export type RpDoc = RpChara|RpMessage;
 
@@ -34,18 +34,18 @@ export class RpService implements OnDestroy {
   public desc: string = null;
 
   public messages: Readonly<RpMessage>[] = null;
-  public messagesById: Map<string, RpMessage> = null;
+  public messagesById: Map<RpMessageId, RpMessage> = null;
   public charas: Readonly<RpChara>[] = null;
-  public charasById: Map<string, RpChara> = null;
+  public charasById: Map<RpCharaId, RpChara> = null;
 
   private readonly docsSubject: Subject<RpDoc[]> = new ReplaySubject(1)
 
   public readonly messages$: Observable<RpMessage[]>
-  public readonly messagesById$: Observable<Map<string, RpMessage>>;
+  public readonly messagesById$: Observable<Map<RpMessageId, RpMessage>>;
   public readonly newMessages$: Observable<RpMessage>
 
   public readonly charas$: Observable<RpChara[]>
-  public readonly charasById$: Observable<Map<string, RpChara>>;
+  public readonly charasById$: Observable<Map<RpCharaId, RpChara>>;
 
   private readonly db: PouchDB.Database<RpDoc>;
   private readonly remoteDb: PouchDB.Database<RpDoc>;
@@ -230,21 +230,21 @@ export class RpService implements OnDestroy {
     this.docsSubject.complete();
   }
 
-  public isSpecialVoice(voiceStr: string) {
-    return ['narrator', 'ooc'].includes(voiceStr)
+  public isSpecialVoice(voiceStr: RpVoiceSerialized) {
+    return voiceStr === 'narrator' || voiceStr === 'ooc';
   }
 
-  public typeFromVoice(voice: RpVoice): {type:'narrator'|'ooc'|'chara', charaId?:string} {
+  public typeFromVoice(voice: RpVoice): {type:'narrator'|'ooc'|'chara', charaId?:RpCharaId} {
     if (typeof voice === 'string') return { type: voice }
     else return { type: 'chara', charaId: voice._id }
   }
 
-  public getVoice(voiceStr: string): RpVoice {
+  public getVoice(voiceStr: RpVoiceSerialized): RpVoice {
     if (this.isSpecialVoice(voiceStr)) {
       return voiceStr as 'narrator'|'ooc'
     }
     else {
-      return this.charasById.get(voiceStr)
+      return this.charasById.get(voiceStr as RpCharaId)
     }
   }
 

@@ -5,6 +5,8 @@ import { RpService } from './rp.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { migrateOptions } from './options.migrations';
+import { RpVoiceSerialized } from '../models/rp-voice';
+import { RpCharaId } from '../models/rp-chara';
 
 const GLOBAL = 'GLOBAL';
 const ROOM = 'ROOM';
@@ -75,11 +77,11 @@ export class OptionsService {
 	public get msgBoxContent() { return this.msgBoxContent$.value; }
 	public set msgBoxContent(value) { this.msgBoxContent$.next(value); }
 
-	public readonly msgBoxVoice$: BehaviorSubject<string> = this.subject('msgBoxVoice', ROOM, 'narrator');
+	public readonly msgBoxVoice$: BehaviorSubject<RpVoiceSerialized> = this.subject('msgBoxVoice', ROOM, 'narrator') as BehaviorSubject<RpVoiceSerialized>;
 	public get msgBoxVoice() { return this.msgBoxVoice$.value; }
 	public set msgBoxVoice(value) { this.msgBoxVoice$.next(value); }
 
-	public readonly recentCharas$: BehaviorSubject<string[]> = this.subject('recentCharas', ROOM, []);
+	public readonly recentCharas$: BehaviorSubject<RpCharaId[]> = this.subject('recentCharas', ROOM, []);
 	public get recentCharas() { return this.recentCharas$.value; }
 	public set recentCharas(value) { this.recentCharas$.next(value); }
 
