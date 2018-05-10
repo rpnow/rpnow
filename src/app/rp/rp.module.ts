@@ -28,7 +28,7 @@ import { IpidComponent } from './COMPONENTS/ipid.component';
 import { PaginatorComponent } from './COMPONENTS/paginator.component';
 import { SendBoxComponent } from './COMPONENTS/send-box.component';
 import { TitleBarComponent } from './COMPONENTS/title-bar.component';
-import { NewCharaComponent } from './chat/new-chara/new-chara.component';
+import { CharaDialogComponent } from './COMPONENTS/chara-dialog.component';
 import { BlackOrWhitePipe } from './pipes/black-or-white.pipe';
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
 import { ContactDialogComponent } from './COMPONENTS/contact-dialog.component';
@@ -57,7 +57,7 @@ import { MessageListComponent } from './COMPONENTS/message-list.component';
     PaginatorComponent,
     SendBoxComponent,
     TitleBarComponent,
-    NewCharaComponent,
+    CharaDialogComponent,
     BlackOrWhitePipe,
     DownloadDialogComponent,
     ImageDialogComponent,
@@ -96,7 +96,7 @@ import { MessageListComponent } from './COMPONENTS/message-list.component';
     RpRoutingModule
   ],
   entryComponents: [
-    NewCharaComponent,
+    CharaDialogComponent,
     DownloadDialogComponent,
     ImageDialogComponent,
     ContactDialogComponent,

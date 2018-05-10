@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
@@ -12,8 +12,6 @@ import { MainMenuService } from '../main-menu.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
-import { MatDialog } from '@angular/material/dialog';
-import { NewCharaComponent } from '../chat/new-chara/new-chara.component';
 import { RpMessage } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 import { RpVoice } from '../models/rp-voice';
@@ -41,7 +39,7 @@ import { RpVoice } from '../models/rp-voice';
 
       <mat-sidenav position="end" mode="over" [(opened)]="charaSelectorOpen">
 
-        <chara-drawer-contents [charas]="sortedCharas$|async" [recentCharas]="recentCharas$|async" [currentChara]="currentChara$|async" (closeDrawer)="closeCharaSelector()" (onSetVoice)="setVoice($event)" (openCharaCreator)="openCharaCreator()"></chara-drawer-contents>
+        <chara-drawer-contents [charas]="sortedCharas$|async" [recentCharas]="recentCharas$|async" [currentChara]="currentChara$|async" (closeDrawer)="closeCharaSelector()" (onSetVoice)="setVoice($event)" (onNewChara)="createNewChara($event)"></chara-drawer-contents>
 
       </mat-sidenav>
 
@@ -67,8 +65,6 @@ export class ChatComponent implements OnInit {
   constructor(
     public rp: RpService,
     public options: OptionsService,
-    private dialog: MatDialog,
-    private viewContainerRef: ViewContainerRef,
     private mainMenuService: MainMenuService,
     private snackbar: MatSnackBar,
     private track: TrackService
@@ -138,11 +134,10 @@ export class ChatComponent implements OnInit {
     this.charaSelectorOpen = false;
   }
 
-  openCharaCreator() {
-    let dialogRef = this.dialog.open(NewCharaComponent, { viewContainerRef: this.viewContainerRef });
-    dialogRef.beforeClose().subscribe(chara => {
-      if (chara) this.setVoice(chara);
-    })
+  async createNewChara($event: {name: string, color: string}) {
+    this.closeCharaSelector();
+    let chara = await this.rp.addChara($event.name, $event.color)
+    this.currentChara$.next(chara);
   }
 
   setVoice(voice: RpVoice) {

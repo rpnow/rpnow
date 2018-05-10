@@ -1,6 +1,8 @@
-import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input, ViewContainerRef } from '@angular/core';
 import { RpChara } from '../models/rp-chara';
 import { RpVoice } from '../models/rp-voice';
+import { MatDialog } from '@angular/material/dialog';
+import { CharaDialogComponent } from './chara-dialog.component';
 
 @Component({
   selector: 'chara-drawer-contents',
@@ -70,13 +72,18 @@ import { RpVoice } from '../models/rp-voice';
 })
 export class CharaDrawerComponent {
 
+  constructor(
+    private dialog: MatDialog,
+    private viewContainerRef: ViewContainerRef
+  ) {}
+
   @Input() charas: RpChara[];
   @Input() recentCharas: RpChara[];
   @Input() currentChara: RpVoice;
 
   @Output() closeDrawer: EventEmitter<void> = new EventEmitter();
   @Output() onSetVoice: EventEmitter<RpVoice> = new EventEmitter();
-  @Output() openCharaCreator: EventEmitter<void> = new EventEmitter();
+  @Output() onNewChara: EventEmitter<{name:string, color:string}> = new EventEmitter();
 
   hasManyCharacters() {
     return this.charas && this.charas.length >= 10;
@@ -87,7 +94,10 @@ export class CharaDrawerComponent {
   }
 
   newChara() {
-    this.openCharaCreator.emit();
+    let dialogRef = this.dialog.open(CharaDialogComponent, { viewContainerRef: this.viewContainerRef });
+    dialogRef.beforeClose().subscribe(chara => {
+      if (chara) this.onNewChara.emit(chara);
+    })
   }
 
   close() {
