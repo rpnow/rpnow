@@ -33,7 +33,7 @@ import { RpVoice } from '../models/rp-voice';
           (editMessageContent)="editMessageContent($event[0], $event[1])"
         ></rp-message-list>
 
-        <send-box [(content)]="options.msgBoxContent" [voice]="currentChara$|async" [pressEnterToSend]="options.pressEnterToSend$|async" (onSendMessage)="sendMessage($event[0],$event[1])" (changeCharacter)="openCharaSelector()"></send-box>
+        <send-box [(content)]="options.msgBoxContent" [voice]="currentChara$|async" [pressEnterToSend]="options.pressEnterToSend$|async" (onSendMessage)="sendMessage($event[0],$event[1])" (onSendImage)="sendImage($event)" (changeCharacter)="openCharaSelector()"></send-box>
 
       </mat-sidenav-content>
 
@@ -153,6 +153,10 @@ export class ChatComponent implements OnInit {
 
   editMessageContent(id: string, content: string) {
     this.rp.editMessage(id, content)
+  }
+
+  sendImage(url:string) {
+    this.rp.addImage(url);
   }
 
 }

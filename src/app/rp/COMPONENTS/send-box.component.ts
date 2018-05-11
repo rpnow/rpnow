@@ -62,6 +62,7 @@ export class SendBoxComponent {
   @Input() pressEnterToSend: boolean;
   @Output() contentChange: EventEmitter<string> = new EventEmitter();
   @Output() onSendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
+  @Output() onSendImage: EventEmitter<string> = new EventEmitter();
   @Output() changeCharacter: EventEmitter<void> = new EventEmitter();
 
   constructor(
@@ -130,6 +131,9 @@ export class SendBoxComponent {
 
   showImageDialog() {
     let dialogRef = this.dialog.open(ImageDialogComponent, { viewContainerRef: this.viewContainerRef });
+    dialogRef.beforeClose().subscribe(url => {
+      this.onSendImage.emit(url);
+    })
   }
 
   keypressCheckEnter($event: KeyboardEvent) {

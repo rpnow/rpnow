@@ -205,10 +205,7 @@ export class RpService implements OnDestroy {
     }
     this.track.event('Messages', 'create', 'image');
     
-    // let msg:RpMessage = await this.socketEmit('add image', url);
-    // this.newMessagesSubject.next(msg);
-
-    // return msg;
+    await this.db.put(msg)
   }
 
   public async editMessage(id: string, content: string) {

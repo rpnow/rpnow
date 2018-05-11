@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { RpService } from '../../services/rp.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+// import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-image-dialog',
@@ -45,28 +44,27 @@ export class ImageDialogComponent {
   url: string = '';
 
   constructor(
-    public rp: RpService,
-    private dialogRef: MatDialogRef<ImageDialogComponent>,
-    private snackbar: MatSnackBar
+    private dialogRef: MatDialogRef<ImageDialogComponent>
+    // private snackbar: MatSnackBar
   ) { }
 
   valid() {
     return this.url.match(this.urlRegex);
   }
 
-  async submit() {
+  submit() {
     if (!this.valid()) return;
 
     this.loading = true;
 
-    try {
-      await this.rp.addImage(this.url);
-      this.dialogRef.close();
-    }
-    catch (ex) {
-      this.snackbar.open("Invalid image URL. Make sure it's correct or try a different image.", 'Close', {duration:5000, verticalPosition:'top'});
-      this.loading = false;
-    }
+    // eventually we will upload an image and return its url
+    setTimeout(() => {
+      this.dialogRef.close(this.url);
+    }, 250)
+
+    // if we upload a bad image, we might use this logic:
+      // this.snackbar.open("Invalid image URL. Make sure it's correct or try a different image.", 'Close', {duration:5000, verticalPosition:'top'});
+      // this.loading = false;
   }
 
 }
