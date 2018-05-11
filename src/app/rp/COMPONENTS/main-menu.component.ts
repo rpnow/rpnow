@@ -1,10 +1,10 @@
 import { Component, ViewContainerRef, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AboutDialogComponent } from '../COMPONENTS/about-dialog.component';
-import { ContactDialogComponent } from '../COMPONENTS/contact-dialog.component';
-import { TermsDialogComponent } from '../COMPONENTS/terms-dialog.component';
-import { OptionsDialogComponent } from '../COMPONENTS/options-dialog.component';
-import { DownloadDialogComponent } from '../COMPONENTS/download-dialog.component';
+import { AboutDialogComponent } from './about-dialog.component';
+import { ContactDialogComponent } from './contact-dialog.component';
+import { TermsDialogComponent } from './terms-dialog.component';
+import { OptionsDialogComponent } from './options-dialog.component';
+import { DownloadDialogComponent } from './download-dialog.component';
 
 @Component({
   selector: 'main-menu-content',
