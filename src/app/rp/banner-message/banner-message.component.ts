@@ -1,7 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { BannerMessageService } from '../services/banner-message.service';
+import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { OptionsService } from '../services/options.service';
 
 @Component({
   selector: 'banner-message',
@@ -10,7 +8,7 @@ import { OptionsService } from '../services/options.service';
 
       <span class="generated-links-contrast" [innerHTML]="messageHtml"></span>
       
-      <button mat-icon-button (click)="onDismiss()">
+      <button mat-icon-button (click)="dismiss()">
         <mat-icon>close</mat-icon>
       </button>
 
@@ -32,41 +30,22 @@ import { OptionsService } from '../services/options.service';
       background-color: #ffab40; /* mat-color($mat-orange, "A200"); */
     }
   `],
-  providers: [BannerMessageService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BannerMessageComponent implements OnInit {
+export class BannerMessageComponent {
 
-  private message: string;
-  public messageHtml: SafeHtml;
+  constructor(private sanitizer: DomSanitizer) { }
 
-  constructor(
-    private service: BannerMessageService,
-    private options: OptionsService,
-    private sanitizer: DomSanitizer
-  ) { }
+  @Input() message: string;
 
-  ngOnInit() {
-    this.service.message$.subscribe(msg => {
-      if (msg) {
-        if (msg === this.options.lastBannerSeen) return;
+  @Output() onDismiss: EventEmitter<string> = new EventEmitter();
 
-        this.message = msg;
-        this.messageHtml = this.sanitizer.bypassSecurityTrustHtml(msg);
-      }
-      else {
-        this.message = '';
-        this.messageHtml = '';
-        this.options.lastBannerSeen = null;
-      }
-    })
+  get messageHtml() {
+    return this.message && this.sanitizer.bypassSecurityTrustHtml(this.message);
   }
 
-  onDismiss() {
-    this.options.lastBannerSeen = this.message;
-
-    this.message = '';
-    this.messageHtml = '';
+  dismiss() {
+    this.onDismiss.emit(this.message);
   }
 
 }

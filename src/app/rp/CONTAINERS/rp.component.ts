@@ -8,6 +8,10 @@ import { DOCUMENT, Title } from '@angular/platform-browser';
 import { NotifyService } from '../services/notify.service';
 import { ChallengeService } from '../services/challenge.service';
 import { Subscription } from 'rxjs/Subscription';
+import { BannerMessageService } from '../services/banner-message.service';
+import { Observable } from 'rxjs/Observable';
+import { tap } from 'rxjs/operators/tap';
+import { combineLatest } from 'rxjs/observable/combineLatest';
 
 @Component({
   template: `
@@ -27,7 +31,7 @@ import { Subscription } from 'rxjs/Subscription';
             </div>
 
             <ng-container *ngIf="rp.loaded|async">
-                <banner-message></banner-message>
+                <banner-message [message]="bannerMessage$|async" (onDismiss)="dismissBanner($event)"></banner-message>
                 <div fxFlex>
                     <router-outlet></router-outlet>
                 </div>
@@ -46,11 +50,12 @@ import { Subscription } from 'rxjs/Subscription';
     </mat-sidenav-container>
   `,
   providers: [
+    BannerMessageService,
+    ChallengeService,
     MainMenuService,
-    RpService,
     NotifyService,
     OptionsService,
-    ChallengeService
+    RpService
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -58,6 +63,9 @@ export class RpComponent implements OnInit, OnDestroy {
   @ViewChild('mainMenu') mainMenu: MatSidenav;
 
   public subscription: Subscription;
+  public subscription2: Subscription;
+
+  bannerMessage$: Observable<string>;
 
   constructor(
     public rp: RpService,
@@ -65,6 +73,7 @@ export class RpComponent implements OnInit, OnDestroy {
     public options: OptionsService,
     @Inject(DOCUMENT) private document: Document,
     private title: Title,
+    private bannerService: BannerMessageService,
     notifyService: NotifyService // included so that it automatically starts working
   ) { }
 
@@ -80,11 +89,29 @@ export class RpComponent implements OnInit, OnDestroy {
       if (found) this.title.setTitle(this.rp.title + ' | RPNow')
       else this.title.setTitle('Not Found | RPNow');
     });
+
+    this.bannerMessage$ = combineLatest(
+      this.bannerService.message$.pipe(
+        tap(msg => {
+          if (!msg) this.options.lastBannerSeen = null;
+        })
+      ),
+      this.options.lastBannerSeen$,
+      (msg, lastMsg) => {
+        if (!msg) return null;
+        if (msg === lastMsg) return null;
+        return msg;
+      }
+    );
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
     this.document.body.className = '';
+  }
+
+  dismissBanner(message: string) {
+    this.options.lastBannerSeen = message;
   }
 
 }
