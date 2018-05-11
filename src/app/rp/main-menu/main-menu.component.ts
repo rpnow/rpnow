@@ -1,13 +1,10 @@
-import { Component, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewContainerRef, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AboutDialogComponent } from '../COMPONENTS/about-dialog.component';
 import { ContactDialogComponent } from '../COMPONENTS/contact-dialog.component';
 import { TermsDialogComponent } from '../COMPONENTS/terms-dialog.component';
-import { OptionsService } from '../services/options.service';
 import { OptionsDialogComponent } from '../COMPONENTS/options-dialog.component';
-import { MainMenuService } from '../main-menu.service';
 import { DownloadDialogComponent } from '../COMPONENTS/download-dialog.component';
-import { RpService } from '../services/rp.service';
 
 @Component({
   selector: 'main-menu-content',
@@ -23,14 +20,14 @@ import { RpService } from '../services/rp.service';
         </mat-toolbar>
         <mat-nav-list class="flex-scroll-container">
 
-            <h3 matSubheader>{{rp.title}}</h3>
+            <h3 matSubheader>{{rpTitle}}</h3>
 
-            <a mat-list-item [routerLink]="'/rp/'+rp.rpCode" (click)="close()">
+            <a mat-list-item routerLink="." (click)="close()">
                 <mat-icon mat-list-icon>question_answer</mat-icon>
                 <p mat-line>Chat</p>
             </a>
 
-            <a mat-list-item [routerLink]="'/rp/'+rp.rpCode+'/1'" (click)="close()">
+            <a mat-list-item routerLink="./1" (click)="close()">
                 <mat-icon mat-list-icon>import_contacts</mat-icon>
                 <p mat-line>Archive</p>
             </a>
@@ -85,10 +82,12 @@ import { RpService } from '../services/rp.service';
 })
 export class MainMenuComponent {
 
+  @Input() rpTitle: string;
+
+  @Output() onClose: EventEmitter<void> = new EventEmitter();
+
   constructor(
-    public rp: RpService,
     private dialog: MatDialog,
-    private mainMenu: MainMenuService,
     private viewContainerRef: ViewContainerRef
   ) { }
 
@@ -113,7 +112,7 @@ export class MainMenuComponent {
   }
 
   close() {
-    this.mainMenu.menu.close();
+    this.onClose.emit();
   }
 
 }

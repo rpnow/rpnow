@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs/Subscription';
 
         <mat-sidenav #mainMenu position="start" mode="over">
 
-            <main-menu-content></main-menu-content>
+            <main-menu-content [rpTitle]="rp.title" (onClose)="mainMenu.close()"></main-menu-content>
 
         </mat-sidenav>
 
