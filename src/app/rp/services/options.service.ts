@@ -41,17 +41,9 @@ export class OptionsService {
 		this.subscriptions.forEach(s => s.unsubscribe());
 	}
 
-	public readonly lastColor$: BehaviorSubject<string> = this.subject('lastColor', GLOBAL, '#80c9ff');
-	public get lastColor() { return this.lastColor$.value; }
-	public set lastColor(value) { this.lastColor$.next(value); }
-
 	public readonly challenge$: BehaviorSubject<Readonly<Challenge>> = this.subject('challenge', GLOBAL, null);
 	public get challenge() { return this.challenge$.value; }
 	public set challenge(value) { this.challenge$.next(value); }
-
-	public readonly downloadOOC$: BehaviorSubject<boolean> = this.subject('downloadOOC', GLOBAL, true);
-	public get downloadOOC() { return this.downloadOOC$.value; }
-	public set downloadOOC(value) { this.downloadOOC$.next(value); }
 
 	public readonly nightMode$: BehaviorSubject<boolean> = this.subject('nightMode', GLOBAL, false);
 	public get nightMode() { return this.nightMode$.value; }

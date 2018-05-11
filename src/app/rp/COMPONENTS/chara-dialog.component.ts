@@ -1,6 +1,5 @@
-import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { OptionsService } from '../services/options.service';
 
 @Component({
   selector: 'app-new-chara',
@@ -28,19 +27,14 @@ import { OptionsService } from '../services/options.service';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CharaDialogComponent implements OnInit {
+export class CharaDialogComponent {
 
   name: string = '';
-  color: string = '#556677';
+  color: string = '#80c9ff';
 
   constructor(
     private dialogRef: MatDialogRef<CharaDialogComponent>,
-    private options: OptionsService
   ) { }
-
-  ngOnInit() {
-    this.color = this.options.lastColor;
-  }
 
   get valid() {
     return this.name.trim() && this.color;
@@ -52,8 +46,6 @@ export class CharaDialogComponent implements OnInit {
 
   submit() {
     if (!this.valid) return;
-
-    this.options.lastColor = this.color;
 
     this.dialogRef.close({name: this.name, color: this.color});
   }

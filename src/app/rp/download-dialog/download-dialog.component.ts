@@ -14,7 +14,7 @@ import { OptionsService } from '../services/options.service';
         </button>
     </div>
 
-    <mat-checkbox [(ngModel)]="options.downloadOOC">Include OOC messages</mat-checkbox>
+    <mat-checkbox [(ngModel)]="downloadOOC">Include OOC messages</mat-checkbox>
 
     <mat-dialog-actions>
         <button mat-raised-button color="primary" (click)="printTxt()">
@@ -32,18 +32,19 @@ import { OptionsService } from '../services/options.service';
 })
 export class DownloadDialogComponent {
 
+  downloadOOC: boolean = false;
+
   constructor(
     private txtService: DownloadTxtService,
-    private docxService: DownloadDocxService,
-    public options: OptionsService
+    private docxService: DownloadDocxService
   ) { }
   
   printTxt() {
-    this.txtService.downloadTxt(this.options.downloadOOC);
+    this.txtService.downloadTxt(this.downloadOOC);
   }
 
   printDocx() {
-    this.docxService.downloadDocx(this.options.downloadOOC);
+    this.docxService.downloadDocx(this.downloadOOC);
   }
 
 }
