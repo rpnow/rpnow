@@ -4,9 +4,9 @@ import { AboutDialogComponent } from '../COMPONENTS/about-dialog.component';
 import { ContactDialogComponent } from '../COMPONENTS/contact-dialog.component';
 import { TermsDialogComponent } from '../COMPONENTS/terms-dialog.component';
 import { OptionsService } from '../services/options.service';
-import { OptionsDialogComponent } from '../options-dialog/options-dialog.component';
+import { OptionsDialogComponent } from '../COMPONENTS/options-dialog.component';
 import { MainMenuService } from '../main-menu.service';
-import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
+import { DownloadDialogComponent } from '../COMPONENTS/download-dialog.component';
 import { RpService } from '../services/rp.service';
 
 @Component({
