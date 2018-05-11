@@ -41,7 +41,7 @@ import { ImageDialogComponent } from './COMPONENTS/image-dialog.component';
 import { MainMenuComponent } from './COMPONENTS/main-menu.component';
 import { OptionsDialogComponent } from './COMPONENTS/options-dialog.component';
 import { CharaDrawerComponent } from './COMPONENTS/chara-drawer.component';
-import { BannerMessageComponent } from './banner-message/banner-message.component';
+import { BannerMessageComponent } from './COMPONENTS/banner-message.component';
 import { CharaIconDirective } from './COMPONENTS/chara-icon.directive';
 import { TimeagoComponent } from './COMPONENTS/timeago.component';
 import { MessageListComponent } from './COMPONENTS/message-list.component';
