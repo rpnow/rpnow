@@ -37,7 +37,7 @@ import { TermsDialogComponent } from './COMPONENTS/terms-dialog.component';
 import { FormatGuideDialog } from './COMPONENTS/format-guide-dialog.component';
 import { RpMessagePipe } from './pipes/rp-message.pipe';
 import { RpRoutingModule } from './rp-routing.module';
-import { ImageDialogComponent } from './chat/image-dialog/image-dialog.component';
+import { ImageDialogComponent } from './COMPONENTS/image-dialog.component';
 import { MainMenuComponent } from './main-menu/main-menu.component';
 import { OptionsDialogComponent } from './options-dialog/options-dialog.component';
 import { CharaDrawerComponent } from './COMPONENTS/chara-drawer.component';

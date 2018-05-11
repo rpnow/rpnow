@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter, ViewContainerRef, ChangeDetectionStrategy, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormatGuideDialog } from './format-guide-dialog.component';
-import { ImageDialogComponent } from '../chat/image-dialog/image-dialog.component';
+import { ImageDialogComponent } from './image-dialog.component';
 import { RpVoice } from '../models/rp-voice';
 import { RpChara } from '../models/rp-chara';
 
