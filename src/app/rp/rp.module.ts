@@ -20,31 +20,31 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ColorPickerModule } from 'ngx-color-picker';
 
-import { RpComponent } from './CONTAINERS/rp.component';
-import { ArchiveComponent } from './CONTAINERS/archive.component';
-import { ChatComponent } from './CONTAINERS/chat.component';
-import { RpMessageComponent } from './COMPONENTS/rp-message.component';
-import { IpidComponent } from './COMPONENTS/ipid.component';
-import { PaginatorComponent } from './COMPONENTS/paginator.component';
-import { SendBoxComponent } from './COMPONENTS/send-box.component';
-import { TitleBarComponent } from './COMPONENTS/title-bar.component';
-import { CharaDialogComponent } from './COMPONENTS/chara-dialog.component';
+import { RpComponent } from './containers/rp.component';
+import { ArchiveComponent } from './containers/archive.component';
+import { ChatComponent } from './containers/chat.component';
+import { RpMessageComponent } from './components/rp-message.component';
+import { IpidComponent } from './components/ipid.component';
+import { PaginatorComponent } from './components/paginator.component';
+import { SendBoxComponent } from './components/send-box.component';
+import { TitleBarComponent } from './components/title-bar.component';
+import { CharaDialogComponent } from './components/chara-dialog.component';
 import { BlackOrWhitePipe } from './pipes/black-or-white.pipe';
-import { DownloadDialogComponent } from './COMPONENTS/download-dialog.component';
-import { ContactDialogComponent } from './COMPONENTS/contact-dialog.component';
-import { AboutDialogComponent } from './COMPONENTS/about-dialog.component';
-import { TermsDialogComponent } from './COMPONENTS/terms-dialog.component';
-import { FormatGuideDialog } from './COMPONENTS/format-guide-dialog.component';
+import { DownloadDialogComponent } from './components/download-dialog.component';
+import { ContactDialogComponent } from './components/contact-dialog.component';
+import { AboutDialogComponent } from './components/about-dialog.component';
+import { TermsDialogComponent } from './components/terms-dialog.component';
+import { FormatGuideDialog } from './components/format-guide-dialog.component';
 import { RpMessagePipe } from './pipes/rp-message.pipe';
 import { RpRoutingModule } from './rp-routing.module';
-import { ImageDialogComponent } from './COMPONENTS/image-dialog.component';
-import { MainMenuComponent } from './COMPONENTS/main-menu.component';
-import { OptionsDialogComponent } from './COMPONENTS/options-dialog.component';
-import { CharaDrawerComponent } from './COMPONENTS/chara-drawer.component';
-import { BannerMessageComponent } from './COMPONENTS/banner-message.component';
-import { CharaIconDirective } from './COMPONENTS/chara-icon.directive';
-import { TimeagoComponent } from './COMPONENTS/timeago.component';
-import { MessageListComponent } from './COMPONENTS/message-list.component';
+import { ImageDialogComponent } from './components/image-dialog.component';
+import { MainMenuComponent } from './components/main-menu.component';
+import { OptionsDialogComponent } from './components/options-dialog.component';
+import { CharaDrawerComponent } from './components/chara-drawer.component';
+import { BannerMessageComponent } from './components/banner-message.component';
+import { CharaIconDirective } from './components/chara-icon.directive';
+import { TimeagoComponent } from './components/timeago.component';
+import { MessageListComponent } from './components/message-list.component';
 
 
 @NgModule({

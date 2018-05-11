@@ -1,9 +1,9 @@
 import { NgModule, Injectable } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { RpComponent } from './CONTAINERS/rp.component';
-import { ArchiveComponent } from './CONTAINERS/archive.component';
-import { ChatComponent } from './CONTAINERS/chat.component';
+import { RpComponent } from './containers/rp.component';
+import { ArchiveComponent } from './containers/archive.component';
+import { ChatComponent } from './containers/chat.component';
 
 const routes: Routes = [
   {
