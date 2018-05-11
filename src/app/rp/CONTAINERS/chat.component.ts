@@ -8,7 +8,7 @@ import { scan } from 'rxjs/operators/scan';
 import { map } from 'rxjs/operators/map';
 import { filter } from 'rxjs/operators/filter';
 import { tap } from 'rxjs/operators/tap';
-import { MainMenuService } from '../main-menu.service';
+import { MainMenuService } from '../services/main-menu.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';

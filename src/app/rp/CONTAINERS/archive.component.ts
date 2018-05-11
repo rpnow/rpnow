@@ -4,7 +4,7 @@ import { RpService } from '../services/rp.service';
 import { Observable } from 'rxjs/Observable';
 import { combineLatest } from 'rxjs/observable/combineLatest'
 import { map } from 'rxjs/operators/map';
-import { MainMenuService } from '../main-menu.service';
+import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { RpMessage } from '../models/rp-message';
 

@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Inject, OnDestroy, ChangeDetectionStrateg
 import { ActivatedRoute } from '@angular/router';
 import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
-import { MainMenuService } from '../main-menu.service';
+import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { DOCUMENT, Title } from '@angular/platform-browser';
 import { NotifyService } from '../services/notify.service';
