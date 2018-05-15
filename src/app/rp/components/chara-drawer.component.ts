@@ -83,7 +83,7 @@ export class CharaDrawerComponent {
 
   @Output() closeDrawer: EventEmitter<void> = new EventEmitter();
   @Output() onSetVoice: EventEmitter<RpVoice> = new EventEmitter();
-  @Output() onNewChara: EventEmitter<{name:string, color:string}> = new EventEmitter();
+  @Output() onNewChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
 
   get isNarratorSelected() {
       return this.currentChara === 'narrator';
@@ -106,10 +106,10 @@ export class CharaDrawerComponent {
   }
 
   newChara() {
-    let dialogRef = this.dialog.open(CharaDialogComponent, { viewContainerRef: this.viewContainerRef });
+    const dialogRef = this.dialog.open(CharaDialogComponent, { viewContainerRef: this.viewContainerRef });
     dialogRef.beforeClose().subscribe(chara => {
       if (chara) this.onNewChara.emit(chara);
-    })
+    });
   }
 
   close() {

@@ -65,15 +65,15 @@ export class RpMessageComponent {
   @Input() charaName: string;
   @Input() charaColor: string;
 
-  @Input() canEdit: boolean = false;
-  @Input() pressEnterToSend: boolean = false;
-  @Input() showMessageDetails: boolean = false;
+  @Input() canEdit = false;
+  @Input() pressEnterToSend = false;
+  @Input() showMessageDetails = false;
 
   @Output() editContent: EventEmitter<string> = new EventEmitter();
 
-  editing: boolean = false;
-  newContent: string = '';
-  sending: boolean = false;
+  editing = false;
+  newContent = '';
+  sending = false;
 
   get isNarrator() {
     return this.type === 'narrator';
@@ -90,10 +90,10 @@ export class RpMessageComponent {
   get elementClasses() {
     return {
       'message': true,
-      ['message-'+this.type]: true,
+      ['message-' + this.type]: true,
       'message-sending': this.sending,
       'message-slim': false
-    }
+    };
   }
 
   beginEdit() {
@@ -116,7 +116,7 @@ export class RpMessageComponent {
   }
 
   keypressCheckEnter($event: KeyboardEvent) {
-    let keyCode = $event.keyCode || $event.which;
+    const keyCode = $event.keyCode || $event.which;
     if (keyCode !== 13) return;
 
     if ($event.shiftKey) return;

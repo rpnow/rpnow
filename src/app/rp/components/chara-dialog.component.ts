@@ -29,8 +29,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class CharaDialogComponent {
 
-  name: string = '';
-  color: string = '#80c9ff';
+  name = '';
+  color = '#80c9ff';
 
   constructor(
     private dialogRef: MatDialogRef<CharaDialogComponent>,

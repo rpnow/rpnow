@@ -32,13 +32,13 @@ import { OptionsService } from '../services/options.service';
 })
 export class DownloadDialogComponent {
 
-  downloadOOC: boolean = false;
+  downloadOOC = false;
 
   constructor(
     private txtService: DownloadTxtService,
     private docxService: DownloadDocxService
   ) { }
-  
+
   printTxt() {
     this.txtService.downloadTxt(this.downloadOOC);
   }

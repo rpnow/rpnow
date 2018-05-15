@@ -30,8 +30,8 @@ export class RpMessagePipe implements PipeTransform {
         '<a href="$1" class="link" target="_blank">$1</a>'
     );
     // actions
-    if(color) {
-        let contrast = this.bwPipe.transform(color);
+    if (color) {
+        const contrast = this.bwPipe.transform(color);
         str = str.replace(/\*([^\r\n\*_]+)\*/g, `<span style="background-color: ${color}; color: ${contrast}; padding: 0.1em 0.3em; border-radius: 8px; opacity: 0.9; border: 1px solid rgba(0,0,0,0.2); box-shadow: 2px 2px 4px rgba(0,0,0,0.03);">*$1*</span>`);
     }
     // bold

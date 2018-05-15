@@ -55,12 +55,12 @@ export class ChatComponent implements OnInit {
   private subscription: Subscription;
   private subscription2: Subscription;
 
-  public messages$: Observable<RpMessage[]>
+  public messages$: Observable<RpMessage[]>;
   public currentChara$: BehaviorSubject<RpVoice>;
   public sortedCharas$: Observable<RpChara[]>;
   public recentCharas$: Observable<RpChara[]>;
 
-  charaSelectorOpen: boolean = false;
+  charaSelectorOpen = false;
 
   constructor(
     public rp: RpService,
@@ -77,28 +77,28 @@ export class ChatComponent implements OnInit {
     this.subscription2 = this.currentChara$.subscribe(voice => this.options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice._id));
 
     this.messages$ = this.rp.messages$.pipe(
-      scan(({firstIdx}:{firstIdx:number, msgs:RpMessage[]}, msgs:RpMessage[]) => {
-        if (this.isAtBottom()) return { msgs, firstIdx: Math.max(msgs.length-60, 0) };
-        else return { msgs, firstIdx: Math.max(msgs.length-300, 0, firstIdx) }
+      scan(({firstIdx}: {firstIdx: number, msgs: RpMessage[]}, msgs: RpMessage[]) => {
+        if (this.isAtBottom()) return { msgs, firstIdx: Math.max(msgs.length - 60, 0) };
+        else return { msgs, firstIdx: Math.max(msgs.length - 300, 0, firstIdx) };
       }, {firstIdx: 0, msgs: <RpMessage[]>null}),
       map(({msgs, firstIdx}) => msgs.slice(firstIdx))
-    )
-    
-    this.subscription = this.rp.newMessages$.subscribe(() => this.updateScroll())
+    );
+
+    this.subscription = this.rp.newMessages$.subscribe(() => this.updateScroll());
     this.updateScroll();
-    
+
     this.sortedCharas$ = this.rp.charas$.pipe(
-      map(charas => [...charas].sort((a,b) => a.name.localeCompare(b.name)))
+      map(charas => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
 
     this.recentCharas$ = this.currentChara$.pipe(
       filter(chara => typeof chara !== 'string'),
-      scan((arr:RpChara[], chara:RpChara) => [
+      scan((arr: RpChara[], chara: RpChara) => [
         chara, ...arr.filter(c => c._id !== chara._id)
-      ].slice(0,5), this.options.recentCharas.map(id => this.rp.charasById.get(id))),
-      tap((charas:RpChara[]) => this.options.recentCharas = charas.map(c => c._id)), // TODO should probably subscribe here, not use 'do' operator
-      map((charas:RpChara[]) => [...charas].sort((a,b) => a.name.localeCompare(b.name)))
-    )
+      ].slice(0, 5), this.options.recentCharas.map(id => this.rp.charasById.get(id))),
+      tap((charas: RpChara[]) => this.options.recentCharas = charas.map(c => c._id)), // TODO should probably subscribe here, not use 'do' operator
+      map((charas: RpChara[]) => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
+    );
   }
 
   isAtBottom() {
@@ -108,12 +108,11 @@ export class ChatComponent implements OnInit {
   updateScroll() {
     if (this.isAtBottom()) {
       setImmediate(() => this.el.scrollTop = this.el.scrollHeight);
-    }
-    else {
-      this.snackbar.open('New messages below!','Close', {
+    } else {
+      this.snackbar.open('New messages below!', 'Close', {
         duration: 2000,
         verticalPosition: 'top'
-      })
+      });
     }
   }
 
@@ -136,26 +135,26 @@ export class ChatComponent implements OnInit {
 
   async createNewChara($event: {name: string, color: string}) {
     this.closeCharaSelector();
-    let chara = await this.rp.addChara($event.name, $event.color)
+    const chara = await this.rp.addChara($event.name, $event.color);
     this.currentChara$.next(chara);
   }
 
   setVoice(voice: RpVoice) {
     this.track.event('Charas', 'pick', typeof voice === 'string' ? voice : 'chara');
-    
+
     this.currentChara$.next(voice);
     this.closeCharaSelector();
   }
 
-  sendMessage(content:string, voice:RpChara) {
+  sendMessage(content: string, voice: RpChara) {
     this.rp.addMessage(content, voice);
   }
 
   editMessageContent(id: string, content: string) {
-    this.rp.editMessage(id, content)
+    this.rp.editMessage(id, content);
   }
 
-  sendImage(url:string) {
+  sendImage(url: string) {
     this.rp.addImage(url);
   }
 

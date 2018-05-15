@@ -36,12 +36,12 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class ImageDialogComponent {
 
-  //https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
+  // https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
   private urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
 
-  loading: boolean = false;
+  loading = false;
 
-  url: string = '';
+  url = '';
 
   constructor(
     private dialogRef: MatDialogRef<ImageDialogComponent>
@@ -60,7 +60,7 @@ export class ImageDialogComponent {
     // eventually we will upload an image and return its url
     setTimeout(() => {
       this.dialogRef.close(this.url);
-    }, 250)
+    }, 250);
 
     // if we upload a bad image, we might use this logic:
       // this.snackbar.open("Invalid image URL. Make sure it's correct or try a different image.", 'Close', {duration:5000, verticalPosition:'top'});

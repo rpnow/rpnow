@@ -7,11 +7,11 @@ const routes: Routes = [
     path: '',
     component: TitleComponent
   }
-]
+];
 
 @NgModule({
   imports: [
-    RouterModule.forChild([{path:'', component: TitleComponent}])
+    RouterModule.forChild([{path: '', component: TitleComponent}])
   ],
   exports: [RouterModule]
 })

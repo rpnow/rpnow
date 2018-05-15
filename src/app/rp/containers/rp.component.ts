@@ -35,13 +35,13 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
                 <div fxFlex>
                     <router-outlet></router-outlet>
                 </div>
-            </ng-container> 
+            </ng-container>
 
             <div *ngIf="rp.notFound|async" fxFlex fxLayout="column" fxLayoutAlign="center center">
                 <h1>RP Not Found!</h1>
 
                 <p>We couldn't find an RP at <code>/rp/{{rp.rpCode}}</code>. Make sure you've spelled the URL correctly.</p>
-                
+
                 <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
             </div>
 
@@ -82,11 +82,11 @@ export class RpComponent implements OnInit, OnDestroy {
 
     this.subscription = this.options.nightMode$.subscribe(nightMode => {
       this.document.body.className = nightMode ? 'dark-theme' : '';
-    })
+    });
 
     this.title.setTitle('Loading... | RPNow');
     this.rp.loaded.then(found => {
-      if (found) this.title.setTitle(this.rp.title + ' | RPNow')
+      if (found) this.title.setTitle(this.rp.title + ' | RPNow');
       else this.title.setTitle('Not Found | RPNow');
     });
 

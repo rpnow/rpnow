@@ -1,4 +1,4 @@
-import { RpCharaId } from "./rp-chara";
+import { RpCharaId } from './rp-chara';
 
 export type RpMessageId = string;
 

@@ -12,7 +12,7 @@ export class TrackService {
       properties: {
         category, label, value, noninteraction
       }
-    })
+    });
   }
 
 }

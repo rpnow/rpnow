@@ -14,9 +14,9 @@ export class CharaIconDirective {
 
   @Input('charaIconColor') set _color(color: string) {
     if (!color.match(regex)) return;
-    let style = (<HTMLElement>this.el.nativeElement).style;
+    const style = (<HTMLElement>this.el.nativeElement).style;
     style.color = color;
-    style.textShadow = '1px 1px 0 '+this.bw.transform(color, 0.3, true);
+    style.textShadow = '1px 1px 0 ' + this.bw.transform(color, 0.3, true);
   }
 
 }

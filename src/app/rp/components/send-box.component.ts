@@ -58,7 +58,7 @@ import { RpChara } from '../models/rp-chara';
 export class SendBoxComponent {
 
   @Input() voice: RpVoice;
-  @Input() content: string = '';
+  @Input() content = '';
   @Input() pressEnterToSend: boolean;
   @Output() contentChange: EventEmitter<string> = new EventEmitter();
   @Output() onSendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
@@ -87,7 +87,7 @@ export class SendBoxComponent {
   }
 
   get elementClass() {
-    return this.isChara ? 'send-box-chara' : 'send-box-'+this.voice;
+    return this.isChara ? 'send-box-chara' : 'send-box-' + this.voice;
   }
 
   valid() {
@@ -109,13 +109,13 @@ export class SendBoxComponent {
         /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
         /^\/\/\s*(.*[^\s])\s*$/g // //message text
       ].find(regex => {
-        let match = regex.exec(content);
+        const match = regex.exec(content);
         if (match) {
-          voice = 'ooc'
-          content = match[1]
+          voice = 'ooc';
+          content = match[1];
         }
         return !!match;
-      })
+      });
     }
 
     if (!content.trim()) return;
@@ -126,18 +126,18 @@ export class SendBoxComponent {
   }
 
   openCharaSelector() {
-    this.changeCharacter.emit()
+    this.changeCharacter.emit();
   }
 
   showImageDialog() {
-    let dialogRef = this.dialog.open(ImageDialogComponent, { viewContainerRef: this.viewContainerRef });
+    const dialogRef = this.dialog.open(ImageDialogComponent, { viewContainerRef: this.viewContainerRef });
     dialogRef.beforeClose().subscribe(url => {
       this.onSendImage.emit(url);
-    })
+    });
   }
 
   keypressCheckEnter($event: KeyboardEvent) {
-    let keyCode = $event.keyCode || $event.which;
+    const keyCode = $event.keyCode || $event.which;
     if (keyCode !== 13) return;
 
     if ($event.shiftKey) return;

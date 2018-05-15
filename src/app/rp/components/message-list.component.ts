@@ -29,11 +29,11 @@ import { RpChara } from '../models/rp-chara';
 })
 export class MessageListComponent {
 
-  @Input() messages: RpMessage[]
-  @Input() charas: RpChara[]
-  @Input() challenge: string
-  @Input() showMessageDetails: boolean
-  @Input() pressEnterToSend: boolean
+  @Input() messages: RpMessage[];
+  @Input() charas: RpChara[];
+  @Input() challenge: string;
+  @Input() showMessageDetails: boolean;
+  @Input() pressEnterToSend: boolean;
 
   @Output() editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
 

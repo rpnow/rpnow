@@ -8,7 +8,7 @@ import { Title } from '@angular/platform-browser';
       <h1>Page not found: <code>{{route}}</code></h1>
 
       <p>Sorry, there's no page at this address. Make sure you've spelled the URL correctly, or <a routerLink="/">return to the RPNow homepage.</a></p>
-      
+
       <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
     </div>
   `,
@@ -33,7 +33,7 @@ export class NotFoundComponent implements OnInit {
   constructor(private titleService: Title) { }
 
   ngOnInit() {
-    this.titleService.setTitle('Page Not Found | RPNow')
+    this.titleService.setTitle('Page Not Found | RPNow');
   }
 
 }

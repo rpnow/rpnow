@@ -16,13 +16,13 @@ export class DownloadTxtService {
     this.track.event('Download', 'txt', includeOOC ? 'ooc: yes' : 'ooc: no', this.rp.messages.length);
 
     // get rp formatted text
-    let text = this.rpText(this.rp, includeOOC)
-    
+    let text = this.rpText(this.rp, includeOOC);
+
     // windows-compatible newlines
     text = text.replace('\n', '\r\n');
 
     // save as file
-    let blob = new Blob([text], { type: 'text/plain;charset=utf-8'});
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8'});
     saveAs(blob, `${this.rp.title}.txt`);
   }
 
@@ -34,31 +34,23 @@ export class DownloadTxtService {
     if (!includeOOC) msgs = msgs.filter(msg => msg.type !== 'ooc');
 
     // word-wrap and format all messages
-    let out = msgs.map(msg => {
+    const out = msgs.map(msg => {
       if (msg.type === 'narrator') {
         return wrap(msg.content, { width: 72, indent: '', cut: true });
-      }
-
-      else if (msg.type === 'ooc') {
+      } else if (msg.type === 'ooc') {
         return wrap(`(( OOC: ${msg.content} ))`, { width: 72, indent: '', cut: true });
-      }
-
-      else if (msg.type === 'chara') {
-        return rp.charas[msg.charaId].name.toUpperCase()+':\n'+
-          wrap(msg.content, { width: 70, indent: '  ', cut: true })
-      }
-
-      else if (msg.type === 'image') {
+      } else if (msg.type === 'chara') {
+        return rp.charas[msg.charaId].name.toUpperCase() + ':\n' +
+          wrap(msg.content, { width: 70, indent: '  ', cut: true });
+      } else if (msg.type === 'image') {
         return `--- IMAGE ---\n${msg.url}\n-------------`;
-      }
-
-      else {
+      } else {
         throw new Error(`Unexpected message type: ${msg.type}`);
       }
-    })
+    });
 
     // add title/desc to beginning
-    out.unshift(`${rp.title}\n${rp.desc||''}\n----------`);
+    out.unshift(`${rp.title}\n${rp.desc || ''}\n----------`);
 
     // done
     return out.join('\n\n');

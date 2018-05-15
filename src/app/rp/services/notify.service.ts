@@ -16,14 +16,14 @@ import { merge } from 'rxjs/observable/merge';
 const audioDir = '/assets/sounds/';
 
 export const noises = [
-  {'name':'Off', 'audio':null},
-  {'name':'Typewriter', 'audio': new Audio(audioDir+'typewriter.mp3')},
-  {'name':'Page turn', 'audio': new Audio(audioDir+'pageturn.mp3')},
-  {'name':'Chimes', 'audio': new Audio(audioDir+'chimes.mp3')},
-  {'name':'Woosh', 'audio': new Audio(audioDir+'woosh.mp3')},
-  {'name':'Frog block', 'audio': new Audio(audioDir+'frogblock.mp3')},
-  {'name':'Classic alert', 'audio': new Audio(audioDir+'alert.mp3')},
-]
+  {'name': 'Off', 'audio': null},
+  {'name': 'Typewriter', 'audio': new Audio(audioDir + 'typewriter.mp3')},
+  {'name': 'Page turn', 'audio': new Audio(audioDir + 'pageturn.mp3')},
+  {'name': 'Chimes', 'audio': new Audio(audioDir + 'chimes.mp3')},
+  {'name': 'Woosh', 'audio': new Audio(audioDir + 'woosh.mp3')},
+  {'name': 'Frog block', 'audio': new Audio(audioDir + 'frogblock.mp3')},
+  {'name': 'Classic alert', 'audio': new Audio(audioDir + 'alert.mp3')},
+];
 
 @Injectable()
 export class NotifyService {
@@ -38,27 +38,27 @@ export class NotifyService {
 
     let oldTitle; // set upon first alert
 
-    let alerts$ = this.rp.newMessages$.pipe(
+    const alerts$ = this.rp.newMessages$.pipe(
       filter(() => document.visibilityState !== 'visible')
     );
-    
-    let noises$ = alerts$.pipe(
+
+    const noises$ = alerts$.pipe(
       tap(() => {
-        let audio = noises[options.notificationNoise].audio;
+        const audio = noises[options.notificationNoise].audio;
         if (audio) audio.play();
       })
     );
 
-    let titleChanges$ = alerts$.pipe(
+    const titleChanges$ = alerts$.pipe(
       tap(() => oldTitle = oldTitle || document.title),
       switchMap(msg => interval(500).pipe(
         map(i => {
-          if (i % 2 === 1) return document.title = oldTitle
+          if (i % 2 === 1) return document.title = oldTitle;
 
-          if (msg.type === 'narrator') return '* The narrator says...'
-          if (msg.type === 'ooc') return '* OOC message...'
-          if (msg.type === 'image') return '* Image posted...'
-          if (msg.type === 'chara') return `* ${this.rp.charasById.get(msg.charaId).name} says...`
+          if (msg.type === 'narrator') return '* The narrator says...';
+          if (msg.type === 'ooc') return '* OOC message...';
+          if (msg.type === 'image') return '* Image posted...';
+          if (msg.type === 'chara') return `* ${this.rp.charasById.get(msg.charaId).name} says...`;
           return '* New message...';
         }),
         tap(title => document.title = title),
@@ -68,7 +68,7 @@ export class NotifyService {
           )
         )
       ))
-    )
+    );
 
     this.subscription = merge(noises$, titleChanges$).subscribe();
 

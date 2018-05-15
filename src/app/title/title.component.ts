@@ -53,12 +53,12 @@ import { TrackService } from '../track.service';
           <button mat-raised-button color="primary" (click)="createRp(); track.event('Room', 'create')" [disabled]="!title">
             <mat-icon>check</mat-icon>
             Create RP
-          </button>	
+          </button>
 
           <button *ngIf="!showMoreOptions" mat-raised-button (click)="showMoreOptions=true; track.event('Desc', 'reveal')">
             <mat-icon>more_horiz</mat-icon>
             Options
-          </button>	
+          </button>
 
         </div>
 
@@ -75,11 +75,11 @@ import { TrackService } from '../track.service';
 })
 export class TitleComponent implements OnInit {
 
-  public title: string = '';
-  public desc: string = '';
+  public title = '';
+  public desc = '';
 
-  public showMoreOptions: boolean = false;
-  public submitted: boolean = false;
+  public showMoreOptions = false;
+  public submitted = false;
 
   private spinnerSub: Subscription;
 
@@ -91,13 +91,13 @@ export class TitleComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.titleService.setTitle('RPNow: No-Registration Roleplay Chat Service')
+    this.titleService.setTitle('RPNow: No-Registration Roleplay Chat Service');
   }
 
   public async createRp() {
     this.submitted = true;
-    let data:any = await this.http.post(API_URL + '/api/rp', {title: this.title, desc: this.desc}).toPromise();
-    let rpCode = data.rpCode;
+    const data: any = await this.http.post(API_URL + '/api/rp', {title: this.title, desc: this.desc}).toPromise();
+    const rpCode = data.rpCode;
     this.router.navigate(['/rp/' + rpCode]);
   }
 
@@ -109,10 +109,10 @@ export class TitleComponent implements OnInit {
   private spinner(): Observable<void> {
     return Observable.create(obs => {
       let millis = 10.0;
-      while ((millis *=1.15) < 200.0/.15) {
+      while ((millis *= 1.15) < 200.0 / .15) {
         setTimeout(() => obs.next(), millis);
       }
-      setTimeout(() => { obs.next(); obs.complete() }, millis);
-    })
+      setTimeout(() => { obs.next(); obs.complete(); }, millis);
+    });
   }
 }

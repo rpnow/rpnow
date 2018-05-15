@@ -33,10 +33,10 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 })
 export class IpidComponent {
 
-  colors: string[] = []
+  colors: string[] = [];
 
   @Input('ipid') set ipid(ipid: string) {
-    this.colors = ipid.match(/[0-9a-f]{6}/gi).map(hex => '#'+hex);
+    this.colors = ipid.match(/[0-9a-f]{6}/gi).map(hex => '#' + hex);
   }
 
 }

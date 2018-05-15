@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, Input, OnDestroy, HostBindi
 import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 import * as format from 'date-fns/format';
 
-const LONG_FORMAT = 'MMMM Do[,] YYYY [at] h:mm A'
+const LONG_FORMAT = 'MMMM Do[,] YYYY [at] h:mm A';
 
 @Component({
   selector: '[timeAgo]',
@@ -25,20 +25,20 @@ export class TimeagoComponent implements OnInit, OnDestroy {
   timerHandle: number;
 
   @Input('timeAgo') set _timeAgo(ts: number) {
-    this.timeAgoDate = ts ? new Date(ts) : null
-    this.updateRelativeTime()
-    this.updateAbsoluteTimes()
+    this.timeAgoDate = ts ? new Date(ts) : null;
+    this.updateRelativeTime();
+    this.updateAbsoluteTimes();
   }
   @Input('timeAgoEdited') set _timeAgoEdited(ts: number) {
-    this.timeAgoEditedDate  = ts ? new Date(ts) : null
-    this.updateAbsoluteTimes()
+    this.timeAgoEditedDate  = ts ? new Date(ts) : null;
+    this.updateAbsoluteTimes();
   }
 
   ngOnInit() {
     this.timerHandle = setInterval(() => {
-      this.updateRelativeTime()
-      this.changeDetectorRef.markForCheck()
-    }, 60*1000);
+      this.updateRelativeTime();
+      this.changeDetectorRef.markForCheck();
+    }, 60 * 1000);
   }
 
   ngOnDestroy() {
@@ -48,8 +48,7 @@ export class TimeagoComponent implements OnInit, OnDestroy {
   updateRelativeTime() {
     if (!this.timeAgoDate) {
       this.timeAgoText = null;
-    }
-    else {
+    } else {
       this.timeAgoText = distanceInWordsToNow(this.timeAgoDate) + ' ago';
     }
 
@@ -58,11 +57,10 @@ export class TimeagoComponent implements OnInit, OnDestroy {
   updateAbsoluteTimes() {
     if (!this.timeAgoDate) {
       this.timeAgoTitleText = null;
-    }
-    else {
+    } else {
       this.timeAgoTitleText = (this.timeAgoEditedDate) ?
         (`Posted ${format(this.timeAgoDate, LONG_FORMAT)}\nEdited ${format(this.timeAgoEditedDate, LONG_FORMAT)}`) :
-        (`Posted ${format(this.timeAgoDate, LONG_FORMAT)}`)
+        (`Posted ${format(this.timeAgoDate, LONG_FORMAT)}`);
     }
   }
 

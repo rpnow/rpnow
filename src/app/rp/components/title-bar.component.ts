@@ -24,13 +24,13 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
 })
 export class TitleBarComponent {
 
-  @Input() title: string
-  @Input() tooltip: string
+  @Input() title: string;
+  @Input() tooltip: string;
 
-  @Output() clickMenu: EventEmitter<void> = new EventEmitter()
+  @Output() clickMenu: EventEmitter<void> = new EventEmitter();
 
   openMenu() {
-    this.clickMenu.emit()
+    this.clickMenu.emit();
   }
 
 }

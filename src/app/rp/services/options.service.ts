@@ -23,14 +23,14 @@ export class OptionsService {
 	private subject<T>(propName: string, global: 'GLOBAL'|'ROOM', defaultValue: T): BehaviorSubject<T> {
 		migrateOptions();
 
-		let localStorageKey = global === 'GLOBAL' ?
+		const localStorageKey = global === 'GLOBAL' ?
 			`rpnow.global.${propName}` :
-			`rpnow.rp.${this.rpCode}.${propName}`
-		
-		let stringValue = localStorage.getItem(localStorageKey);
-		let value = (stringValue != null) ? JSON.parse(stringValue) : defaultValue;
+			`rpnow.rp.${this.rpCode}.${propName}`;
 
-		let subj = new BehaviorSubject(value);
+		const stringValue = localStorage.getItem(localStorageKey);
+		const value = (stringValue != null) ? JSON.parse(stringValue) : defaultValue;
+
+		const subj = new BehaviorSubject(value);
 
 		this.subscriptions.push(subj.subscribe(value => localStorage.setItem(localStorageKey, JSON.stringify(value))));
 

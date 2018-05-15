@@ -56,6 +56,6 @@ RPNow was built by Nigel Nelson with extra graphic design guidance from Hannah L
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AboutDialogComponent { 
+export class AboutDialogComponent {
   innerHtml: string = template;
 }

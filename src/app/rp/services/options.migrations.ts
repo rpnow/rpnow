@@ -1,8 +1,8 @@
-let migrations: [string, {(): void}][] = [
+const migrations: [string, () => void][] = [
     ['Copy challenge from old beta', () => {
         // was there previously a challenge recorded?
-        let hash = JSON.parse(localStorage.getItem('rpnow.challenge.hash'))
-        let secret = JSON.parse(localStorage.getItem('rpnow.challenge.secret'))
+        const hash = JSON.parse(localStorage.getItem('rpnow.challenge.hash'));
+        const secret = JSON.parse(localStorage.getItem('rpnow.challenge.secret'));
 
         if (hash && secret) {
             localStorage.clear();
@@ -17,7 +17,7 @@ export function migrateOptions() {
     if (alreadyDone) return;
     alreadyDone = true;
 
-    let completedMigrations: string[] = JSON.parse(localStorage.getItem('rpnow.migrations')) || [];
+    const completedMigrations: string[] = JSON.parse(localStorage.getItem('rpnow.migrations')) || [];
 
     migrations
         .filter(([migrationName, _]) => completedMigrations.indexOf(migrationName) === -1)
@@ -28,5 +28,5 @@ export function migrateOptions() {
 
             completedMigrations.push(migrationName);
             localStorage.setItem('rpnow.migrations', JSON.stringify(completedMigrations));
-        })
+        });
 }

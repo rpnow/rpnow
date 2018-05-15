@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http'
+import { HttpClient } from '@angular/common/http';
 import { RpService } from './rp.service';
 import * as Docxtemplater from 'docxtemplater';
 import * as JSZip from 'jszip';
@@ -20,35 +20,35 @@ export class DownloadDocxService {
   public downloadDocx(includeOOC: boolean) {
     this.track.event('Download', 'docx', includeOOC ? 'ooc: yes' : 'ooc: no', this.rp.messages.length);
 
-    let data = {
+    const data = {
       title: this.rp.title,
       desc: this.rp.desc,
       hasDesc: !!this.rp.desc,
       msgs: this.rp.messages.map(({type, content, url, charaId}) => ({
-        content, 
-        url, 
+        content,
+        url,
         isNarrator: (type === 'narrator'),
         isOOC: (type === 'ooc'),
         isImage: (type === 'image'),
         isChara: (type === 'chara'),
         name: (charaId ? this.rp.charas[charaId].name.toUpperCase() : undefined)
       })).filter(msg => includeOOC || !msg.isOOC)
-    }
+    };
 
     this.docxTemplateRequest.then(blob => {
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = () => {
-        let doc = new Docxtemplater().loadZip(new JSZip(reader.result));
+        const doc = new Docxtemplater().loadZip(new JSZip(reader.result));
         doc.setData(data);
         doc.render();
-        let file = doc.getZip().generate({
+        const file = doc.getZip().generate({
           type: 'blob',
           mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         });
-        saveAs(file, this.rp.title + '.docx');;
-      }
+        saveAs(file, this.rp.title + '.docx');
+      };
       reader.readAsArrayBuffer(blob);
-    })
+    });
   }
 
 }

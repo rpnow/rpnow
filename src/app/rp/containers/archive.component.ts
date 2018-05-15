@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angu
 import { ActivatedRoute, Router } from '@angular/router';
 import { RpService } from '../services/rp.service';
 import { Observable } from 'rxjs/Observable';
-import { combineLatest } from 'rxjs/observable/combineLatest'
+import { combineLatest } from 'rxjs/observable/combineLatest';
 import { map } from 'rxjs/operators/map';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
@@ -53,14 +53,14 @@ export class ArchiveComponent {
     );
 
     this.pageCount$ = this.rp.messages$.pipe(
-      map(msgs => Math.ceil(msgs.length/this.size))
+      map(msgs => Math.ceil(msgs.length / this.size))
     );
 
     this.messages$ = combineLatest(
       this.rp.messages$,
       this.pageNum$,
-      (msgs, page) => msgs.slice((page-1)*this.size, page*this.size)
-    )
+      (msgs, page) => msgs.slice((page - 1) * this.size, page * this.size)
+    );
   }
 
   pageNumChange(page: number) {
@@ -73,7 +73,7 @@ export class ArchiveComponent {
   }
 
   editMessageContent(id: string, content: string) {
-    this.rp.editMessage(id, content)
+    this.rp.editMessage(id, content);
   }
 
 }

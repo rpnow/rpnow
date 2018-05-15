@@ -33,9 +33,9 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.router.events.pipe(
       filter(e => e instanceof NavigationStart)
-    ).subscribe(() => this.loading = true)
+    ).subscribe(() => this.loading = true);
     this.router.events.pipe(
       filter(e => (e instanceof NavigationEnd) || (e instanceof NavigationCancel))
-    ).subscribe(() => this.loading = false)
+    ).subscribe(() => this.loading = false);
   }
 }
