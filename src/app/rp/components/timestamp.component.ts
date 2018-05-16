@@ -5,16 +5,14 @@ import * as format from 'date-fns/format';
 const LONG_FORMAT = 'MMMM Do[,] YYYY [at] h:mm A';
 
 @Component({
-  // TODO make this a directive?
-  // tslint:disable-next-line:component-selector
-  selector: '[timeAgo]',
+  selector: 'rpn-timestamp',
   template: `
     {{ timeAgoText }}
     <ng-container *ngIf="timeAgoEditedDate">(Edited)</ng-container>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimeagoComponent implements OnInit, OnDestroy {
+export class TimestampComponent implements OnInit, OnDestroy {
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
@@ -26,12 +24,12 @@ export class TimeagoComponent implements OnInit, OnDestroy {
 
   timerHandle: number;
 
-  @Input('timeAgo') set _timeAgo(ts: number) {
+  @Input('createdAt') set _createdAt(ts: number) {
     this.timeAgoDate = ts ? new Date(ts) : null;
     this.updateRelativeTime();
     this.updateAbsoluteTimes();
   }
-  @Input('timeAgoEdited') set _timeAgoEdited(ts: number) {
+  @Input('editedAt') set _editedAt(ts: number) {
     this.timeAgoEditedDate  = ts ? new Date(ts) : null;
     this.updateAbsoluteTimes();
   }

@@ -13,7 +13,7 @@ import { OptionsService } from '../services/options.service';
           <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
         <ng-container *ngIf="!sending">
-          <span class="timestamp" [timeAgo]="createdAt" [timeAgoEdited]="editedAt"></span>
+          <rpn-timestamp class="timestamp" [createdAt]="createdAt" [editedAt]="editedAt"></rpn-timestamp>
           <rpn-ipid *ngIf="ipid && canEdit" [ipid]="ipid"></rpn-ipid>
         </ng-container>
       </div>

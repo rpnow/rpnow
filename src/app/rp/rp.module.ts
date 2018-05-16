@@ -43,7 +43,7 @@ import { OptionsDialogComponent } from './components/options-dialog.component';
 import { CharaDrawerComponent } from './components/chara-drawer.component';
 import { BannerMessageComponent } from './components/banner-message.component';
 import { IconColorDirective } from './components/chara-icon.directive';
-import { TimeagoComponent } from './components/timeago.component';
+import { TimestampComponent } from './components/timestamp.component';
 import { MessageListComponent } from './components/message-list.component';
 
 
@@ -71,7 +71,7 @@ import { MessageListComponent } from './components/message-list.component';
     CharaDrawerComponent,
     BannerMessageComponent,
     IconColorDirective,
-    TimeagoComponent,
+    TimestampComponent,
     MessageListComponent
   ],
   imports: [
