@@ -22,7 +22,7 @@ import { RpChara } from '../models/rp-chara';
                 </ng-container>
 
                 <ng-container *ngIf="isChara">
-                    {{chara.name}}
+                    {{ chara.name }}
                 </ng-container>
             </div>
 
@@ -69,10 +69,10 @@ export class SendBoxComponent {
   @Input() voice: RpVoice;
   @Input() content = '';
   @Input() pressEnterToSend: boolean;
-  @Output() contentChange: EventEmitter<string> = new EventEmitter();
-  @Output() sendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
-  @Output() sendImage: EventEmitter<string> = new EventEmitter();
-  @Output() changeCharacter: EventEmitter<void> = new EventEmitter();
+  @Output() readonly contentChange: EventEmitter<string> = new EventEmitter();
+  @Output() readonly sendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
+  @Output() readonly sendImage: EventEmitter<string> = new EventEmitter();
+  @Output() readonly changeCharacter: EventEmitter<void> = new EventEmitter();
 
   constructor(
     private dialog: MatDialog,

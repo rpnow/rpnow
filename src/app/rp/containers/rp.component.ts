@@ -20,13 +20,13 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
 
         <mat-sidenav #mainMenu position="start" mode="over">
 
-            <rpn-main-menu-content [rpTitle]="rp.title" (close)="mainMenu.close()"></rpn-main-menu-content>
+            <rpn-main-menu-content [rpTitle]="rp.title" (closeMenu)="mainMenu.close()"></rpn-main-menu-content>
 
         </mat-sidenav>
 
         <mat-sidenav-content fxLayout="column">
 
-            <div *ngIf="!(rp.loaded|async) && !(rp.notFound|async)" fxFlex fxLayout="column" fxLayoutAlign="center center">
+            <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" fxFlex fxLayout="column" fxLayoutAlign="center center">
                 <p>Loading your RP...</p>
                 <mat-spinner></mat-spinner>
             </div>
@@ -41,7 +41,7 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
             <div *ngIf="rp.notFound|async" fxFlex fxLayout="column" fxLayoutAlign="center center">
                 <h1>RP Not Found!</h1>
 
-                <p>We couldn't find an RP at <code>/rp/{{rp.rpCode}}</code>. Make sure you've spelled the URL correctly.</p>
+                <p>We couldn't find an RP at <code>/rp/{{ rp.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
 
                 <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
             </div>

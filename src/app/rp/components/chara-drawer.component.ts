@@ -48,7 +48,7 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
                 <a mat-list-item *ngFor="let chara of recentCharas; trackBy: trackById" (click)="onSetVoice(chara)">
                     <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
-                    <p mat-line>{{chara.name}}</p>
+                    <p mat-line>{{ chara.name }}</p>
                     <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
                 </a>
 
@@ -60,7 +60,7 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
             <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" (click)="onSetVoice(chara)">
                 <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
-                <p mat-line>{{chara.name}}</p>
+                <p mat-line>{{ chara.name }}</p>
                 <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
             </a>
 
@@ -81,9 +81,9 @@ export class CharaDrawerComponent {
   @Input() recentCharas: RpChara[];
   @Input() currentChara: RpVoice;
 
-  @Output() closeDrawer: EventEmitter<void> = new EventEmitter();
-  @Output() setVoice: EventEmitter<RpVoice> = new EventEmitter();
-  @Output() newChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
+  @Output() readonly closeDrawer: EventEmitter<void> = new EventEmitter();
+  @Output() readonly setVoice: EventEmitter<RpVoice> = new EventEmitter();
+  @Output() readonly newChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
 
   get isNarratorSelected() {
       return this.currentChara === 'narrator';

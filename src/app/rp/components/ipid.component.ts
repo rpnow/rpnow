@@ -4,7 +4,7 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
   selector: 'rpn-ipid',
   template: `
     <span class="color-ip-box" matTooltip="Anonymous user ID">
-      <span *ngFor="let color of colors" [style.background-color]="color"></span>
+      <span class="color-ip-box-section" *ngFor="let color of colors; trackBy: trackBySelf" [style.background-color]="color"></span>
     </span>
   `,
   styles: [`
@@ -17,7 +17,7 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
         margin: -2px 4px 0 10px;
         position: relative;
     }
-    .color-ip-box span {
+    .color-ip-box-section {
         display: inline-block;
         vertical-align: top;
         padding: 0;
@@ -37,6 +37,10 @@ export class IpidComponent {
 
   @Input('ipid') set ipid(ipid: string) {
     this.colors = ipid.match(/[0-9a-f]{6}/gi).map(hex => '#' + hex);
+  }
+
+  trackBySelf(color: string) {
+    return color;
   }
 
 }

@@ -35,7 +35,7 @@ export class MessageListComponent {
   @Input() showMessageDetails: boolean;
   @Input() pressEnterToSend: boolean;
 
-  @Output() editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
+  @Output() readonly editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
 
   trackById(index: number, item: RpMessage) {
     return item._id;

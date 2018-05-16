@@ -13,7 +13,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
                 <mat-icon aria-label="Previous page" matTooltip="Previous page">navigate_before</mat-icon>
             </button>
 
-            Page {{pageNum}}
+            Page {{ pageNum }}
 
             <button mat-icon-button [disabled]="isLastPage" (click)="changePage(pageNum+1)">
                 <mat-icon aria-label="Next page" matTooltip="Next page">navigate_next</mat-icon>
@@ -38,7 +38,7 @@ export class PaginatorComponent {
 
     @Input() pageNum: number;
 
-    @Output() pageNumChange: EventEmitter<number> = new EventEmitter();
+    @Output() readonly pageNumChange: EventEmitter<number> = new EventEmitter();
 
     @Input() pageCount: number;
 

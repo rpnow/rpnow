@@ -38,7 +38,7 @@ export class BannerMessageComponent {
 
   @Input() message: string;
 
-  @Output() dismiss: EventEmitter<string> = new EventEmitter();
+  @Output() readonly dismiss: EventEmitter<string> = new EventEmitter();
 
   get messageHtml() {
     return this.message && this.sanitizer.bypassSecurityTrustHtml(this.message);

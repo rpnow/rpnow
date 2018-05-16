@@ -4,7 +4,7 @@ import { Title } from '@angular/platform-browser';
 @Component({
   template: `
     <div id="not-found">
-      <h1>Page not found: <code>{{route}}</code></h1>
+      <h1>Page not found: <code>{{ route }}</code></h1>
 
       <p>Sorry, there's no page at this address. Make sure you've spelled the URL correctly, or <a routerLink="/">return to the RPNow homepage.</a></p>
 

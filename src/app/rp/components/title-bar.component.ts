@@ -27,7 +27,7 @@ export class TitleBarComponent {
   @Input() title: string;
   @Input() tooltip: string;
 
-  @Output() clickMenu: EventEmitter<void> = new EventEmitter();
+  @Output() readonly clickMenu: EventEmitter<void> = new EventEmitter();
 
   openMenu() {
     this.clickMenu.emit();

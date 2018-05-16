@@ -5,7 +5,7 @@ import { OptionsService } from '../services/options.service';
   selector: 'rpn-message',
   template: `
     <div [ngClass]="elementClasses" [style.background-color]="charaColor||''" [style.color]="(charaColor|bw)">
-        <div *ngIf="isChara" class="name">{{charaName}}</div>
+        <div *ngIf="isChara" class="name">{{ charaName }}</div>
 
         <div class="message-details" *ngIf="!editing && showMessageDetails">
             <ng-container *ngIf="sending">
@@ -69,7 +69,7 @@ export class MessageComponent {
   @Input() pressEnterToSend = false;
   @Input() showMessageDetails = false;
 
-  @Output() editContent: EventEmitter<string> = new EventEmitter();
+  @Output() readonly editContent: EventEmitter<string> = new EventEmitter();
 
   editing = false;
   newContent = '';

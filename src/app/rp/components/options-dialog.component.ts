@@ -34,8 +34,8 @@ import { noises } from '../services/notify.service';
                 <mat-icon mat-list-icon>notifications</mat-icon>
                 <p mat-line>
                     <mat-select [(ngModel)]="options.notificationNoise">
-                        <mat-option *ngFor="let noise of noteNoiseOptions; let i = index" [value]="i" (click)="noise.audio?.play()">
-                            {{noise.name}}
+                        <mat-option *ngFor="let noise of noteNoiseOptions; let i = index; trackBy: trackByNoiseName" [value]="i" (click)="noise.audio?.play()">
+                            {{ noise.name }}
                         </mat-option>
                     </mat-select>
                 </p>
@@ -69,4 +69,8 @@ import { noises } from '../services/notify.service';
 export class OptionsDialogComponent {
   constructor(public options: OptionsService) { }
   public readonly noteNoiseOptions = noises;
+
+  trackByNoiseName(noise: any) {
+    return noise.name;
+  }
 }
