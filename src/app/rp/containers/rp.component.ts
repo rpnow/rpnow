@@ -18,35 +18,35 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
   template: `
     <mat-sidenav-container fxFill>
 
-        <mat-sidenav #mainMenu position="start" mode="over">
+      <mat-sidenav #mainMenu position="start" mode="over">
 
-            <rpn-main-menu-content [rpTitle]="rp.title" (closeMenu)="mainMenu.close()"></rpn-main-menu-content>
+        <rpn-main-menu-content [rpTitle]="rp.title" (closeMenu)="mainMenu.close()"></rpn-main-menu-content>
 
-        </mat-sidenav>
+      </mat-sidenav>
 
-        <mat-sidenav-content fxLayout="column">
+      <mat-sidenav-content fxLayout="column">
 
-            <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" fxFlex fxLayout="column" fxLayoutAlign="center center">
-                <p>Loading your RP...</p>
-                <mat-spinner></mat-spinner>
-            </div>
+        <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" fxFlex fxLayout="column" fxLayoutAlign="center center">
+          <p>Loading your RP...</p>
+          <mat-spinner></mat-spinner>
+        </div>
 
-            <ng-container *ngIf="rp.loaded|async">
-                <rpn-banner-message [message]="bannerMessage$|async" (dismiss)="dismissBanner($event)"></rpn-banner-message>
-                <div fxFlex>
-                    <router-outlet></router-outlet>
-                </div>
-            </ng-container>
+        <ng-container *ngIf="rp.loaded|async">
+          <rpn-banner-message [message]="bannerMessage$|async" (dismiss)="dismissBanner($event)"></rpn-banner-message>
+          <div fxFlex>
+            <router-outlet></router-outlet>
+          </div>
+        </ng-container>
 
-            <div *ngIf="rp.notFound|async" fxFlex fxLayout="column" fxLayoutAlign="center center">
-                <h1>RP Not Found!</h1>
+        <div *ngIf="rp.notFound|async" fxFlex fxLayout="column" fxLayoutAlign="center center">
+          <h1>RP Not Found!</h1>
 
-                <p>We couldn't find an RP at <code>/rp/{{ rp.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
+          <p>We couldn't find an RP at <code>/rp/{{ rp.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
 
-                <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
-            </div>
+          <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
+        </div>
 
-        </mat-sidenav-content>
+      </mat-sidenav-content>
 
     </mat-sidenav-container>
   `,

@@ -19,7 +19,6 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
 
     </mat-toolbar>
   `,
-  styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TitleBarComponent {

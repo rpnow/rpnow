@@ -5,23 +5,23 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   template: `
     <div fxLayout="row" fxLayoutAlign="center center">
 
-        <h3 mat-dialog-title fxFlex>New Character</h3>
+      <h3 mat-dialog-title fxFlex>New Character</h3>
 
-        <button mat-icon-button mat-dialog-title mat-dialog-close>
-            <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
-        </button>
+      <button mat-icon-button mat-dialog-title mat-dialog-close>
+        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
+      </button>
 
     </div>
 
     <mat-form-field>
-        <input matInput maxlength="30" placeholder="Name this character:" [(ngModel)]="name" cdkFocusInitial>
+      <input matInput maxlength="30" placeholder="Name this character:" [(ngModel)]="name" cdkFocusInitial>
     </mat-form-field>
 
     <span [(colorPicker)]="color" [cpToggle]="true" cpDialogDisplay="inline" [cpDisableInput]="true"></span>
 
     <mat-dialog-actions>
-        <button mat-raised-button [disabled]="!valid" [style.background-color]="submitButtonColor" [style.color]="submitButtonColor|bw" (click)="submit()">OK</button>
-        <button mat-raised-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button [disabled]="!valid" [style.background-color]="submitButtonColor" [style.color]="submitButtonColor|bw" (click)="submit()">OK</button>
+      <button mat-raised-button mat-dialog-close>Cancel</button>
     </mat-dialog-actions>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush

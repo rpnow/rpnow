@@ -10,54 +10,54 @@ import { RpChara } from '../models/rp-chara';
   template: `
     <div id="send-box" fxLayout="column" [class]="elementClass" [style.background-color]="chara?.color" [style.color]="chara?.color|bw">
 
-        <div id="voice-bar" fxLayout="row" fxLayoutAlign="center center">
+      <div id="voice-bar" fxLayout="row" fxLayoutAlign="center center">
 
-            <div id="click-to-change" fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
-                <ng-container *ngIf="isNarrator">
-                    Narrator
-                </ng-container>
+        <div id="click-to-change" fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
+          <ng-container *ngIf="isNarrator">
+            Narrator
+          </ng-container>
 
-                <ng-container *ngIf="isOOC">
-                    Out of character
-                </ng-container>
+          <ng-container *ngIf="isOOC">
+            Out of character
+          </ng-container>
 
-                <ng-container *ngIf="isChara">
-                    {{ chara.name }}
-                </ng-container>
-            </div>
-
-            <button mat-icon-button (click)="openCharaSelector()">
-                <mat-icon aria-label="Change character" matTooltip="Change character" matTooltipPosition="above">people</mat-icon>
-            </button>
-
-            <button mat-icon-button (click)="showImageDialog()">
-                <mat-icon aria-label="Post image" matTooltip="Post image" matTooltipPosition="above">image</mat-icon>
-            </button>
-
-            <button mat-icon-button (click)="showFormatGuideDialog()">
-                <mat-icon aria-label="Open post format guide" matTooltip="Formatting info" matTooltipPosition="above">text_fields</mat-icon>
-            </button>
-
+          <ng-container *ngIf="isChara">
+            {{ chara.name }}
+          </ng-container>
         </div>
 
-        <div id="typing-area" fxLayout="row" fxLayoutAlign="center center">
+        <button mat-icon-button (click)="openCharaSelector()">
+          <mat-icon aria-label="Change character" matTooltip="Change character" matTooltipPosition="above">people</mat-icon>
+        </button>
 
-            <textarea
-              fxFlex
-              matTextareaAutosize
-              matAutosizeMinRows="3"
-              [(ngModel)]="content"
-              (ngModelChange)="contentChange.emit($event)"
-              placeholder="Type your message."
-              maxlength="10000"
-              (keypress)="keypressCheckEnter($event)"
-            ></textarea>
+        <button mat-icon-button (click)="showImageDialog()">
+          <mat-icon aria-label="Post image" matTooltip="Post image" matTooltipPosition="above">image</mat-icon>
+        </button>
 
-            <button mat-icon-button [disabled]="!valid()" (click)="onSendMessage()">
-                <mat-icon aria-label="Send" matTooltip="Send" matTooltipPosition="above">send</mat-icon>
-            </button>
+        <button mat-icon-button (click)="showFormatGuideDialog()">
+          <mat-icon aria-label="Open post format guide" matTooltip="Formatting info" matTooltipPosition="above">text_fields</mat-icon>
+        </button>
 
-        </div>
+      </div>
+
+      <div id="typing-area" fxLayout="row" fxLayoutAlign="center center">
+
+        <textarea
+          fxFlex
+          matTextareaAutosize
+          matAutosizeMinRows="3"
+          [(ngModel)]="content"
+          (ngModelChange)="contentChange.emit($event)"
+          placeholder="Type your message."
+          maxlength="10000"
+          (keypress)="keypressCheckEnter($event)"
+        ></textarea>
+
+        <button mat-icon-button [disabled]="!valid()" (click)="onSendMessage()">
+          <mat-icon aria-label="Send" matTooltip="Send" matTooltipPosition="above">send</mat-icon>
+        </button>
+
+      </div>
 
     </div>
   `,

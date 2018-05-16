@@ -5,49 +5,51 @@ import { OptionsService } from '../services/options.service';
   selector: 'rpn-message',
   template: `
     <div [ngClass]="elementClasses" [style.background-color]="charaColor||''" [style.color]="(charaColor|bw)">
-        <div *ngIf="isChara" class="name">{{ charaName }}</div>
 
-        <div class="message-details" *ngIf="!editing && showMessageDetails">
-            <ng-container *ngIf="sending">
-                <mat-spinner [diameter]="16"></mat-spinner>
-            </ng-container>
-            <ng-container *ngIf="!sending">
-                <span class="timestamp" [timeAgo]="createdAt" [timeAgoEdited]="editedAt"></span>
-                <rpn-ipid *ngIf="ipid && canEdit" [ipid]="ipid"></rpn-ipid>
-            </ng-container>
-        </div>
+      <div *ngIf="isChara" class="name">{{ charaName }}</div>
 
-        <div *ngIf="canEdit && !sending" class="action-buttons">
-            <ng-container *ngIf="!editing">
-                <button mat-icon-button (click)="beginEdit()">
-                    <mat-icon aria-label="Edit post" matTooltip="Edit post">edit</mat-icon>
-                </button>
-            </ng-container>
-            <ng-container *ngIf="editing">
-                <button mat-icon-button [disabled]="!validEdit()" (click)="confirmEdit()">
-                    <mat-icon aria-label="Save edits" matTooltip="Save edits">save</mat-icon>
-                </button>
-                <button mat-icon-button (click)="cancelEdit()">
-                    <mat-icon aria-label="Discard edits" matTooltip="Discard edits">cancel</mat-icon>
-                </button>
-            </ng-container>
-        </div>
-
-        <ng-container *ngIf="type !== 'image' && !editing">
-            <div class="content generated-links" [innerHtml]="content|msgFormat:charaColor"></div>
+      <div class="message-details" *ngIf="!editing && showMessageDetails">
+        <ng-container *ngIf="sending">
+          <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
+        <ng-container *ngIf="!sending">
+          <span class="timestamp" [timeAgo]="createdAt" [timeAgoEdited]="editedAt"></span>
+          <rpn-ipid *ngIf="ipid && canEdit" [ipid]="ipid"></rpn-ipid>
+        </ng-container>
+      </div>
 
+      <div *ngIf="canEdit && !sending" class="action-buttons">
+        <ng-container *ngIf="!editing">
+          <button mat-icon-button (click)="beginEdit()">
+            <mat-icon aria-label="Edit post" matTooltip="Edit post">edit</mat-icon>
+          </button>
+        </ng-container>
         <ng-container *ngIf="editing">
-            <textarea class="content" [(ngModel)]="newContent" maxlength="10000" rows="4" (keypress)="keypressCheckEnter($event)"></textarea>
+          <button mat-icon-button [disabled]="!validEdit()" (click)="confirmEdit()">
+            <mat-icon aria-label="Save edits" matTooltip="Save edits">save</mat-icon>
+          </button>
+          <button mat-icon-button (click)="cancelEdit()">
+            <mat-icon aria-label="Discard edits" matTooltip="Discard edits">cancel</mat-icon>
+          </button>
         </ng-container>
+      </div>
 
-        <ng-container *ngIf="type === 'image'">
-            <div class="content">
-                <a [href]="url" target="_blank">
-                    <img [src]="url"/>
-                </a>
-            </div>
-        </ng-container>
+      <ng-container *ngIf="type !== 'image' && !editing">
+        <div class="content generated-links" [innerHtml]="content|msgFormat:charaColor"></div>
+      </ng-container>
+
+      <ng-container *ngIf="editing">
+        <textarea class="content" [(ngModel)]="newContent" maxlength="10000" rows="4" (keypress)="keypressCheckEnter($event)"></textarea>
+      </ng-container>
+
+      <ng-container *ngIf="type === 'image'">
+        <div class="content">
+          <a [href]="url" target="_blank">
+            <img [src]="url"/>
+          </a>
+        </div>
+      </ng-container>
+
     </div>
   `,
   styleUrls: ['message.css'],

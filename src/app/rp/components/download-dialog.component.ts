@@ -6,24 +6,24 @@ import { OptionsService } from '../services/options.service';
 @Component({
   template: `
     <div fxLayout="row" fxLayoutAlign="center center">
-        <h3 mat-dialog-title fxFlex>Download RP</h3>
+      <h3 mat-dialog-title fxFlex>Download RP</h3>
 
-        <button mat-icon-button mat-dialog-title mat-dialog-close>
-            <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
-        </button>
+      <button mat-icon-button mat-dialog-title mat-dialog-close>
+        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
+      </button>
     </div>
 
     <mat-checkbox [(ngModel)]="downloadOOC">Include OOC messages</mat-checkbox>
 
     <mat-dialog-actions>
-        <button mat-raised-button color="primary" (click)="printTxt()">
-            <mat-icon>file_download</mat-icon>
-            .TXT
-        </button>
-        <button mat-raised-button color="primary" (click)="printDocx()">
-            <mat-icon>file_download</mat-icon>
-            .DOCX
-        </button>
+      <button mat-raised-button color="primary" (click)="printTxt()">
+        <mat-icon>file_download</mat-icon>
+        .TXT
+      </button>
+      <button mat-raised-button color="primary" (click)="printDocx()">
+        <mat-icon>file_download</mat-icon>
+        .DOCX
+      </button>
     </mat-dialog-actions>
   `,
   providers: [DownloadDocxService, DownloadTxtService],

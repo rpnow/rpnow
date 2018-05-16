@@ -9,24 +9,24 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
   `,
   styles: [`
     .color-ip-box {
-        display: inline-block;
-        vertical-align: middle;
-        height: 8px;
-        width: 18px;
-        border: solid 1px rgba(0,0,0,0.7);
-        margin: -2px 4px 0 10px;
-        position: relative;
+      display: inline-block;
+      vertical-align: middle;
+      height: 8px;
+      width: 18px;
+      border: solid 1px rgba(0,0,0,0.7);
+      margin: -2px 4px 0 10px;
+      position: relative;
     }
     .color-ip-box-section {
-        display: inline-block;
-        vertical-align: top;
-        padding: 0;
-        margin: 0;
-        width: 6px;
-        height: 100%;
+      display: inline-block;
+      vertical-align: top;
+      padding: 0;
+      margin: 0;
+      width: 6px;
+      height: 100%;
     }
     :host-context(.dark-theme) .color-ip-box {
-        border-color: rgba(255,255,255,0.7);
+      border-color: rgba(255,255,255,0.7);
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush

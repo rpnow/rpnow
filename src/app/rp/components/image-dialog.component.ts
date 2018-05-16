@@ -6,29 +6,29 @@ import { MatDialogRef } from '@angular/material/dialog';
   template: `
     <div fxLayout="row" fxLayoutAlign="center center">
 
-        <h3 mat-dialog-title fxFlex>Post Image</h3>
+      <h3 mat-dialog-title fxFlex>Post Image</h3>
 
-        <button mat-icon-button mat-dialog-title mat-dialog-close>
-            <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
-        </button>
+      <button mat-icon-button mat-dialog-title mat-dialog-close>
+        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
+      </button>
 
     </div>
 
     <ng-container *ngIf="!loading">
 
-        <mat-form-field>
-            <input matInput placeholder="Enter a URL:" [(ngModel)]="url" cdkFocusInitial (keyup.enter)="submit()">
-        </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Enter a URL:" [(ngModel)]="url" cdkFocusInitial (keyup.enter)="submit()">
+      </mat-form-field>
 
-        <mat-dialog-actions>
-            <button mat-raised-button [disabled]="!valid()" color="primary" (click)="submit()">OK</button>
-            <button mat-raised-button mat-dialog-close>Cancel</button>
-        </mat-dialog-actions>
+      <mat-dialog-actions>
+        <button mat-raised-button [disabled]="!valid()" color="primary" (click)="submit()">OK</button>
+        <button mat-raised-button mat-dialog-close>Cancel</button>
+      </mat-dialog-actions>
 
     </ng-container>
 
     <ng-container *ngIf="loading">
-        <mat-spinner></mat-spinner>
+      <mat-spinner></mat-spinner>
     </ng-container>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
