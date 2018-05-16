@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription } from 'rxjs/Subscription';
@@ -22,24 +22,38 @@ import { RpVoice } from '../models/rp-voice';
 
       <mat-sidenav-content fxLayout="column">
 
-        <title-bar [title]="rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></title-bar>
+        <rpn-title-bar [title]="rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
-        <rp-message-list class="flex-scroll-container" #messageContainer
+        <rpn-message-list class="flex-scroll-container" #messageContainer
           [messages]="messages$|async"
           [charas]="rp.charas$|async"
           [challenge]="(options.challenge$|async).hash"
           [showMessageDetails]="options.showMessageDetails$|async"
           [pressEnterToSend]="options.pressEnterToSend$|async"
           (editMessageContent)="editMessageContent($event[0], $event[1])"
-        ></rp-message-list>
+        ></rpn-message-list>
 
-        <send-box [(content)]="options.msgBoxContent" [voice]="currentChara$|async" [pressEnterToSend]="options.pressEnterToSend$|async" (onSendMessage)="sendMessage($event[0],$event[1])" (onSendImage)="sendImage($event)" (changeCharacter)="openCharaSelector()"></send-box>
+        <rpn-send-box
+          [(content)]="options.msgBoxContent"
+          [voice]="currentChara$|async"
+          [pressEnterToSend]="options.pressEnterToSend$|async"
+          (sendMessage)="sendMessage($event[0],$event[1])"
+          (sendImage)="sendImage($event)"
+          (changeCharacter)="openCharaSelector()"
+        ></rpn-send-box>
 
       </mat-sidenav-content>
 
       <mat-sidenav position="end" mode="over" [(opened)]="charaSelectorOpen">
 
-        <chara-drawer-contents [charas]="sortedCharas$|async" [recentCharas]="recentCharas$|async" [currentChara]="currentChara$|async" (closeDrawer)="closeCharaSelector()" (onSetVoice)="setVoice($event)" (onNewChara)="createNewChara($event)"></chara-drawer-contents>
+        <rpn-chara-drawer-contents
+          [charas]="sortedCharas$|async"
+          [recentCharas]="recentCharas$|async"
+          [currentChara]="currentChara$|async"
+          (closeDrawer)="closeCharaSelector()"
+          (setVoice)="setVoice($event)"
+          (newChara)="createNewChara($event)"
+        ></rpn-chara-drawer-contents>
 
       </mat-sidenav>
 
@@ -47,7 +61,7 @@ import { RpVoice } from '../models/rp-voice';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, OnDestroy {
 
   @ViewChild('messageContainer', { read: ElementRef }) messageContainer: ElementRef;
   private el: HTMLDivElement;

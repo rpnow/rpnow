@@ -41,6 +41,6 @@ Use these shortcuts to RP faster.
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FormatGuideDialog {
+export class FormatGuideDialogComponent {
   innerHtml: string = template;
 }

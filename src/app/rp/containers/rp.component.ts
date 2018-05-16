@@ -4,7 +4,8 @@ import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
-import { DOCUMENT, Title } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
+import { Title } from '@angular/platform-browser';
 import { NotifyService } from '../services/notify.service';
 import { ChallengeService } from '../services/challenge.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -19,7 +20,7 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
 
         <mat-sidenav #mainMenu position="start" mode="over">
 
-            <main-menu-content [rpTitle]="rp.title" (onClose)="mainMenu.close()"></main-menu-content>
+            <rpn-main-menu-content [rpTitle]="rp.title" (close)="mainMenu.close()"></rpn-main-menu-content>
 
         </mat-sidenav>
 
@@ -31,7 +32,7 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
             </div>
 
             <ng-container *ngIf="rp.loaded|async">
-                <banner-message [message]="bannerMessage$|async" (onDismiss)="dismissBanner($event)"></banner-message>
+                <rpn-banner-message [message]="bannerMessage$|async" (dismiss)="dismissBanner($event)"></rpn-banner-message>
                 <div fxFlex>
                     <router-outlet></router-outlet>
                 </div>

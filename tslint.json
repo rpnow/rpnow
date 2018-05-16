@@ -30,7 +30,7 @@
     "label-position": true,
     "max-line-length": [
       true,
-      140
+      200
     ],
     "member-access": false,
     "member-ordering": [
@@ -122,13 +122,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "app",
+      "rpn",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "app",
+      "rpn",
       "kebab-case"
     ],
     "no-output-on-prefix": true,

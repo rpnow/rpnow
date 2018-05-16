@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CharaDialogComponent } from './chara-dialog.component';
 
 @Component({
-  selector: 'chara-drawer-contents',
+  selector: 'rpn-chara-drawer-contents',
   template: `
     <div fxFill fxLayout="column">
 
@@ -22,12 +22,12 @@ import { CharaDialogComponent } from './chara-dialog.component';
         </mat-toolbar>
 
         <mat-nav-list class="flex-scroll-container">
-            <a mat-list-item (click)="setVoice('narrator')">
+            <a mat-list-item (click)="onSetVoice('narrator')">
                 <mat-icon mat-list-icon>local_library</mat-icon>
                 <p mat-line>Narrator</p>
                 <mat-icon *ngIf="isNarratorSelected">check</mat-icon>
             </a>
-            <a mat-list-item (click)="setVoice('ooc')">
+            <a mat-list-item (click)="onSetVoice('ooc')">
                 <mat-icon mat-list-icon>chat</mat-icon>
                 <p mat-line>Out of Character</p>
                 <mat-icon *ngIf="isOocSelected">check</mat-icon>
@@ -35,7 +35,7 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
             <mat-divider></mat-divider>
 
-            <a mat-list-item (click)="newChara()">
+            <a mat-list-item (click)="onNewChara()">
                 <mat-icon mat-list-icon>person_add</mat-icon>
                 <p mat-line>New Character...</p>
             </a>
@@ -46,8 +46,8 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
                 <h3 matSubheader>Recent</h3>
 
-                <a mat-list-item *ngFor="let chara of recentCharas; trackBy: trackById" (click)="setVoice(chara)">
-                    <mat-icon mat-list-icon [charaIconColor]="chara.color">person</mat-icon>
+                <a mat-list-item *ngFor="let chara of recentCharas; trackBy: trackById" (click)="onSetVoice(chara)">
+                    <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
                     <p mat-line>{{chara.name}}</p>
                     <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
                 </a>
@@ -58,8 +58,8 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
             <h3 matSubheader *ngIf="hasManyCharacters()">All Characters</h3>
 
-            <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" (click)="setVoice(chara)">
-                <mat-icon mat-list-icon [charaIconColor]="chara.color">person</mat-icon>
+            <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" (click)="onSetVoice(chara)">
+                <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
                 <p mat-line>{{chara.name}}</p>
                 <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
             </a>
@@ -82,8 +82,8 @@ export class CharaDrawerComponent {
   @Input() currentChara: RpVoice;
 
   @Output() closeDrawer: EventEmitter<void> = new EventEmitter();
-  @Output() onSetVoice: EventEmitter<RpVoice> = new EventEmitter();
-  @Output() onNewChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
+  @Output() setVoice: EventEmitter<RpVoice> = new EventEmitter();
+  @Output() newChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
 
   get isNarratorSelected() {
       return this.currentChara === 'narrator';
@@ -101,14 +101,14 @@ export class CharaDrawerComponent {
     return this.charas && this.charas.length >= 10;
   }
 
-  setVoice(voice: RpVoice) {
-    this.onSetVoice.emit(voice);
+  onSetVoice(voice: RpVoice) {
+    this.setVoice.emit(voice);
   }
 
-  newChara() {
+  onNewChara() {
     const dialogRef = this.dialog.open(CharaDialogComponent, { viewContainerRef: this.viewContainerRef });
     dialogRef.beforeClose().subscribe(chara => {
-      if (chara) this.onNewChara.emit(chara);
+      if (chara) this.newChara.emit(chara);
     });
   }
 

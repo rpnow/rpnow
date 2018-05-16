@@ -1,7 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 
 @Component({
-  selector: 'title-bar',
+  selector: 'rpn-title-bar',
   template: `
     <mat-toolbar class="shadow-toolbar">
 

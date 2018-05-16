@@ -5,13 +5,15 @@ const template = marked(`
 
 Gather up your friends &mdash; it's time to go on an adventure! Give your story a title, name your characters, customize their colors, and start writing together!
 
-That's what RPNow is all about. **[RPNow](https://rpnow.net/) is the Dead-Simple Roleplay Chatroom Service.** It is the _only_ roleplay site that requires no user registration, supports multiple characters per user, keeps your roleplays permanently, and allows you to download the complete transcripts as text files at any time.
+That's what RPNow is all about. **[RPNow](https://rpnow.net/) is the Dead-Simple Roleplay Chatroom Service.** It is the _only_ roleplay site that requires no user
+registration, supports multiple characters per user, keeps your roleplays permanently, and allows you to download the complete transcripts as text files at any time.
 
 Simply put, it's the best place on the web to start your next RP.
 
 #### Donations
 
-RPNow is entirely supported by user donations. Over the past six months, our generous users have donated over $200 USD to RPNow's continued existence. **If you want to support RPNow, [please become our patron on Patreon!](https://www.patreon.com/rpnow)**
+RPNow is entirely supported by user donations. Over the past six months, our generous users have donated over $200 USD to RPNow's continued existence. **If you want to
+support RPNow, [please become our patron on Patreon!](https://www.patreon.com/rpnow)**
 
 The following people actively support RPNow by donating $5 or more per month:
 

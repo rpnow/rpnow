@@ -3,7 +3,6 @@ import { MatDialogRef } from '@angular/material/dialog';
 // import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-image-dialog',
   template: `
     <div fxLayout="row" fxLayoutAlign="center center">
 

@@ -1,7 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 
 @Component({
-    selector: 'rp-paginator',
+    selector: 'rpn-paginator',
     template: `
         <div id="pager" fxLayout="row" fxLayoutAlign="center center">
 

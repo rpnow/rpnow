@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Challenge } from './challenge.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { RpService } from './rp.service';
@@ -12,7 +12,7 @@ const GLOBAL = 'GLOBAL';
 const ROOM = 'ROOM';
 
 @Injectable()
-export class OptionsService {
+export class OptionsService implements OnDestroy {
 
   constructor(private route: ActivatedRoute) {}
 
@@ -32,7 +32,7 @@ export class OptionsService {
 
     const subj = new BehaviorSubject(value);
 
-    this.subscriptions.push(subj.subscribe(value => localStorage.setItem(localStorageKey, JSON.stringify(value))));
+    this.subscriptions.push(subj.subscribe(val => localStorage.setItem(localStorageKey, JSON.stringify(val))));
 
     return subj;
   }
@@ -40,6 +40,8 @@ export class OptionsService {
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
+
+  /* tslint:disable:member-ordering */
 
   public readonly challenge$: BehaviorSubject<Readonly<Challenge>> = this.subject('challenge', GLOBAL, null);
   public get challenge() { return this.challenge$.value; }

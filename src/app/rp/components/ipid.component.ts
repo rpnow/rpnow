@@ -1,7 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'ipid',
+  selector: 'rpn-ipid',
   template: `
     <span class="color-ip-box" matTooltip="Anonymous user ID">
       <span *ngFor="let color of colors" [style.background-color]="color"></span>

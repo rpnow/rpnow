@@ -2,7 +2,6 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-not-found',
   template: `
     <div id="not-found">
       <h1>Page not found: <code>{{route}}</code></h1>

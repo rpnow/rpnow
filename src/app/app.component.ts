@@ -4,7 +4,7 @@ import { filter } from 'rxjs/operators/filter';
 import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 
 @Component({
-  selector: 'app-root',
+  selector: 'rpn-root',
   template: `
     <div *ngIf="loading" id="loading">
       <p>Loading RPNow layout...</p>

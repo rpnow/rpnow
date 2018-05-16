@@ -23,7 +23,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { RpComponent } from './containers/rp.component';
 import { ArchiveComponent } from './containers/archive.component';
 import { ChatComponent } from './containers/chat.component';
-import { RpMessageComponent } from './components/rp-message.component';
+import { MessageComponent } from './components/message.component';
 import { IpidComponent } from './components/ipid.component';
 import { PaginatorComponent } from './components/paginator.component';
 import { SendBoxComponent } from './components/send-box.component';
@@ -34,15 +34,15 @@ import { DownloadDialogComponent } from './components/download-dialog.component'
 import { ContactDialogComponent } from './components/contact-dialog.component';
 import { AboutDialogComponent } from './components/about-dialog.component';
 import { TermsDialogComponent } from './components/terms-dialog.component';
-import { FormatGuideDialog } from './components/format-guide-dialog.component';
-import { RpMessagePipe } from './pipes/rp-message.pipe';
+import { FormatGuideDialogComponent } from './components/format-guide-dialog.component';
+import { MessageContentPipe } from './pipes/message-content.pipe';
 import { RpRoutingModule } from './rp-routing.module';
 import { ImageDialogComponent } from './components/image-dialog.component';
 import { MainMenuComponent } from './components/main-menu.component';
 import { OptionsDialogComponent } from './components/options-dialog.component';
 import { CharaDrawerComponent } from './components/chara-drawer.component';
 import { BannerMessageComponent } from './components/banner-message.component';
-import { CharaIconDirective } from './components/chara-icon.directive';
+import { IconColorDirective } from './components/chara-icon.directive';
 import { TimeagoComponent } from './components/timeago.component';
 import { MessageListComponent } from './components/message-list.component';
 
@@ -52,7 +52,7 @@ import { MessageListComponent } from './components/message-list.component';
     RpComponent,
     ArchiveComponent,
     ChatComponent,
-    RpMessageComponent,
+    MessageComponent,
     IpidComponent,
     PaginatorComponent,
     SendBoxComponent,
@@ -64,13 +64,13 @@ import { MessageListComponent } from './components/message-list.component';
     ContactDialogComponent,
     AboutDialogComponent,
     TermsDialogComponent,
-    FormatGuideDialog,
-    RpMessagePipe,
+    FormatGuideDialogComponent,
+    MessageContentPipe,
     MainMenuComponent,
     OptionsDialogComponent,
     CharaDrawerComponent,
     BannerMessageComponent,
-    CharaIconDirective,
+    IconColorDirective,
     TimeagoComponent,
     MessageListComponent
   ],
@@ -102,7 +102,7 @@ import { MessageListComponent } from './components/message-list.component';
     ContactDialogComponent,
     AboutDialogComponent,
     TermsDialogComponent,
-    FormatGuideDialog,
+    FormatGuideDialogComponent,
     OptionsDialogComponent
   ]
 })

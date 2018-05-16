@@ -1,12 +1,12 @@
 import { Component, Output, EventEmitter, ViewContainerRef, ChangeDetectionStrategy, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FormatGuideDialog } from './format-guide-dialog.component';
+import { FormatGuideDialogComponent } from './format-guide-dialog.component';
 import { ImageDialogComponent } from './image-dialog.component';
 import { RpVoice } from '../models/rp-voice';
 import { RpChara } from '../models/rp-chara';
 
 @Component({
-  selector: 'send-box',
+  selector: 'rpn-send-box',
   template: `
     <div id="send-box" fxLayout="column" [class]="elementClass" [style.background-color]="chara?.color" [style.color]="chara?.color|bw">
 
@@ -42,9 +42,18 @@ import { RpChara } from '../models/rp-chara';
 
         <div id="typing-area" fxLayout="row" fxLayoutAlign="center center">
 
-            <textarea fxFlex matTextareaAutosize matAutosizeMinRows="3" [(ngModel)]="content" (ngModelChange)="contentChange.emit($event)" placeholder="Type your message." maxlength="10000" (keypress)="keypressCheckEnter($event)"></textarea>
+            <textarea
+              fxFlex
+              matTextareaAutosize
+              matAutosizeMinRows="3"
+              [(ngModel)]="content"
+              (ngModelChange)="contentChange.emit($event)"
+              placeholder="Type your message."
+              maxlength="10000"
+              (keypress)="keypressCheckEnter($event)"
+            ></textarea>
 
-            <button mat-icon-button [disabled]="!valid()" (click)="sendMessage()">
+            <button mat-icon-button [disabled]="!valid()" (click)="onSendMessage()">
                 <mat-icon aria-label="Send" matTooltip="Send" matTooltipPosition="above">send</mat-icon>
             </button>
 
@@ -61,8 +70,8 @@ export class SendBoxComponent {
   @Input() content = '';
   @Input() pressEnterToSend: boolean;
   @Output() contentChange: EventEmitter<string> = new EventEmitter();
-  @Output() onSendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
-  @Output() onSendImage: EventEmitter<string> = new EventEmitter();
+  @Output() sendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
+  @Output() sendImage: EventEmitter<string> = new EventEmitter();
   @Output() changeCharacter: EventEmitter<void> = new EventEmitter();
 
   constructor(
@@ -94,7 +103,7 @@ export class SendBoxComponent {
     return this.content.trim().length > 0;
   }
 
-  sendMessage() {
+  onSendMessage() {
     if (!this.valid()) return;
 
     let voice = this.voice;
@@ -120,7 +129,7 @@ export class SendBoxComponent {
 
     if (!content.trim()) return;
 
-    this.onSendMessage.emit([content, voice]);
+    this.sendMessage.emit([content, voice]);
 
     this.content = '';
   }
@@ -132,7 +141,7 @@ export class SendBoxComponent {
   showImageDialog() {
     const dialogRef = this.dialog.open(ImageDialogComponent, { viewContainerRef: this.viewContainerRef });
     dialogRef.beforeClose().subscribe(url => {
-      this.onSendImage.emit(url);
+      this.sendImage.emit(url);
     });
   }
 
@@ -143,12 +152,12 @@ export class SendBoxComponent {
     if ($event.shiftKey) return;
 
     if (this.pressEnterToSend || $event.ctrlKey) {
-      this.sendMessage();
+      this.onSendMessage();
       return false;
     }
   }
 
   showFormatGuideDialog() {
-    this.dialog.open(FormatGuideDialog);
+    this.dialog.open(FormatGuideDialogComponent);
   }
 }

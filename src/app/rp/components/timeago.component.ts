@@ -5,6 +5,8 @@ import * as format from 'date-fns/format';
 const LONG_FORMAT = 'MMMM Do[,] YYYY [at] h:mm A';
 
 @Component({
+  // TODO make this a directive?
+  // tslint:disable-next-line:component-selector
   selector: '[timeAgo]',
   template: `
     {{ timeAgoText }}

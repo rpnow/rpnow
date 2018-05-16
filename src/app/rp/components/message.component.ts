@@ -2,7 +2,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
 import { OptionsService } from '../services/options.service';
 
 @Component({
-  selector: 'rp-message',
+  selector: 'rpn-message',
   template: `
     <div [ngClass]="elementClasses" [style.background-color]="charaColor||''" [style.color]="(charaColor|bw)">
         <div *ngIf="isChara" class="name">{{charaName}}</div>
@@ -13,7 +13,7 @@ import { OptionsService } from '../services/options.service';
             </ng-container>
             <ng-container *ngIf="!sending">
                 <span class="timestamp" [timeAgo]="createdAt" [timeAgoEdited]="editedAt"></span>
-                <ipid *ngIf="ipid && canEdit" [ipid]="ipid"></ipid>
+                <rpn-ipid *ngIf="ipid && canEdit" [ipid]="ipid"></rpn-ipid>
             </ng-container>
         </div>
 
@@ -50,10 +50,10 @@ import { OptionsService } from '../services/options.service';
         </ng-container>
     </div>
   `,
-  styleUrls: ['rp-message.css'],
+  styleUrls: ['message.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RpMessageComponent {
+export class MessageComponent {
 
   @Input() content: string;
   @Input() url: string;

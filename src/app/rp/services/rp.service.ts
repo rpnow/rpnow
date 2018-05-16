@@ -112,11 +112,11 @@ export class RpService implements OnDestroy {
     ) as Observable<RpChara[]>;
 
     this.messagesById$ = this.messages$.pipe(
-      map(msgs => msgs.reduce((map, msg) => map.set(msg._id, msg), new Map()))
+      map(msgs => msgs.reduce((msgMap, msg) => msgMap.set(msg._id, msg), new Map()))
     );
 
     this.charasById$ = this.charas$.pipe(
-      map(charas => charas.reduce((map, chara) => map.set(chara._id, chara), new Map()))
+      map(charas => charas.reduce((charaMap, chara) => charaMap.set(chara._id, chara), new Map()))
     );
 
     this.newMessages$ = this.messagesById$.pipe(
@@ -136,12 +136,11 @@ export class RpService implements OnDestroy {
     this.charasById$.subscribe(charasById => this.charasById = charasById);
 
     // initial offline update
-    const loaded = debouncedDocs$.pipe(first()).toPromise();
-    this.loaded = loaded.then(() => true);
+    this.loaded = debouncedDocs$.pipe(first()).toPromise().then(() => true);
     this.notFound = this.loaded.then(loaded => !loaded);
 
     // begin sync
-    loaded.then(() => {
+    this.loaded.then(() => {
       this.db.replicate.from(
         this.remoteDb, { batch_size: 1000 }
       ).on('complete', () => this.sync());

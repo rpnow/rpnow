@@ -1,7 +1,7 @@
 import { Injectable, Inject, OnDestroy } from '@angular/core';
 import { OptionsService } from './options.service';
 import { RpService } from './rp.service';
-import { DOCUMENT } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { filter } from 'rxjs/operators/filter';
@@ -26,7 +26,7 @@ export const noises = [
 ];
 
 @Injectable()
-export class NotifyService {
+export class NotifyService implements OnDestroy {
 
   public subscription: Subscription;
 

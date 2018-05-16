@@ -3,7 +3,6 @@ import { OptionsService } from '../services/options.service';
 import { noises } from '../services/notify.service';
 
 @Component({
-  selector: 'app-options-dialog',
   template: `
     <div fxLayout="row" fxLayoutAlign="center center">
 

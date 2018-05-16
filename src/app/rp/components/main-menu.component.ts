@@ -7,14 +7,14 @@ import { OptionsDialogComponent } from './options-dialog.component';
 import { DownloadDialogComponent } from './download-dialog.component';
 
 @Component({
-  selector: 'main-menu-content',
+  selector: 'rpn-main-menu-content',
   template: `
     <div fxFill fxLayout="column">
         <mat-toolbar class="flat-toolbar">
             <h1 fxFlex>
                 RPNow
             </h1>
-            <button mat-icon-button (click)="close()">
+            <button mat-icon-button (click)="onClose()">
                 <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
             </button>
         </mat-toolbar>
@@ -22,12 +22,12 @@ import { DownloadDialogComponent } from './download-dialog.component';
 
             <h3 matSubheader>{{rpTitle}}</h3>
 
-            <a mat-list-item routerLink="." (click)="close()">
+            <a mat-list-item routerLink="." (click)="onClose()">
                 <mat-icon mat-list-icon>question_answer</mat-icon>
                 <p mat-line>Chat</p>
             </a>
 
-            <a mat-list-item routerLink="./1" (click)="close()">
+            <a mat-list-item routerLink="./1" (click)="onClose()">
                 <mat-icon mat-list-icon>import_contacts</mat-icon>
                 <p mat-line>Archive</p>
             </a>
@@ -84,7 +84,7 @@ export class MainMenuComponent {
 
   @Input() rpTitle: string;
 
-  @Output() onClose: EventEmitter<void> = new EventEmitter();
+  @Output() close: EventEmitter<void> = new EventEmitter();
 
   constructor(
     private dialog: MatDialog,
@@ -111,8 +111,8 @@ export class MainMenuComponent {
     this.dialog.open(OptionsDialogComponent, { viewContainerRef: this.viewContainerRef });
   }
 
-  close() {
-    this.onClose.emit();
+  onClose() {
+    this.close.emit();
   }
 
 }

@@ -4,15 +4,15 @@ import { BlackOrWhitePipe } from '../pipes/black-or-white.pipe';
 const regex = /^#[0-9a-f]{6}$/i;
 
 @Directive({
-  selector: '[charaIconColor]'
+  selector: '[rpnIconColor]'
 })
-export class CharaIconDirective {
+export class IconColorDirective {
 
   private bw = new BlackOrWhitePipe();
 
   constructor(private el: ElementRef) { }
 
-  @Input('charaIconColor') set _color(color: string) {
+  @Input('rpnIconColor') set _color(color: string) {
     if (!color.match(regex)) return;
     const style = (<HTMLElement>this.el.nativeElement).style;
     style.color = color;

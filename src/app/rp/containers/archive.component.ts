@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RpService } from '../services/rp.service';
 import { Observable } from 'rxjs/Observable';
@@ -12,24 +12,24 @@ import { RpMessage } from '../models/rp-message';
   template: `
     <section fxFill fxLayout="column">
 
-      <title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></title-bar>
+      <rpn-title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
-      <rp-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rp-paginator>
+      <rpn-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
 
-      <rp-message-list class="flex-scroll-container" #messageContainer
+      <rpn-message-list class="flex-scroll-container" #messageContainer
         [messages]="messages$|async"
         [charas]="rp.charas$|async"
         [challenge]="(options.challenge$|async).hash"
         [showMessageDetails]="options.showMessageDetails$|async"
         [pressEnterToSend]="options.pressEnterToSend$|async"
         (editMessageContent)="editMessageContent($event[0], $event[1])"
-      ></rp-message-list>
+      ></rpn-message-list>
 
     </section>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ArchiveComponent {
+export class ArchiveComponent implements OnInit {
 
   @ViewChild('messageContainer', { read: ElementRef }) messageContainer: ElementRef;
 
@@ -49,7 +49,7 @@ export class ArchiveComponent {
 
   ngOnInit() {
     this.pageNum$ = this.route.paramMap.pipe(
-      map(map => +map.get('page'))
+      map(params => +params.get('page'))
     );
 
     this.pageCount$ = this.rp.messages$.pipe(

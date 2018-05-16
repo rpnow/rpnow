@@ -4,7 +4,6 @@ import { DownloadDocxService } from '../services/download-docx.service';
 import { OptionsService } from '../services/options.service';
 
 @Component({
-  selector: 'app-download-dialog',
   template: `
     <div fxLayout="row" fxLayoutAlign="center center">
         <h3 mat-dialog-title fxFlex>Download RP</h3>

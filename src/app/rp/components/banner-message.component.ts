@@ -2,13 +2,13 @@ import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
-  selector: 'banner-message',
+  selector: 'rpn-banner-message',
   template: `
     <div *ngIf="messageHtml" fxLayout="row" fxLayoutAlign="center center">
 
       <span class="generated-links-contrast" [innerHTML]="messageHtml"></span>
 
-      <button mat-icon-button (click)="dismiss()">
+      <button mat-icon-button (click)="onDismiss()">
         <mat-icon>close</mat-icon>
       </button>
 
@@ -38,14 +38,14 @@ export class BannerMessageComponent {
 
   @Input() message: string;
 
-  @Output() onDismiss: EventEmitter<string> = new EventEmitter();
+  @Output() dismiss: EventEmitter<string> = new EventEmitter();
 
   get messageHtml() {
     return this.message && this.sanitizer.bypassSecurityTrustHtml(this.message);
   }
 
-  dismiss() {
-    this.onDismiss.emit(this.message);
+  onDismiss() {
+    this.dismiss.emit(this.message);
   }
 
 }

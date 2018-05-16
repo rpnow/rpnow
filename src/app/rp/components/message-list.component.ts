@@ -3,10 +3,10 @@ import { RpMessage } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 
 @Component({
-  selector: 'rp-message-list',
+  selector: 'rpn-message-list',
   template: `
     <div style="padding: 10px 10px 20px">
-      <rp-message *ngFor="let msg of messages; trackBy: trackById"
+      <rpn-message *ngFor="let msg of messages; trackBy: trackById"
         [content]="msg.content"
         [url]="msg.url"
         [type]="msg.type"
@@ -22,7 +22,7 @@ import { RpChara } from '../models/rp-chara';
         [showMessageDetails]="showMessageDetails"
 
         (editContent)="editMessage(msg._id, $event)"
-      ></rp-message>
+      ></rpn-message>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
