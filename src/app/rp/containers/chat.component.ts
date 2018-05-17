@@ -14,7 +14,7 @@ import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
 import { RpMessage } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
-import { RpVoice } from '../models/rp-voice';
+import { RpVoice, getVoice } from '../models/rp-voice';
 
 @Component({
   template: `
@@ -87,7 +87,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.el = this.messageContainer.nativeElement as HTMLDivElement;
 
-    this.currentChara$ = new BehaviorSubject(this.rp.getVoice(this.options.msgBoxVoice));
+    this.currentChara$ = new BehaviorSubject(getVoice(this.options.msgBoxVoice));
     this.subscription2 = this.currentChara$.subscribe(voice => this.options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice._id));
 
     this.messages$ = this.rp.messages$.pipe(

@@ -18,7 +18,7 @@ import * as cuid from 'cuid';
 import sortedIndexBy from 'lodash-es/sortedIndexBy';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpMessage, RpMessageId } from '../models/rp-message';
-import { RpVoice, RpVoiceSerialized } from '../models/rp-voice';
+import { RpVoice, RpVoiceSerialized, typeFromVoice } from '../models/rp-voice';
 
 export type RpDoc = RpChara|RpMessage;
 
@@ -170,7 +170,7 @@ export class RpService implements OnDestroy {
       createdAt: new Date().toISOString(),
       schema: 'message',
       content,
-      ... this.typeFromVoice(voice),
+      ... typeFromVoice(voice),
       challenge: this.challenge.hash
     };
     this.track.event('Messages', 'create', msg.type, content.length);
@@ -223,23 +223,6 @@ export class RpService implements OnDestroy {
   public ngOnDestroy() {
     this.db.close();
     this.docsSubject.complete();
-  }
-
-  public isSpecialVoice(voiceStr: RpVoiceSerialized) {
-    return voiceStr === 'narrator' || voiceStr === 'ooc';
-  }
-
-  public typeFromVoice(voice: RpVoice): {type: 'narrator'|'ooc'|'chara', charaId?: RpCharaId} {
-    if (typeof voice === 'string') return { type: voice };
-    else return { type: 'chara', charaId: voice._id };
-  }
-
-  public getVoice(voiceStr: RpVoiceSerialized): RpVoice {
-    if (this.isSpecialVoice(voiceStr)) {
-      return voiceStr as 'narrator'|'ooc';
-    } else {
-      return this.charasById.get(voiceStr as RpCharaId);
-    }
   }
 
 }
