@@ -39,7 +39,7 @@ import { RpVoice } from '../models/rp-voice';
           [pressEnterToSend]="options.pressEnterToSend$|async"
           (sendMessage)="sendMessage($event[0],$event[1])"
           (sendImage)="sendImage($event)"
-          (changeCharacter)="openCharaSelector()"
+          (changeChara)="openCharaSelector()"
         ></rpn-send-box>
 
       </mat-sidenav-content>

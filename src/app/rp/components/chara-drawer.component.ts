@@ -42,7 +42,7 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
         <mat-divider></mat-divider>
 
-        <ng-container *ngIf="hasManyCharacters()">
+        <ng-container *ngIf="hasManyCharas()">
 
           <h3 matSubheader>Recent</h3>
 
@@ -56,7 +56,7 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
         </ng-container>
 
-        <h3 matSubheader *ngIf="hasManyCharacters()">All Characters</h3>
+        <h3 matSubheader *ngIf="hasManyCharas()">All Characters</h3>
 
         <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" (click)="onSetVoice(chara)">
           <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
@@ -97,7 +97,7 @@ export class CharaDrawerComponent {
     return (typeof this.currentChara !== 'string') && (this.currentChara._id === chara._id);
   }
 
-  hasManyCharacters() {
+  hasManyCharas() {
     return this.charas && this.charas.length >= 10;
   }
 

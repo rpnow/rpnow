@@ -72,7 +72,7 @@ export class SendBoxComponent {
   @Output() readonly contentChange: EventEmitter<string> = new EventEmitter();
   @Output() readonly sendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
   @Output() readonly sendImage: EventEmitter<string> = new EventEmitter();
-  @Output() readonly changeCharacter: EventEmitter<void> = new EventEmitter();
+  @Output() readonly changeChara: EventEmitter<void> = new EventEmitter();
 
   constructor(
     private dialog: MatDialog,
@@ -135,7 +135,7 @@ export class SendBoxComponent {
   }
 
   openCharaSelector() {
-    this.changeCharacter.emit();
+    this.changeChara.emit();
   }
 
   showImageDialog() {
