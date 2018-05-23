@@ -1,5 +1,5 @@
 /* global describe it expect */
-const config = require('../src/config');
+const config = require('./config');
 config.set('logLevel', 'warn');
 const port = config.get('port');
 const host = `http://localhost:${port}`;
@@ -7,7 +7,7 @@ const host = `http://localhost:${port}`;
 const io = require('socket.io-client');
 const request = require('request');
 const nJ = require('normalize-json');
-const api = require('../src/api');
+const api = require('./index');
 
 const errorSchema = nJ({
     code: [String],
@@ -313,7 +313,7 @@ describe("Malformed data resistance within an RP", () => {
     [
         undefined, null, false, true, 0, 1, {}, [], '', ' ', '       ',
         'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAhElEQVRIie2WwQrAIAxDU/H/fzk7CdHVwdYWdjCXipQX04NqJIlCdVkbAG5q2EAh3NSQgUJCJxaeAaAm+DqONaEpp22a3mgCrrwmTVG5jIwEj8pM4HKa15WpY3AM/m3AagOrNrglyLouJp4aZF1400u4vmhZJmMa7IiPxvsojH1Y9bflAvhRIjH91XRBAAAAAElFTkSuQmC',
-        'http://baduri'
+        'http://baduri.rpnow.net'
     ].forEach(badUrl => {
         it(`rejects image with bad url: '${badUrl}'`, (done) => {
             socket.emit('add image', badUrl, (err, data) => {

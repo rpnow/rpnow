@@ -1,10 +1,10 @@
 const request = require('request-promise-native');
-const crypto = require('crypto');
 const nJ = require('normalize-json');
-const promisify = require('util').promisify;
 const EventEmitter = require('events');
 const config = require('./config');
-const dao = require('./dao.mongo');
+const dao = require('./dao/dao.mongo');
+const { generateRpCode } = require('./services/rpcode.js');
+const { verifyChallenge } = require('./services/challenge');
 
 class RpEventEmitter extends EventEmitter {}
 const events = module.exports.events = new RpEventEmitter();
@@ -29,39 +29,6 @@ const editMessageSchema = nJ({
     'secret': [ String, 64 ]
 });
 
-async function generateRpCode() {
-    let length = config.get('rpCodeLength');
-    let characters = config.get('rpCodeChars');
-
-    let numCryptoBytes = length * 2; // ample bytes just in case
-    while (true) {
-        let buffer = await promisify(crypto.randomBytes)(numCryptoBytes);
-
-        let token = buffer.toString('base64');
-        let rpCode = token.match(new RegExp(characters.split('').join('|'), 'g')).join('').substr(0, length);
-        
-        if (rpCode.length !== length) continue;
-
-        let rp = await dao.getRoomByCode(rpCode);
-        if (!rp) return rpCode;
-    }
-}
-
-module.exports.generateChallenge = async function() {
-    let buf = await promisify(crypto.randomBytes)(32);
-
-    let secret = buf.toString('hex');
-    let hash = createHash(secret);
-
-    return {secret, hash};
-};
-
-function createHash(secret) {
-    return crypto.createHash('sha512')
-        .update(secret)
-        .digest('hex');
-}
-
 module.exports.createRp = async function(input) {
     let roomOptions;
     try {
@@ -71,7 +38,7 @@ module.exports.createRp = async function(input) {
         throw {code: 'BAD_RP', details: error.message};
     }
 
-    let rpCode = await generateRpCode();
+    let rpCode = generateRpCode();
     await dao.addRoom(rpCode, roomOptions);
 
     return { rpCode };
@@ -171,7 +138,7 @@ module.exports.editMessage = async function(rpid, connectionId, input, ipid) {
     let msg = await dao.getMessage(rpid, editInfo.id);
     if (!msg) throw { code: 'BAD_MSG_ID' };
 
-    if (createHash(editInfo.secret) !== msg.challenge) throw { code: 'BAD_SECRET'};
+    if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET'};
 
     msg.content = editInfo.content;
     msg.edited = (Date.now() / 1000);

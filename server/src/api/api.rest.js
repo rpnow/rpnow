@@ -1,8 +1,9 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const model = require('./model');
-const config = require('./config');
+const model = require('../model');
+const config = require('../config');
+const { generateChallenge } = require('../services/challenge');
 
 let router = require('express').Router();
 router.use(require('compression')());
@@ -18,7 +19,7 @@ router.post('/rp.json', (req, res, next) => {
 })
 
 router.get('/challenge.json', (req, res, next) => {
-    model.generateChallenge()
+    generateChallenge()
         .then(data => res.status(200).json(data))
         .catch(err => next(err))
 })

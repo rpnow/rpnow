@@ -1,9 +1,9 @@
-const crypto = require('crypto');
 const socketio = require('socket.io');
 
-const model = require('./model');
-const logger = require('./logger');
-const config = require('./config');
+const model = require('../model');
+const logger = require('../services/logger');
+const config = require('../config');
+const { getIpid } = require('../services/ipid');
 const noop = (function(){});
 
 const safecall = function(callback) {
@@ -33,10 +33,7 @@ function onConnection(socket, io) {
     const ip = config.get('trustProxy')
         && socket.handshake.headers['x-forwarded-for']
         || socket.request.connection.remoteAddress;
-    const ipid = crypto.createHash('md5')
-        .update(ip)
-        .digest('hex')
-        .substr(0,18);
+    const ipid = getIpid(ip);
 
     const rpCode = socket.handshake.query.rpCode;
 

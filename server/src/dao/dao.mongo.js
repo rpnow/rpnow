@@ -1,5 +1,5 @@
-const MongoClient = require('mongodb').MongoClient
-const config = require('./config');
+const { MongoClient } = require('mongodb');
+const config = require('../config');
 
 const url = `mongodb://${config.get('DB_HOST')}/rpnow`;
 const mongoConnection = MongoClient.connect(url);
