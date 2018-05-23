@@ -96,7 +96,7 @@ export class TitleComponent implements OnInit {
 
   public async createRp() {
     this.submitted = true;
-    const data: any = await this.http.post(API_URL + '/api/rp', {title: this.title, desc: this.desc}).toPromise();
+    const data: any = await this.http.post(API_URL + '/api/rp.json', {title: this.title, desc: this.desc}).toPromise();
     const rpCode = data.rpCode;
     this.router.navigate(['/rp/' + rpCode]);
   }
