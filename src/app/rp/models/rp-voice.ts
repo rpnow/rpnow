@@ -12,7 +12,7 @@ export function typeFromVoice(voice: RpVoice): {type: 'narrator'|'ooc'|'chara', 
   if (voice === 'narrator' || voice === 'ooc') {
     return { type: voice };
   } else {
-    return { type: 'chara', charaId: voice._id };
+    return { type: 'chara', charaId: voice.id };
   }
 }
 

@@ -1,10 +1,9 @@
-export type RpCharaId = string;
+export type RpCharaId = number;
 
 export interface RpChara {
-  schema: 'chara';
+  id?: RpCharaId;
   createdAt: string;
   editedAt?: string;
-  _id?: RpCharaId;
   name: string;
   color: string;
 }

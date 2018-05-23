@@ -13,6 +13,7 @@ import { BannerMessageService } from '../services/banner-message.service';
 import { Observable } from 'rxjs/Observable';
 import { tap } from 'rxjs/operators/tap';
 import { combineLatest } from 'rxjs/observable/combineLatest';
+import { RpCodeService } from '../services/rp-code.service';
 
 @Component({
   template: `
@@ -56,7 +57,8 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
     MainMenuService,
     NotifyService,
     OptionsService,
-    RpService
+    RpService,
+    RpCodeService
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

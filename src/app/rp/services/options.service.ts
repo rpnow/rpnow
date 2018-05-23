@@ -2,11 +2,11 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Challenge } from './challenge.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { RpService } from './rp.service';
-import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { migrateOptions } from './options.migrations';
 import { RpVoiceSerialized } from '../models/rp-voice';
 import { RpCharaId } from '../models/rp-chara';
+import { RpCodeService } from './rp-code.service';
 
 const GLOBAL = 'GLOBAL';
 const ROOM = 'ROOM';
@@ -14,9 +14,11 @@ const ROOM = 'ROOM';
 @Injectable()
 export class OptionsService implements OnDestroy {
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(rpCodeService: RpCodeService) {
+    this.rpCode = rpCodeService.rpCode;
+  }
 
-  private rpCode: string = this.route.snapshot.paramMap.get('rpCode');
+  private rpCode: string;
 
   private subscriptions: Subscription[] = [];
 

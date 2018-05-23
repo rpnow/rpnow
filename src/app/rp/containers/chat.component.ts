@@ -12,7 +12,7 @@ import { MainMenuService } from '../services/main-menu.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
-import { RpMessage } from '../models/rp-message';
+import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 import { RpVoice, getVoice } from '../models/rp-voice';
 
@@ -88,7 +88,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.el = this.messageContainer.nativeElement as HTMLDivElement;
 
     this.currentChara$ = new BehaviorSubject(getVoice(this.options.msgBoxVoice));
-    this.subscription2 = this.currentChara$.subscribe(voice => this.options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice._id));
+    this.subscription2 = this.currentChara$.subscribe(voice => this.options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice.id));
 
     this.messages$ = this.rp.messages$.pipe(
       scan(({firstIdx}: {firstIdx: number, msgs: RpMessage[]}, msgs: RpMessage[]) => {
@@ -108,9 +108,9 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.recentCharas$ = this.currentChara$.pipe(
       filter(chara => typeof chara !== 'string'),
       scan((arr: RpChara[], chara: RpChara) => [
-        chara, ...arr.filter(c => c._id !== chara._id)
+        chara, ...arr.filter(c => c.id !== chara.id)
       ].slice(0, 5), this.options.recentCharas.map(id => this.rp.charasById.get(id))),
-      tap((charas: RpChara[]) => this.options.recentCharas = charas.map(c => c._id)), // TODO should probably subscribe here, not use 'do' operator
+      tap((charas: RpChara[]) => this.options.recentCharas = charas.map(c => c.id)), // TODO should probably subscribe here, not use 'do' operator
       map((charas: RpChara[]) => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
   }
@@ -148,9 +148,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   async createNewChara($event: {name: string, color: string}) {
-    this.closeCharaSelector();
+    // this.closeCharaSelector();
     const chara = await this.rp.addChara($event.name, $event.color);
-    this.currentChara$.next(chara);
+    // this.currentChara$.next(chara);
+    // TODO set chara to the new chara
   }
 
   setVoice(voice: RpVoice) {
@@ -164,7 +165,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.rp.addMessage(content, voice);
   }
 
-  editMessageContent(id: string, content: string) {
+  editMessageContent(id: RpMessageId, content: string) {
     this.rp.editMessage(id, content);
   }
 

@@ -6,7 +6,7 @@ import { combineLatest } from 'rxjs/observable/combineLatest';
 import { map } from 'rxjs/operators/map';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
-import { RpMessage } from '../models/rp-message';
+import { RpMessage, RpMessageId } from '../models/rp-message';
 
 @Component({
   template: `
@@ -72,7 +72,7 @@ export class ArchiveComponent implements OnInit {
     this.mainMenuService.menu.open();
   }
 
-  editMessageContent(id: string, content: string) {
+  editMessageContent(id: RpMessageId, content: string) {
     this.rp.editMessage(id, content);
   }
 

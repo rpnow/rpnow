@@ -1,12 +1,11 @@
 import { RpCharaId } from './rp-chara';
 
-export type RpMessageId = string;
+export type RpMessageId = number;
 
 export type RpMessageType = 'narrator'|'ooc'|'chara'|'image';
 
 export interface RpMessage {
-  schema: 'message';
-  _id?: RpMessageId;
+  id?: RpMessageId;
   createdAt: string;
   editedAt?: string;
   type: RpMessageType;

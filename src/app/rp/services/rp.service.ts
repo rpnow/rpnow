@@ -1,31 +1,25 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import * as io from 'socket.io-client';
 import { ChallengeService, Challenge } from './challenge.service';
-import { ActivatedRoute } from '@angular/router';
+import { API_URL } from '../../app.constants';
 import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
+import { merge } from 'rxjs/observable/merge';
 import { map } from 'rxjs/operators/map';
-import { pairwise } from 'rxjs/operators/pairwise';
-import { filter } from 'rxjs/operators/filter';
-import { mergeMap } from 'rxjs/operators/mergeMap';
-import { first } from 'rxjs/operators/first';
-import { debounceTime } from 'rxjs/operators/debounceTime';
-import { of } from 'rxjs/observable/of';
+import { scan } from 'rxjs/operators/scan';
 import { TrackService } from '../../track.service';
-import PouchDB from 'pouchdb';
-import { REMOTE_COUCH } from '../../app.constants';
-import * as cuid from 'cuid';
-import sortedIndexBy from 'lodash-es/sortedIndexBy';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpMessage, RpMessageId } from '../models/rp-message';
-import { RpVoice, RpVoiceSerialized, typeFromVoice } from '../models/rp-voice';
+import { RpVoice, typeFromVoice } from '../models/rp-voice';
+import { RpCodeService } from './rp-code.service';
 
-export type RpDoc = RpChara|RpMessage;
 
 @Injectable()
 export class RpService implements OnDestroy {
 
   private readonly challenge: Challenge;
+  private readonly socket: SocketIOClient.Socket;
 
   public readonly loaded: Promise<boolean>;
   public readonly notFound: Promise<boolean>;
@@ -38,95 +32,112 @@ export class RpService implements OnDestroy {
   public charas: Readonly<RpChara>[] = null;
   public charasById: Map<RpCharaId, RpChara> = null;
 
-  private readonly docsSubject: Subject<RpDoc[]> = new ReplaySubject(1);
+  private readonly newMessagesSubject: Subject<RpMessage> = new Subject();
+  private readonly editedMessagesSubject: Subject<{msg: RpMessage, id: RpMessageId}> = new Subject();
 
-  public readonly messages$: Observable<RpMessage[]>;
-  public readonly messagesById$: Observable<Map<RpMessageId, RpMessage>>;
+  private readonly newCharasSubject: Subject<RpChara> = new Subject();
+
   public readonly newMessages$: Observable<RpMessage>;
+  public readonly editedMessages$: Observable<{msg: RpMessage, id: RpMessageId}>;
+  public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
+  public readonly messagesById$: Observable<Map<RpMessageId, RpMessage>>;
 
-  public readonly charas$: Observable<RpChara[]>;
+  public readonly newCharas$: Observable<RpChara>;
+  public readonly charas$: Observable<RpChara[]> = new ReplaySubject(1);
   public readonly charasById$: Observable<Map<RpCharaId, RpChara>>;
-
-  private readonly db: PouchDB.Database<RpDoc>;
-  private readonly remoteDb: PouchDB.Database<RpDoc>;
-
-  private syncHandler: PouchDB.Replication.Sync<RpDoc>;
-  private backoff = 1000;
 
   constructor(
     challengeService: ChallengeService,
-    route: ActivatedRoute,
+    rpCodeService: RpCodeService,
     private track: TrackService
   ) {
 
-    this.rpCode = route.snapshot.paramMap.get('rpCode');
+    this.rpCode = rpCodeService.rpCode;
     this.challenge = challengeService.challenge;
-    // TODO change all these
-    this.title = 'FAKE TITLE';
-    this.desc = 'FAKE DESC';
 
-    // if it's safari, use the websql adapter, since the indexeddb one doesn't seem to work
-    const adapter = navigator.userAgent.match(/Version\/[\d\.]+.*Safari/) ? 'websql' : undefined;
-    this.db = new PouchDB(`room_${this.rpCode}`, { adapter });
+    // socket.io events
+    this.socket = io(API_URL, { query: `rpCode=${this.rpCode}` });
 
-    this.remoteDb = new PouchDB(`${REMOTE_COUCH}/room_${this.rpCode}`);
+    this.loaded = new Promise((resolve, reject) => {
+      this.socket.on('load rp', () => resolve(true));
+      this.socket.on('rp error', () => resolve(false));
+    });
 
-    // observables
-    (async () => {
+    this.notFound = new Promise((resolve, reject) => {
+      this.socket.on('load rp', () => resolve(false));
+      this.socket.on('rp error', () => resolve(true));
+    });
 
-      let docs: RpDoc[] = (
-        await this.db.allDocs({include_docs: true})
-      ).rows.map(row => row.doc);
+    const firstMessages: Subject<RpMessage[]> = new Subject();
+    const firstCharas: Subject<RpChara[]> = new Subject();
 
-      this.docsSubject.next(docs);
+    this.socket.on('load rp', (data) => {
+      this.title = data.title;
+      this.desc = data.desc;
 
-      this.db.changes({
-        since: 'now', live: true, include_docs: true
-      }).on('change', change => {
-        if (change.deleted) throw new Error('not yet implemented');
+      firstMessages.next(data.msgs);
+      firstMessages.complete();
+      firstCharas.next(data.charas);
+      firstCharas.complete();
+    });
 
-        const idx = sortedIndexBy(docs, change.doc, x => x._id);
-        if (docs[idx] && docs[idx]._id === change.id) {
-          // update
-          docs = [...docs];
-          docs[idx] = change.doc;
-        } else {
-          // insert
-          docs = [...docs.slice(0, idx), change.doc, ...docs.slice(idx)];
-        }
-        this.docsSubject.next(docs);
-      });
+    this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
 
-    })();
+    this.socket.on('add character', chara => this.newCharasSubject.next(chara));
 
-    const debouncedDocs$ = this.docsSubject.pipe(
-      debounceTime(100)
+    this.socket.on('edit message', data => this.editedMessagesSubject.next(data));
+
+    // observable structure
+    this.newMessages$ = this.newMessagesSubject.asObservable();
+
+    this.editedMessages$ = this.editedMessagesSubject.asObservable();
+
+    const messageOperations$: Observable<(msgs: RpMessage[]) => RpMessage[]> = merge(
+      firstMessages.pipe(
+        map(msgs => () => msgs)
+      ),
+      this.newMessages$.pipe(
+        map(msg => (msgs: RpMessage[]) => [...msgs, msg])
+      ),
+      this.editedMessages$.pipe(
+        map(({id, msg}) => (msgs: RpMessage[]) => {
+          msgs.splice(id, 1, msg);
+          return msgs;
+        })
+      )
     );
 
-    this.messages$ = debouncedDocs$.pipe(
-      map(docs => docs.filter(doc => doc.schema === 'message'))
-    ) as Observable<RpMessage[]>;
-
-    this.charas$ = debouncedDocs$.pipe(
-      map(docs => docs.filter(doc => doc.schema === 'chara'))
-    ) as Observable<RpChara[]>;
+    messageOperations$.pipe(
+      scan((arr, fn: (msgs: RpMessage[]) => RpMessage[]) => fn(arr), <RpMessage[]>[]),
+      map(msgs => msgs.map((msg, id) => ({...msg, id }))) // TODO add id on server
+    ).subscribe(
+      this.messages$ as Subject<RpMessage[]>
+    );
 
     this.messagesById$ = this.messages$.pipe(
-      map(msgs => msgs.reduce((msgMap, msg) => msgMap.set(msg._id, msg), new Map()))
+      map(msgs => msgs.reduce((msgMap, msg) => msgMap.set(msg.id, msg), new Map()))
+    );
+
+    this.newCharas$ = this.newCharasSubject.asObservable();
+
+    const charaOperations$: Observable<((charas: RpChara[]) => RpChara[])> = merge(
+      firstCharas.pipe(
+        map(charas => () => charas)
+      ),
+      this.newCharas$.pipe(
+        map(chara => (charas: RpChara[]) => [...charas, chara])
+      )
+    );
+
+    charaOperations$.pipe(
+      scan((arr, fn: {(charas)}) => fn(arr), <RpChara[]>[]),
+      map(charas => charas.map((chara, id) => ({...chara, id }))) // TODO add id on server
+    ).subscribe(
+      this.charas$ as Subject<RpChara[]>
     );
 
     this.charasById$ = this.charas$.pipe(
-      map(charas => charas.reduce((charaMap, chara) => charaMap.set(chara._id, chara), new Map()))
-    );
-
-    this.newMessages$ = this.messagesById$.pipe(
-      pairwise(),
-      filter(([a, b]) => a.size < b.size),
-      mergeMap(([a, b]) => {
-        const newMsgs: RpMessage[] = [];
-        b.forEach((msg, id) => { if (!a.has(id)) newMsgs.push(msg); });
-        return of(...newMsgs);
-      })
+      map(charas => charas.reduce((charaMap, chara) => charaMap.set(chara.id, chara), new Map()))
     );
 
     // access values directly
@@ -135,94 +146,59 @@ export class RpService implements OnDestroy {
     this.charas$.subscribe(charas => this.charas = charas);
     this.charasById$.subscribe(charasById => this.charasById = charasById);
 
-    // initial offline update
-    this.loaded = debouncedDocs$.pipe(first()).toPromise().then(() => true);
-    this.notFound = this.loaded.then(loaded => !loaded);
+  }
 
-    // begin sync
-    this.loaded.then(() => {
-      this.db.replicate.from(
-        this.remoteDb, { batch_size: 1000 }
-      ).on('complete', () => this.sync());
+  // because rp service is provided in rp component, this is called when navigating away from an rp
+  public ngOnDestroy() {
+    this.socket.close();
+    this.newMessagesSubject.complete();
+    this.editedMessagesSubject.complete();
+    this.newCharasSubject.complete();
+  }
+
+  // helper to let us 'await' on a socket emit completing
+  private socketEmit(messageType: string, data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.socket.emit(messageType, data, (err, receivedData) => err ? reject(err) : resolve(receivedData));
     });
-
   }
 
-  private sync() {
-    if (this.syncHandler) {
-      this.syncHandler.removeAllListeners();
-      this.syncHandler.cancel();
-    }
-    this.syncHandler = this.db.sync(this.remoteDb, {live: true})
-      .on('paused', err => {
-        if (err) return console.error('BISECTED');
-        this.backoff = 1000;
-      })
-      .on('error', err => {
-        setTimeout(() => this.sync(), this.backoff);
-        this.backoff += 1000;
-      });
-  }
-
-  public async addMessage(content: string, voice: RpVoice) {
-    const msg: RpMessage = {
-      _id: cuid(),
-      createdAt: new Date().toISOString(),
-      schema: 'message',
+  async addMessage(content: string, voice: RpVoice) {
+    const msg: Partial<RpMessage> = {
       content,
       ... typeFromVoice(voice),
       challenge: this.challenge.hash
     };
     this.track.event('Messages', 'create', msg.type, content.length);
 
-    await this.db.put(msg);
+    await this.socketEmit('add message', msg);
   }
 
-  public async addChara(name: string, color: string) {
-    const chara: RpChara = {
-      _id: cuid(),
-      createdAt: new Date().toISOString(),
-      schema: 'chara',
+  async addChara(name: string, color: string) {
+    const chara: Partial<RpChara> = {
       name,
       color
     };
     this.track.event('Charas', 'create');
 
-    await this.db.put(chara);
-    return chara;
+    await this.socketEmit('add character', chara);
   }
 
-  public async addImage(url: string) {
-    const msg: RpMessage = {
-      _id: cuid(),
-      createdAt: new Date().toISOString(),
-      schema: 'message',
-      type: 'image',
-      url,
-      challenge: this.challenge.hash
-    };
+  async addImage(url: string) {
     this.track.event('Messages', 'create', 'image');
 
-    await this.db.put(msg);
+    await this.socketEmit('add image', url);
   }
 
-  public async editMessage(id: string, content: string) {
+  async editMessage(id: RpMessageId, content: string) {
+    const editInfo = {
+      id,
+      content,
+      secret: this.challenge.secret
+    };
     this.track.event('Messages', 'edit', null, content.length);
 
-    let msg: RpMessage = (await this.db.get(id)) as RpMessage;
-    msg = {
-      ...msg,
-      content,
-      editedAt: new Date().toISOString()
-    };
-    await this.db.put(msg);
-    return msg;
-  }
-
-  // because rp service is provided in rp component, this is called when navigating away from an rp
-  public ngOnDestroy() {
-    this.db.close();
-    this.docsSubject.complete();
+    await this.socketEmit('edit message', editInfo);
   }
 
 }

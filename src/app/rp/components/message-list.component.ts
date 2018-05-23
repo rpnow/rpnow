@@ -21,7 +21,7 @@ import { RpChara } from '../models/rp-chara';
         [pressEnterToSend]="pressEnterToSend"
         [showMessageDetails]="showMessageDetails"
 
-        (editContent)="editMessage(msg._id, $event)"
+        (editContent)="editMessage(msg.id, $event)"
       ></rpn-message>
     </div>
   `,
@@ -38,7 +38,7 @@ export class MessageListComponent {
   @Output() readonly editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
 
   trackById(index: number, item: RpMessage) {
-    return item._id;
+    return item.id;
   }
 
   canEdit(msg: RpMessage) {
@@ -46,7 +46,7 @@ export class MessageListComponent {
   }
 
   charaFor(msg: RpMessage) {
-    return this.charas && (msg.type === 'chara') ? this.charas.find(c => c._id === msg.charaId) : null;
+    return this.charas && (msg.type === 'chara') ? this.charas.find(c => c.id === msg.charaId) : null;
   }
 
   editMessage(id: string, content: string) {
