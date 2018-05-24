@@ -14,11 +14,7 @@ const ROOM = 'ROOM';
 @Injectable()
 export class OptionsService implements OnDestroy {
 
-  constructor(rpCodeService: RpCodeService) {
-    this.rpCode = rpCodeService.rpCode;
-  }
-
-  private rpCode: string;
+  constructor(private rpCodeService: RpCodeService) {}
 
   private subscriptions: Subscription[] = [];
 
@@ -27,7 +23,7 @@ export class OptionsService implements OnDestroy {
 
     const localStorageKey = global === 'GLOBAL' ?
       `rpnow.global.${propName}` :
-      `rpnow.rp.${this.rpCode}.${propName}`;
+      `rpnow.rp.${this.rpCodeService.rpCode}.${propName}`;
 
     const stringValue = localStorage.getItem(localStorageKey);
     const value = (stringValue != null) ? JSON.parse(stringValue) : defaultValue;

@@ -4,10 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 @Injectable()
 export class RpCodeService {
 
-  rpCode: string;
+  constructor(private route: ActivatedRoute) {}
 
-  constructor(route: ActivatedRoute) {
-    this.rpCode = route.snapshot.paramMap.get('rpCode');
-  }
+  rpCode = this.rpCode = this.route.snapshot.paramMap.get('rpCode');
 
 }
