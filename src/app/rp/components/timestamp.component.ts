@@ -25,12 +25,12 @@ export class TimestampComponent implements OnInit, OnDestroy {
   timerHandle: number;
 
   @Input('createdAt') set _createdAt(ts: number) {
-    this.timeAgoDate = ts ? new Date(ts) : null;
+    this.timeAgoDate = ts ? new Date(ts * 1000) : null;
     this.updateRelativeTime();
     this.updateAbsoluteTimes();
   }
   @Input('editedAt') set _editedAt(ts: number) {
-    this.timeAgoEditedDate  = ts ? new Date(ts) : null;
+    this.timeAgoEditedDate  = ts ? new Date(ts * 1000) : null;
     this.updateAbsoluteTimes();
   }
 

@@ -14,7 +14,7 @@ import { OptionsService } from '../services/options.service';
         </ng-container>
         <ng-container *ngIf="!sending">
           <rpn-timestamp class="timestamp" [createdAt]="createdAt" [editedAt]="editedAt"></rpn-timestamp>
-          <rpn-ipid *ngIf="ipid && canEdit" [ipid]="ipid"></rpn-ipid>
+          <rpn-ipid [style.visibility]="ipidVisibility" [ipid]="ipid"></rpn-ipid>
         </ng-container>
       </div>
 
@@ -96,6 +96,14 @@ export class MessageComponent {
       'message-sending': this.sending,
       'message-slim': false
     };
+  }
+
+  get ipidVisibility() {
+    if (this.ipid && !this.canEdit) {
+      return 'visible';
+    } else {
+      return 'hidden';
+    }
   }
 
   beginEdit() {

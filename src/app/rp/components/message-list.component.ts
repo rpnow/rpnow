@@ -10,8 +10,8 @@ import { RpChara } from '../models/rp-chara';
         [content]="msg.content"
         [url]="msg.url"
         [type]="msg.type"
-        [createdAt]="msg.createdAt"
-        [editedAt]="msg.editedAt"
+        [createdAt]="msg.timestamp"
+        [editedAt]="msg.edited"
         [ipid]="msg.ipid"
 
         [charaName]="charaFor(msg)?.name"
