@@ -171,7 +171,10 @@ export class RpService implements OnDestroy {
     };
     this.track.event('Messages', 'create', msg.type, content.length);
 
-    await this.socketEmit('add message', msg);
+    const receivedMsg: RpMessage = await this.socketEmit('add message', msg);
+    this.newMessagesSubject.next(receivedMsg);
+
+    return this.messages[this.messages.length - 1]; // TODO we can return this directly after id is returned from server
   }
 
   async addChara(name: string, color: string) {
@@ -181,13 +184,19 @@ export class RpService implements OnDestroy {
     };
     this.track.event('Charas', 'create');
 
-    await this.socketEmit('add character', chara);
+    const receivedChara: RpChara = await this.socketEmit('add character', chara);
+    this.newCharasSubject.next(receivedChara);
+
+    return this.charas[this.charas.length - 1]; // TODO we can return this directly after id is returned from server
   }
 
   async addImage(url: string) {
     this.track.event('Messages', 'create', 'image');
 
-    await this.socketEmit('add image', url);
+    const receivedMsg: RpMessage = await this.socketEmit('add image', url);
+    this.newMessagesSubject.next(receivedMsg);
+
+    return this.messages[this.messages.length - 1]; // TODO we can return this directly after id is returned from server
   }
 
   async editMessage(id: RpMessageId, content: string) {
@@ -198,7 +207,8 @@ export class RpService implements OnDestroy {
     };
     this.track.event('Messages', 'edit', null, content.length);
 
-    await this.socketEmit('edit message', editInfo);
+    const msg: RpMessage = await this.socketEmit('edit message', editInfo);
+    this.editedMessagesSubject.next({ msg, id });
   }
 
 }

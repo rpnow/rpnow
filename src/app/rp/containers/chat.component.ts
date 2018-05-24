@@ -153,10 +153,9 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   async createNewChara($event: {name: string, color: string}) {
-    // this.closeCharaSelector();
+    this.closeCharaSelector();
     const chara = await this.rp.addChara($event.name, $event.color);
-    // this.currentChara$.next(chara);
-    // TODO set chara to the new chara
+    this.currentChara$.next(chara);
   }
 
   setVoice(voice: RpVoice) {
