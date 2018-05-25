@@ -1,15 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription, Observable, BehaviorSubject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scan } from 'rxjs/operators/scan';
-import { map } from 'rxjs/operators/map';
-import { filter } from 'rxjs/operators/filter';
-import { tap } from 'rxjs/operators/tap';
+import { scan, map, filter, tap } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';

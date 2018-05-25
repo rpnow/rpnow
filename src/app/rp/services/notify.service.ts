@@ -2,16 +2,8 @@ import { Injectable, Inject, OnDestroy } from '@angular/core';
 import { OptionsService } from './options.service';
 import { RpService } from './rp.service';
 import { DOCUMENT } from '@angular/common';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import { filter } from 'rxjs/operators/filter';
-import { tap } from 'rxjs/operators/tap';
-import { switchMap } from 'rxjs/operators/switchMap';
-import { map } from 'rxjs/operators/map';
-import { takeUntil } from 'rxjs/operators/takeUntil';
-import { interval } from 'rxjs/observable/interval';
-import { fromEvent } from 'rxjs/observable/fromEvent';
-import { merge } from 'rxjs/observable/merge';
+import { Observable, Subscription, interval, fromEvent, merge } from 'rxjs';
+import { filter, tap, switchMap, map, takeUntil } from 'rxjs/operators';
 
 const audioDir = '/assets/sounds/';
 

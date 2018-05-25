@@ -1,8 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Challenge } from './challenge.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { RpService } from './rp.service';
-import { Subscription } from 'rxjs/Subscription';
 import { migrateOptions } from './options.migrations';
 import { RpVoiceSerialized } from '../models/rp-voice';
 import { RpCharaId } from '../models/rp-chara';

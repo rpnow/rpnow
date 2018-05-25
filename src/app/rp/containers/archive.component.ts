@@ -1,9 +1,8 @@
 import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RpService } from '../services/rp.service';
-import { Observable } from 'rxjs/Observable';
-import { combineLatest } from 'rxjs/observable/combineLatest';
-import { map } from 'rxjs/operators/map';
+import { Observable,  combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';

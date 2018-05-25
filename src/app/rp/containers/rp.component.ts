@@ -8,11 +8,9 @@ import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { NotifyService } from '../services/notify.service';
 import { ChallengeService } from '../services/challenge.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription, Observable, combineLatest } from 'rxjs';
 import { BannerMessageService } from '../services/banner-message.service';
-import { Observable } from 'rxjs/Observable';
-import { tap } from 'rxjs/operators/tap';
-import { combineLatest } from 'rxjs/observable/combineLatest';
+import { tap } from 'rxjs/operators';
 import { RpCodeService } from '../services/rp-code.service';
 
 @Component({
