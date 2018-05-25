@@ -16,10 +16,7 @@ export class DownloadTxtService {
     this.track.event('Download', 'txt', includeOOC ? 'ooc: yes' : 'ooc: no', this.rp.messages.length);
 
     // get rp formatted text
-    let text = this.rpText(this.rp, includeOOC);
-
-    // windows-compatible newlines
-    text = text.replace('\n', '\r\n');
+    const text = this.rpText(this.rp, includeOOC);
 
     // save as file
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8'});
@@ -33,8 +30,11 @@ export class DownloadTxtService {
     // ignore ooc messages if so desired
     if (!includeOOC) msgs = msgs.filter(msg => msg.type !== 'ooc');
 
+    // header format
+    const header = `${rp.title}\n${rp.desc || ''}\n----------`;
+
     // word-wrap and format all messages
-    const out = msgs.map(msg => {
+    const body = msgs.map(msg => {
       if (msg.type === 'narrator') {
         return wrap(msg.content, { width: 72, indent: '', cut: true });
       } else if (msg.type === 'ooc') {
@@ -49,10 +49,12 @@ export class DownloadTxtService {
       }
     });
 
-    // add title/desc to beginning
-    out.unshift(`${rp.title}\n${rp.desc || ''}\n----------`);
+    // contents of the text file
+    const fileContents = [ header, ...body ]
+      .join('\n\n') // double newlines separate each piece
+      .replace(/\n/g, '\r\n'); // format it for windows
 
     // done
-    return out.join('\n\n');
+    return fileContents;
   }
 }
