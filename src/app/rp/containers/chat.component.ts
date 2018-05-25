@@ -15,6 +15,7 @@ import { TrackService } from '../../track.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpVoice, isSpecialVoice } from '../models/rp-voice';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   template: `
@@ -39,12 +40,12 @@ import { RpVoice, isSpecialVoice } from '../models/rp-voice';
           [pressEnterToSend]="options.pressEnterToSend$|async"
           (sendMessage)="sendMessage($event[0],$event[1])"
           (sendImage)="sendImage($event)"
-          (changeChara)="openCharaSelector()"
+          (changeChara)="toggleCharaSelector()"
         ></rpn-send-box>
 
       </mat-sidenav-content>
 
-      <mat-sidenav position="end" mode="over" [(opened)]="charaSelectorOpen">
+      <mat-sidenav position="end" [mode]="charaDrawerMode$|async" [(opened)]="charaSelectorOpen">
 
         <rpn-chara-drawer-contents
           [charas]="sortedCharas$|async"
@@ -63,6 +64,8 @@ import { RpVoice, isSpecialVoice } from '../models/rp-voice';
 })
 export class ChatComponent implements OnInit, OnDestroy {
 
+  private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
+
   @ViewChild('messageContainer', { read: ElementRef }) messageContainer: ElementRef;
   private el: HTMLDivElement;
 
@@ -74,6 +77,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   public sortedCharas$: Observable<RpChara[]>;
   public recentCharas$: Observable<RpChara[]>;
 
+  charaDrawerMode$: Observable<'over'|'side'>;
+
   charaSelectorOpen = false;
 
   constructor(
@@ -81,7 +86,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     public options: OptionsService,
     private mainMenuService: MainMenuService,
     private snackbar: MatSnackBar,
-    private track: TrackService
+    private track: TrackService,
+    private breakpointObserver: BreakpointObserver
   ) { }
 
   ngOnInit() {
@@ -118,6 +124,10 @@ export class ChatComponent implements OnInit, OnDestroy {
       tap((charas: RpChara[]) => this.options.recentCharas = charas.map(c => c.id)), // TODO should probably subscribe here, not use 'do' operator
       map((charas: RpChara[]) => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
+
+    this.charaDrawerMode$ = this.breakpointObserver.observe(this.SMALL_BREAKPOINT).pipe(
+      map(state => state.matches ? 'over' : 'side')
+    );
   }
 
   isAtBottom() {
@@ -144,16 +154,22 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.mainMenuService.menu.open();
   }
 
-  openCharaSelector() {
-    this.charaSelectorOpen = true;
+  toggleCharaSelector() {
+    this.charaSelectorOpen = !this.charaSelectorOpen;
   }
 
   closeCharaSelector() {
     this.charaSelectorOpen = false;
   }
 
+  closeCharaSelectorIfOverlay() {
+    if (this.breakpointObserver.isMatched(this.SMALL_BREAKPOINT)) {
+      this.charaSelectorOpen = false;
+    }
+  }
+
   async createNewChara($event: {name: string, color: string}) {
-    this.closeCharaSelector();
+    this.closeCharaSelectorIfOverlay();
     const chara = await this.rp.addChara($event.name, $event.color);
     this.currentChara$.next(chara);
   }
@@ -162,7 +178,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.track.event('Charas', 'pick', typeof voice === 'string' ? voice : 'chara');
 
     this.currentChara$.next(voice);
-    this.closeCharaSelector();
+    this.closeCharaSelectorIfOverlay();
   }
 
   sendMessage(content: string, voice: RpChara) {

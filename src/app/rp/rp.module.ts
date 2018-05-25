@@ -45,6 +45,7 @@ import { BannerMessageComponent } from './components/banner-message.component';
 import { IconColorDirective } from './components/chara-icon.directive';
 import { TimestampComponent } from './components/timestamp.component';
 import { MessageListComponent } from './components/message-list.component';
+import { LayoutModule } from '@angular/cdk/layout';
 
 
 @NgModule({
@@ -79,6 +80,7 @@ import { MessageListComponent } from './components/message-list.component';
     FormsModule,
     HttpClientModule,
     FlexLayoutModule,
+    LayoutModule,
     MatButtonModule,
     MatCheckboxModule,
     MatDialogModule,
