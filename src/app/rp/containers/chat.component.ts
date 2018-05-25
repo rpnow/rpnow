@@ -121,7 +121,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   isAtBottom() {
-    return this.el.scrollHeight - this.el.scrollTop - this.el.offsetHeight < 1;
+    return this.el.scrollHeight - this.el.scrollTop - this.el.offsetHeight < 30;
   }
 
   updateScroll() {
