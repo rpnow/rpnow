@@ -31,7 +31,7 @@ export class DownloadDocxService {
         isOOC: (type === 'ooc'),
         isImage: (type === 'image'),
         isChara: (type === 'chara'),
-        name: (charaId ? this.rp.charas[charaId].name.toUpperCase() : undefined)
+        name: (type === 'chara' ? this.rp.charas[charaId].name.toUpperCase() : undefined)
       })).filter(msg => includeOOC || !msg.isOOC)
     };
 
