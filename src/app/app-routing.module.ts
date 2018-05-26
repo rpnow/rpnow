@@ -6,7 +6,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 const appRoutes: Routes = [
   {
     path: 'rp',
-    loadChildren: 'app/rp/rp.module#RpModule'
+    loadChildren: './rp/rp.module#RpModule'
   },
   {
     path: '**',
