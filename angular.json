@@ -17,7 +17,8 @@
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
             "assets": [
-              "src/assets"
+              "src/assets",
+              "src/robots.txt"
             ],
             "styles": [
               "node_modules/material-design-icons/iconfont/material-icons.css",
