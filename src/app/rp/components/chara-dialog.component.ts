@@ -17,7 +17,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       <input matInput maxlength="30" placeholder="Name this character:" [(ngModel)]="name" cdkFocusInitial>
     </mat-form-field>
 
-    <span [(colorPicker)]="color" [cpToggle]="true" cpDialogDisplay="inline" [cpDisableInput]="true"></span>
+    <span [(colorPicker)]="color" [cpToggle]="true" cpDialogDisplay="inline" [cpDisableInput]="false"></span>
 
     <mat-dialog-actions>
       <button mat-raised-button [disabled]="!valid" [style.background-color]="submitButtonColor" [style.color]="submitButtonColor|bw" (click)="submit()">OK</button>
