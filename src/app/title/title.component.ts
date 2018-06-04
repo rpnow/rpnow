@@ -22,20 +22,17 @@ import { TrackService } from '../track.service';
 
       <div *ngIf="!submitted" fxLayout="column">
 
-        <div fxLayout="row">
+        <mat-form-field>
 
-          <mat-form-field>
-            <input matInput [(ngModel)]="title" maxlength="30" placeholder="Name your story"
-              (focus)="track.event('Title','focus')"
-              (change)="track.event('Title','change')"
-              >
-          </mat-form-field>
-
-          <button mat-icon-button (click)="spinTitle(); track.event('Title', 'spin')">
+          <input matInput [(ngModel)]="title" maxlength="30" placeholder="Name your story"
+            (focus)="track.event('Title','focus')"
+            (change)="track.event('Title','change')"
+            >
+          <button matSuffix mat-icon-button (click)="spinTitle(); track.event('Title', 'spin')">
             <mat-icon matTooltip="Random title!">casino</mat-icon>
           </button>
 
-        </div>
+        </mat-form-field>
 
         <mat-form-field *ngIf="showMoreOptions">
 
