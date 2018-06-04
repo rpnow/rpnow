@@ -18,7 +18,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 
       <mat-sidenav-content fxLayout="column">
 
-        <rpn-title-bar [title]="rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
+        <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
         <rpn-message-list class="flex-scroll-container" #messageContainer
           [messages]="messages$|async"

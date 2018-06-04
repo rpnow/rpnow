@@ -11,7 +11,7 @@ import { RpMessage, RpMessageId } from '../models/rp-message';
   template: `
     <section fxFill fxLayout="column">
 
-      <rpn-title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [tooltip]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
+      <rpn-title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
       <rpn-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
 
