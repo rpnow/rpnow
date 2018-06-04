@@ -3,7 +3,7 @@ import { RpService } from '../services/rp.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription, Observable, BehaviorSubject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scan, map, filter, tap } from 'rxjs/operators';
+import { scan, map, filter, tap, first } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
@@ -18,16 +18,22 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 
       <mat-sidenav-content fxLayout="column">
 
-        <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
+        <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
 
-        <rpn-message-list class="flex-scroll-container" #messageContainer
-          [messages]="messages$|async"
-          [charas]="rp.charas$|async"
-          [challenge]="(options.challenge$|async).hash"
-          [showMessageDetails]="options.showMessageDetails$|async"
-          [pressEnterToSend]="options.pressEnterToSend$|async"
-          (editMessageContent)="editMessageContent($event[0], $event[1])"
-        ></rpn-message-list>
+        <div class="flex-scroll-container" #messageContainer>
+
+          <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
+
+          <rpn-message-list style="z-index:-1"
+            [messages]="messages$|async"
+            [charas]="rp.charas$|async"
+            [challenge]="(options.challenge$|async).hash"
+            [showMessageDetails]="options.showMessageDetails$|async"
+            [pressEnterToSend]="options.pressEnterToSend$|async"
+            (editMessageContent)="editMessageContent($event[0], $event[1])"
+          ></rpn-message-list>
+
+        </div>
 
         <rpn-send-box
           [(content)]="options.msgBoxContent"
@@ -61,7 +67,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
 
-  @ViewChild('messageContainer', { read: ElementRef }) messageContainer: ElementRef;
+  @ViewChild('messageContainer') messageContainer: ElementRef;
   private el: HTMLDivElement;
 
   private subscription: Subscription;
@@ -71,6 +77,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   public currentChara$: BehaviorSubject<RpVoice>;
   public sortedCharas$: Observable<RpChara[]>;
   public recentCharas$: Observable<RpChara[]>;
+  public isNewRp$: Observable<boolean>;
 
   charaDrawerMode$: Observable<'over'|'side'>;
 
@@ -104,6 +111,11 @@ export class ChatComponent implements OnInit, OnDestroy {
       map(({msgs, firstIdx}) => msgs.slice(firstIdx))
     );
 
+    this.isNewRp$ = this.messages$.pipe(
+      first(),
+      map(msgs => msgs.length === 0)
+    );
+
     this.subscription = this.rp.newMessages$.subscribe(() => this.updateScroll());
     this.updateScroll();
 
@@ -126,7 +138,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   isAtBottom() {
-    return this.el.scrollHeight - this.el.scrollTop - this.el.offsetHeight < 30;
+    // 31 is because the padding on the rp message list is 20+10.
+    // So, this comparison needs to be greater than 30 for the initial page load
+    // Not sure why exactly.
+    return this.el.scrollHeight - this.el.scrollTop - this.el.offsetHeight < 31;
   }
 
   updateScroll() {

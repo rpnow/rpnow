@@ -45,6 +45,7 @@ import { IconColorDirective } from './components/chara-icon.directive';
 import { TimestampComponent } from './components/timestamp.component';
 import { MessageListComponent } from './components/message-list.component';
 import { LayoutModule } from '@angular/cdk/layout';
+import { WelcomeComponent } from './components/welcome.component';
 
 
 @NgModule({
@@ -71,7 +72,8 @@ import { LayoutModule } from '@angular/cdk/layout';
     BannerMessageComponent,
     IconColorDirective,
     TimestampComponent,
-    MessageListComponent
+    MessageListComponent,
+    WelcomeComponent
   ],
   imports: [
     CommonModule,
