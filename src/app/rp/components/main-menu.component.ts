@@ -2,7 +2,6 @@ import { Component, ViewContainerRef, ChangeDetectionStrategy, Input, EventEmitt
 import { MatDialog } from '@angular/material/dialog';
 import { AboutDialogComponent } from './about-dialog.component';
 import { ContactDialogComponent } from './contact-dialog.component';
-import { TermsDialogComponent } from './terms-dialog.component';
 import { OptionsDialogComponent } from './options-dialog.component';
 import { DownloadDialogComponent } from './download-dialog.component';
 
@@ -70,7 +69,7 @@ import { DownloadDialogComponent } from './download-dialog.component';
           <p mat-line>Donate @ Patreon</p>
         </a>
 
-        <a mat-list-item (click)="showTermsDialog()" title="Terms of use and privacy information for using RPNow">
+        <a mat-list-item href="/terms" target="_blank" title="Terms of use and privacy information for using RPNow">
           <mat-icon mat-list-icon>account_balance</mat-icon>
           <p mat-line>Terms &amp; Privacy</p>
         </a>
@@ -101,10 +100,6 @@ export class MainMenuComponent {
 
   showContactDialog() {
     this.dialog.open(ContactDialogComponent);
-  }
-
-  showTermsDialog() {
-    this.dialog.open(TermsDialogComponent);
   }
 
   showOptionsDialog() {

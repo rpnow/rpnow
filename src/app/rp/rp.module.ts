@@ -33,7 +33,6 @@ import { BlackOrWhitePipe } from './pipes/black-or-white.pipe';
 import { DownloadDialogComponent } from './components/download-dialog.component';
 import { ContactDialogComponent } from './components/contact-dialog.component';
 import { AboutDialogComponent } from './components/about-dialog.component';
-import { TermsDialogComponent } from './components/terms-dialog.component';
 import { FormatGuideDialogComponent } from './components/format-guide-dialog.component';
 import { MessageContentPipe } from './pipes/message-content.pipe';
 import { RpRoutingModule } from './rp-routing.module';
@@ -64,7 +63,6 @@ import { LayoutModule } from '@angular/cdk/layout';
     ImageDialogComponent,
     ContactDialogComponent,
     AboutDialogComponent,
-    TermsDialogComponent,
     FormatGuideDialogComponent,
     MessageContentPipe,
     MainMenuComponent,
@@ -103,7 +101,6 @@ import { LayoutModule } from '@angular/cdk/layout';
     ImageDialogComponent,
     ContactDialogComponent,
     AboutDialogComponent,
-    TermsDialogComponent,
     FormatGuideDialogComponent,
     OptionsDialogComponent
   ]

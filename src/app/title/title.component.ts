@@ -44,9 +44,15 @@ import { TrackService } from '../track.service';
 
         </mat-form-field>
 
+        <mat-checkbox [(ngModel)]="agreedToTerms">
+          I agree to RPNow's <a href="/terms" target="_blank">terms of use.</a>
+        </mat-checkbox>
+
+        <span style="height:5vh"></span>
+
         <div fxLayout="row" fxLayoutAlign="space-around center">
 
-          <button mat-raised-button color="primary" (click)="createRp(); track.event('Room', 'create')" [disabled]="!title">
+          <button mat-raised-button color="primary" (click)="createRp(); track.event('Room', 'create')" [disabled]="!title || !agreedToTerms">
             <mat-icon>check</mat-icon>
             Create RP
           </button>
@@ -75,6 +81,7 @@ export class TitleComponent implements OnInit {
   public desc = '';
 
   public showMoreOptions = false;
+  public agreedToTerms = false;
   public submitted = false;
 
   private spinnerSub: Subscription;

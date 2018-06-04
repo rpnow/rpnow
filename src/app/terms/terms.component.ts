@@ -1,7 +1,11 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as marked from 'marked';
+import { Title } from '@angular/platform-browser';
+import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 const template = marked(`
+## Terms of Use
+
 By using RPNow, you agree to the terms listed in this document.
 
 #### Definitions
@@ -51,20 +55,23 @@ of condition, uninterrupted use, merchantability, fitness for a particular purpo
 
 @Component({
   template: `
-    <div fxLayout="row" fxLayoutAlign="center center">
-
-      <h3 mat-dialog-title fxFlex>Terms &amp; Privacy</h3>
-
-      <button mat-icon-button mat-dialog-title mat-dialog-close>
-        <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
-      </button>
-
-    </div>
-
-    <mat-dialog-content class="generated-links" [innerHtml]="innerHtml"></mat-dialog-content>
+    <div id="terms" [innerHtml]="innerHtml"></div>
   `,
+  styles: [`
+    #terms {
+      margin: 0 auto;
+      max-width: 500px;
+      padding: 10px;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TermsDialogComponent {
-  innerHtml: string = template;
+export class TermsComponent implements OnInit {
+  innerHtml = template;
+
+  constructor(private titleService: Title) { }
+
+  ngOnInit() {
+    this.titleService.setTitle('Terms of Use | RPNow');
+  }
 }
