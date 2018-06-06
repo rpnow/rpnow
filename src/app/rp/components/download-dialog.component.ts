@@ -5,8 +5,8 @@ import { OptionsService } from '../services/options.service';
 
 @Component({
   template: `
-    <div fxLayout="row" fxLayoutAlign="center center">
-      <h3 mat-dialog-title fxFlex>Download RP</h3>
+    <div id="dialog-header">
+      <h3 mat-dialog-title>Download RP</h3>
 
       <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
@@ -26,6 +26,13 @@ import { OptionsService } from '../services/options.service';
       </button>
     </mat-dialog-actions>
   `,
+  styles: [`
+    #dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  `],
   providers: [DownloadDocxService, DownloadTxtService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

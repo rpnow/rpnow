@@ -7,13 +7,13 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
 
       <mat-toolbar-row>
 
-        <span fxFlex fxLayoutAlign="start center">
+        <span id="buttons">
           <button mat-icon-button (click)="openMenu()">
             <mat-icon aria-label="Main menu" matTooltip="Main menu">menu</mat-icon>
           </button>
         </span>
 
-        <h1 fxFlex fxLayoutAlign="center center">
+        <h1 id="title">
           {{ title }}
         </h1>
 
@@ -21,7 +21,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
           <mat-icon aria-label="Show description" matTooltip="Show description">{{ descIcon }}</mat-icon>
         </button>
 
-        <span fxFlex></span>
+        <span id="buttons-right">&nbsp;</span>
 
       </mat-toolbar-row>
 
@@ -32,6 +32,16 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
     </mat-toolbar>
   `,
   styles: [`
+    #buttons {
+      flex: 1;
+    }
+    #title {
+      flex: auto;
+      text-align: center;
+    }
+    #buttons-right {
+      flex: 1;
+    }
     #desc-row {
       font-size: 14px;
       height: auto;

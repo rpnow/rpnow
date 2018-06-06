@@ -4,9 +4,9 @@ import { noises } from '../services/notify.service';
 
 @Component({
   template: `
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div id="dialog-header">
 
-        <h3 mat-dialog-title fxFlex>Preferences</h3>
+        <h3 mat-dialog-title>Preferences</h3>
 
         <button mat-icon-button mat-dialog-title mat-dialog-close>
             <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
@@ -62,6 +62,11 @@ import { noises } from '../services/notify.service';
     </mat-dialog-content>
   `,
   styles: [`
+    #dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
     mat-select { max-width: 200px; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush

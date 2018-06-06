@@ -27,9 +27,9 @@ Use these shortcuts to RP faster.
 
 @Component({
   template: `
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div id="dialog-header">
 
-      <h3 mat-dialog-title fxFlex>Formatting Guide</h3>
+      <h3 mat-dialog-title>Formatting Guide</h3>
 
       <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
@@ -39,6 +39,13 @@ Use these shortcuts to RP faster.
 
     <mat-dialog-content class="generated-links" [innerHtml]="innerHtml"></mat-dialog-content>
   `,
+  styles: [`
+    #dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormatGuideDialogComponent {

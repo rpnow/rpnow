@@ -4,9 +4,9 @@ import { MatIconRegistry } from '@angular/material/icon';
 
 @Component({
   template: `
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div id="dialog-header">
 
-      <h3 mat-dialog-title fxFlex>Contact RPNow</h3>
+      <h3 mat-dialog-title>Contact RPNow</h3>
 
       <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
@@ -49,6 +49,13 @@ import { MatIconRegistry } from '@angular/material/icon';
 
     </mat-dialog-content>
   `,
+  styles: [`
+    #dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactDialogComponent {

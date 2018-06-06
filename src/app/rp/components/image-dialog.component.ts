@@ -4,9 +4,9 @@ import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   template: `
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div id="dialog-header">
 
-      <h3 mat-dialog-title fxFlex>Post Image</h3>
+      <h3 mat-dialog-title>Post Image</h3>
 
       <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
@@ -31,6 +31,13 @@ import { MatDialogRef } from '@angular/material/dialog';
       <mat-spinner></mat-spinner>
     </ng-container>
   `,
+  styles: [`
+    #dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageDialogComponent {

@@ -4,7 +4,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 @Component({
   selector: 'rpn-banner-message',
   template: `
-    <div *ngIf="messageHtml" fxLayout="row" fxLayoutAlign="center center">
+    <div *ngIf="messageHtml">
 
       <span class="generated-links-contrast" [innerHTML]="messageHtml"></span>
 
@@ -19,9 +19,14 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
     /* @import '~@angular/material/theming'; */
 
     div {
-      text-align: center;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+
       padding: 5px;
 
+      text-align: center;
       color: white;
       background-color: #7c4dff; /* mat-color($mat-deep-purple, "A200"); */
     }
