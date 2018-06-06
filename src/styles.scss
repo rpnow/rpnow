@@ -121,11 +121,3 @@ textarea {
     color: black;
     border-bottom-color: black;
 }
-
-// Hack to get old behavior from @angular/flex-layout so that layouts don't collapse
-// https://github.com/angular/flex-layout/issues/689
-// TODO: consider abandoning flex-layout entirely at some point
-
-*[fxlayout='column'] > *[fxFlex] {
-    flex-basis: 0.000000001px !important;
-}
