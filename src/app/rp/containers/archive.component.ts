@@ -10,18 +10,18 @@ import { RpMessage, RpMessageId } from '../models/rp-message';
 @Component({
   selector: 'rpn-archive',
   template: `
-    <rpn-title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
+    <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
     <rpn-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
 
-      <rpn-message-list class="flex-scroll-container" #messageContainer
-        [messages]="messages$|async"
-        [charas]="rp.charas$|async"
-        [challenge]="(options.challenge$|async).hash"
-        [showMessageDetails]="options.showMessageDetails$|async"
-        [pressEnterToSend]="options.pressEnterToSend$|async"
-        (editMessageContent)="editMessageContent($event[0], $event[1])"
-      ></rpn-message-list>
+    <rpn-message-list class="flex-scroll-container" #messageContainer
+      [messages]="messages$|async"
+      [charas]="rp.charas$|async"
+      [challenge]="(options.challenge$|async).hash"
+      [showMessageDetails]="options.showMessageDetails$|async"
+      [pressEnterToSend]="options.pressEnterToSend$|async"
+      (editMessageContent)="editMessageContent($event[0], $event[1])"
+    ></rpn-message-list>
   `,
   styles: [`
     :host {
