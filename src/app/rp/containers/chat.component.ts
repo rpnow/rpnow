@@ -21,11 +21,11 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 
         <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
 
-        <div class="flex-scroll-container" #messageContainer>
+        <div class="flex-scroll-container" style="z-index:-1" #messageContainer>
 
           <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
 
-          <rpn-message-list style="z-index:-1"
+          <rpn-message-list
             [messages]="messages$|async"
             [charas]="rp.charas$|async"
             [challenge]="(options.challenge$|async).hash"
