@@ -14,8 +14,9 @@ import { tap } from 'rxjs/operators';
 import { RpCodeService } from '../services/rp-code.service';
 
 @Component({
+  selector: 'rpn-room',
   template: `
-    <mat-sidenav-container fxFill>
+    <mat-sidenav-container>
 
       <mat-sidenav #mainMenu position="start" mode="over">
 
@@ -23,7 +24,7 @@ import { RpCodeService } from '../services/rp-code.service';
 
       </mat-sidenav>
 
-      <mat-sidenav-content fxLayout="column">
+      <mat-sidenav-content>
 
         <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" fxFlex fxLayout="column" fxLayoutAlign="center center">
           <p>Loading your RP...</p>
@@ -32,9 +33,7 @@ import { RpCodeService } from '../services/rp-code.service';
 
         <ng-container *ngIf="rp.loaded|async">
           <rpn-banner-message [message]="bannerMessage$|async" (dismiss)="dismissBanner($event)"></rpn-banner-message>
-          <div fxFlex>
-            <router-outlet></router-outlet>
-          </div>
+          <router-outlet></router-outlet>
         </ng-container>
 
         <div *ngIf="rp.notFound|async" fxFlex fxLayout="column" fxLayoutAlign="center center">
@@ -49,6 +48,15 @@ import { RpCodeService } from '../services/rp-code.service';
 
     </mat-sidenav-container>
   `,
+  styles: [`
+    mat-sidenav-container {
+      height: 100%;
+    }
+    mat-sidenav-content {
+      display: flex;
+      flex-direction: column;
+    }
+  `],
   providers: [
     BannerMessageService,
     ChallengeService,

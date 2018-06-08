@@ -13,10 +13,11 @@ import { RpVoice, isSpecialVoice } from '../models/rp-voice';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
+  selector: 'rpn-chat',
   template: `
-    <mat-sidenav-container fxFill>
+    <mat-sidenav-container>
 
-      <mat-sidenav-content fxLayout="column">
+      <mat-sidenav-content>
 
         <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
 
@@ -61,6 +62,13 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 
     </mat-sidenav-container>
   `,
+  styles: [`
+    :host, mat-sidenav-container, mat-sidenav-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatComponent implements OnInit, OnDestroy {

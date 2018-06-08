@@ -8,12 +8,11 @@ import { OptionsService } from '../services/options.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 
 @Component({
+  selector: 'rpn-archive',
   template: `
-    <section fxFill fxLayout="column">
+    <rpn-title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
-      <rpn-title-bar [title]="'Page '+(pageNum$|async)+', '+rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
-
-      <rpn-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
+    <rpn-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
 
       <rpn-message-list class="flex-scroll-container" #messageContainer
         [messages]="messages$|async"
@@ -23,9 +22,15 @@ import { RpMessage, RpMessageId } from '../models/rp-message';
         [pressEnterToSend]="options.pressEnterToSend$|async"
         (editMessageContent)="editMessageContent($event[0], $event[1])"
       ></rpn-message-list>
-
-    </section>
   `,
+  styles: [`
+    :host {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArchiveComponent implements OnInit {
