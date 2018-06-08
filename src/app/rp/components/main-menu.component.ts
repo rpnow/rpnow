@@ -19,7 +19,7 @@ import { DownloadDialogComponent } from './download-dialog.component';
       </mat-toolbar>
       <mat-nav-list class="flex-scroll-container">
 
-        <h3 matSubheader>{{ rpTitle }}</h3>
+        <h3 matSubheader style="display:block;overflow:hidden;text-overflow:ellipsis">{{ rpTitle }}</h3>
 
         <a mat-list-item routerLink="." (click)="onClose()">
           <mat-icon mat-list-icon>question_answer</mat-icon>

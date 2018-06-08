@@ -33,11 +33,14 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
   `,
   styles: [`
     #buttons {
-      flex: 1;
+      flex: 1 1 auto;
+      min-width: 40px; /* width of the icon. flex will collapse it otherwise if the title is long */
     }
     #title {
       flex: auto;
       text-align: center;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
     }
     #buttons-right {
       flex: 1;
