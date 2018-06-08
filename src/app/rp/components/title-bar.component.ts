@@ -21,7 +21,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
           <mat-icon aria-label="Show description" matTooltip="Show description">{{ descIcon }}</mat-icon>
         </button>
 
-        <span id="buttons-right">&nbsp;</span>
+        <span id="buttons-right"></span>
 
       </mat-toolbar-row>
 
@@ -33,8 +33,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
   `,
   styles: [`
     #buttons {
-      flex: 1 1 auto;
-      min-width: 40px; /* width of the icon. flex will collapse it otherwise if the title is long */
+      flex: 1 0 40px; /* 40px is the size of the icon inside */
     }
     #title {
       flex: auto;
@@ -43,7 +42,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
       text-overflow: ellipsis;
     }
     #buttons-right {
-      flex: 1;
+      flex: 1 999 40px;
     }
     #desc-row {
       font-size: 14px;
