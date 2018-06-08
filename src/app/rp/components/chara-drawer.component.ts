@@ -7,67 +7,71 @@ import { CharaDialogComponent } from './chara-dialog.component';
 @Component({
   selector: 'rpn-chara-drawer-contents',
   template: `
-    <div fxFill fxLayout="column">
+    <mat-toolbar class="flat-toolbar">
 
-      <mat-toolbar class="flat-toolbar">
+      <h1>Characters</h1>
 
-        <h1 fxFlex>
-          Characters
-        </h1>
+      <button mat-icon-button (click)="close()">
+        <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
+      </button>
 
-        <button mat-icon-button (click)="close()">
-          <mat-icon aria-label="Close character menu" matTooltip="Close">close</mat-icon>
-        </button>
+    </mat-toolbar>
 
-      </mat-toolbar>
+    <mat-nav-list class="flex-scroll-container">
+      <a mat-list-item (click)="onSetVoice('narrator')">
+        <mat-icon mat-list-icon>local_library</mat-icon>
+        <p mat-line>Narrator</p>
+        <mat-icon *ngIf="isNarratorSelected">check</mat-icon>
+      </a>
+      <a mat-list-item (click)="onSetVoice('ooc')">
+        <mat-icon mat-list-icon>chat</mat-icon>
+        <p mat-line>Out of Character</p>
+        <mat-icon *ngIf="isOocSelected">check</mat-icon>
+      </a>
 
-      <mat-nav-list class="flex-scroll-container">
-        <a mat-list-item (click)="onSetVoice('narrator')">
-          <mat-icon mat-list-icon>local_library</mat-icon>
-          <p mat-line>Narrator</p>
-          <mat-icon *ngIf="isNarratorSelected">check</mat-icon>
-        </a>
-        <a mat-list-item (click)="onSetVoice('ooc')">
-          <mat-icon mat-list-icon>chat</mat-icon>
-          <p mat-line>Out of Character</p>
-          <mat-icon *ngIf="isOocSelected">check</mat-icon>
-        </a>
+      <mat-divider></mat-divider>
 
-        <mat-divider></mat-divider>
+      <a mat-list-item (click)="onNewChara()">
+        <mat-icon mat-list-icon>person_add</mat-icon>
+        <p mat-line>New Character...</p>
+      </a>
 
-        <a mat-list-item (click)="onNewChara()">
-          <mat-icon mat-list-icon>person_add</mat-icon>
-          <p mat-line>New Character...</p>
-        </a>
+      <mat-divider></mat-divider>
 
-        <mat-divider></mat-divider>
+      <ng-container *ngIf="hasManyCharas()">
 
-        <ng-container *ngIf="hasManyCharas()">
+        <h3 matSubheader>Recent</h3>
 
-          <h3 matSubheader>Recent</h3>
-
-          <a mat-list-item *ngFor="let chara of recentCharas; trackBy: trackById" (click)="onSetVoice(chara)">
-            <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
-            <p mat-line>{{ chara.name }}</p>
-            <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
-          </a>
-
-          <mat-divider></mat-divider>
-
-        </ng-container>
-
-        <h3 matSubheader *ngIf="hasManyCharas()">All Characters</h3>
-
-        <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" (click)="onSetVoice(chara)">
+        <a mat-list-item *ngFor="let chara of recentCharas; trackBy: trackById" (click)="onSetVoice(chara)">
           <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
           <p mat-line>{{ chara.name }}</p>
           <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
         </a>
 
-      </mat-nav-list>
+        <mat-divider></mat-divider>
 
-    </div>
+      </ng-container>
+
+      <h3 matSubheader *ngIf="hasManyCharas()">All Characters</h3>
+
+      <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" (click)="onSetVoice(chara)">
+        <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
+        <p mat-line>{{ chara.name }}</p>
+        <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
+      </a>
+
+    </mat-nav-list>
   `,
+  styles: [`
+    :host {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    h1 {
+      flex: 1 1 auto;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CharaDrawerComponent {

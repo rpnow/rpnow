@@ -26,7 +26,7 @@ import { RpCodeService } from '../services/rp-code.service';
 
       <mat-sidenav-content>
 
-        <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" fxFlex fxLayout="column" fxLayoutAlign="center center">
+        <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" class="center-contents">
           <p>Loading your RP...</p>
           <mat-spinner></mat-spinner>
         </div>
@@ -36,7 +36,7 @@ import { RpCodeService } from '../services/rp-code.service';
           <router-outlet></router-outlet>
         </ng-container>
 
-        <div *ngIf="rp.notFound|async" fxFlex fxLayout="column" fxLayoutAlign="center center">
+        <div *ngIf="rp.notFound|async" class="center-contents">
           <h1>RP Not Found!</h1>
 
           <p>We couldn't find an RP at <code>/rp/{{ rp.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
@@ -55,6 +55,14 @@ import { RpCodeService } from '../services/rp-code.service';
     mat-sidenav-content {
       display: flex;
       flex-direction: column;
+    }
+    .center-contents {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 20px;
     }
   `],
   providers: [

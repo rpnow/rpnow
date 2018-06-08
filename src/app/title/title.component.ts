@@ -9,7 +9,7 @@ import { TrackService } from '../track.service';
 
 @Component({
   template: `
-    <section fxFlex fxLayout="column" fxLayoutAlign="center center" style="height:100%;width:90vw;max-width:400px; margin: auto">
+    <section style="display: flex; flex-direction: column; align-items: center; height:100%; width:90vw; max-width:400px; margin: auto">
 
       <span style="height:10vh"></span>
 
@@ -20,7 +20,7 @@ import { TrackService } from '../track.service';
 
       <span style="height:10vh"></span>
 
-      <div *ngIf="!submitted" fxLayout="column">
+      <div *ngIf="!submitted" style="display: flex; flex-direction: column">
 
         <mat-form-field>
 
@@ -50,7 +50,7 @@ import { TrackService } from '../track.service';
 
         <span style="height:5vh"></span>
 
-        <div fxLayout="row" fxLayoutAlign="space-around center">
+        <div style="display:flex; flex-direction:row; justify-content:space-around">
 
           <button mat-raised-button color="primary" (click)="createRp(); track.event('Room', 'create')" [disabled]="!title || !agreedToTerms">
             <mat-icon>check</mat-icon>
@@ -70,7 +70,6 @@ import { TrackService } from '../track.service';
         <mat-spinner [diameter]="96"></mat-spinner>
       </div>
 
-      <span fxFlex></span>
     </section>
   `,
   changeDetection: ChangeDetectionStrategy.Default

@@ -8,11 +8,11 @@ import { RpChara } from '../models/rp-chara';
 @Component({
   selector: 'rpn-send-box',
   template: `
-    <div id="send-box" fxLayout="column" [class]="elementClass" [style.background-color]="chara?.color" [style.color]="chara?.color|bw">
+    <div id="send-box" [class]="elementClass" [style.background-color]="chara?.color" [style.color]="chara?.color|bw">
 
-      <div id="voice-bar" fxLayout="row" fxLayoutAlign="center center">
+      <div id="voice-bar">
 
-        <div id="click-to-change" fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
+        <div id="click-to-change" matTooltip="Change character" matTooltipPosition="above" (click)="openCharaSelector()">
           <ng-container *ngIf="isNarrator">
             Narrator
           </ng-container>
@@ -40,10 +40,9 @@ import { RpChara } from '../models/rp-chara';
 
       </div>
 
-      <div id="typing-area" fxLayout="row" fxLayoutAlign="center center">
+      <div id="typing-area">
 
         <textarea
-          fxFlex
           matTextareaAutosize
           matAutosizeMinRows="3"
           [(ngModel)]="content"

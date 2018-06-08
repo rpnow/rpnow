@@ -3,7 +3,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
 @Component({
     selector: 'rpn-paginator',
     template: `
-      <div id="pager" fxLayout="row" fxLayoutAlign="center center">
+      <div id="pager">
 
         <button mat-icon-button [disabled]="isFirstPage" (click)="changePage(1)">
           <mat-icon aria-label="First page" matTooltip="First page">first_page</mat-icon>
@@ -27,6 +27,10 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
     `,
     styles: [`
       #pager {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
         background-color: #eee;
       }
       :host-context(.dark-theme) #pager {
