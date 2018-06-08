@@ -60,7 +60,6 @@ import 'web-animations-js';  // Run `npm install --save web-animations-js`.
 /***************************************************************************************************
  * Zone JS is required by Angular itself.
  */
-import 'setimmediate'; // import setimmediate polyfill before zonejs import
 import 'zone.js/dist/zone';  // Included with Angular CLI.
 
 

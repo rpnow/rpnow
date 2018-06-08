@@ -154,7 +154,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   updateScroll() {
     if (this.isAtBottom()) {
-      setImmediate(() => this.el.scrollTop = this.el.scrollHeight);
+      setTimeout(() => this.el.scrollTop = this.el.scrollHeight, 1);
     } else {
       this.snackbar.open('New messages below!', 'Close', {
         duration: 2000,
