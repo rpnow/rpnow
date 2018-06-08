@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { SHA512, enc } from 'crypto-js';
+import * as shaJs from 'sha.js';
 import { OptionsService } from './options.service';
 
 export interface Challenge {
@@ -26,7 +26,7 @@ export class ChallengeService {
 
     const secret = Array.from(bytes, str => str.toString(16).padStart(8, '0')).join('');
 
-    const hash = SHA512(secret).toString(enc.Hex);
+    const hash = shaJs('sha512').update(secret).digest('hex');
 
     return { secret, hash };
   }
