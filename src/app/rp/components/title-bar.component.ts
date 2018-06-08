@@ -17,11 +17,11 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
           {{ title }}
         </h1>
 
-        <button mat-icon-button (click)="toggleDesc()" *ngIf="hasDesc">
-          <mat-icon aria-label="Show description" matTooltip="Show description">{{ descIcon }}</mat-icon>
-        </button>
-
-        <span id="buttons-right"></span>
+        <span id="buttons-right">
+          <button mat-icon-button (click)="toggleDesc()" *ngIf="hasDesc">
+            <mat-icon aria-label="Show description" matTooltip="Show description">{{ descIcon }}</mat-icon>
+          </button>
+        </span>
 
       </mat-toolbar-row>
 
@@ -36,7 +36,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
       flex: 1 0 40px; /* 40px is the size of the icon inside */
     }
     #title {
-      flex: auto;
+      flex: 0 1 auto;
       text-align: center;
       overflow-x: hidden;
       text-overflow: ellipsis;
