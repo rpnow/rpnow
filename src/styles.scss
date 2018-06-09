@@ -113,7 +113,7 @@ textarea {
     font-family: inherit;
 }
 
-
+// this is for a piece of content that is generated and may have links in it
 .generated-links a,
 .generated-links-contrast a {
     text-decoration: none;
@@ -138,4 +138,13 @@ textarea {
 .dark-theme .generated-links-contrast a {
     color: black;
     border-bottom-color: black;
+}
+
+// this is for generated message content's asterisk fields
+.rpn-message-star-tag {
+    padding: 0.1em 0.3em;
+    border-radius: 8px;
+    opacity: 0.9;
+    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow:2px 2px 4px rgba(0,0,0,0.03);
 }
