@@ -29,6 +29,9 @@ export class MessageContentPipe implements PipeTransform {
         /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim,
         '<a href="$1" class="link" target="_blank">$1</a>'
     );
+    // line breaks
+    // http://stackoverflow.com/questions/2919337/jquery-convert-line-breaks-to-br-nl2br-equivalent
+    str = str.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
     // actions
     if (color) {
         const contrast = this.bwPipe.transform(color);
@@ -48,9 +51,6 @@ export class MessageContentPipe implements PipeTransform {
     str = str.replace(/(^|\s|(?:&quot;))___([^\r\n_]+)___([\s,\.\?!]|(?:&quot;)|$)/g, '$1<b><i>$2</i></b>$3');
     // strikethrough
     str = str.replace(/~~([^\r\n<>]+?)~~/g, '<del>$1</del>');
-    // line breaks
-    // http://stackoverflow.com/questions/2919337/jquery-convert-line-breaks-to-br-nl2br-equivalent
-    str = str.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
     // mdash
     str = str.replace(/--/g, '&mdash;');
 
