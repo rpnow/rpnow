@@ -199,8 +199,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.closeCharaSelectorIfOverlay();
   }
 
-  sendMessage(content: string, voice: RpChara) {
-    this.rp.addMessage(content, voice);
+  async sendMessage(content: string, voice: RpChara) {
+    await this.rp.addMessage(content, voice);
+
+    // erase saved message box content upon successful message delivery
+    if (content === this.options.msgBoxContent) {
+      this.options.msgBoxContent = '';
+    }
   }
 
   editMessageContent(id: RpMessageId, content: string) {
