@@ -57,6 +57,23 @@ color-picker .hue-alpha.box .selected-color {
 color-picker .hue-alpha.box .right {
     padding-top: 0;
 }
+@media (max-height: 640px) {
+    color-picker .hsla-text .box:last-child,
+    color-picker .rgba-text .box:last-child,
+    color-picker .hex-text .box:last-child,
+    color-picker .type-policy {
+        display: none;
+    }
+    color-picker .hsla-text,
+    color-picker .rgba-text,
+    color-picker .hex-text,
+    color-picker .box {
+        padding: 0 !important;
+    }
+    color-picker .hue-alpha.box > div {
+        padding-bottom: 0 !important;
+    }
+}
 
 // mat component styles
 mat-sidenav {
