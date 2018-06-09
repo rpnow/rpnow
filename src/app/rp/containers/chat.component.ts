@@ -21,7 +21,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 
         <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
 
-        <div class="flex-scroll-container" style="z-index:-1" #messageContainer>
+        <div class="flex-scroll-container" style="z-index:-1" #messageContainer (scroll)="onScroll()">
 
           <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
 
@@ -32,6 +32,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
             [showMessageDetails]="options.showMessageDetails$|async"
             [pressEnterToSend]="options.pressEnterToSend$|async"
             (editMessageContent)="editMessageContent($event[0], $event[1])"
+            (imageLoaded)="updateScroll()"
           ></rpn-message-list>
 
         </div>
@@ -81,6 +82,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   private subscription: Subscription;
   private subscription2: Subscription;
 
+  private atBottom = true;
+
   public messages$: Observable<RpMessage[]>;
   public currentChara$: BehaviorSubject<RpVoice>;
   public sortedCharas$: Observable<RpChara[]>;
@@ -113,7 +116,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.messages$ = this.rp.messages$.pipe(
       scan(({firstIdx}: {firstIdx: number, msgs: RpMessage[]}, msgs: RpMessage[]) => {
-        if (this.isAtBottom()) return { msgs, firstIdx: Math.max(msgs.length - 60, 0) };
+        if (this.atBottom) return { msgs, firstIdx: Math.max(msgs.length - 60, 0) };
         else return { msgs, firstIdx: Math.max(msgs.length - 300, 0, firstIdx) };
       }, {firstIdx: 0, msgs: <RpMessage[]>null}),
       map(({msgs, firstIdx}) => msgs.slice(firstIdx))
@@ -145,15 +148,15 @@ export class ChatComponent implements OnInit, OnDestroy {
     );
   }
 
-  isAtBottom() {
+  onScroll() {
     // 31 is because the padding on the rp message list is 20+10.
     // So, this comparison needs to be greater than 30 for the initial page load
     // Not sure why exactly.
-    return this.el.scrollHeight - this.el.scrollTop - this.el.offsetHeight < 31;
+    this.atBottom = (this.el.scrollHeight - this.el.scrollTop - this.el.offsetHeight < 31);
   }
 
   updateScroll() {
-    if (this.isAtBottom()) {
+    if (this.atBottom) {
       setTimeout(() => this.el.scrollTop = this.el.scrollHeight, 1);
     } else {
       this.snackbar.open('New messages below!', 'Close', {

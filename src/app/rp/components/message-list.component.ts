@@ -22,6 +22,7 @@ import { RpChara } from '../models/rp-chara';
         [showMessageDetails]="showMessageDetails"
 
         (editContent)="editMessage(msg.id, $event)"
+        (imageLoaded)="onImageLoaded()"
       ></rpn-message>
     </div>
   `,
@@ -36,6 +37,7 @@ export class MessageListComponent {
   @Input() pressEnterToSend: boolean;
 
   @Output() readonly editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
+  @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
 
   trackById(index: number, item: RpMessage) {
     return item.id;
@@ -51,6 +53,10 @@ export class MessageListComponent {
 
   editMessage(id: string, content: string) {
     this.editMessageContent.emit([id, content]);
+  }
+
+  onImageLoaded() {
+    this.imageLoaded.emit();
   }
 
 }

@@ -45,7 +45,7 @@ import { OptionsService } from '../services/options.service';
       <ng-container *ngIf="type === 'image'">
         <div class="content">
           <a [href]="url" target="_blank">
-            <img [src]="url"/>
+            <img [src]="url" (load)="onImageLoaded()"/>
           </a>
         </div>
       </ng-container>
@@ -72,6 +72,7 @@ export class MessageComponent {
   @Input() showMessageDetails = false;
 
   @Output() readonly editContent: EventEmitter<string> = new EventEmitter();
+  @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
 
   editing = false;
   newContent = '';
@@ -135,6 +136,10 @@ export class MessageComponent {
       this.confirmEdit();
       return false;
     }
+  }
+
+  onImageLoaded() {
+    this.imageLoaded.emit();
   }
 
 }
