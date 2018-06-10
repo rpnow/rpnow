@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -14,7 +15,6 @@
     "lib": [
       "es2017",
       "dom"
-    ],
-    "allowSyntheticDefaultImports": true
+    ]
   }
 }
