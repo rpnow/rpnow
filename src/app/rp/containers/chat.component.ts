@@ -31,6 +31,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
             [challenge]="(options.challenge$|async).hash"
             [showMessageDetails]="options.showMessageDetails$|async"
             [pressEnterToSend]="options.pressEnterToSend$|async"
+            [showNags]="true"
             (editMessageContent)="editMessageContent($event[0], $event[1])"
             (imageLoaded)="updateScroll()"
           ></rpn-message-list>

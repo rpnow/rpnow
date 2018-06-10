@@ -1,43 +1,66 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
-import { RpMessage } from '../models/rp-message';
+import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output, OnChanges } from '@angular/core';
+import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 
 @Component({
   selector: 'rpn-message-list',
   template: `
     <div style="padding: 10px 10px 20px">
-      <rpn-message *ngFor="let msg of messages; trackBy: trackById"
-        [content]="msg.content"
-        [url]="msg.url"
-        [type]="msg.type"
-        [createdAt]="msg.timestamp"
-        [editedAt]="msg.edited"
-        [ipid]="msg.ipid"
+      <ng-container *ngFor="let msg of messages; trackBy: trackById">
 
-        [charaName]="charaFor(msg)?.name"
-        [charaColor]="charaFor(msg)?.color"
+        <rpn-message
+          [content]="msg.content"
+          [url]="msg.url"
+          [type]="msg.type"
+          [createdAt]="msg.timestamp"
+          [editedAt]="msg.edited"
+          [ipid]="msg.ipid"
 
-        [canEdit]="canEdit(msg)"
-        [pressEnterToSend]="pressEnterToSend"
-        [showMessageDetails]="showMessageDetails"
+          [charaName]="charaFor(msg)?.name"
+          [charaColor]="charaFor(msg)?.color"
 
-        (editContent)="editMessage(msg.id, $event)"
-        (imageLoaded)="onImageLoaded()"
-      ></rpn-message>
+          [canEdit]="canEdit(msg)"
+          [pressEnterToSend]="pressEnterToSend"
+          [showMessageDetails]="showMessageDetails"
+
+          (editContent)="editMessage(msg.id, $event)"
+          (imageLoaded)="onImageLoaded()"
+        ></rpn-message>
+
+        <rpn-nag *ngIf="nags.has(msg.id)"></rpn-nag>
+
+      </ng-container>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessageListComponent {
+export class MessageListComponent implements OnChanges {
 
   @Input() messages: RpMessage[];
   @Input() charas: RpChara[];
   @Input() challenge: string;
   @Input() showMessageDetails: boolean;
   @Input() pressEnterToSend: boolean;
+  @Input() showNags = false;
 
   @Output() readonly editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
   @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
+
+  private idsSeen: Set<RpMessageId> = new Set();
+  public nags: Set<RpMessageId> = new Set();
+
+  ngOnChanges() {
+    if (this.showNags) {
+      for (const {id} of this.messages) {
+        if (this.idsSeen.has(id)) continue;
+
+        this.idsSeen.add(id);
+        if (this.idsSeen.size % 40 === 0) {
+          this.nags.add(id);
+        }
+      }
+    }
+  }
 
   trackById(index: number, item: RpMessage) {
     return item.id;

@@ -45,6 +45,7 @@ import { TimestampComponent } from './components/timestamp.component';
 import { MessageListComponent } from './components/message-list.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { WelcomeComponent } from './components/welcome.component';
+import { NagComponent } from './components/nag.component';
 
 
 @NgModule({
@@ -72,7 +73,8 @@ import { WelcomeComponent } from './components/welcome.component';
     IconColorDirective,
     TimestampComponent,
     MessageListComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    NagComponent
   ],
   imports: [
     CommonModule,
