@@ -1,6 +1,5 @@
 import { Component, ViewContainerRef, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AboutDialogComponent } from './about-dialog.component';
 import { ContactDialogComponent } from './contact-dialog.component';
 import { OptionsDialogComponent } from './options-dialog.component';
 import { DownloadDialogComponent } from './download-dialog.component';
@@ -58,11 +57,6 @@ import { DownloadDialogComponent } from './download-dialog.component';
         <p mat-line>Contact RPNow</p>
       </a>
 
-      <a mat-list-item (click)="showAboutDialog()" title="Get to know us!">
-        <mat-icon mat-list-icon>mood</mat-icon>
-        <p mat-line>About us</p>
-      </a>
-
       <a mat-list-item href="https://www.patreon.com/rpnow" target="_blank" title="Every dollar is appreciated  :D">
         <mat-icon mat-list-icon>favorite</mat-icon>
         <p mat-line>Donate @ Patreon</p>
@@ -100,10 +94,6 @@ export class MainMenuComponent {
 
   openDownloadDialog() {
     this.dialog.open(DownloadDialogComponent, { viewContainerRef: this.viewContainerRef });
-  }
-
-  showAboutDialog() {
-    this.dialog.open(AboutDialogComponent);
   }
 
   showContactDialog() {

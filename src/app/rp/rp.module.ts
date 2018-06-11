@@ -31,7 +31,6 @@ import { CharaDialogComponent } from './components/chara-dialog.component';
 import { BlackOrWhitePipe } from './pipes/black-or-white.pipe';
 import { DownloadDialogComponent } from './components/download-dialog.component';
 import { ContactDialogComponent } from './components/contact-dialog.component';
-import { AboutDialogComponent } from './components/about-dialog.component';
 import { FormatGuideDialogComponent } from './components/format-guide-dialog.component';
 import { MessageContentPipe } from './pipes/message-content.pipe';
 import { RpRoutingModule } from './rp-routing.module';
@@ -63,7 +62,6 @@ import { NagComponent } from './components/nag.component';
     DownloadDialogComponent,
     ImageDialogComponent,
     ContactDialogComponent,
-    AboutDialogComponent,
     FormatGuideDialogComponent,
     MessageContentPipe,
     MainMenuComponent,
@@ -102,7 +100,6 @@ import { NagComponent } from './components/nag.component';
     DownloadDialogComponent,
     ImageDialogComponent,
     ContactDialogComponent,
-    AboutDialogComponent,
     FormatGuideDialogComponent,
     OptionsDialogComponent
   ]
