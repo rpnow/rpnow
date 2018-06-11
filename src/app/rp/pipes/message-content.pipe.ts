@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BlackOrWhitePipe } from './black-or-white.pipe';
 
 @Pipe({
@@ -13,7 +13,7 @@ export class MessageContentPipe implements PipeTransform {
     private sanitizer: DomSanitizer
   ) {}
 
-  transform(str: string, color: string = null): any {
+  transform(str: string, color: string = null): SafeHtml {
     // escape characters
     const escapeMap = {
       '&': '&amp;',
@@ -45,7 +45,7 @@ export class MessageContentPipe implements PipeTransform {
     str = str.replace(/~~([^\r\n<>]+?)~~/g, '<del>$1</del>');
     // line breaks
     // http://stackoverflow.com/questions/2919337/jquery-convert-line-breaks-to-br-nl2br-equivalent
-    str = str.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
+    str = str.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>');
     // mdash
     str = str.replace(/--/g, '&mdash;');
 
