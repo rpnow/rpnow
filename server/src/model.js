@@ -8,7 +8,6 @@ const { verifyChallenge } = require('./services/challenge');
 
 class RpEventEmitter extends EventEmitter {}
 const events = new RpEventEmitter();
-module.exports.events = events;
 
 const roomOptionsSchema = nJ({
     title: [String, config.get('maxTitleLength')],
@@ -30,114 +29,118 @@ const editMessageSchema = nJ({
     secret: [String, 64],
 });
 
-module.exports.createRp = async function createRp(input) {
-    let roomOptions;
-    try {
-        roomOptions = roomOptionsSchema(input);
-    } catch (error) {
-        throw { code: 'BAD_RP', details: error.message };
-    }
+module.exports = ({
+    events,
 
-    const rpCode = generateRpCode();
-    await dao.addRoom(rpCode, roomOptions);
+    async createRp(input) {
+        let roomOptions;
+        try {
+            roomOptions = roomOptionsSchema(input);
+        } catch (error) {
+            throw { code: 'BAD_RP', details: error.message };
+        }
 
-    return { rpCode };
-};
+        const rpCode = generateRpCode();
+        await dao.addRoom(rpCode, roomOptions);
 
-module.exports.getRp = async function getRp(rpCode) {
-    if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
+        return { rpCode };
+    },
 
-    const data = await dao.getRoomByCode(rpCode);
-    if (!data) throw { code: 'RP_NOT_FOUND' };
+    async getRp(rpCode) {
+        if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
 
-    return data;
-};
+        const data = await dao.getRoomByCode(rpCode);
+        if (!data) throw { code: 'RP_NOT_FOUND' };
 
-module.exports.addMessage = async function addMessage(rpCode, connectionId, input, ipid) {
-    let msg;
-    try {
-        msg = addMessageSchema(input);
-    } catch (error) {
-        throw { code: 'BAD_MSG', details: error.message };
-    }
+        return data;
+    },
 
-    // store & broadcast
-    if (msg.type === 'chara') {
-        // charas must be in the chara list
-        const exists = await dao.charaExists(rpCode, msg.charaId);
-        if (!exists) throw { code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}` };
-    }
+    async addMessage(rpCode, connectionId, input, ipid) {
+        let msg;
+        try {
+            msg = addMessageSchema(input);
+        } catch (error) {
+            throw { code: 'BAD_MSG', details: error.message };
+        }
 
-    msg.timestamp = Date.now() / 1000;
-    msg.ipid = ipid;
+        // store & broadcast
+        if (msg.type === 'chara') {
+            // charas must be in the chara list
+            const exists = await dao.charaExists(rpCode, msg.charaId);
+            if (!exists) throw { code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}` };
+        }
 
-    await dao.addMessage(rpCode, msg);
+        msg.timestamp = Date.now() / 1000;
+        msg.ipid = ipid;
 
-    events.emit('add message', rpCode, connectionId, msg);
-    return msg;
-};
+        await dao.addMessage(rpCode, msg);
 
-module.exports.addImage = async function addImage(rpCode, connectionId, url, ipid) {
-    if (typeof url !== 'string') throw { code: 'BAD_URL' };
+        events.emit('add message', rpCode, connectionId, msg);
+        return msg;
+    },
 
-    // validate image
-    let res;
-    try {
-        res = await request.head(url);
-    } catch (err) {
-        throw { code: 'URL_FAILED', details: err.message };
-    }
-    if (!res['content-type']) throw { code: 'UNKNOWN_CONTENT' };
-    if (!res['content-type'].startsWith('image/')) throw { code: 'BAD_CONTENT' };
+    async addImage(rpCode, connectionId, url, ipid) {
+        if (typeof url !== 'string') throw { code: 'BAD_URL' };
 
-    // store & broadcast
-    const msg = {
-        type: 'image',
-        url,
-    };
+        // validate image
+        let res;
+        try {
+            res = await request.head(url);
+        } catch (err) {
+            throw { code: 'URL_FAILED', details: err.message };
+        }
+        if (!res['content-type']) throw { code: 'UNKNOWN_CONTENT' };
+        if (!res['content-type'].startsWith('image/')) throw { code: 'BAD_CONTENT' };
 
-    msg.timestamp = Date.now() / 1000;
-    msg.ipid = ipid;
+        // store & broadcast
+        const msg = {
+            type: 'image',
+            url,
+        };
 
-    await dao.addMessage(rpCode, msg);
+        msg.timestamp = Date.now() / 1000;
+        msg.ipid = ipid;
 
-    events.emit('add message', rpCode, connectionId, msg);
-    return msg;
-};
+        await dao.addMessage(rpCode, msg);
 
-module.exports.addChara = async function addChara(rpCode, connectionId, inputChara /* ,ipid */) {
-    let chara;
-    try {
-        chara = addCharaSchema(inputChara);
-    } catch (error) {
-        throw { code: 'BAD_CHARA', details: error.message };
-    }
+        events.emit('add message', rpCode, connectionId, msg);
+        return msg;
+    },
 
-    await dao.addChara(rpCode, chara);
+    async addChara(rpCode, connectionId, inputChara /* ,ipid */) {
+        let chara;
+        try {
+            chara = addCharaSchema(inputChara);
+        } catch (error) {
+            throw { code: 'BAD_CHARA', details: error.message };
+        }
 
-    events.emit('add character', rpCode, connectionId, chara);
-    return chara;
-};
+        await dao.addChara(rpCode, chara);
 
-module.exports.editMessage = async function editMessage(rpCode, connectionId, input /* ,ipid */) {
-    let editInfo;
-    try {
-        editInfo = editMessageSchema(input);
-    } catch (error) {
-        throw { code: 'BAD_EDIT', details: error.message };
-    }
+        events.emit('add character', rpCode, connectionId, chara);
+        return chara;
+    },
 
-    // check if the message is there
-    const msg = await dao.getMessage(rpCode, editInfo.id);
-    if (!msg) throw { code: 'BAD_MSG_ID' };
+    async editMessage(rpCode, connectionId, input /* ,ipid */) {
+        let editInfo;
+        try {
+            editInfo = editMessageSchema(input);
+        } catch (error) {
+            throw { code: 'BAD_EDIT', details: error.message };
+        }
 
-    if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
+        // check if the message is there
+        const msg = await dao.getMessage(rpCode, editInfo.id);
+        if (!msg) throw { code: 'BAD_MSG_ID' };
 
-    msg.content = editInfo.content;
-    msg.edited = (Date.now() / 1000);
+        if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
 
-    await dao.editMessage(rpCode, editInfo.id, msg);
+        msg.content = editInfo.content;
+        msg.edited = (Date.now() / 1000);
 
-    events.emit('edit message', rpCode, connectionId, msg, editInfo.id);
-    return msg;
-};
+        await dao.editMessage(rpCode, editInfo.id, msg);
+
+        events.emit('edit message', rpCode, connectionId, msg, editInfo.id);
+        return msg;
+    },
+});
