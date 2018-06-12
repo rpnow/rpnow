@@ -53,7 +53,7 @@ module.exports.getRp = async function getRp(rpCode) {
     return data;
 };
 
-module.exports.addMessage = async function addMessage(rpid, connectionId, input, ipid) {
+module.exports.addMessage = async function addMessage(rpCode, connectionId, input, ipid) {
     let msg;
     try {
         msg = addMessageSchema(input);
@@ -64,20 +64,20 @@ module.exports.addMessage = async function addMessage(rpid, connectionId, input,
     // store & broadcast
     if (msg.type === 'chara') {
         // charas must be in the chara list
-        const exists = await dao.charaExists(rpid, msg.charaId);
+        const exists = await dao.charaExists(rpCode, msg.charaId);
         if (!exists) throw { code: 'CHARA_NOT_FOUND', details: `no character with id ${msg.charaId}` };
     }
 
     msg.timestamp = Date.now() / 1000;
     msg.ipid = ipid;
 
-    await dao.addMessage(rpid, msg);
+    await dao.addMessage(rpCode, msg);
 
-    events.emit('add message', rpid, connectionId, msg);
+    events.emit('add message', rpCode, connectionId, msg);
     return msg;
 };
 
-module.exports.addImage = async function addImage(rpid, connectionId, url, ipid) {
+module.exports.addImage = async function addImage(rpCode, connectionId, url, ipid) {
     if (typeof url !== 'string') throw { code: 'BAD_URL' };
 
     // validate image
@@ -99,13 +99,13 @@ module.exports.addImage = async function addImage(rpid, connectionId, url, ipid)
     msg.timestamp = Date.now() / 1000;
     msg.ipid = ipid;
 
-    await dao.addMessage(rpid, msg);
+    await dao.addMessage(rpCode, msg);
 
-    events.emit('add message', rpid, connectionId, msg);
+    events.emit('add message', rpCode, connectionId, msg);
     return msg;
 };
 
-module.exports.addChara = async function addChara(rpid, connectionId, inputChara /* ,ipid */) {
+module.exports.addChara = async function addChara(rpCode, connectionId, inputChara /* ,ipid */) {
     let chara;
     try {
         chara = addCharaSchema(inputChara);
@@ -113,13 +113,13 @@ module.exports.addChara = async function addChara(rpid, connectionId, inputChara
         throw { code: 'BAD_CHARA', details: error.message };
     }
 
-    await dao.addChara(rpid, chara);
+    await dao.addChara(rpCode, chara);
 
-    events.emit('add character', rpid, connectionId, chara);
+    events.emit('add character', rpCode, connectionId, chara);
     return chara;
 };
 
-module.exports.editMessage = async function editMessage(rpid, connectionId, input /* ,ipid */) {
+module.exports.editMessage = async function editMessage(rpCode, connectionId, input /* ,ipid */) {
     let editInfo;
     try {
         editInfo = editMessageSchema(input);
@@ -128,7 +128,7 @@ module.exports.editMessage = async function editMessage(rpid, connectionId, inpu
     }
 
     // check if the message is there
-    const msg = await dao.getMessage(rpid, editInfo.id);
+    const msg = await dao.getMessage(rpCode, editInfo.id);
     if (!msg) throw { code: 'BAD_MSG_ID' };
 
     if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
@@ -136,8 +136,8 @@ module.exports.editMessage = async function editMessage(rpid, connectionId, inpu
     msg.content = editInfo.content;
     msg.edited = (Date.now() / 1000);
 
-    await dao.editMessage(rpid, editInfo.id, msg);
+    await dao.editMessage(rpCode, editInfo.id, msg);
 
-    events.emit('edit message', rpid, connectionId, msg, editInfo.id);
+    events.emit('edit message', rpCode, connectionId, msg, editInfo.id);
     return msg;
 };

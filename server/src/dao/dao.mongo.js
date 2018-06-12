@@ -33,33 +33,33 @@ module.exports = ({
         await db.insert(room);
     },
 
-    async addMessage(rpid, msg) {
+    async addMessage(rpCode, msg) {
         const db = await rooms;
-        await db.update({ _id: rpid }, { $push: { msgs: msg } });
+        await db.update({ rpCode }, { $push: { msgs: msg } });
     },
 
-    async addChara(rpid, chara) {
+    async addChara(rpCode, chara) {
         const db = await rooms;
-        await db.update({ _id: rpid }, { $push: { charas: chara } });
+        await db.update({ rpCode }, { $push: { charas: chara } });
     },
 
-    async charaExists(rpid, idx) {
+    async charaExists(rpCode, idx) {
         const db = await rooms;
-        const rp = await db.findOne({ _id: rpid }, { charas: 1 });
+        const rp = await db.findOne({ rpCode }, { charas: 1 });
 
         return idx < rp.charas.length;
     },
 
-    async getMessage(rpid, idx) {
+    async getMessage(rpCode, idx) {
         const db = await rooms;
-        const rp = await db.findOne({ _id: rpid }, { _id: 0, msgs: { $slice: [idx, 1] } });
+        const rp = await db.findOne({ rpCode }, { _id: 0, msgs: { $slice: [idx, 1] } });
 
         return rp.msgs[0] || null;
     },
 
-    async editMessage(rpid, idx, { content, edited }) {
+    async editMessage(rpCode, idx, { content, edited }) {
         const db = await rooms;
-        await db.update({ _id: rpid }, { $set: { [`msgs.${idx}.content`]: content, [`msgs.${idx}.edited`]: edited } });
+        await db.update({ rpCode }, { $set: { [`msgs.${idx}.content`]: content, [`msgs.${idx}.edited`]: edited } });
     },
 
 });

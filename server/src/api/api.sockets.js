@@ -25,10 +25,8 @@ function onConnection(socket) {
 
     const { rpCode } = socket.handshake.query;
 
-    let rpid;
     const rpInit = model.getRp(rpCode).then((data) => {
-        rpid = data.id;
-        socket.join(rpid);
+        socket.join(rpCode);
         logger.info(`JOIN (${ip}): ${rpCode} - connection id ${socket.id}`);
         socket.emit('load rp', data.rp);
     }).catch((err) => {
@@ -68,19 +66,19 @@ function onConnection(socket) {
     });
 
     socket.on('add message', (msg, doPromise) => {
-        doPromise(model.addMessage(rpid, socket.id, msg, ipid));
+        doPromise(model.addMessage(rpCode, socket.id, msg, ipid));
     });
 
     socket.on('edit message', (editInfo, doPromise) => {
-        doPromise(model.editMessage(rpid, socket.id, editInfo, ipid));
+        doPromise(model.editMessage(rpCode, socket.id, editInfo, ipid));
     });
 
     socket.on('add image', (url, doPromise) => {
-        doPromise(model.addImage(rpid, socket.id, url, ipid));
+        doPromise(model.addImage(rpCode, socket.id, url, ipid));
     });
 
     socket.on('add character', (chara, doPromise) => {
-        doPromise(model.addChara(rpid, socket.id, chara, ipid));
+        doPromise(model.addChara(rpCode, socket.id, chara, ipid));
     });
 
     socket.on('disconnect', () => {
@@ -89,16 +87,16 @@ function onConnection(socket) {
 }
 
 function listenToModelEvents(io) {
-    model.events.on('add message', (rpid, connectionId, msg) => {
-        io.sockets.connected[connectionId].to(rpid).emit('add message', msg);
+    model.events.on('add message', (rpCode, connectionId, msg) => {
+        io.sockets.connected[connectionId].to(rpCode).emit('add message', msg);
     });
 
-    model.events.on('edit message', (rpid, connectionId, msg, id) => {
-        io.sockets.connected[connectionId].to(rpid).emit('edit message', { id, msg });
+    model.events.on('edit message', (rpCode, connectionId, msg, id) => {
+        io.sockets.connected[connectionId].to(rpCode).emit('edit message', { id, msg });
     });
 
-    model.events.on('add character', (rpid, connectionId, chara) => {
-        io.sockets.connected[connectionId].to(rpid).emit('add character', chara);
+    model.events.on('add character', (rpCode, connectionId, chara) => {
+        io.sockets.connected[connectionId].to(rpCode).emit('add character', chara);
     });
 }
 
