@@ -22,16 +22,6 @@ const msgSchema = nJ({
     ipid: [String],
     challenge: [String],
 });
-const editedMsgSchema = nJ({
-    _id: [String],
-    type: ['narrator', 'chara', 'ooc'],
-    content: [String, 10000],
-    charaId: msg => (msg.type === 'chara' ? [String] : undefined),
-    timestamp: [Number],
-    ipid: [String],
-    challenge: [String],
-    edited: [Number],
-});
 const imageMsgSchema = nJ({
     _id: [String],
     type: ['image'],
@@ -87,7 +77,7 @@ describe('basic socket.io message coverage', () => {
     let socket;
     let rpCode;
     let challenge;
-    let messageId;
+    let messageToEditLater;
     let charaId;
 
     it('will give the rp code when created', (done) => {
@@ -148,7 +138,7 @@ describe('basic socket.io message coverage', () => {
             expect(data.type).toBe('narrator');
             expect(data.content).toEqual(msg.content);
             expect(data.challenge).toEqual(challenge.hash);
-            messageId = data._id;
+            messageToEditLater = data;
             done();
         });
     });
@@ -191,11 +181,16 @@ describe('basic socket.io message coverage', () => {
     });
 
     it('edits a message', (done) => {
-        const input = { id: messageId, content: 'Edited!', secret: challenge.secret };
+        const input = { id: messageToEditLater._id, content: 'Edited!', secret: challenge.secret };
         socket.emit('edit message', input, (err, data) => {
             expect(err).toBeFalsy();
-            expect(data).toFitSchema(editedMsgSchema);
-            done();
+            expect(data).toEqual({ ...messageToEditLater, content: 'Edited!', edited: data.edited });
+
+            // make sure other users sees the right stuff
+            openRoom(rpCode, ({ rp }) => {
+                expect(rp.msgs.find(m => m._id === messageToEditLater._id)).toEqual(data);
+                done();
+            });
         });
     });
 
