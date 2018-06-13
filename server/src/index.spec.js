@@ -432,6 +432,7 @@ describe('multiple clients', () => {
                     msgs.push(data);
                     if (msgs.length < numMsgs) setTimeout(sendOne, Math.random() * 100);
                     else if (!--waiters) setTimeout(check, 1000);
+                    // TODO consider testing editing messages here
                 });
             }
 

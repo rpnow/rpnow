@@ -91,8 +91,8 @@ function listenToModelEvents(io) {
         io.sockets.connected[connectionId].to(rpCode).emit('add message', msg);
     });
 
-    model.events.on('edit message', (rpCode, connectionId, msg, id) => {
-        io.sockets.connected[connectionId].to(rpCode).emit('edit message', { id, msg });
+    model.events.on('edit message', (rpCode, connectionId, msg) => {
+        io.sockets.connected[connectionId].to(rpCode).emit('edit message', msg);
     });
 
     model.events.on('add character', (rpCode, connectionId, chara) => {

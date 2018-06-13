@@ -140,7 +140,7 @@ module.exports = ({
 
         await dao.editMessage(rpCode, editInfo.id, msg);
 
-        events.emit('edit message', rpCode, connectionId, msg, editInfo.id);
+        events.emit('edit message', rpCode, connectionId, msg);
         return msg;
     },
 });
