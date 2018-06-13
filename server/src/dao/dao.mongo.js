@@ -13,14 +13,11 @@ process.on('SIGINT', () => {
 module.exports = ({
     async getRoomByCode(rpCode) {
         const db = await rooms;
-        const rp = await db.findOne({ rpCode });
+        const rp = await db.findOne({ rpCode }, { _id: 0, rpCode: 0 });
 
         if (!rp) return null;
 
-        const data = { rp, id: rp._id };
-        delete data.rp._id;
-        delete data.rp.rpCode;
-        return data;
+        return { rp };
     },
 
     async addRoom(rpCode, { title, desc }) {
