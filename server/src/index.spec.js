@@ -14,23 +14,26 @@ const errorSchema = nJ({
     details: [{ $optional: String }],
 });
 const msgSchema = nJ({
+    _id: [String],
     type: ['narrator', 'chara', 'ooc'],
     content: [String, 10000],
-    charaId: msg => (msg.type === 'chara' ? [Number, 0, Infinity] : undefined),
+    charaId: msg => (msg.type === 'chara' ? [String] : undefined),
     timestamp: [Number],
     ipid: [String],
     challenge: [String],
 });
 const editedMsgSchema = nJ({
+    _id: [String],
     type: ['narrator', 'chara', 'ooc'],
     content: [String, 10000],
-    charaId: msg => (msg.type === 'chara' ? [Number, 0, Infinity] : undefined),
+    charaId: msg => (msg.type === 'chara' ? [String] : undefined),
     timestamp: [Number],
     ipid: [String],
     challenge: [String],
     edited: [Number],
 });
 const imageMsgSchema = nJ({
+    _id: [String],
     type: ['image'],
     url: [String],
     timestamp: [Number],
@@ -84,6 +87,8 @@ describe('basic socket.io message coverage', () => {
     let socket;
     let rpCode;
     let challenge;
+    let messageId;
+    let charaId;
 
     it('will give the rp code when created', (done) => {
         request.post({ uri: `${host}/api/rp.json`, json: true, body: { title: 'Test RP' } }, (err, res, data) => {
@@ -126,9 +131,11 @@ describe('basic socket.io message coverage', () => {
         socket.emit('add character', chara, (err, data) => {
             expect(err).toBeFalsy();
             expect(data).toFitSchema({
+                _id: [String],
                 name: ['Cassie'],
                 color: ['#ca551e'],
             });
+            charaId = data._id;
             done();
         });
     });
@@ -141,6 +148,7 @@ describe('basic socket.io message coverage', () => {
             expect(data.type).toBe('narrator');
             expect(data.content).toEqual(msg.content);
             expect(data.challenge).toEqual(challenge.hash);
+            messageId = data._id;
             done();
         });
     });
@@ -159,7 +167,7 @@ describe('basic socket.io message coverage', () => {
 
     it('accepts chara message', (done) => {
         const msg = {
-            type: 'chara', content: 'Hello!', charaId: 0, challenge: challenge.hash,
+            type: 'chara', content: 'Hello!', charaId, challenge: challenge.hash,
         };
         socket.emit('add message', msg, (err, data) => {
             expect(err).toBeFalsy();
@@ -167,7 +175,7 @@ describe('basic socket.io message coverage', () => {
             expect(data.type).toBe('chara');
             expect(data.content).toEqual(msg.content);
             expect(data.challenge).toEqual(challenge.hash);
-            expect(data.charaId).toBe(0);
+            expect(data.charaId).toBe(charaId);
             done();
         });
     });
@@ -183,7 +191,7 @@ describe('basic socket.io message coverage', () => {
     });
 
     it('edits a message', (done) => {
-        const input = { id: 0, content: 'Edited!', secret: challenge.secret };
+        const input = { id: messageId, content: 'Edited!', secret: challenge.secret };
         socket.emit('edit message', input, (err, data) => {
             expect(err).toBeFalsy();
             expect(data).toFitSchema(editedMsgSchema);
@@ -299,14 +307,15 @@ describe('Malformed data resistance within an RP', () => {
     });
 
     it('rejects non-chara message with charaId in it', (done) => {
-        socket.emit('add character', { name: 'Good Chara', color: '#123456' }, (err) => {
+        socket.emit('add character', { name: 'Good Chara', color: '#123456' }, (err, data) => {
             expect(err).toBeFalsy();
+            const charaId = data._id;
             socket.emit('add message', {
-                type: 'chara', charaId: 0, content: 'Hello', challenge: challenge.hash,
+                type: 'chara', charaId, content: 'Hello', challenge: challenge.hash,
             }, (err) => {
                 expect(err).toBeFalsy();
                 socket.emit('add message', {
-                    type: 'ooc', charaId: 0, content: 'Hello', challenge: challenge.hash,
+                    type: 'ooc', charaId, content: 'Hello', challenge: challenge.hash,
                 }, (err, data) => {
                     expect(err).toFitSchema(errorSchema);
                     expect(data).not.toBeDefined();
@@ -330,7 +339,7 @@ describe('Malformed data resistance within an RP', () => {
         });
     });
 
-    [undefined, null, false, true, {}, [], '0', -1, 2, 0.5, -0.5].forEach((badId) => {
+    [undefined, null, false, true, {}, [], 0, -1, 2, 0.5, -0.5].forEach((badId) => {
         it(`rejects edits with bad id: '${badId}'`, (done) => {
             const input = { id: badId, content: 'Edited!', secret: challenge.secret };
             socket.emit('edit message', input, (err, data) => {
@@ -452,7 +461,7 @@ describe('multiple clients', () => {
         openRoom(rpCode, (data) => {
             users.push(data);
             expect(data.rp).toFitSchema(fullRoomSchema);
-            expect(JSON.stringify(data.rp.msgs)).toEqual(JSON.stringify(chat));
+            expect(data.rp.msgs).toEqual(chat);
             done();
         });
     });
