@@ -29,12 +29,12 @@ export class RpService implements OnDestroy {
   public charasById: Map<RpCharaId, RpChara> = null;
 
   private readonly newMessagesSubject: Subject<RpMessage> = new Subject();
-  private readonly editedMessagesSubject: Subject<{msg: RpMessage, id: RpMessageId}> = new Subject();
+  private readonly editedMessagesSubject: Subject<RpMessage> = new Subject();
 
   private readonly newCharasSubject: Subject<RpChara> = new Subject();
 
   public readonly newMessages$: Observable<RpMessage>;
-  public readonly editedMessages$: Observable<{msg: RpMessage, id: RpMessageId}>;
+  public readonly editedMessages$: Observable<RpMessage>;
   public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
   public readonly messagesById$: Observable<Map<RpMessageId, RpMessage>>;
 
@@ -96,8 +96,9 @@ export class RpService implements OnDestroy {
         map(msg => (msgs: RpMessage[]) => [...msgs, msg])
       ),
       this.editedMessages$.pipe(
-        map(({id, msg}) => (msgs: RpMessage[]) => {
-          msgs.splice(id, 1, msg);
+        map(msg => (msgs: RpMessage[]) => {
+          const index = msgs.findIndex(m => m._id === msg._id);
+          if (index !== -1) msgs.splice(index, 1, msg);
           return msgs;
         })
       )
@@ -105,13 +106,12 @@ export class RpService implements OnDestroy {
 
     messageOperations$.pipe(
       scan((arr, fn: (msgs: RpMessage[]) => RpMessage[]) => fn(arr), <RpMessage[]>[]),
-      map(msgs => msgs.map((msg, id) => ({...msg, id }))) // TODO add id on server
     ).subscribe(
       this.messages$ as Subject<RpMessage[]>
     );
 
     this.messagesById$ = this.messages$.pipe(
-      map(msgs => msgs.reduce((msgMap, msg) => msgMap.set(msg.id, msg), new Map()))
+      map(msgs => msgs.reduce((msgMap, msg) => msgMap.set(msg._id, msg), new Map()))
     );
 
     this.newCharas$ = this.newCharasSubject.asObservable();
@@ -127,13 +127,12 @@ export class RpService implements OnDestroy {
 
     charaOperations$.pipe(
       scan((arr, fn: {(charas)}) => fn(arr), <RpChara[]>[]),
-      map(charas => charas.map((chara, id) => ({...chara, id }))) // TODO add id on server
     ).subscribe(
       this.charas$ as Subject<RpChara[]>
     );
 
     this.charasById$ = this.charas$.pipe(
-      map(charas => charas.reduce((charaMap, chara) => charaMap.set(chara.id, chara), new Map()))
+      map(charas => charas.reduce((charaMap, chara) => charaMap.set(chara._id, chara), new Map()))
     );
 
     // access values directly
@@ -170,7 +169,7 @@ export class RpService implements OnDestroy {
     const receivedMsg: RpMessage = await this.socketEmit('add message', msg);
     this.newMessagesSubject.next(receivedMsg);
 
-    return this.messages[this.messages.length - 1]; // TODO we can return this directly after id is returned from server
+    return receivedMsg;
   }
 
   async addChara(name: string, color: string) {
@@ -183,7 +182,7 @@ export class RpService implements OnDestroy {
     const receivedChara: RpChara = await this.socketEmit('add character', chara);
     this.newCharasSubject.next(receivedChara);
 
-    return this.charas[this.charas.length - 1]; // TODO we can return this directly after id is returned from server
+    return receivedChara;
   }
 
   async addImage(url: string) {
@@ -192,7 +191,7 @@ export class RpService implements OnDestroy {
     const receivedMsg: RpMessage = await this.socketEmit('add image', url);
     this.newMessagesSubject.next(receivedMsg);
 
-    return this.messages[this.messages.length - 1]; // TODO we can return this directly after id is returned from server
+    return receivedMsg;
   }
 
   async editMessage(id: RpMessageId, content: string) {
@@ -204,7 +203,7 @@ export class RpService implements OnDestroy {
     this.track.event('Messages', 'edit', null, content.length);
 
     const msg: RpMessage = await this.socketEmit('edit message', editInfo);
-    this.editedMessagesSubject.next({ msg, id });
+    this.editedMessagesSubject.next(msg);
   }
 
 }

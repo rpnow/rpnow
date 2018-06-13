@@ -115,7 +115,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.currentChara$ = new BehaviorSubject(initialVoice);
 
-    this.subscription2 = this.currentChara$.subscribe(voice => this.options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice.id));
+    this.subscription2 = this.currentChara$.subscribe(voice => this.options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice._id));
 
     this.messages$ = this.rp.messages$.pipe(
       scan(({firstIdx}: {firstIdx: number, msgs: RpMessage[]}, msgs: RpMessage[]) => {
@@ -140,9 +140,9 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.recentCharas$ = this.currentChara$.pipe(
       filter(chara => typeof chara !== 'string'),
       scan((arr: RpChara[], chara: RpChara) => [
-        chara, ...arr.filter(c => c.id !== chara.id)
+        chara, ...arr.filter(c => c._id !== chara._id)
       ].slice(0, 5), this.options.recentCharas.map(id => this.rp.charasById.get(id))),
-      tap((charas: RpChara[]) => this.options.recentCharas = charas.map(c => c.id)), // TODO should probably subscribe here, not use 'do' operator
+      tap((charas: RpChara[]) => this.options.recentCharas = charas.map(c => c._id)), // TODO should probably subscribe here, not use 'do' operator
       map((charas: RpChara[]) => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
 

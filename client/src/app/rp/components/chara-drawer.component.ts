@@ -105,7 +105,7 @@ export class CharaDrawerComponent {
   }
 
   isCharaSelected(chara: RpChara) {
-    return (typeof this.currentChara !== 'string') && (this.currentChara.id === chara.id);
+    return (typeof this.currentChara !== 'string') && (this.currentChara._id === chara._id);
   }
 
   hasManyCharas() {
@@ -128,7 +128,7 @@ export class CharaDrawerComponent {
   }
 
   trackById(index: number, item: RpChara) {
-    return item.id;
+    return item._id;
   }
 
 }

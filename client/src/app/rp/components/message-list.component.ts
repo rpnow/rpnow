@@ -23,11 +23,11 @@ import { RpChara } from '../models/rp-chara';
           [pressEnterToSend]="pressEnterToSend"
           [showMessageDetails]="showMessageDetails"
 
-          (editContent)="editMessage(msg.id, $event)"
+          (editContent)="editMessage(msg._id, $event)"
           (imageLoaded)="onImageLoaded()"
         ></rpn-message>
 
-        <rpn-nag *ngIf="nags.has(msg.id)"></rpn-nag>
+        <rpn-nag *ngIf="nags.has(msg._id)"></rpn-nag>
 
       </ng-container>
     </div>
@@ -51,19 +51,19 @@ export class MessageListComponent implements OnChanges {
 
   ngOnChanges() {
     if (this.showNags) {
-      for (const {id} of this.messages) {
-        if (this.idsSeen.has(id)) continue;
+      for (const {_id} of this.messages) {
+        if (this.idsSeen.has(_id)) continue;
 
-        this.idsSeen.add(id);
+        this.idsSeen.add(_id);
         if (this.idsSeen.size % 40 === 0) {
-          this.nags.add(id);
+          this.nags.add(_id);
         }
       }
     }
   }
 
   trackById(index: number, item: RpMessage) {
-    return item.id;
+    return item._id;
   }
 
   canEdit(msg: RpMessage) {
@@ -71,7 +71,7 @@ export class MessageListComponent implements OnChanges {
   }
 
   charaFor(msg: RpMessage) {
-    return this.charas && (msg.type === 'chara') ? this.charas.find(c => c.id === msg.charaId) : null;
+    return this.charas && (msg.type === 'chara') ? this.charas.find(c => c._id === msg.charaId) : null;
   }
 
   editMessage(id: string, content: string) {

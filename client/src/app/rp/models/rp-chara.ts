@@ -1,7 +1,7 @@
-export type RpCharaId = number;
+export type RpCharaId = string;
 
 export interface RpChara {
-  id?: RpCharaId;
+  _id?: RpCharaId;
   createdAt: string;
   editedAt?: string;
   name: string;
