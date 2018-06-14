@@ -12,24 +12,27 @@ services:
       - api
 
   web_build:
-    image: "node:6"
+    image: "node:8"
     working_dir: /root/client
     volumes:
       - ./client/app:/root/client/app:ro
       - ./client/bower.json:/root/client/bower.json:ro
       - ./client/gulpfile.js:/root/client/gulpfile.js:ro
       - ./client/package.json:/root/client/package.json:ro
+      - ./client/package-lock.json:/root/client/package-lock.json:ro
       - build_npm:/root/client/node_modules/
       - build_bower:/root/client/bower_components/
 
   api:
     depends_on:
       - db
-    image: "node:6"
+    image: "node:8"
     working_dir: /root/api
     volumes:
       - ./server/src:/root/api/src
+      - ./server/jasmine.json:/root/api/jasmine.json
       - ./server/package.json:/root/api/package.json
+      - ./server/package-lock.json:/root/api/package-lock.json:ro
       - api_npm:/root/api/node_modules/
     environment:
       DB_HOST: db
