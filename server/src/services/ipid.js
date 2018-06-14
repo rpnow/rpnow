@@ -5,4 +5,4 @@ module.exports.getIpid = function getIpid(ip) {
         .update(ip)
         .digest('hex')
         .substr(0, 18);
-}
+};

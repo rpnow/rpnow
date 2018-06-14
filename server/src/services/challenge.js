@@ -1,14 +1,5 @@
-const promisify = require('util').promisify;
+const { promisify } = require('util');
 const crypto = require('crypto');
-
-module.exports.generateChallenge = async function() {
-    let buf = await promisify(crypto.randomBytes)(32);
-
-    let secret = buf.toString('hex');
-    let hash = createHash(secret);
-
-    return {secret, hash};
-};
 
 function createHash(secret) {
     return crypto.createHash('sha512')
@@ -16,6 +7,19 @@ function createHash(secret) {
         .digest('hex');
 }
 
-module.exports.verifyChallenge = function(secret, hash) {
-    return createHash(secret) === hash;
-}
+module.exports = ({
+
+    async generateChallenge() {
+        const buf = await promisify(crypto.randomBytes)(32);
+
+        const secret = buf.toString('hex');
+        const hash = createHash(secret);
+
+        return { secret, hash };
+    },
+
+    verifyChallenge(secret, hash) {
+        return createHash(secret) === hash;
+    },
+
+});
