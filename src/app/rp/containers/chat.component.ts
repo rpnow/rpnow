@@ -55,6 +55,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
           [charas]="sortedCharas$|async"
           [recentCharas]="recentCharas$|async"
           [currentChara]="currentChara$|async"
+          [isInline]="(isSmall$|async) === false"
           (closeDrawer)="closeCharaSelector()"
           (setVoice)="setVoice($event)"
           (newChara)="createNewChara($event)"
@@ -91,6 +92,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   public recentCharas$: Observable<RpChara[]>;
   public isNewRp$: Observable<boolean>;
 
+  isSmall$: Observable<boolean>;
   charaDrawerMode$: Observable<'over'|'side'>;
 
   charaSelectorOpen = false;
@@ -144,8 +146,12 @@ export class ChatComponent implements OnInit, OnDestroy {
       map((charas: RpChara[]) => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
 
-    this.charaDrawerMode$ = this.breakpointObserver.observe(this.SMALL_BREAKPOINT).pipe(
-      map(state => state.matches ? 'over' : 'side')
+    this.isSmall$ = this.breakpointObserver.observe(this.SMALL_BREAKPOINT).pipe(
+      map(state => state.matches)
+    );
+
+    this.charaDrawerMode$ = this.isSmall$.pipe(
+      map(isSmall => isSmall ? 'over' : 'side')
     );
   }
 

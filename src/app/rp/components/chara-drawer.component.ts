@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input, ViewContainerRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input, ViewContainerRef, HostBinding } from '@angular/core';
 import { RpChara } from '../models/rp-chara';
 import { RpVoice } from '../models/rp-voice';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,7 +7,7 @@ import { CharaDialogComponent } from './chara-dialog.component';
 @Component({
   selector: 'rpn-chara-drawer-contents',
   template: `
-    <mat-toolbar class="flat-toolbar">
+    <mat-toolbar class="flat-toolbar" [class.shadow-toolbar]="isInline">
 
       <h1>Characters</h1>
 
@@ -84,10 +84,15 @@ export class CharaDrawerComponent {
   @Input() charas: RpChara[];
   @Input() recentCharas: RpChara[];
   @Input() currentChara: RpVoice;
+  @Input() isInline: boolean;
 
   @Output() readonly closeDrawer: EventEmitter<void> = new EventEmitter();
   @Output() readonly setVoice: EventEmitter<RpVoice> = new EventEmitter();
   @Output() readonly newChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
+
+  @HostBinding('style.background-color') get _backgroundColor() {
+    return this.isInline ? '#f5f5f5' : '';
+  }
 
   get isNarratorSelected() {
     return this.currentChara === 'narrator';
