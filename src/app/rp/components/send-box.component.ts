@@ -140,7 +140,7 @@ export class SendBoxComponent {
   showImageDialog() {
     const dialogRef = this.dialog.open(ImageDialogComponent, { viewContainerRef: this.viewContainerRef });
     dialogRef.beforeClose().subscribe(url => {
-      this.sendImage.emit(url);
+      if (url) this.sendImage.emit(url);
     });
   }
 
