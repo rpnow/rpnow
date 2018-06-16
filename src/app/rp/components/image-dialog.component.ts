@@ -63,7 +63,7 @@ export class ImageDialogComponent {
 
     this.loading = true;
 
-    // eventually we will upload an image and return its url
+    // TODO we need to actually validate whether the upload succeeds rather than just closing the dialog!
     setTimeout(() => {
       this.dialogRef.close(this.url);
     }, 250);
