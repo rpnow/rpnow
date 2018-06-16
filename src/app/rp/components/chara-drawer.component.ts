@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input, ViewContainerRef, HostBinding } from '@angular/core';
+import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input, ViewContainerRef } from '@angular/core';
 import { RpChara } from '../models/rp-chara';
 import { RpVoice } from '../models/rp-voice';
 import { MatDialog } from '@angular/material/dialog';
@@ -68,6 +68,12 @@ import { CharaDialogComponent } from './chara-dialog.component';
       flex-direction: column;
       height: 100%;
     }
+    :host-context(.mat-drawer-side) {
+      background-color: #f5f5f5;
+    }
+    :host-context(.dark-theme .mat-drawer-side) {
+      background-color: #2c2c2c;
+    }
     h1 {
       flex: 1 1 auto;
     }
@@ -89,10 +95,6 @@ export class CharaDrawerComponent {
   @Output() readonly closeDrawer: EventEmitter<void> = new EventEmitter();
   @Output() readonly setVoice: EventEmitter<RpVoice> = new EventEmitter();
   @Output() readonly newChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
-
-  @HostBinding('style.background-color') get _backgroundColor() {
-    return this.isInline ? '#f5f5f5' : '';
-  }
 
   get isNarratorSelected() {
     return this.currentChara === 'narrator';
