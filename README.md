@@ -3,7 +3,7 @@ The Dead-Simple Roleplay Chatroom Service. [beta.rpnow.net](http://beta.rpnow.ne
 
 
 ## What is this?
-Originally a passion project created for my own use in 2015, __RPNow__ has since become a popular platform for roleplaying and storytelling internationally. As of May 2017, it has delivered __9 million messages__ between __80 thousand users.__
+Originally a passion project created for my own use in 2015, __RPNow__ has since become a popular platform for roleplaying and storytelling internationally. As of May 2018, it has delivered __14 million messages__ between __100 thousand users.__
 
 This is the second iteration of the site, which is currently still in beta. It will eventually replace the current stable version, whose repository [is available here](https://github.com/rpnow/rpnow).
 
@@ -23,44 +23,37 @@ A convenience script is provided for quickly installing vendor components within
 
 
 ## Running
-RPNow can be run in two distinct modes: development and production.
+To start RPNow, use docker-compose:
 
-### Dev mode
-To run RPNow in development mode, enter the repository folder and use the following command:
+    docker-compose up -d
 
-    docker-compose up
+The `-d` flag runs `docker-compose` in detached mode, freeing up the terminal. You may leave
+it out if you don't want that behavior.
 
-Once the "build" container has finished running the 'default' gulp task, open `http://localhost:8080/` in your browser.
+Once the "build" container has exited, open `http://localhost:8080/` in your browser.
 
-To stop the dev containers, send an interrupt (press Ctrl+C) from the terminal that `docker-compose` is running in.
-
-
-### Production mode
-In a production environment, use the following command to run RPNow:
-
-    docker-compose -f docker-compose.yml -f docker-compose.production.override.yml up -d
-
-Because production mode runs the web server on port 80, you may need elevated privileges to run in production mode. (`sudo` works fine.)
-
-The `-d` flag runs `docker-compose` in detached mode, freeing up the terminal. You may leave it out if you don't want that behavior.
-
-To view the log output of the containers in detached mode, use:
-
-    docker-compose logs
-
-To stop all production containers, use:
+To stop the containers, use:
 
     docker-compose down
 
+To view the log output of the containers, use:
 
-## Debugging
-When running in dev mode, RPNow provides two additional containers to assist in debugging code.
+    docker-compose logs
 
-First, the `web_debug` container, available at `http://localhost:8181/`, serves all the static frontend files for RPNow, without doing any custom routing.
 
-Second, the `db_debug` container, available at `http://localhost:8282/`, provides the MongoDB admin web interface, Mongo-Express.
+### Admin tools
+An alternate command to enable the mongo-express admin container:
 
-These debugging containers are not created when in production mode.
+    docker-compose -f docker-compose.yml -f docker-compose.admin.yml up -d
+
+This container is available at `http://localhost:8282/`.
+
+
+### Environment variables
+Modify the behavior of RPNow by changing variables in the `.env` file, or by changing your
+actual environment variables.
+
+Keep in mind that depending on your OS, you may need elevated priviliges to run on port 80.
 
 
 ## Testing

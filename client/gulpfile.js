@@ -1,7 +1,6 @@
 const gulp = require('gulp');
 const plugins = require('gulp-load-plugins')();
 const es = require('event-stream');
-const print = require('gulp-print');
 
 const bowerFiles = require('main-bower-files');
 const bowerFilesManual = [
@@ -9,8 +8,6 @@ const bowerFilesManual = [
 ];
 
 const bustFix = '?build='+(+new Date());
-
-let devMode = process.env.RPNOW_PRODUCTION !== 'production';
 
 const paths = {
     index: './app/index.html',

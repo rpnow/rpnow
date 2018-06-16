@@ -1,0 +1,20 @@
+version: '3.2'
+
+services:
+  db:
+    networks:
+      - admin-layer
+
+  db_debug:
+    image: "mongo-express:latest"
+    depends_on:
+      - db
+    environment:
+      ME_CONFIG_MONGODB_SERVER: db
+    ports:
+      - "8282:8081"
+    networks:
+      - admin-layer
+
+networks:
+  admin-layer:
