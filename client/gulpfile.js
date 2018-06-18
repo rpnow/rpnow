@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const plugins = require('gulp-load-plugins')();
+const del = require('del');
 const es = require('event-stream');
 
 const bowerFiles = require('main-bower-files');
@@ -17,11 +18,10 @@ const paths = {
     cssStyles: './app/**/*.css',
     sassStyles: './app/**/*.scss',
     assets: ['./app/**/*.*', '!./**/*.html', '!./**/*.css', '!./**/*.scss', '!./**/*.js', '!./**/*.md'],
-    distDev: './dist.dev',
-    distProd: './dist.prod',
-    distVendorDev: './dist.dev/vendor',
-    distScriptsProd: './dist.prod/scripts',
-    distStylesProd: './dist.prod/styles'
+    dist: './dist',
+    distVendorDev: './dist/vendor',
+    distScriptsProd: './dist/scripts',
+    distStylesProd: './dist/styles'
 };
 
 let pipes = {};
@@ -43,7 +43,7 @@ pipes.validatedPartials = () => pipes.partials()
     .pipe(plugins.htmlhint.reporter())
 
 pipes.builtPartialsDev = () => pipes.validatedPartials()
-    .pipe(gulp.dest(paths.distDev))
+    .pipe(gulp.dest(paths.dist))
 
 pipes.scriptedPartials = () => pipes.validatedPartials()
     .pipe(plugins.htmlhint.failReporter())
@@ -56,7 +56,7 @@ pipes.validatedAppScripts = () => gulp.src(paths.scripts)
     // .pipe(plugins.jshint.reporter('jshint-stylish'))
 
 pipes.builtAppScriptsDev = () => pipes.validatedAppScripts()
-    .pipe(gulp.dest(paths.distDev))
+    .pipe(gulp.dest(paths.dist))
 
 pipes.builtAppScriptsProd = () =>
     es.merge(pipes.scriptedPartials(), pipes.validatedAppScripts())
@@ -72,7 +72,7 @@ pipes.appStyles = () =>
     )
 
 pipes.builtAppStylesDev = () => pipes.appStyles()
-    .pipe(gulp.dest(paths.distDev))
+    .pipe(gulp.dest(paths.dist))
 
 pipes.builtAppStylesProd = () => pipes.appStyles()
     .pipe(plugins.minifyCss())
@@ -105,7 +105,7 @@ pipes.validatedIndex = () => gulp.src(paths.index)
     // .pipe(plugins.htmlhint.reporter())
 
 pipes.builtIndexDev = () => pipes.validatedIndex()
-    .pipe(gulp.dest(paths.distDev)) // write first to get relative path for inject
+    .pipe(gulp.dest(paths.dist)) // write first to get relative path for inject
     .pipe(plugins.inject(
         pipes.builtVendorScriptsDev().pipe(pipes.orderedVendorScripts()),
         {relative: true, addSuffix: bustFix, name: 'bower'}))
@@ -118,10 +118,10 @@ pipes.builtIndexDev = () => pipes.validatedIndex()
     .pipe(plugins.inject(
         pipes.builtVendorStylesDev(),
         {relative: true, addSuffix: bustFix, name:'bower'}))
-    .pipe(gulp.dest(paths.distDev))
+    .pipe(gulp.dest(paths.dist))
 
 pipes.builtIndexProd = () => pipes.validatedIndex()
-    .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
+    .pipe(gulp.dest(paths.dist)) // write first to get relative path for inject
     .pipe(plugins.inject(
         pipes.builtVendorScriptsProd(),
         {relative: true, addSuffix: bustFix, name: 'bower'}))
@@ -135,13 +135,13 @@ pipes.builtIndexProd = () => pipes.validatedIndex()
         plugins.inject(pipes.builtAppStylesProd(),
         {relative: true, addSuffix: bustFix}))
     .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
-    .pipe(gulp.dest(paths.distProd))
+    .pipe(gulp.dest(paths.dist))
 
 pipes.assetsDev = () => gulp.src(paths.assets)
-    .pipe(gulp.dest(paths.distDev))
+    .pipe(gulp.dest(paths.dist))
 
 pipes.assetsProd = () => gulp.src(paths.assets)
-    .pipe(gulp.dest(paths.distProd))
+    .pipe(gulp.dest(paths.dist))
 
 pipes.builtAppDev = () => es.merge(
     pipes.builtIndexDev(),
@@ -154,11 +154,14 @@ pipes.builtAppProd = () => es.merge(
     pipes.assetsProd()
 )
 
+// cleanup dist folder
+gulp.task('clean', () => del.sync([paths.dist+'/**/*']))
+
 // builds a complete dev environment
-gulp.task('build-dev', pipes.builtAppDev);
+gulp.task('build-dev', ['clean'], pipes.builtAppDev);
 
 // builds a complete prod environment
-gulp.task('build-prod', pipes.builtAppProd);
+gulp.task('build-prod', ['clean'], pipes.builtAppProd);
 
 // clean, build, and watch live changes to the dev environment
 gulp.task('watch-dev', ['build-dev'], function() {

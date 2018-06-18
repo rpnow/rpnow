@@ -41,19 +41,24 @@ To view the log output of the containers, use:
     docker-compose logs
 
 
-### Admin tools
-An alternate command to enable the mongo-express admin container:
-
-    docker-compose -f docker-compose.yml -f docker-compose.admin.yml up -d
-
-This container is available at `http://localhost:8282/`.
-
-
 ### Environment variables
 Modify the behavior of RPNow by changing variables in the `.env` file, or by changing your
 actual environment variables.
 
 Keep in mind that depending on your OS, you may need elevated priviliges to run on port 80.
+
+
+### Local development
+Use this configuration for rapid development inside of Docker:
+
+    docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+This mounts `client/dist` and `server/src` inside the Node container and runs Nodemon.
+However, you'll need to run `gulp watch-dev` for the client outside of Docker yourself.
+(And, therefore, setup npm and bower dependencies there as well.)
+
+Additionally, a mongo-express container is provided for database debugging.
+This container is available at `http://localhost:8282/`.
 
 
 ## Testing

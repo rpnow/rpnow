@@ -1,9 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "postinstall": "bower prune --allow-root && bower install --allow-root",
-    "pregulp": "rm -rf dist.dev/* dist.prod/*",
-    "gulp": "gulp"
+    "bower": "bower prune --allow-root && bower install --allow-root"
   },
   "dependencies": {
     "babel-preset-env": "^1.2.2",
