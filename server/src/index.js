@@ -17,7 +17,6 @@ require('./api/api.sockets')(server);
 // static file serving + SPA routes
 const staticDir = __dirname.replace('server/src', 'client/dist');
 app.use(express.static(staticDir));
-app.get('/about', (req, res) => res.sendFile(`${staticDir}/index.html`));
 app.get('/terms', (req, res) => res.sendFile(`${staticDir}/index.html`));
 app.get('/rp/*', (req, res) => res.sendFile(`${staticDir}/index.html`));
 

@@ -6,12 +6,12 @@ WORKDIR /root/client
 COPY ./client/package.json .
 COPY ./client/package-lock.json .
 RUN npm install
-COPY ./client/bower.json .
-RUN npm run bower
 
-COPY ./client/gulpfile.js .
-COPY ./client/app ./app
-RUN npx gulp -- build-prod
+COPY ./client/angular.json .
+COPY ./client/ngsw-config.json .
+COPY ./client/tsconfig.json .
+COPY ./client/src ./src
+RUN npx ng build --prod
 
 # Backend
 FROM node:8
