@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import * as io from 'socket.io-client';
 import { ChallengeService, Challenge } from './challenge.service';
-import { API_URL } from '../../app.constants';
+import { environment } from '../../../environments/environment';
 import { Subject, ReplaySubject, Observable, merge } from 'rxjs';
 import { map, scan } from 'rxjs/operators';
 import { TrackService } from '../../track.service';
@@ -52,7 +52,7 @@ export class RpService implements OnDestroy {
     this.challenge = challengeService.challenge;
 
     // socket.io events
-    this.socket = io(API_URL, { query: `rpCode=${this.rpCode}` });
+    this.socket = io(environment.apiUrl, { query: `rpCode=${this.rpCode}` });
 
     this.loaded = new Promise((resolve, reject) => {
       this.socket.on('load rp', () => resolve(true));

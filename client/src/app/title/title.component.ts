@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { API_URL } from '../app.constants';
+import { environment } from '../../environments/environment';
 import * as coolstory from 'coolstory.js';
 import { Observable, Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
@@ -98,7 +98,7 @@ export class TitleComponent implements OnInit {
 
   public async createRp() {
     this.submitted = true;
-    const data: any = await this.http.post(API_URL + '/api/rp.json', {title: this.title, desc: this.desc}).toPromise();
+    const data: any = await this.http.post(environment.apiUrl + '/api/rp.json', {title: this.title, desc: this.desc}).toPromise();
     const rpCode = data.rpCode;
     this.router.navigate(['/rp/' + rpCode]);
   }
