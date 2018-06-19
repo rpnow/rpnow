@@ -1,0 +1,49 @@
+/* misc helper styles */
+.noselect {
+  /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css#4407335 */
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+    cursor: default;
+}
+.hovershade {
+    transition: background-color .4s cubic-bezier(.25,.8,.25,1);
+    cursor: pointer;
+}
+.light .hovershade:hover {
+    background-color: rgba(0,0,0,0.2);
+}
+.dark .hovershade:hover {
+    background-color: rgba(255,255,255,0.3);
+}
+a.link {
+    text-decoration: none;
+    border-bottom: 1px dotted rgb(124, 77, 255);
+    color: rgb(124, 77, 255);
+    opacity: 0.87;
+}
+.dark a.link {
+    color: rgb(255,193,7);
+    border-bottom-color: rgb(255,193,7);
+}
+a.link:hover {
+    opacity: 1;
+}
+article {
+    max-width: 650px;
+    margin: 40px auto;
+    line-height: 1.6;
+    font-size: 18px;
+    padding: 0 10px;
+}
+article h1, article h2, article h3 {
+    margin: 40px 0 0;
+    line-height: 1.2;
+}
+article h1 {
+    font-size: 36px;
+}

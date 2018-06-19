@@ -1,0 +1,41 @@
+version: '3.2'
+
+services:
+  # nginx:
+  #   image: nginx:1.15
+  #   restart: on-failure
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #   ports:
+  #     - "${RPNOW_PORT}:80"
+  #   networks:
+  #     - front-layer
+
+  rpnow:
+    image: rpnow/rpnow
+    build: .
+    restart: on-failure
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+    ports:
+      - "${RPNOW_PORT}:3000"
+    networks:
+      # - front-layer
+      - back-layer
+
+  db:
+    image: mongo:3.6
+    restart: on-failure
+    volumes:
+      - db_data:/data/db
+    networks:
+      - back-layer
+
+networks:
+#   front-layer:
+  back-layer:
+
+volumes:
+  db_data:

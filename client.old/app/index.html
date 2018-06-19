@@ -1,0 +1,30 @@
+<!doctype html>
+<html ng-app="rpnow" state="{{$uiState.current.name}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, height=device-height, maximum-scale=1, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <title ng-bind="ngMeta.title || 'RPNow'">RPNow</title>
+  <meta name="description" content="RPNow is a roleplay site where small groups of friends can instantly create private roleplaying chatrooms.">
+
+  <base href="/">
+
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+  <!-- bower:css -->
+  <!-- endinject -->
+  <!-- inject:css -->
+  <!-- endinject -->
+</head>
+
+<body ui-view ng-cloak ng-class="nightMode?'dark':'light'" md-theme="{{nightMode?'dark':'default'}}" md-theme-watch="true">
+
+  <!-- bower:js -->
+  <!-- endinject -->
+  <!-- inject:js -->
+  <!-- endinject -->
+</body>
+</html>

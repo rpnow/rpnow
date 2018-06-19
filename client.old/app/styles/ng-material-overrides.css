@@ -1,0 +1,25 @@
+/* override some angular-material defaults */
+md-toolbar {
+    min-height: 48px;
+}
+.md-toolbar-tools {
+    height: 48px;
+}
+md-select-menu, md-select-menu md-content {
+    max-height: 80vh;
+}
+md-select-menu.md-dark-theme md-icon {
+    color: rgba(0,0,0,0.54);
+}
+md-select-menu.md-dark-theme md-divider {
+    border-color: rgba(0,0,0, 0.12);
+}
+.md-subheader.md-default-theme, .md-subheader.md-dark-theme {
+    background-color: inherit;
+}
+md-dialog a.link {
+    word-break:break-all;
+}
+md-tooltip {
+    font-size: 16px !important;
+}

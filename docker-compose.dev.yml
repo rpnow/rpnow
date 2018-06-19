@@ -1,0 +1,26 @@
+version: '3.2'
+
+services:
+  rpnow:
+    volumes:
+      - ./client/dist:/root/client/dist:ro
+      - ./server/src:/root/server/src
+    command: npm run start-dev
+
+  db:
+    networks:
+      - admin-layer
+
+  db_debug:
+    image: "mongo-express:latest"
+    depends_on:
+      - db
+    environment:
+      ME_CONFIG_MONGODB_SERVER: db
+    ports:
+      - "8282:8081"
+    networks:
+      - admin-layer
+
+networks:
+  admin-layer:
