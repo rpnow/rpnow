@@ -2,7 +2,10 @@ const { MongoClient } = require('mongodb');
 const config = require('../config');
 
 const url = `mongodb://${config.get('DB_HOST')}/rpnow`;
-const mongoConnection = MongoClient.connect(url);
+const mongoConnection = MongoClient.connect(url).catch(() => {
+    console.error('Could not connect to mongodb');
+    process.exit(1);
+});
 const rooms = mongoConnection.then(db => db.collection('rooms'));
 
 process.on('SIGINT', () => {
