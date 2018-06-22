@@ -1,0 +1,9 @@
+*.rpnow.net {
+    tls {
+        max_certs 10
+    }
+    proxy / rpnow:3000 {
+        websocket
+        transparent
+    }
+}

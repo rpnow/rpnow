@@ -1,0 +1,6 @@
+localhost:80 {
+    proxy / rpnow:3000 {
+        websocket
+        transparent
+    }
+}
