@@ -11,6 +11,7 @@ COPY ./client/angular.json .
 COPY ./client/ngsw-config.json .
 COPY ./client/tsconfig.json .
 COPY ./client/src ./src
+COPY ./client/admin ./admin
 RUN npx ng build --prod
 
 # Backend
