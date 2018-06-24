@@ -73,7 +73,7 @@ module.exports = ({
         msg.timestamp = Date.now() / 1000;
         msg.ipid = ipid;
 
-        await dao.addMessage(rpCode, msg);
+        msg._id = await dao.addMessage(rpCode, msg);
 
         events.emit('add message', rpCode, connectionId, msg);
         return msg;
@@ -101,7 +101,7 @@ module.exports = ({
         msg.timestamp = Date.now() / 1000;
         msg.ipid = ipid;
 
-        await dao.addMessage(rpCode, msg);
+        msg._id = await dao.addMessage(rpCode, msg);
 
         events.emit('add message', rpCode, connectionId, msg);
         return msg;
@@ -115,7 +115,7 @@ module.exports = ({
             throw { code: 'BAD_CHARA', details: error.message };
         }
 
-        await dao.addChara(rpCode, chara);
+        chara._id = await dao.addChara(rpCode, chara);
 
         events.emit('add character', rpCode, connectionId, chara);
         return chara;
