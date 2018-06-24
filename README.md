@@ -24,3 +24,11 @@ RPNow just requires `docker-compose.yml` and a `Caddyfile`. Use `Caddyfile.prod`
     docker stack deploy --compose-file=docker-compose.yml rpnow
 
 This will create or update the rpnow stack.
+
+
+## Admin scripts
+Like so:
+
+    docker-compose exec rpnow node admin/migrate.js
+
+Or whichever other script you want to run.
