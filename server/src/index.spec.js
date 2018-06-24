@@ -7,7 +7,6 @@ const host = `http://localhost:${port}`;
 const io = require('socket.io-client');
 const request = require('request');
 const nJ = require('normalize-json');
-const api = require('./index');
 
 const errorSchema = nJ({
     code: [String],
@@ -469,18 +468,6 @@ describe('multiple clients', () => {
                 if (!--remainingClients) done();
             });
             user.socket.close();
-        });
-    });
-});
-
-xdescribe('web server (after running all tests)', () => {
-    xit('can be stopped', (done) => {
-        api.stop(() => {
-            const socket = io(host);
-            socket.on('connect_error', () => {
-                socket.close();
-                done();
-            });
         });
     });
 });

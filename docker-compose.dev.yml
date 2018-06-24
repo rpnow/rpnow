@@ -6,6 +6,7 @@ services:
       - ./client/dist:/root/client/dist:ro
       - ./server/src:/root/server/src:ro
       - ./server/admin:/root/server/admin:ro
+      - ./server/jasmine.json:/root/server/jasmine.json:ro
     command: npm run start-dev
 
   db:

@@ -11,6 +11,12 @@ Additionally, a mongo-express container is provided for database debugging.
 This container is available at `http://localhost:8282/`.
 
 
+## Testing
+While running in dev, run server tests with:
+
+    docker-compose exec rpnow npm test
+
+
 ## Production
 Docker Cloud is currently automatically building images from `master`, so deploying
 RPNow just requires `docker-compose.yml` and a `Caddyfile`. Use `Caddyfile.prod`, but rename it to just `Caddyfile`. Put that in a directory and run:
