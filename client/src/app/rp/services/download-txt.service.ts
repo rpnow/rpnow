@@ -40,7 +40,7 @@ export class DownloadTxtService {
       } else if (msg.type === 'ooc') {
         return wrap(`(( OOC: ${msg.content} ))`, { width: 72, indent: '', cut: true });
       } else if (msg.type === 'chara') {
-        return rp.charas[msg.charaId].name.toUpperCase() + ':\n' +
+        return rp.charasById.get(msg.charaId).name.toUpperCase() + ':\n' +
           wrap(msg.content, { width: 70, indent: '  ', cut: true });
       } else if (msg.type === 'image') {
         return `--- IMAGE ---\n${msg.url}\n-------------`;
