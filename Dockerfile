@@ -11,7 +11,6 @@ COPY ./client/angular.json .
 COPY ./client/ngsw-config.json .
 COPY ./client/tsconfig.json .
 COPY ./client/src ./src
-COPY ./client/admin ./admin
 RUN npx ng build --prod
 
 # Backend
@@ -24,6 +23,7 @@ COPY ./server/package-lock.json .
 RUN npm install
 
 COPY ./server/src ./src
+COPY ./server/admin ./admin
 COPY --from=builder /root/client/dist ../client/dist
 
 CMD npm start
