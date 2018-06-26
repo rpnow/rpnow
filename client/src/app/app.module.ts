@@ -22,7 +22,8 @@ import { TrackService } from './track.service';
     BrowserModule,
     BrowserAnimationsModule,
     MatProgressSpinnerModule,
-    ServiceWorkerModule.register('/ngsw-worker.js', {enabled: environment.production}),
+    // TODO re-enable service worker someday
+    // ServiceWorkerModule.register('/ngsw-worker.js', {enabled: environment.production}),
     TitleModule,
     AppRoutingModule,
     Angulartics2Module.forRoot([Angulartics2GoogleAnalytics])
