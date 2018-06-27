@@ -8,8 +8,14 @@ services:
       - caddy_certs:/etc/caddycerts
       - ./Caddyfile:/etc/Caddyfile:ro
     ports:
-      - "${RPNOW_PORT-80}:80"
-      - "${RPNOW_SSL_PORT-443}:443"
+      - mode: host # mode:host required to get correct client ip from docker swarm
+        protocol: tcp
+        published: "${RPNOW_PORT-80}"
+        target: 80
+      - mode: host # mode:host required to get correct client ip from docker swarm
+        protocol: tcp
+        published: "${RPNOW_SSL_PORT-443}"
+        target: 443
     networks:
       - front-layer
     # http2 is off because... no websockets in http2!

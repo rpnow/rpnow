@@ -1,9 +1,13 @@
 *.rpnow.net {
-    tls {
-        max_certs 10
+    realip {
+        from 10.0.0.0/8
+        from 172.16.0.0/12
     }
     proxy / rpnow:3000 {
         websocket
         transparent
+    }
+    tls {
+        max_certs 10
     }
 }
