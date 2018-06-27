@@ -64,10 +64,10 @@ export class ContactDialogComponent {
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
   ) {
-    iconRegistry.addSvgIcon('facebook', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/facebook.svg'));
-    iconRegistry.addSvgIcon('twitter', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/twitter.svg'));
-    iconRegistry.addSvgIcon('tumblr', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/tumblr.svg'));
-    iconRegistry.addSvgIcon('discord', sanitizer.bypassSecurityTrustResourceUrl('/assets/img/discord.svg'));
+    iconRegistry.addSvgIcon('facebook', sanitizer.bypassSecurityTrustResourceUrl('/client-files/assets/img/facebook.svg'));
+    iconRegistry.addSvgIcon('twitter', sanitizer.bypassSecurityTrustResourceUrl('/client-files/assets/img/twitter.svg'));
+    iconRegistry.addSvgIcon('tumblr', sanitizer.bypassSecurityTrustResourceUrl('/client-files/assets/img/tumblr.svg'));
+    iconRegistry.addSvgIcon('discord', sanitizer.bypassSecurityTrustResourceUrl('/client-files/assets/img/discord.svg'));
   }
 
 }

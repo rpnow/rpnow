@@ -17,7 +17,8 @@ require('./api/api.sockets')(server);
 // static file serving + SPA routes
 const staticRoutes = new express.Router();
 const staticDir = __dirname.replace('server/src', 'client/dist/rpnow');
-staticRoutes.use(express.static(staticDir));
+staticRoutes.use('/client-files', express.static(staticDir));
+staticRoutes.get('/', (req, res) => res.sendFile(`${staticDir}/index.html`));
 staticRoutes.get('/terms', (req, res) => res.sendFile(`${staticDir}/index.html`));
 staticRoutes.get('/rp/*', (req, res) => res.sendFile(`${staticDir}/index.html`));
 app.use(staticRoutes);

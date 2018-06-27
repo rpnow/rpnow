@@ -5,7 +5,7 @@ import { DOCUMENT } from '@angular/common';
 import { Observable, Subscription, interval, fromEvent, merge } from 'rxjs';
 import { filter, tap, switchMap, map, takeUntil } from 'rxjs/operators';
 
-const audioDir = '/assets/sounds/';
+const audioDir = '/client-files/assets/sounds/';
 
 export const noises = [
   {'name': 'Off', 'audio': null},

@@ -15,7 +15,7 @@ export class DownloadDocxService {
     private track: TrackService
   ) { }
 
-  private docxTemplateRequest = this.http.get('/assets/template.docx', {responseType: 'blob'}).toPromise();
+  private docxTemplateRequest = this.http.get('/client-files/assets/template.docx', {responseType: 'blob'}).toPromise();
 
   public downloadDocx(includeOOC: boolean) {
     this.track.event('Download', 'docx', includeOOC ? 'ooc: yes' : 'ooc: no', this.rp.messages.length);
