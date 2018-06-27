@@ -2,7 +2,6 @@ const logger = require('./services/logger');
 const config = require('./config');
 const express = require('express');
 const { createServer } = require('http');
-const compression = require('compression');
 
 logger.debug('Starting RPNow API...');
 
@@ -18,7 +17,6 @@ require('./api/api.sockets')(server);
 // static file serving + SPA routes
 const staticRoutes = new express.Router();
 const staticDir = __dirname.replace('server/src', 'client/dist/rpnow');
-staticRoutes.use(compression());
 staticRoutes.use(express.static(staticDir));
 staticRoutes.get('/terms', (req, res) => res.sendFile(`${staticDir}/index.html`));
 staticRoutes.get('/rp/*', (req, res) => res.sendFile(`${staticDir}/index.html`));
