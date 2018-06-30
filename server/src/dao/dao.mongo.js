@@ -36,6 +36,30 @@ module.exports = ({
         return { rp };
     },
 
+    async getPage(rpCode, skip, limit) {
+        const db = await connection;
+        const rpCodeData = (await db.collection('rpCodes').findOne({ _id: rpCode }));
+
+        if (!rpCodeData) return null;
+
+        const { roomId } = rpCodeData;
+
+        const page = {
+            ...(await db.collection('rooms')
+                .findOne({ _id: roomId }, { _id: 0 })),
+            msgs: await db.collection('messages')
+                .find({ roomId }, { roomId: 0 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            charas: await db.collection('charas')
+                .find({ roomId }, { roomId: 0 })
+                .toArray(),
+        };
+
+        return { page };
+    },
+
     async addRoom(rpCode, roomOptions) {
         const db = await connection;
         const { insertedId } = await db.collection('rooms').insertOne(roomOptions);

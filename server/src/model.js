@@ -55,6 +55,19 @@ module.exports = ({
         return data;
     },
 
+    async getPage(rpCode, pageNum) {
+        if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
+        if (typeof pageNum !== 'number') throw { code: 'BAD_PAGE' };
+
+        const limit = 20;
+        const skip = (pageNum - 1) * limit;
+
+        const data = await dao.getPage(rpCode, skip, limit);
+        if (!data) throw { code: 'RP_NOT_FOUND' };
+
+        return data;
+    },
+
     async addMessage(rpCode, connectionId, input, ipid) {
         let msg;
         try {

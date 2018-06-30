@@ -24,6 +24,12 @@ router.get('/challenge.json', (req, res, next) => {
         .catch(err => next(err));
 });
 
+router.get('/rp/:rpCode([0-9a-zA-Z]+)/page/:pageNum([1-9][0-9]{0,})', (req, res, next) => {
+    model.getPage(req.params.rpCode, +req.params.pageNum)
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err));
+});
+
 router.all('*', (req, res, next) => {
     next({ code: 'UNKNOWN_REQUEST' });
 });
