@@ -44,7 +44,7 @@ module.exports = ({
 
         const { roomId } = rpCodeData;
 
-        const page = {
+        return {
             ...(await db.collection('rooms')
                 .findOne({ _id: roomId }, { _id: 0 })),
             msgs: await db.collection('messages')
@@ -55,9 +55,9 @@ module.exports = ({
             charas: await db.collection('charas')
                 .find({ roomId }, { roomId: 0 })
                 .toArray(),
+            msgCount: await db.collection('messages')
+                .count({ roomId }),
         };
-
-        return { page };
     },
 
     async addRoom(rpCode, roomOptions) {

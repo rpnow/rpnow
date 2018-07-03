@@ -65,7 +65,9 @@ module.exports = ({
         const data = await dao.getPage(rpCode, skip, limit);
         if (!data) throw { code: 'RP_NOT_FOUND' };
 
-        return data;
+        const pageCount = Math.ceil(data.msgCount / limit);
+
+        return { ...data, pageCount };
     },
 
     async addMessage(rpCode, connectionId, input, ipid) {
