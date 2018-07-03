@@ -12,6 +12,7 @@ import { Subscription, Observable, combineLatest } from 'rxjs';
 import { BannerMessageService } from '../services/banner-message.service';
 import { tap } from 'rxjs/operators';
 import { RpCodeService } from '../services/rp-code.service';
+import { RoomService } from '../services/room.service';
 
 @Component({
   selector: 'rpn-room',
@@ -71,6 +72,7 @@ import { RpCodeService } from '../services/rp-code.service';
     MainMenuService,
     NotifyService,
     OptionsService,
+    RoomService,
     RpService,
     RpCodeService
   ],

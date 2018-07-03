@@ -1,22 +1,24 @@
 import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RpService } from '../services/rp.service';
-import { Observable,  combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
-import { RpMessage, RpMessageId } from '../models/rp-message';
+import { RpMessageId } from '../models/rp-message';
+import { RpPageResponse, RoomService } from '../services/room.service';
+import { RpCodeService } from '../services/rp-code.service';
+import { Observable, merge, of } from 'rxjs';
+import { map, switchMap, share } from 'rxjs/operators';
 
 @Component({
   selector: 'rpn-archive',
   template: `
-    <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
+    <rpn-title-bar [title]="(pageInfo$|async)?.title" [desc]="(pageInfo$|async)?.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
-    <rpn-paginator [pageNum]="pageNum$|async" [pageCount]="pageCount$|async" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
+    <rpn-paginator [pageNum]="(pageNum$|async)" [pageCount]="(pageInfo$|async)?.pageCount" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
 
     <rpn-message-list class="flex-scroll-container" #messageContainer
-      [messages]="messages$|async"
-      [charas]="rp.charas$|async"
+      [messages]="(pageInfo$|async)?.msgs"
+      [charas]="(pageInfo$|async)?.charas"
       [challenge]="(options.challenge$|async).hash"
       [showMessageDetails]="options.showMessageDetails$|async"
       [pressEnterToSend]="options.pressEnterToSend$|async"
@@ -37,14 +39,13 @@ export class ArchiveComponent implements OnInit {
 
   @ViewChild('messageContainer', { read: ElementRef }) messageContainer: ElementRef;
 
-  public readonly size: number = 20;
-
-  public pageNum$: Observable<number>;
-  public pageCount$: Observable<number>;
-  public messages$: Observable<RpMessage[]>;
+  pageNum$: Observable<number>;
+  pageInfo$: Observable<RpPageResponse>;
 
   constructor(
-    public rp: RpService,
+    private rp: RpService,
+    private rpCodeService: RpCodeService,
+    private roomService: RoomService,
     public options: OptionsService,
     public mainMenuService: MainMenuService,
     private route: ActivatedRoute,
@@ -56,14 +57,12 @@ export class ArchiveComponent implements OnInit {
       map(params => +params.get('page'))
     );
 
-    this.pageCount$ = this.rp.messages$.pipe(
-      map(msgs => Math.ceil(msgs.length / this.size))
-    );
-
-    this.messages$ = combineLatest(
-      this.rp.messages$,
-      this.pageNum$,
-      (msgs, page) => msgs.slice((page - 1) * this.size, page * this.size)
+    this.pageInfo$ = this.pageNum$.pipe(
+      switchMap(pageNum => merge(
+        of(null),
+        this.roomService.getPage(this.rpCodeService.rpCode, pageNum)
+      )),
+      share()
     );
   }
 
