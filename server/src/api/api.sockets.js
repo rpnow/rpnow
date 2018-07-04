@@ -25,10 +25,10 @@ function onConnection(socket) {
 
     const { rpCode } = socket.handshake.query;
 
-    const rpInit = model.getWholeRp(rpCode).then((data) => {
+    const rpInit = model.getLatest(rpCode).then((data) => {
         socket.join(rpCode);
         logger.info(`JOIN (${ip}): ${rpCode} - connection id ${socket.id}`);
-        socket.emit('load rp', data.rp);
+        socket.emit('load rp', data);
     }).catch((err) => {
         logger.info(`JERR (${ip}): ${rpCode} ${(err && err.code) || err}`);
         socket.emit('rp error', err);

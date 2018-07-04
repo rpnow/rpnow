@@ -70,6 +70,15 @@ module.exports = ({
         return { ...data, pageCount };
     },
 
+    async getLatest(rpCode) {
+        if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
+
+        const data = await dao.getLatest(rpCode, 60);
+        if (!data) throw { code: 'RP_NOT_FOUND' };
+
+        return data;
+    },
+
     async addMessage(rpCode, connectionId, input, ipid) {
         let msg;
         try {

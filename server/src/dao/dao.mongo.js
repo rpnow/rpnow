@@ -60,6 +60,29 @@ module.exports = ({
         };
     },
 
+    async getLatest(rpCode, msgCount) {
+        const db = await connection;
+        const rpCodeData = (await db.collection('rpCodes').findOne({ _id: rpCode }));
+
+        if (!rpCodeData) return null;
+
+        const { roomId } = rpCodeData;
+
+        return {
+            ...(await db.collection('rooms')
+                .findOne({ _id: roomId }, { _id: 0 })),
+            msgs: (await db.collection('messages')
+                .find({ roomId }, { roomId: 0 })
+                .sort({ _id: -1 })
+                .limit(msgCount)
+                .toArray())
+                .reverse(),
+            charas: await db.collection('charas')
+                .find({ roomId }, { roomId: 0 })
+                .toArray(),
+        };
+    },
+
     async addRoom(rpCode, roomOptions) {
         const db = await connection;
         const { insertedId } = await db.collection('rooms').insertOne(roomOptions);
