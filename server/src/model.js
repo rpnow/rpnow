@@ -46,7 +46,7 @@ module.exports = ({
         return { rpCode };
     },
 
-    async getRp(rpCode) {
+    async getWholeRp(rpCode) {
         if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
 
         const data = await dao.getRoomByCode(rpCode);

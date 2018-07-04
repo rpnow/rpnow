@@ -25,7 +25,7 @@ function onConnection(socket) {
 
     const { rpCode } = socket.handshake.query;
 
-    const rpInit = model.getRp(rpCode).then((data) => {
+    const rpInit = model.getWholeRp(rpCode).then((data) => {
         socket.join(rpCode);
         logger.info(`JOIN (${ip}): ${rpCode} - connection id ${socket.id}`);
         socket.emit('load rp', data.rp);
