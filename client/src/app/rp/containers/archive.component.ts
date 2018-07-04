@@ -19,7 +19,7 @@ import { map, switchMap, share } from 'rxjs/operators';
     <rpn-message-list class="flex-scroll-container" #messageContainer
       [messages]="(pageInfo$|async)?.msgs"
       [charas]="(pageInfo$|async)?.charas"
-      [challenge]="(options.challenge$|async).hash"
+      [challenge]="null"
       [showMessageDetails]="options.showMessageDetails$|async"
       [pressEnterToSend]="options.pressEnterToSend$|async"
       (editMessageContent)="editMessageContent($event[0], $event[1])"
@@ -76,7 +76,8 @@ export class ArchiveComponent implements OnInit {
   }
 
   editMessageContent(id: RpMessageId, content: string) {
-    this.rp.editMessage(id, content);
+    // TODO make it possible to edit from the archive again
+    // this.rp.editMessage(id, content);
   }
 
 }
