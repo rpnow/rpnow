@@ -16,14 +16,21 @@ import { map, switchMap, share } from 'rxjs/operators';
 
     <rpn-paginator [pageNum]="(pageNum$|async)" [pageCount]="(pageInfo$|async)?.pageCount" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
 
-    <rpn-message-list class="flex-scroll-container" #messageContainer
-      [messages]="(pageInfo$|async)?.msgs"
-      [charas]="(pageInfo$|async)?.charas"
-      [challenge]="null"
-      [showMessageDetails]="options.showMessageDetails$|async"
-      [pressEnterToSend]="options.pressEnterToSend$|async"
-      (editMessageContent)="editMessageContent($event[0], $event[1])"
-    ></rpn-message-list>
+    <ng-container *ngIf="pageInfo$|async as pageInfo">
+      <rpn-message-list class="flex-scroll-container" #messageContainer
+        [messages]="pageInfo.msgs"
+        [charas]="pageInfo.charas"
+        [challenge]="null"
+        [showMessageDetails]="options.showMessageDetails$|async"
+        [pressEnterToSend]="options.pressEnterToSend$|async"
+        (editMessageContent)="editMessageContent($event[0], $event[1])"
+      ></rpn-message-list>
+    </ng-container>
+
+    <div *ngIf="(pageInfo$|async) == null" class="center-contents">
+      <p>Loading page {{ pageNum$|async }}...</p>
+      <mat-spinner></mat-spinner>
+    </div>
   `,
   styles: [`
     :host {
@@ -31,6 +38,14 @@ import { map, switchMap, share } from 'rxjs/operators';
       display: flex;
       flex-direction: column;
       box-sizing: border-box;
+    }
+    .center-contents {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 20px;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
