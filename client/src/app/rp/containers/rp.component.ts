@@ -6,7 +6,6 @@ import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
-import { NotifyService } from '../services/notify.service';
 import { ChallengeService } from '../services/challenge.service';
 import { Subscription, Observable, combineLatest } from 'rxjs';
 import { BannerMessageService } from '../services/banner-message.service';
@@ -48,6 +47,8 @@ import { RoomService } from '../services/room.service';
       </mat-sidenav-content>
 
     </mat-sidenav-container>
+
+    <rpn-notify [lastMessage]="rp.newMessages$|async" [charasById]="rp.charasById$|async"></rpn-notify>
   `,
   styles: [`
     mat-sidenav-container {
@@ -70,7 +71,6 @@ import { RoomService } from '../services/room.service';
     BannerMessageService,
     ChallengeService,
     MainMenuService,
-    NotifyService,
     OptionsService,
     RoomService,
     RpService,
@@ -93,7 +93,6 @@ export class RpComponent implements OnInit, OnDestroy {
     @Inject(DOCUMENT) private document: Document,
     private title: Title,
     private bannerService: BannerMessageService,
-    notifyService: NotifyService // included so that it automatically starts working
   ) { }
 
   ngOnInit() {

@@ -45,6 +45,7 @@ import { MessageListComponent } from './components/message-list.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { WelcomeComponent } from './components/welcome.component';
 import { NagComponent } from './components/nag.component';
+import { NotifyComponent } from './components/notify.component';
 
 
 @NgModule({
@@ -72,7 +73,8 @@ import { NagComponent } from './components/nag.component';
     TimestampComponent,
     MessageListComponent,
     WelcomeComponent,
-    NagComponent
+    NagComponent,
+    NotifyComponent
   ],
   imports: [
     CommonModule,

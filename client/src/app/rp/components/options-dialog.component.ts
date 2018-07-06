@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { OptionsService } from '../services/options.service';
-import { noises } from '../services/notify.service';
+import { noises } from '../models/noises';
 
 @Component({
   template: `
