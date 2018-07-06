@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RpService } from '../services/rp.service';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { RpMessageId } from '../models/rp-message';
@@ -58,7 +57,6 @@ export class ArchiveComponent implements OnInit {
   pageInfo$: Observable<RpPageResponse>;
 
   constructor(
-    private rp: RpService,
     private rpCodeService: RpCodeService,
     private roomService: RoomService,
     public options: OptionsService,
