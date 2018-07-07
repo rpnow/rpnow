@@ -21,8 +21,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 
         <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
 
-        <div class="flex-scroll-container" style="z-index:-1" #messageContainer (scroll)="onScroll()">
-
+        <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
           <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
 
           <rpn-message-list
@@ -33,10 +32,9 @@ import { BreakpointObserver } from '@angular/cdk/layout';
             [pressEnterToSend]="options.pressEnterToSend$|async"
             [showNags]="true"
             (editMessageContent)="editMessageContent($event[0], $event[1])"
-            (imageLoaded)="updateScroll()"
+            (imageLoaded)="scrollAnchor.checkHeight()"
           ></rpn-message-list>
-
-        </div>
+        </rpn-scroll-anchor>
 
         <rpn-send-box
           [(content)]="options.msgBoxContent"
@@ -78,13 +76,10 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
 
-  @ViewChild('messageContainer') messageContainer: ElementRef;
-  private el: HTMLDivElement;
-
   private subscription: Subscription;
   private subscription2: Subscription;
 
-  private atBottom = true;
+  public atBottom: boolean;
 
   public messages$: Observable<RpMessage[]>;
   public currentChara$: BehaviorSubject<RpVoice>;
@@ -107,8 +102,6 @@ export class ChatComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.el = this.messageContainer.nativeElement as HTMLDivElement;
-
     const initialVoice = isSpecialVoice(this.options.msgBoxVoice) ?
       this.options.msgBoxVoice as RpVoice :
       this.rp.charasById.get(this.options.msgBoxVoice as RpCharaId);
@@ -130,8 +123,14 @@ export class ChatComponent implements OnInit, OnDestroy {
       map(msgs => msgs.length === 0)
     );
 
-    this.subscription = this.rp.newMessages$.subscribe(() => this.updateScroll());
-    this.updateScroll();
+    this.subscription = this.rp.newMessages$.subscribe(() => {
+      if (!this.atBottom) {
+        this.snackbar.open('New messages below!', 'Close', {
+          duration: 2000,
+          verticalPosition: 'top'
+        });
+      }
+    });
 
     this.sortedCharas$ = this.rp.charas$.pipe(
       map(charas => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
@@ -153,24 +152,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.charaDrawerMode$ = this.isSmall$.pipe(
       map(isSmall => isSmall ? 'over' : 'side')
     );
-  }
-
-  onScroll() {
-    // 31 is because the padding on the rp message list is 20+10.
-    // So, this comparison needs to be greater than 30 for the initial page load
-    // Not sure why exactly.
-    this.atBottom = (this.el.scrollHeight - this.el.scrollTop - this.el.offsetHeight < 31);
-  }
-
-  updateScroll() {
-    if (this.atBottom) {
-      setTimeout(() => this.el.scrollTop = this.el.scrollHeight, 1);
-    } else {
-      this.snackbar.open('New messages below!', 'Close', {
-        duration: 2000,
-        verticalPosition: 'top'
-      });
-    }
   }
 
   ngOnDestroy() {

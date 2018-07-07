@@ -46,6 +46,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { WelcomeComponent } from './components/welcome.component';
 import { NagComponent } from './components/nag.component';
 import { NotifyComponent } from './components/notify.component';
+import { ScrollAnchorComponent } from './components/scroll-anchor.component';
 
 
 @NgModule({
@@ -74,7 +75,8 @@ import { NotifyComponent } from './components/notify.component';
     MessageListComponent,
     WelcomeComponent,
     NagComponent,
-    NotifyComponent
+    NotifyComponent,
+    ScrollAnchorComponent
   ],
   imports: [
     CommonModule,
