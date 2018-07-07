@@ -6,7 +6,8 @@ import { RpMessageId } from '../models/rp-message';
 import { RpPageResponse, RoomService } from '../services/room.service';
 import { RpCodeService } from '../services/rp-code.service';
 import { Observable, merge, of } from 'rxjs';
-import { map, switchMap, share } from 'rxjs/operators';
+import { map, switchMap, share, tap } from 'rxjs/operators';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'rpn-archive',
@@ -58,6 +59,7 @@ export class ArchiveComponent implements OnInit {
 
   constructor(
     private rpCodeService: RpCodeService,
+    private title: Title,
     private roomService: RoomService,
     public options: OptionsService,
     public mainMenuService: MainMenuService,
@@ -75,7 +77,14 @@ export class ArchiveComponent implements OnInit {
         of(null),
         this.roomService.getPage(this.rpCodeService.rpCode, pageNum)
       )),
-      share()
+      share(),
+      tap(info => {
+        if (info == null) {
+          this.title.setTitle('Loading... | RPNow');
+        } else {
+          this.title.setTitle(info.title + ' | RPNow');
+        }
+      })
     );
   }
 

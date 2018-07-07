@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { RpService } from '../services/rp.service';
-import { MatSidenav } from '@angular/material/sidenav';
 import { Subscription, Observable, BehaviorSubject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { scan, map, filter, tap, first } from 'rxjs/operators';
@@ -11,6 +10,8 @@ import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpVoice, isSpecialVoice } from '../models/rp-voice';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { Title } from '@angular/platform-browser';
+import { ChallengeService } from '../services/challenge.service';
 
 @Component({
   selector: 'rpn-chat',
@@ -19,31 +20,46 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 
       <mat-sidenav-content>
 
-        <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
+        <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" class="center-contents">
+          <p>Loading your RP...</p>
+          <mat-spinner></mat-spinner>
+        </div>
 
-        <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
-          <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
+        <div *ngIf="rp.notFound|async" class="center-contents">
+          <h1>RP Not Found!</h1>
 
-          <rpn-message-list
-            [messages]="messages$|async"
-            [charas]="rp.charas$|async"
-            [challenge]="(options.challenge$|async).hash"
-            [showMessageDetails]="options.showMessageDetails$|async"
+          <p>We couldn't find an RP at <code>/rp/{{ rp.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
+
+          <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
+        </div>
+
+        <ng-container *ngIf="rp.loaded|async">
+          <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
+
+          <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
+            <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
+
+            <rpn-message-list
+              [messages]="messages$|async"
+              [charas]="rp.charas$|async"
+              [challenge]="(options.challenge$|async).hash"
+              [showMessageDetails]="options.showMessageDetails$|async"
+              [pressEnterToSend]="options.pressEnterToSend$|async"
+              [showNags]="true"
+              (editMessageContent)="editMessageContent($event[0], $event[1])"
+              (imageLoaded)="scrollAnchor.checkHeight()"
+            ></rpn-message-list>
+          </rpn-scroll-anchor>
+
+          <rpn-send-box
+            [(content)]="options.msgBoxContent"
+            [voice]="currentChara$|async"
             [pressEnterToSend]="options.pressEnterToSend$|async"
-            [showNags]="true"
-            (editMessageContent)="editMessageContent($event[0], $event[1])"
-            (imageLoaded)="scrollAnchor.checkHeight()"
-          ></rpn-message-list>
-        </rpn-scroll-anchor>
-
-        <rpn-send-box
-          [(content)]="options.msgBoxContent"
-          [voice]="currentChara$|async"
-          [pressEnterToSend]="options.pressEnterToSend$|async"
-          (sendMessage)="sendMessage($event[0],$event[1])"
-          (sendImage)="sendImage($event)"
-          (changeChara)="toggleCharaSelector()"
-        ></rpn-send-box>
+            (sendMessage)="sendMessage($event[0],$event[1])"
+            (sendImage)="sendImage($event)"
+            (changeChara)="toggleCharaSelector()"
+          ></rpn-send-box>
+        </ng-container>
 
       </mat-sidenav-content>
 
@@ -62,6 +78,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
       </mat-sidenav>
 
     </mat-sidenav-container>
+
+    <rpn-notify [lastMessage]="rp.newMessages$|async" [charasById]="rp.charasById$|async"></rpn-notify>
   `,
   styles: [`
     :host, mat-sidenav-container, mat-sidenav-content {
@@ -69,7 +87,19 @@ import { BreakpointObserver } from '@angular/cdk/layout';
       display: flex;
       flex-direction: column;
     }
+    .center-contents {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 20px;
+    }
   `],
+  providers: [
+    ChallengeService,
+    RpService,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatComponent implements OnInit, OnDestroy {
@@ -94,6 +124,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   constructor(
     public rp: RpService,
+    private title: Title,
     public options: OptionsService,
     private mainMenuService: MainMenuService,
     private snackbar: MatSnackBar,
@@ -102,6 +133,12 @@ export class ChatComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.title.setTitle('Loading... | RPNow');
+    this.rp.loaded.then(found => {
+      if (found) this.title.setTitle(this.rp.title + ' | RPNow');
+      else this.title.setTitle('Not Found | RPNow');
+    });
+
     const initialVoice = isSpecialVoice(this.options.msgBoxVoice) ?
       this.options.msgBoxVoice as RpVoice :
       this.rp.charasById.get(this.options.msgBoxVoice as RpCharaId);
