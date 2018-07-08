@@ -1,13 +1,13 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { RpService } from '../services/rp.service';
-import { Subscription, Observable, BehaviorSubject } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scan, map, filter, tap, first } from 'rxjs/operators';
+import { scan, map, first, combineLatest } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';
-import { RpChara, RpCharaId } from '../models/rp-chara';
+import { RpChara } from '../models/rp-chara';
 import { RpVoice, isSpecialVoice } from '../models/rp-voice';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Title } from '@angular/platform-browser';
@@ -107,12 +107,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
 
   private subscription: Subscription;
-  private subscription2: Subscription;
 
   public atBottom: boolean;
 
   public messages$: Observable<RpMessage[]>;
-  public currentChara$: BehaviorSubject<RpVoice>;
+  public currentChara$: Observable<RpVoice>;
   public sortedCharas$: Observable<RpChara[]>;
   public recentCharas$: Observable<RpChara[]>;
   public isNewRp$: Observable<boolean>;
@@ -139,13 +138,13 @@ export class ChatComponent implements OnInit, OnDestroy {
       else this.title.setTitle('Not Found | RPNow');
     });
 
-    const initialVoice = isSpecialVoice(this.options.msgBoxVoice) ?
-      this.options.msgBoxVoice as RpVoice :
-      this.rp.charasById.get(this.options.msgBoxVoice as RpCharaId);
-
-    this.currentChara$ = new BehaviorSubject(initialVoice);
-
-    this.subscription2 = this.currentChara$.subscribe(voice => this.options.msgBoxVoice$.next(typeof voice === 'string' ? voice : voice._id));
+    this.currentChara$ = this.options.msgBoxVoice$.pipe(
+      combineLatest(this.rp.charasById$, (msgBoxVoice, charasById) => {
+        return isSpecialVoice(msgBoxVoice) ?
+          msgBoxVoice :
+          charasById.get(msgBoxVoice);
+      })
+    );
 
     this.messages$ = this.rp.messages$.pipe(
       scan(({firstIdx}: {firstIdx: number, msgs: RpMessage[]}, msgs: RpMessage[]) => {
@@ -173,13 +172,11 @@ export class ChatComponent implements OnInit, OnDestroy {
       map(charas => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
 
-    this.recentCharas$ = this.currentChara$.pipe(
-      filter(chara => typeof chara !== 'string'),
-      scan((arr: RpChara[], chara: RpChara) => [
-        chara, ...arr.filter(c => c._id !== chara._id)
-      ].slice(0, 5), this.options.recentCharas.map(id => this.rp.charasById.get(id))),
-      tap((charas: RpChara[]) => this.options.recentCharas = charas.map(c => c._id)), // TODO should probably subscribe here, not use 'do' operator
-      map((charas: RpChara[]) => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
+    this.recentCharas$ = this.options.recentCharas$.pipe(
+      combineLatest(this.rp.charasById$, (recentCharas, charasById) => {
+        return recentCharas.map(id => charasById.get(id));
+      }),
+      map(charas => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
 
     this.isSmall$ = this.breakpointObserver.observe(this.SMALL_BREAKPOINT).pipe(
@@ -193,7 +190,6 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
-    this.subscription2.unsubscribe();
   }
 
   openMenu() {
@@ -217,14 +213,22 @@ export class ChatComponent implements OnInit, OnDestroy {
   async createNewChara($event: {name: string, color: string}) {
     this.closeCharaSelectorIfOverlay();
     const chara = await this.rp.addChara($event.name, $event.color);
-    this.currentChara$.next(chara);
+    this.options.msgBoxVoice = chara._id;
+    this.updateRecentCharas(chara);
   }
 
   setVoice(voice: RpVoice) {
     this.track.event('Charas', 'pick', typeof voice === 'string' ? voice : 'chara');
 
-    this.currentChara$.next(voice);
+    this.options.msgBoxVoice = isSpecialVoice(voice) ? voice : voice._id;
+    if (!isSpecialVoice(voice)) this.updateRecentCharas(voice);
     this.closeCharaSelectorIfOverlay();
+  }
+
+  private updateRecentCharas(chara: RpChara) {
+    this.options.recentCharas = [
+      chara._id, ...this.options.recentCharas.filter(id => id !== chara._id)
+    ].slice(0, 5);
   }
 
   async sendMessage(content: string, voice: RpChara) {

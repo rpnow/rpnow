@@ -4,7 +4,7 @@ export type RpVoice = RpChara|'narrator'|'ooc';
 
 export type RpVoiceSerialized = RpCharaId|'narrator'|'ooc';
 
-export function isSpecialVoice(voiceStr: RpVoice|RpVoiceSerialized): boolean {
+export function isSpecialVoice(voiceStr: RpVoice|RpVoiceSerialized): voiceStr is 'narrator'|'ooc' {
   return voiceStr === 'narrator' || voiceStr === 'ooc';
 }
 
