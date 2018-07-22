@@ -29,6 +29,22 @@ const tests: { [testName: string]: [string, string|null, string][] } = {
     ['Time to __Test__ this', null, 'Time to <b>Test</b> this'],
   ],
 
+  '___both___': [
+    ['___Test___', null, '<b><i>Test</i></b>'],
+    ['Time to ___Test___ this', null, 'Time to <b><i>Test</i></b> this'],
+  ],
+
+  'bold in italics': [
+    ['_italics __bold__ italics_', null, '<i>italics <b>bold</b> italics</i>'],
+    ['/italics __bold__ italics/', null, '<i>italics <b>bold</b> italics</i>'],
+    ['_italics __bold___', null, '<i>italics <b>bold</b></i>'],
+  ],
+
+  'italics in bold': [
+    ['__bold _italics_ bold__', null, '<b>bold <i>italics</i> bold</b>'],
+    ['_italics __bold___', null, '<i>italics <b>bold</b></i>'],
+  ],
+
   'newlines': [
     ['Two\nlines', null, 'Two<br>lines'],
   ],
