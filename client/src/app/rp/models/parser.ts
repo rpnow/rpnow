@@ -6,11 +6,6 @@ enum Tag {
     BoldItalics = 'BOLDITALICS',
     Strike = 'STRIKE',
     Action = 'ACTION',
-    Link = 'LINK',
-    Newline = 'NEWLINE',
-    Mdash = 'MDASH',
-    Words = 'WORDS',
-    Whitespace = 'WHITESPACE'
 }
 
 interface Token {
@@ -22,9 +17,9 @@ const renderTag = new Map<Tag, { open: (color: string) => string, close: string 
     [Tag.Action, {
         open: (color) => {
             const contrast = (new BlackOrWhitePipe).transform(color);
-            return `<span class="rpn-message-star-tag" style="background-color:${color}; color:${contrast};">`;
+            return `<span class="rpn-message-star-tag" style="background-color:${color}; color:${contrast};">*`;
         },
-        close: '</span>'
+        close: '*</span>'
     }],
     [Tag.Bold, { open: () => '<b>', close: '</b>' }],
     [Tag.Italics, { open: () => '<i>', close: '</i>' }],
