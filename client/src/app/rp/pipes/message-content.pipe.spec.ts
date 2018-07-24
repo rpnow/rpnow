@@ -37,17 +37,47 @@ const tests: { [testName: string]: [string, string|null, string][] } = {
   'bold in italics': [
     ['_italics __bold__ italics_', null, '<i>italics <b>bold</b> italics</i>'],
     ['/italics __bold__ italics/', null, '<i>italics <b>bold</b> italics</i>'],
-    ['_italics __bold___', null, '<i>italics <b>bold</b></i>'],
+    // ['_italics __bold___', null, '<i>italics <b>bold</b></i>'], // undefined behavior
   ],
 
   'italics in bold': [
     ['__bold _italics_ bold__', null, '<b>bold <i>italics</i> bold</b>'],
-    ['_italics __bold___', null, '<i>italics <b>bold</b></i>'],
+    ['__bold /italics/ bold__', null, '<b>bold <i>italics</i> bold</b>'],
+    // ['__bold _italics___', null, '<i>italics <b>bold</b></i>'], // undefined behavior
   ],
 
   'newlines': [
     ['Two\nlines', null, 'Two<br>lines'],
+    ['One\ntwo\nthree', null, 'One<br>two<br>three'],
+    ['Double\n\nnewlines', null, 'Double<br><br>newlines'],
   ],
+
+  'imperfections': [
+    ['/not closed', null, '/not closed'],
+    ['no opening/', null, 'no opening/'],
+    ['/stray bold __marker/', null, '<i>stray bold __marker</i>'],
+    ['/__/__/__', null, '<i>__</i><b>/</b>'],
+    ['_', null, '_'],
+    ['__', null, '__'],
+    ['___', null, '___'],
+    ['____', null, '____'],
+    ['_____', null, '_____'],
+    ['______', null, '______'],
+    ['/invalid italics_', null, '/invalid italics_'],
+    ['_invalid italics/', null, '_invalid italics/'],
+    ['_ambiguous formatting__', null, '_ambiguous formatting__'],
+    ['__ambiguous formatting_', null, '__ambiguous formatting_'],
+  ],
+
+  'links': [
+    ['http://rpnow.net', null, '<a href="http://rpnow.net">http://rpnow.net</a>'],
+    // ['http://rpnow.net?x=1&y=2+_-5', null, '<a href="http://rpnow.net?x=1&y=2+_-5">http://rpnow.net?x=1&y=2+_-5</a>'], // TODO this test fails!
+  ],
+
+  'mdash': [
+    ['HI-HI', null, 'HI-HI'],
+    ['HI--HI', null, 'HI\&mdash;HI'],
+  ]
 
 };
 
