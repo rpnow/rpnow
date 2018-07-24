@@ -3,6 +3,7 @@ const cors = require('cors');
 const { Router } = require('express');
 const { downloadDocx } = require('../services/download.docx');
 const { downloadTxt } = require('../services/download.txt');
+const { getIpid } = require('../services/ipid');
 
 const model = require('../model');
 const config = require('../config');
@@ -15,7 +16,9 @@ if (config.get('allowCORS')) router.use(cors());
 
 router.post('/rp.json', (req, res, next) => {
     const roomOptions = req.body;
-    model.createRp(roomOptions)
+    const ipid = getIpid(req.ip);
+
+    model.createRp(roomOptions, ipid)
         .then(data => res.status(201).json(data))
         .catch(err => next(err));
 });

@@ -36,6 +36,8 @@ const emptyRoomSchema = nJ({
     desc: [{ $optional: String }],
     msgs: [Array, false],
     charas: [Array, false],
+    timestamp: [Number],
+    ipid: [String],
 });
 const challengeSchema = nJ({
     secret: [String],
@@ -44,6 +46,8 @@ const challengeSchema = nJ({
 const fullRoomSchema = nJ({
     title: [String],
     desc: [{ $optional: String }],
+    timestamp: [Number],
+    ipid: [String],
     msgs: [Array, msgSchema.requirements],
     charas: [Array, false],
 });
@@ -123,6 +127,8 @@ describe('basic socket.io message coverage', () => {
                 _id: [String],
                 name: ['Cassie'],
                 color: ['#ca551e'],
+                timestamp: [Number],
+                ipid: [String],
             });
             charaId = data._id;
             done();

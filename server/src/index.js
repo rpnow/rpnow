@@ -8,6 +8,8 @@ logger.debug('Starting RPNow API...');
 const app = express();
 const server = createServer(app);
 
+if (config.get('trustProxy')) app.enable('trust proxy');
+
 // rest api
 app.use('/api', require('./api/api.rest'));
 

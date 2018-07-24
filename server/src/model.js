@@ -32,13 +32,16 @@ const editMessageSchema = nJ({
 module.exports = ({
     events,
 
-    async createRp(input) {
+    async createRp(input, ipid) {
         let roomOptions;
         try {
             roomOptions = roomOptionsSchema(input);
         } catch (error) {
             throw { code: 'BAD_RP', details: error.message };
         }
+
+        roomOptions.timestamp = Date.now() / 1000;
+        roomOptions.ipid = ipid;
 
         const rpCode = generateRpCode();
         await dao.addRoom(rpCode, roomOptions);
@@ -131,13 +134,16 @@ module.exports = ({
         return msg;
     },
 
-    async addChara(rpCode, connectionId, inputChara /* ,ipid */) {
+    async addChara(rpCode, connectionId, inputChara, ipid) {
         let chara;
         try {
             chara = addCharaSchema(inputChara);
         } catch (error) {
             throw { code: 'BAD_CHARA', details: error.message };
         }
+
+        chara.timestamp = Date.now() / 1000;
+        chara.ipid = ipid;
 
         chara._id = await dao.addChara(rpCode, chara);
 
