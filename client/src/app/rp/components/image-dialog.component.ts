@@ -20,6 +20,10 @@ import { MatDialogRef } from '@angular/material/dialog';
         <input matInput placeholder="Enter a URL:" [(ngModel)]="url" cdkFocusInitial (keyup.enter)="submit()">
       </mat-form-field>
 
+      <div id="image-container">
+        <img [src]="url">
+      </div>
+
       <mat-dialog-actions>
         <button mat-raised-button [disabled]="!valid()" color="primary" (click)="submit()">OK</button>
         <button mat-raised-button mat-dialog-close>Cancel</button>
@@ -36,6 +40,26 @@ import { MatDialogRef } from '@angular/material/dialog';
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    #image-container {
+      background-image:
+        linear-gradient(45deg, rgba(0,0,0,0.2) 25%, rgba(255,255,255,0.2) 25%),
+        linear-gradient(-45deg, rgba(0,0,0,0.2) 25%, rgba(255,255,255,0.2) 25%),
+        linear-gradient(45deg, rgba(255,255,255,0.2) 75%, rgba(0,0,0,0.2) 75%),
+        linear-gradient(-45deg, rgba(255,255,255,0.2) 75%, rgba(0,0,0,0.2) 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+
+      width: 300px;
+      max-width: 100%;
+      height: 200px;
+
+      display: flex;
+    }
+    #image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      margin: auto;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
