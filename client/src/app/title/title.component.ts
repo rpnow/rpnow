@@ -18,6 +18,8 @@ import { TrackService } from '../track.service';
         <h1 class="mat-display-3" style="margin:0;text-align:center">RPNow</h1>
       </header>
 
+      <a routerLink="/rp/demo">Demo</a>
+
       <span style="height:10vh"></span>
 
       <div *ngIf="!submitted" style="display: flex; flex-direction: column">
