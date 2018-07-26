@@ -51,6 +51,9 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
       line-height: 1.6;
       text-align: center;
     }
+    #desc-row p {
+      width: 100%;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
