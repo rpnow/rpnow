@@ -8,8 +8,8 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
       <mat-toolbar-row>
 
         <span id="buttons">
-          <button mat-icon-button (click)="openMenu()">
-            <mat-icon aria-label="Main menu" matTooltip="Main menu">menu</mat-icon>
+          <button mat-icon-button (click)="onClickMenu()">
+            <mat-icon aria-label="Main menu" matTooltip="Main menu">{{ menuIcon }}</mat-icon>
           </button>
         </span>
 
@@ -58,12 +58,13 @@ export class TitleBarComponent {
 
   @Input() title: string;
   @Input() desc: string;
+  @Input() menuIcon = 'menu';
 
   isDescOpen = false;
 
   @Output() readonly clickMenu: EventEmitter<void> = new EventEmitter();
 
-  openMenu() {
+  onClickMenu() {
     this.clickMenu.emit();
   }
 

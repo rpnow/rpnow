@@ -47,6 +47,7 @@ import { WelcomeComponent } from './components/welcome.component';
 import { NagComponent } from './components/nag.component';
 import { NotifyComponent } from './components/notify.component';
 import { ScrollAnchorComponent } from './components/scroll-anchor.component';
+import { DemoChatComponent } from './containers/demo-chat.component';
 
 
 @NgModule({
@@ -76,7 +77,8 @@ import { ScrollAnchorComponent } from './components/scroll-anchor.component';
     WelcomeComponent,
     NagComponent,
     NotifyComponent,
-    ScrollAnchorComponent
+    ScrollAnchorComponent,
+    DemoChatComponent,
   ],
   imports: [
     CommonModule,
