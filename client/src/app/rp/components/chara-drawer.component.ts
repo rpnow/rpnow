@@ -87,14 +87,24 @@ export class CharaDrawerComponent {
     private viewContainerRef: ViewContainerRef
   ) {}
 
-  @Input() charas: RpChara[];
-  @Input() recentCharas: RpChara[];
+  charas: RpChara[];
+  recentCharas: RpChara[];
+
   @Input() currentChara: RpVoice;
   @Input() isInline: boolean;
 
   @Output() readonly closeDrawer: EventEmitter<void> = new EventEmitter();
   @Output() readonly setVoice: EventEmitter<RpVoice> = new EventEmitter();
   @Output() readonly newChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
+
+  @Input('charas') set _charas(charas: RpChara[]) {
+    this.charas = (charas != null) ? [...charas].sort(this.nameSorter) : null;
+  }
+  @Input('recentCharas') set _recentCharas(charas: RpChara[]) {
+    this.recentCharas = (charas != null) ? [...charas].sort(this.nameSorter) : null;
+  }
+
+  private readonly nameSorter = (a, b) => a.name.localeCompare(b.name);
 
   get isNarratorSelected() {
     return this.currentChara === 'narrator';
@@ -109,7 +119,7 @@ export class CharaDrawerComponent {
   }
 
   hasManyCharas() {
-    return this.charas && this.charas.length >= 10;
+    return this.charas && this.charas.length >= 10 && this.recentCharas && this.recentCharas.length > 0;
   }
 
   onSetVoice(voice: RpVoice) {

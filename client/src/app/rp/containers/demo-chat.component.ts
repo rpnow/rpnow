@@ -109,8 +109,6 @@ export class DemoChatComponent implements OnInit {
 
   charaSelectorOpen = false;
 
-  private readonly nameSorter = (a, b) => a.name.localeCompare(b.name);
-
   constructor(
     private router: Router,
     private title: Title,
@@ -163,7 +161,7 @@ export class DemoChatComponent implements OnInit {
       ...$event,
       timestamp: Date.now() / 1000
     };
-    this.charas = [...this.charas, chara].sort(this.nameSorter);
+    this.charas = [...this.charas, chara];
     this.currentVoice = chara;
     this.updateRecentCharas(chara);
   }
@@ -177,7 +175,7 @@ export class DemoChatComponent implements OnInit {
   private updateRecentCharas(chara: RpChara) {
     this.recentCharas = [
       chara, ...this.recentCharas.filter(({_id}) => _id !== chara._id)
-    ].slice(0, 5).sort(this.nameSorter);
+    ].slice(0, 5);
   }
 
   sendMessage(content: string, voice: RpChara) {

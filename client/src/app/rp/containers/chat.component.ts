@@ -66,7 +66,7 @@ import { ChallengeService } from '../services/challenge.service';
       <mat-sidenav position="end" [mode]="charaDrawerMode$|async" [(opened)]="charaSelectorOpen">
 
         <rpn-chara-drawer-contents
-          [charas]="sortedCharas$|async"
+          [charas]="rp.charas$|async"
           [recentCharas]="recentCharas$|async"
           [currentChara]="currentChara$|async"
           [isInline]="(isSmall$|async) === false"
@@ -112,7 +112,6 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   public messages$: Observable<RpMessage[]>;
   public currentChara$: Observable<RpVoice>;
-  public sortedCharas$: Observable<RpChara[]>;
   public recentCharas$: Observable<RpChara[]>;
   public isNewRp$: Observable<boolean>;
 
@@ -168,15 +167,10 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.sortedCharas$ = this.rp.charas$.pipe(
-      map(charas => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
-    );
-
     this.recentCharas$ = this.options.recentCharas$.pipe(
       combineLatest(this.rp.charasById$, (recentCharas, charasById) => {
         return recentCharas.map(id => charasById.get(id));
       }),
-      map(charas => [...charas].sort((a, b) => a.name.localeCompare(b.name)))
     );
 
     this.isSmall$ = this.breakpointObserver.observe(this.SMALL_BREAKPOINT).pipe(
