@@ -2,8 +2,8 @@ export type RpCharaId = string;
 
 export interface RpChara {
   _id?: RpCharaId;
-  createdAt: string;
-  editedAt?: string;
+  timestamp?: number;
+  ipid?: string;
   name: string;
   color: string;
 }
