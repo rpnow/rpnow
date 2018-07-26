@@ -36,6 +36,7 @@ export class IpidComponent {
   colors: string[] = [];
 
   @Input('ipid') set ipid(ipid: string) {
+    if (!ipid) return;
     this.colors = ipid.match(/[0-9a-f]{6}/gi).map(hex => '#' + hex);
   }
 
