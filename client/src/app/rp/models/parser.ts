@@ -48,7 +48,7 @@ const tagLexers = [
     { r: /^~~/, tag: Tag.Strike },
     { r: /^\*/, tag: Tag.Action },
     { r: /^(?:\r\n|\n\r|\r|\n)/, replaceWith: '<br>' },
-    { r: /^--/, replaceWith: '&#8212;' },
+    { r: /^--/, replaceWith: '&mdash;' },
     { r: /^\s/ },
     { r: /^\S/, replace: escape },
 ];
