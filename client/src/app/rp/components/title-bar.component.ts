@@ -14,7 +14,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
         </span>
 
         <h1 id="title">
-          {{ title }}
+          {{ rpTitle }}
         </h1>
 
         <span id="buttons-right">
@@ -59,7 +59,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from 
 })
 export class TitleBarComponent {
 
-  @Input() title: string;
+  @Input() rpTitle: string;
   @Input() desc: string;
   @Input() menuIcon = 'menu';
 

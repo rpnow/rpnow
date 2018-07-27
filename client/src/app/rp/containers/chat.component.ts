@@ -34,7 +34,7 @@ import { ChallengeService } from '../services/challenge.service';
         </div>
 
         <ng-container *ngIf="rp.loaded|async">
-          <rpn-title-bar [title]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
+          <rpn-title-bar [rpTitle]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
 
           <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
             <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>

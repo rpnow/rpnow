@@ -12,7 +12,7 @@ import { Title } from '@angular/platform-browser';
 @Component({
   selector: 'rpn-archive',
   template: `
-    <rpn-title-bar [title]="(pageInfo$|async)?.title" [desc]="(pageInfo$|async)?.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
+    <rpn-title-bar [rpTitle]="(pageInfo$|async)?.title" [desc]="(pageInfo$|async)?.desc" (clickMenu)="openMenu()" style="z-index:1"></rpn-title-bar>
 
     <rpn-paginator [pageNum]="(pageNum$|async)" [pageCount]="(pageInfo$|async)?.pageCount" (pageNumChange)="pageNumChange($event)"></rpn-paginator>
 

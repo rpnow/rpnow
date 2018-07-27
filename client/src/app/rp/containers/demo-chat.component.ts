@@ -18,7 +18,7 @@ import { RpCodeService } from '../services/rp-code.service';
 
       <mat-sidenav-content>
 
-        <rpn-title-bar title="Demo RP" desc="Welcome to the demo!" [menuIcon]="'arrow_back'" (clickMenu)="navigateToHome()"></rpn-title-bar>
+        <rpn-title-bar rpTitle="Demo RP" desc="Welcome to the demo!" [menuIcon]="'arrow_back'" (clickMenu)="navigateToHome()"></rpn-title-bar>
 
         <rpn-scroll-anchor #scrollAnchor [watch]="messages" style="z-index:-1">
           <rpn-message-list
