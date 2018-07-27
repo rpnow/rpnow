@@ -71,7 +71,7 @@ const tests: { [testName: string]: [string, string|null, string][] } = {
 
   'links': [
     ['http://rpnow.net', null, '<a href="http://rpnow.net">http://rpnow.net</a>'],
-    // ['http://rpnow.net?x=1&y=2+_-5', null, '<a href="http://rpnow.net?x=1&y=2+_-5">http://rpnow.net?x=1&y=2+_-5</a>'], // TODO this test fails!
+    ['http://rpnow.net?x=1&y=2+_-5', null, '<a href="http://rpnow.net?x=1&y=2+_-5">http://rpnow.net?x=1&y=2+_-5</a>'],
   ],
 
   'mdash': [
@@ -94,7 +94,7 @@ describe('MessageContentPipe', () => {
       const pipe = new MessageContentPipe(domSanitizer);
       for (const [input, color, expected] of pairs) {
         const html = pipe.transform(input, color);
-        expect(domSanitizer.sanitize(SecurityContext.HTML, html)).toEqual(domSanitizer.sanitize(SecurityContext.HTML, expected));
+        expect(domSanitizer.sanitize(SecurityContext.HTML, html)).toEqual(expected);
       }
     }));
   }
