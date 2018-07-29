@@ -1,6 +1,10 @@
 version: '3.2'
 
 services:
+  caddy:
+    ports:
+      - "2015:2015"
+
   rpnow:
     volumes:
       - ./client/dist:/root/client/dist:ro
