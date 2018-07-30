@@ -13,7 +13,4 @@ module.exports = require('nconf')
         maxDescLength: 255,
         maxCharaNameLength: 30,
         maxMessageContentLength: 10000,
-
-        rpCodeLength: 8,
-        rpCodeChars: 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',
     });
