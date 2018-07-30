@@ -105,6 +105,9 @@
 	word-spacing: 1px;
 	box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
 }
+:host-context(.dark-theme) .message-chara {
+	border-color: rgba(255,255,255,0.3);
+}
 .message-chara .content {
 	background-color: white;
 	color: black;
