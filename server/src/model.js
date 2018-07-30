@@ -1,7 +1,6 @@
 const request = require('request-promise-native');
 const nJ = require('normalize-json');
 const EventEmitter = require('events');
-const config = require('./config');
 const dao = require('./dao/dao.mongo');
 const { generateRpCode } = require('./services/rpcode.js');
 const { verifyChallenge } = require('./services/challenge');
@@ -10,22 +9,22 @@ class RpEventEmitter extends EventEmitter {}
 const events = new RpEventEmitter();
 
 const roomOptionsSchema = nJ({
-    title: [String, config.get('maxTitleLength')],
-    desc: [{ $optional: String }, config.get('maxDescLength')],
+    title: [String, 30],
+    desc: [{ $optional: String }, 255],
 });
 const addCharaSchema = nJ({
-    name: [String, config.get('maxCharaNameLength')],
+    name: [String, 30],
     color: /^#[0-9a-f]{6}$/g,
 });
 const addMessageSchema = nJ({
-    content: [String, config.get('maxMessageContentLength')],
+    content: [String, 10000],
     type: ['narrator', 'chara', 'ooc'],
     charaId: msg => (msg.type === 'chara' ? [String] : undefined),
     challenge: [String, 128],
 });
 const editMessageSchema = nJ({
     id: [String],
-    content: [String, config.get('maxMessageContentLength')],
+    content: [String, 10000],
     secret: [String, 64],
 });
 
