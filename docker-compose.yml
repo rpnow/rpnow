@@ -17,7 +17,7 @@ services:
         target: 443
     environment:
       CADDYFILE_CONTENTS: '
-        \n  http://localhost:2015, https://
+        \n  http://localhost:80, http://*:2015, https://
         \n
         \n  log stdout
         \n
@@ -32,11 +32,11 @@ services:
         \n  }
         \n
         \n  tls {
-        \n    ca https://acme-v02.api.letsencrypt.org/directory
+        \n    ca ${ACME_CA-https://acme-v02.api.letsencrypt.org/directory}
         \n    max_certs 10
         \n    alpn http/1.1
         \n  }'
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ["/bin/parent", "/bin/sh", "-c"]
     command: ["echo -e $$CADDYFILE_CONTENTS | caddy --conf stdin --agree=true"]
     networks:
       - front-layer
