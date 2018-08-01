@@ -29,13 +29,13 @@ router.get('/challenge.json', (req, res, next) => {
         .catch(err => next(err));
 });
 
-router.get('/rp/:rpCode([0-9a-zA-Z]+)/page/:pageNum([1-9][0-9]{0,})', (req, res, next) => {
+router.get('/rp/:rpCode([-0-9a-zA-Z]+)/page/:pageNum([1-9][0-9]{0,})', (req, res, next) => {
     model.getPage(req.params.rpCode, +req.params.pageNum)
         .then(data => res.status(200).json(data))
         .catch(err => next(err));
 });
 
-router.get('/rp/:rpCode([0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
+router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
     const { includeOOC } = req.query;
 
     let rp;
@@ -49,7 +49,7 @@ router.get('/rp/:rpCode([0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
     return res.attachment(`${rp.title}.txt`).type('.txt').send(body);
 });
 
-router.get('/rp/:rpCode([0-9a-zA-Z]+)/download.docx', async (req, res, next) => {
+router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.docx', async (req, res, next) => {
     const { includeOOC } = req.query;
 
     let rp;
