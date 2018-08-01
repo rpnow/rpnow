@@ -23,6 +23,7 @@ staticRoutes.use('/client-files', express.static(staticDir));
 staticRoutes.get('/', (req, res) => res.sendFile(`${staticDir}/index.html`));
 staticRoutes.get('/terms', (req, res) => res.sendFile(`${staticDir}/index.html`));
 staticRoutes.get('/rp/*', (req, res) => res.sendFile(`${staticDir}/index.html`));
+staticRoutes.get('/robots.txt', (req, res) => res.sendFile(`${staticDir}/robots.txt`))
 app.use(staticRoutes);
 
 // listen

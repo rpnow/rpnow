@@ -477,3 +477,12 @@ describe('multiple clients', () => {
         });
     });
 });
+
+describe('robots.txt', () => {
+    it('is accessible at the correct path', (done) => {
+        request.get(`${host}/robots.txt`, (err, res, data) => {
+            expect(res.statusCode).toBe(200);
+            done();
+        });
+    })
+});
