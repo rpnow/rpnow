@@ -31,7 +31,8 @@ services:
     depends_on:
       - db
     environment:
-      DB_HOST: db
+      RPNOW_DB_HOST: 'db'
+      RPNOW_TRUST_PROXY: 'true'
     networks:
       - front-layer
       - back-layer

@@ -8,7 +8,7 @@ const config = require('../src/config');
 const { getIpid } = require('../src/services/ipid');
 
 async function run() {
-    const url = `mongodb://${config.get('DB_HOST')}/rpnow?maxPoolSize=1`; // pool size 1 means that it won't insert stuff out of order
+    const url = `mongodb://${config.get('dbHost')}/rpnow?maxPoolSize=1`; // pool size 1 means that it won't insert stuff out of order
     const db = (await MongoClient.connect(url));
 
     const newRoomIds = new Map();

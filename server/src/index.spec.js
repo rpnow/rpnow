@@ -1,6 +1,5 @@
 const config = require('./config');
 
-config.set('logLevel', 'warn');
 const port = config.get('port');
 const host = `http://localhost:${port}`;
 

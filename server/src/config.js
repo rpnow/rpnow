@@ -1,11 +1,23 @@
-module.exports = require('nconf')
+const camelcase = require('camelcase');
+const conf = require('nconf')
     .add('memory')
-    .env()
+    .env({
+        transform(obj) {
+            if (!/^RPNOW_/.test(obj.key)) return false;
+            return {
+                ...obj,
+                key: camelcase(obj.key.substr('RPNOW_'.length)),
+            };
+        },
+        parseValues: true,
+    })
     .defaults({
-        trustProxy: true,
-        allowCORS: true,
+        port: 80,
+        trustProxy: false,
+        cors: false,
         logLevel: 'info',
-
-        port: 3000,
-        DB_HOST: 'localhost',
     });
+
+conf.required(['dbHost']);
+
+module.exports = conf;

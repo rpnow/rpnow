@@ -12,7 +12,7 @@ const { generateChallenge } = require('../services/challenge');
 const router = Router();
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
-if (config.get('allowCORS')) router.use(cors());
+if (config.get('cors')) router.use(cors());
 
 router.post('/rp.json', (req, res, next) => {
     const roomOptions = req.body;

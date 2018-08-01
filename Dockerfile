@@ -26,4 +26,7 @@ COPY ./server/src ./src
 COPY ./server/admin ./admin
 COPY --from=builder /root/client/dist ../client/dist
 
+ENV RPNOW_PORT 3000
+EXPOSE ${RPNOW_PORT}
+
 CMD npm start
