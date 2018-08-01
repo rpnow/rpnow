@@ -22,8 +22,10 @@ const staticDir = __dirname.replace('server/src', 'client/dist/rpnow');
 staticRoutes.use('/client-files', express.static(staticDir));
 staticRoutes.get('/', (req, res) => res.sendFile(`${staticDir}/index.html`));
 staticRoutes.get('/terms', (req, res) => res.sendFile(`${staticDir}/index.html`));
-staticRoutes.get('/rp/*', (req, res) => res.sendFile(`${staticDir}/index.html`));
-staticRoutes.get('/robots.txt', (req, res) => res.sendFile(`${staticDir}/robots.txt`))
+staticRoutes.get('/rp/*', (req, res) => {
+    res.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+    res.sendFile(`${staticDir}/index.html`);
+});
 app.use(staticRoutes);
 
 // listen
