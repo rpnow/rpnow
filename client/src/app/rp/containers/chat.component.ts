@@ -39,6 +39,10 @@ import { ChallengeService } from '../services/challenge.service';
           <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
             <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
 
+            <p *ngIf="isShowingArchiveLink$|async" id="archive-advice">
+              To view older messages, <a routerLink="./1">visit the archive.</a>
+            </p>
+
             <rpn-message-list
               [messages]="messages$|async"
               [charas]="rp.charas$|async"
@@ -95,6 +99,24 @@ import { ChallengeService } from '../services/challenge.service';
       align-items: center;
       margin: 20px;
     }
+    #archive-advice {
+      font-style: italic;
+      margin: 3vh auto 0;
+      padding: 10px;
+      width: 96vw;
+      max-width: 400px;
+      text-align: center;
+    }
+    #archive-advice a {
+      text-decoration: none;
+      border-bottom: 1px dotted rgb(124, 77, 255);
+      color: rgb(124, 77, 255);
+      opacity: 0.87;
+    }
+    :host-context(.dark-theme) #archive-advice a {
+      color: rgb(255,193,7);
+      border-bottom-color: rgb(255,193,7);
+    }
   `],
   providers: [
     ChallengeService,
@@ -103,6 +125,9 @@ import { ChallengeService } from '../services/challenge.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatComponent implements OnInit, OnDestroy {
+
+  private readonly DEFAULT_MESSAGE_CUTOFF = 60;
+  private readonly MAX_MESSAGE_CUTOFF = 300;
 
   private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
 
@@ -115,6 +140,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   public sortedCharas$: Observable<RpChara[]>;
   public recentCharas$: Observable<RpChara[]>;
   public isNewRp$: Observable<boolean>;
+  public isShowingArchiveLink$: Observable<boolean>;
 
   isSmall$: Observable<boolean>;
   charaDrawerMode$: Observable<'over'|'side'>;
@@ -148,8 +174,8 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.messages$ = this.rp.messages$.pipe(
       scan(({firstIdx}: {firstIdx: number, msgs: RpMessage[]}, msgs: RpMessage[]) => {
-        if (this.atBottom) return { msgs, firstIdx: Math.max(msgs.length - 60, 0) };
-        else return { msgs, firstIdx: Math.max(msgs.length - 300, 0, firstIdx) };
+        if (this.atBottom) return { msgs, firstIdx: Math.max(msgs.length - this.DEFAULT_MESSAGE_CUTOFF, 0) };
+        else return { msgs, firstIdx: Math.max(msgs.length - this.MAX_MESSAGE_CUTOFF, 0, firstIdx) };
       }, {firstIdx: 0, msgs: <RpMessage[]>null}),
       map(({msgs, firstIdx}) => msgs.slice(firstIdx))
     );
@@ -157,6 +183,10 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.isNewRp$ = this.messages$.pipe(
       first(),
       map(msgs => msgs.length === 0)
+    );
+
+    this.isShowingArchiveLink$ = this.messages$.pipe(
+      map(msgs => msgs.length >= this.DEFAULT_MESSAGE_CUTOFF)
     );
 
     this.subscription = this.rp.newMessages$.subscribe(() => {
