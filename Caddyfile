@@ -1,4 +1,4 @@
-localhost:80 {
+:80 {
     log stdout
     gzip
     realip {

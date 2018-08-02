@@ -4,6 +4,7 @@ const { Router } = require('express');
 const { downloadDocx } = require('../services/download.docx');
 const { downloadTxt } = require('../services/download.txt');
 const { getIpid } = require('../services/ipid');
+const xRobotsTag = require('../services/x-robots-tag');
 
 const model = require('../model');
 const config = require('../config');
@@ -12,7 +13,8 @@ const { generateChallenge } = require('../services/challenge');
 const router = Router();
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
-if (config.get('allowCORS')) router.use(cors());
+if (config.get('cors')) router.use(cors());
+router.use(xRobotsTag);
 
 router.post('/rp.json', (req, res, next) => {
     const roomOptions = req.body;
@@ -29,13 +31,13 @@ router.get('/challenge.json', (req, res, next) => {
         .catch(err => next(err));
 });
 
-router.get('/rp/:rpCode([0-9a-zA-Z]+)/page/:pageNum([1-9][0-9]{0,})', (req, res, next) => {
+router.get('/rp/:rpCode([-0-9a-zA-Z]+)/page/:pageNum([1-9][0-9]{0,})', (req, res, next) => {
     model.getPage(req.params.rpCode, +req.params.pageNum)
         .then(data => res.status(200).json(data))
         .catch(err => next(err));
 });
 
-router.get('/rp/:rpCode([0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
+router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
     const { includeOOC } = req.query;
 
     let rp;
@@ -49,7 +51,7 @@ router.get('/rp/:rpCode([0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
     return res.attachment(`${rp.title}.txt`).type('.txt').send(body);
 });
 
-router.get('/rp/:rpCode([0-9a-zA-Z]+)/download.docx', async (req, res, next) => {
+router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.docx', async (req, res, next) => {
     const { includeOOC } = req.query;
 
     let rp;

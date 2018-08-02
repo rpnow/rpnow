@@ -1,6 +1,5 @@
 const config = require('./config');
 
-config.set('logLevel', 'warn');
 const port = config.get('port');
 const host = `http://localhost:${port}`;
 
@@ -474,6 +473,41 @@ describe('multiple clients', () => {
                 if (!--remainingClients) done();
             });
             user.socket.close();
+        });
+    });
+});
+
+describe('meta robots noindex', () => {
+    it('hides pages at /rp/*', (done) => {
+        request.get(`${host}/rp/rpCode`, (err, res) => {
+            expect(err).toBeFalsy();
+            expect(res.headers['x-robots-tag']).toBeDefined();
+            expect(res.statusCode).toBe(200);
+            done();
+        });
+    });
+    it('hides pages at /api/*', (done) => {
+        request.get(`${host}/api/challenge.json`, (err, res) => {
+            expect(err).toBeFalsy();
+            expect(res.headers['x-robots-tag']).toBeDefined();
+            expect(res.statusCode).toBe(200);
+            done();
+        });
+    });
+    it('does not hide the homepage', (done) => {
+        request.get(`${host}/`, (err, res) => {
+            expect(err).toBeFalsy();
+            expect(res.headers['x-robots-tag']).not.toBeDefined();
+            expect(res.statusCode).toBe(200);
+            done();
+        });
+    });
+    it('does not hide the terms', (done) => {
+        request.get(`${host}/`, (err, res) => {
+            expect(err).toBeFalsy();
+            expect(res.headers['x-robots-tag']).not.toBeDefined();
+            expect(res.statusCode).toBe(200);
+            done();
         });
     });
 });

@@ -1,19 +1,23 @@
-module.exports = require('nconf')
+const camelcase = require('camelcase');
+const conf = require('nconf')
     .add('memory')
-    .env()
+    .env({
+        transform(obj) {
+            if (!/^RPNOW_/.test(obj.key)) return false;
+            return {
+                ...obj,
+                key: camelcase(obj.key.substr('RPNOW_'.length)),
+            };
+        },
+        parseValues: true,
+    })
     .defaults({
-        trustProxy: true,
-        allowCORS: true,
+        port: 80,
+        trustProxy: false,
+        cors: false,
         logLevel: 'info',
-
-        port: 3000,
-        DB_HOST: 'localhost',
-
-        maxTitleLength: 30,
-        maxDescLength: 255,
-        maxCharaNameLength: 30,
-        maxMessageContentLength: 10000,
-
-        rpCodeLength: 8,
-        rpCodeChars: 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',
     });
+
+conf.required(['dbHost']);
+
+module.exports = conf;

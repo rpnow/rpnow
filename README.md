@@ -23,7 +23,17 @@ RPNow just requires `docker-compose.yml` and a `Caddyfile`. Use `Caddyfile.prod`
 
     docker stack deploy --compose-file=docker-compose.yml rpnow
 
-This will create or update the rpnow stack.
+This will create the rpnow stack.
+
+
+### Updating
+Usually, you'll just need to update the rpnow image in the production stack. First, pull the new RPNow docker image, which is automatically built
+on Docker Cloud. Then, update the `rpnow_rpnow` service with `--force`. (Not sure why force is needed!)
+
+    docker pull rpnow/rpnow
+    docker service update --force rpnow_rpnow.
+
+If changes were made to other things, then probably just remove the stack and re-deploy it. Sometimes this can be flakey and needs a few tries...?
 
 
 ## Admin scripts

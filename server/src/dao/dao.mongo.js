@@ -1,7 +1,7 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const config = require('../config');
 
-const url = `mongodb://${config.get('DB_HOST')}/rpnow`;
+const url = `mongodb://${config.get('dbHost')}/rpnow`;
 const connection = MongoClient.connect(url);
 connection.catch(() => {
     console.error('Could not connect to mongodb');

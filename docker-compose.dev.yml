@@ -9,6 +9,9 @@ services:
       - ./server/jasmine.json:/root/server/jasmine.json:ro
       - ./server/package.json:/root/server/package.json:ro
       - ./server/package-lock.json:/root/server/package-lock.json:ro
+    environment:
+      RPNOW_CORS: 'true'
+      RPNOW_LOG_LEVEL: 'debug'
     command: npm run start-dev
 
   db:
