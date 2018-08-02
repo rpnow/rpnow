@@ -4,6 +4,7 @@ const { Router } = require('express');
 const { downloadDocx } = require('../services/download.docx');
 const { downloadTxt } = require('../services/download.txt');
 const { getIpid } = require('../services/ipid');
+const xRobotsTag = require('../services/x-robots-tag');
 
 const model = require('../model');
 const config = require('../config');
@@ -13,6 +14,7 @@ const router = Router();
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 if (config.get('cors')) router.use(cors());
+router.use(xRobotsTag);
 
 router.post('/rp.json', (req, res, next) => {
     const roomOptions = req.body;
