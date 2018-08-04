@@ -1,7 +1,6 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
 import * as marked from 'marked';
-import { Title } from '@angular/platform-browser';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { Title, Meta } from '@angular/platform-browser';
 
 const template = marked(`
 ## Terms of Use
@@ -66,12 +65,22 @@ of condition, uninterrupted use, merchantability, fitness for a particular purpo
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TermsComponent implements OnInit {
+export class TermsComponent implements OnInit, OnDestroy {
   innerHtml = template;
 
-  constructor(private titleService: Title) { }
+  constructor(
+    private titleService: Title,
+    private metaService: Meta,
+  ) { }
 
   ngOnInit() {
     this.titleService.setTitle('Terms of Use | RPNow');
+    this.metaService.addTag({ name: 'description', content:
+      'By using RPNow, you agree to the terms listed in this document.'
+    });
+  }
+
+  ngOnDestroy() {
+    this.metaService.removeTag('name="description"');
   }
 }

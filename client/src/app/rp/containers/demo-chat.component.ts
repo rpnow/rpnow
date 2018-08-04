@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { OptionsService } from '../services/options.service';
@@ -6,7 +6,7 @@ import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 import { RpVoice, isSpecialVoice, typeFromVoice } from '../models/rp-voice';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Title } from '@angular/platform-browser';
+import { Title, Meta } from '@angular/platform-browser';
 import { ChallengeService } from '../services/challenge.service';
 import { Router } from '@angular/router';
 import { RpCodeService } from '../services/rp-code.service';
@@ -75,7 +75,7 @@ import { RpCodeService } from '../services/rp-code.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DemoChatComponent implements OnInit {
+export class DemoChatComponent implements OnInit, OnDestroy {
 
   private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
 
@@ -112,6 +112,7 @@ export class DemoChatComponent implements OnInit {
   constructor(
     private router: Router,
     private title: Title,
+    private metaService: Meta,
     private breakpointObserver: BreakpointObserver,
     public challengeService: ChallengeService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -134,6 +135,14 @@ export class DemoChatComponent implements OnInit {
       }
       this.changeDetectorRef.detectChanges();
     }, 800);
+
+    this.metaService.addTag({ name: 'description', content:
+      'Learn how to use RPNow.'
+    });
+  }
+
+  ngOnDestroy() {
+    this.metaService.removeTag('name="description"');
   }
 
   navigateToHome() {

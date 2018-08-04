@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import * as coolstory from 'coolstory.js';
 import { Observable, Subscription } from 'rxjs';
-import { Title } from '@angular/platform-browser';
+import { Title, Meta } from '@angular/platform-browser';
 import { TrackService } from '../track.service';
 
 @Component({
@@ -76,7 +76,7 @@ import { TrackService } from '../track.service';
   `,
   changeDetection: ChangeDetectionStrategy.Default
 })
-export class TitleComponent implements OnInit {
+export class TitleComponent implements OnInit, OnDestroy {
 
   public title = '';
   public desc = '';
@@ -91,11 +91,19 @@ export class TitleComponent implements OnInit {
     private http: HttpClient,
     private router: Router,
     private titleService: Title,
+    private metaService: Meta,
     public track: TrackService
   ) { }
 
   ngOnInit() {
     this.titleService.setTitle('RPNow: No-Registration Roleplay Chat Service');
+    this.metaService.addTag({ name: 'description', content:
+      'Instantly create free, private roleplay chatrooms. No registration required, ever!'
+    });
+  }
+
+  ngOnDestroy() {
+    this.metaService.removeTag('name="description"');
   }
 
   public async createRp() {
