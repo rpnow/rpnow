@@ -2,90 +2,84 @@ import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import * as coolstory from 'coolstory.js';
-import { Observable, Subscription } from 'rxjs';
 import { Title, Meta } from '@angular/platform-browser';
 import { TrackService } from '../track.service';
 
 @Component({
+  selector: 'rpn-title',
   template: `
-    <section style="display: flex; flex-direction: column; align-items: center; height:100%; width:90vw; max-width:400px; margin: auto">
+    <rpn-lets-rpnow></rpn-lets-rpnow>
 
-      <span style="height:10vh"></span>
+    <p id="subheader">
+      Free,&nbsp;private, no-registration
+      roleplay&nbsp;chatrooms.
+    </p>
 
-      <header title="Let's RPNow">
-        <aside class="mat-display-1" style="max-width:150px;transform:rotate(-10deg); margin-bottom:0">Let's</aside>
-        <h1 class="mat-display-3" style="margin:0;text-align:center">RPNow</h1>
-      </header>
+    <ng-container *ngIf="!submitted">
+      <rpn-title-entry
+        (chooseTitle)="createRp($event)"
+        (trackableEvent)="track.event('Title', $event)"
+      ></rpn-title-entry>
 
-      <a routerLink="/rp/demo">Demo</a>
+      <p id="new-users">
+        New user?
+        <a routerLink="/rp/demo">Try our demo!</a>
+      </p>
+    </ng-container>
 
-      <span style="height:10vh"></span>
-
-      <div *ngIf="!submitted" style="display: flex; flex-direction: column">
-
-        <mat-form-field>
-
-          <input matInput [(ngModel)]="title" maxlength="30" placeholder="Name your story"
-            (focus)="track.event('Title','focus')"
-            (change)="track.event('Title','change')"
-            >
-          <button matSuffix mat-icon-button (click)="spinTitle(); track.event('Title', 'spin')">
-            <mat-icon matTooltip="Random title!">casino</mat-icon>
-          </button>
-
-        </mat-form-field>
-
-        <mat-form-field *ngIf="showMoreOptions">
-
-          <textarea matInput [(ngModel)]="desc" maxlength="255" matTextareaAutosize placeholder="Enter a description..."
-            (focus)="track.event('Desc','focus')"
-            (change)="track.event('Desc','change')"
-            >
-          </textarea>
-
-        </mat-form-field>
-
-        <mat-checkbox [(ngModel)]="agreedToTerms">
-          I agree to RPNow's <a href="/terms" target="_blank">terms of use.</a>
-        </mat-checkbox>
-
-        <span style="height:5vh"></span>
-
-        <div style="display:flex; flex-direction:row; justify-content:space-around">
-
-          <button mat-raised-button color="primary" (click)="createRp(); track.event('Room', 'create')" [disabled]="!title || !agreedToTerms">
-            <mat-icon>check</mat-icon>
-            Create RP
-          </button>
-
-          <button *ngIf="!showMoreOptions" mat-raised-button (click)="showMoreOptions=true; track.event('Desc', 'reveal')">
-            <mat-icon>more_horiz</mat-icon>
-            Options
-          </button>
-
-        </div>
-
-      </div>
-
-      <div *ngIf="submitted">
-        <mat-spinner [diameter]="96"></mat-spinner>
-      </div>
-
-    </section>
+    <mat-spinner *ngIf="submitted" [diameter]="96"></mat-spinner>
   `,
+  styles: [`
+    :host {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 5%;
+      box-sizing: border-box;
+    }
+    p {
+      margin: 0;
+      text-align: center;
+      line-height: 1.5;
+    }
+    rpn-lets-rpnow {
+      padding: 10vh 0 1.7vh;
+    }
+    #subheader {
+      font-size: 16px;
+      opacity: 0.7;
+      font-style: italic;
+    }
+    @media (min-width: 650px) {
+      #subheader {
+        font-size: 20px;
+      }
+    }
+    rpn-title-entry {
+      margin: 7vh 0 9vh;
+    }
+    #new-users {
+      font-size: 18px;
+    }
+    @media (min-width: 650px) {
+      #new-users {
+        font-size: 24px;
+      }
+    }
+    #new-users a {
+      font-weight: bold;
+      text-decoration: none;
+      border-bottom: 1px dotted rgb(124, 77, 255);
+      color: rgb(124, 77, 255);
+    }
+    mat-spinner {
+      margin-top: 7vh;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.Default
 })
 export class TitleComponent implements OnInit, OnDestroy {
-
-  public title = '';
-  public desc = '';
-
-  public showMoreOptions = false;
-  public agreedToTerms = false;
-  public submitted = false;
-
-  private spinnerSub: Subscription;
+  submitted = false;
 
   constructor(
     private http: HttpClient,
@@ -106,25 +100,11 @@ export class TitleComponent implements OnInit, OnDestroy {
     this.metaService.removeTag('name="description"');
   }
 
-  public async createRp() {
+  async createRp(title: string) {
     this.submitted = true;
-    const data: any = await this.http.post(environment.apiUrl + '/api/rp.json', {title: this.title, desc: this.desc}).toPromise();
-    const rpCode = data.rpCode;
+    const data = { title };
+    const res: any = await this.http.post(environment.apiUrl + '/api/rp.json', data).toPromise();
+    const rpCode: string = res.rpCode;
     this.router.navigate(['/rp/' + rpCode]);
-  }
-
-  public spinTitle() {
-    if (this.spinnerSub) this.spinnerSub.unsubscribe();
-    this.spinnerSub = this.spinner().subscribe(() => this.title = coolstory.title(20));
-  }
-
-  private spinner(): Observable<void> {
-    return Observable.create(obs => {
-      let millis = 10.0;
-      while ((millis *= 1.15) < 200.0 / .15) {
-        setTimeout(() => obs.next(), millis);
-      }
-      setTimeout(() => { obs.next(); obs.complete(); }, millis);
-    });
   }
 }
