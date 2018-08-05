@@ -19,7 +19,7 @@ import { DemoRoomService } from '../services/demo-room.service';
 
       <mat-sidenav-content>
 
-        <rpn-title-bar rpTitle="Demo RP" [menuIcon]="'arrow_back'" (clickMenu)="navigateToHome()"></rpn-title-bar>
+        <rpn-title-bar rpTitle="Test RP" [menuIcon]="'arrow_back'" (clickMenu)="navigateToHome()"></rpn-title-bar>
 
         <rpn-scroll-anchor #scrollAnchor [watch]="demoRoom.messages" style="z-index:-1">
           <rpn-message-list

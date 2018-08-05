@@ -23,7 +23,7 @@ import { TrackService } from '../track.service';
 
       <p id="new-users">
         New user?
-        <a routerLink="/rp/demo">Try our demo!</a>
+        <a routerLink="/rp/demo">Take a tour!</a>
       </p>
     </ng-container>
 
