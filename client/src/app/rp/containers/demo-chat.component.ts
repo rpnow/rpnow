@@ -10,6 +10,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { ChallengeService } from '../services/challenge.service';
 import { Router } from '@angular/router';
 import { RpCodeService } from '../services/rp-code.service';
+import { DemoRoomService } from '../services/demo-room.service';
 
 @Component({
   selector: 'rpn-demo-chat',
@@ -18,12 +19,12 @@ import { RpCodeService } from '../services/rp-code.service';
 
       <mat-sidenav-content>
 
-        <rpn-title-bar rpTitle="Demo RP" desc="Welcome to the demo!" [menuIcon]="'arrow_back'" (clickMenu)="navigateToHome()"></rpn-title-bar>
+        <rpn-title-bar rpTitle="Demo RP" [menuIcon]="'arrow_back'" (clickMenu)="navigateToHome()"></rpn-title-bar>
 
-        <rpn-scroll-anchor #scrollAnchor [watch]="messages" style="z-index:-1">
+        <rpn-scroll-anchor #scrollAnchor [watch]="demoRoom.messages" style="z-index:-1">
           <rpn-message-list
-            [messages]="messages"
-            [charas]="charas"
+            [messages]="demoRoom.messages"
+            [charas]="demoRoom.charas"
             [challenge]="challengeService.challenge.hash"
             [showMessageDetails]="true"
             [pressEnterToSend]="true"
@@ -47,7 +48,7 @@ import { RpCodeService } from '../services/rp-code.service';
       <mat-sidenav position="end" [mode]="charaDrawerMode$|async" [(opened)]="charaSelectorOpen">
 
         <rpn-chara-drawer-contents
-          [charas]="charas"
+          [charas]="demoRoom.charas"
           [recentCharas]="recentCharas"
           [currentChara]="currentVoice"
           [isInline]="(isSmall$|async) === false"
@@ -72,37 +73,16 @@ import { RpCodeService } from '../services/rp-code.service';
     RpCodeService,
     OptionsService,
     ChallengeService,
+    DemoRoomService,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class DemoChatComponent implements OnInit, OnDestroy {
-
   private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
 
-  public messages: RpMessage[] = [
-    {
-      _id: 'm 1',
-      timestamp: Date.now() / 1000,
-      type: 'narrator',
-      content: 'Welcome to the RPNow demo!',
-    },
-    {
-      _id: 'm 2',
-      timestamp: Date.now() / 1000,
-      type: 'narrator',
-      content: 'TODO What does the demo need?',
-    },
-  ];
-  public charas: RpChara[] = [
-    {
-      _id: 'c 1',
-      name: 'Jerome',
-      color: '#e84858',
-    }
-  ];
-  public currentVoice: RpVoice = 'narrator';
-  public recentCharas: RpChara[] = [];
-  public msgBoxContent = '';
+  currentVoice: RpVoice = 'narrator';
+  recentCharas: RpChara[] = [];
+  msgBoxContent = '';
 
   isSmall$: Observable<boolean>;
   charaDrawerMode$: Observable<'over'|'side'>;
@@ -116,6 +96,7 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
     public challengeService: ChallengeService,
     private changeDetectorRef: ChangeDetectorRef,
+    public demoRoom: DemoRoomService,
   ) { }
 
   ngOnInit() {
@@ -139,6 +120,8 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     this.metaService.addTag({ name: 'description', content:
       'Learn how to use RPNow.'
     });
+
+    this.demoRoom.triggerNext(null);
   }
 
   ngOnDestroy() {
@@ -170,7 +153,7 @@ export class DemoChatComponent implements OnInit, OnDestroy {
       ...$event,
       timestamp: Date.now() / 1000
     };
-    this.charas = [...this.charas, chara];
+    this.demoRoom.addChara(chara);
     this.currentVoice = chara;
     this.updateRecentCharas(chara);
   }
@@ -196,7 +179,7 @@ export class DemoChatComponent implements OnInit, OnDestroy {
       timestamp: Date.now() / 1000
     };
 
-    this.messages = [...this.messages, msg];
+    this.demoRoom.addMessage(msg);
 
     // erase saved message box content upon successful message delivery
     if (content === this.msgBoxContent) {
@@ -205,14 +188,7 @@ export class DemoChatComponent implements OnInit, OnDestroy {
   }
 
   editMessageContent(id: RpMessageId, content: string) {
-    const idx = this.messages.findIndex(m => m._id === id);
-    const msg: RpMessage = {
-      ...this.messages[idx],
-      content,
-      edited: Date.now() / 1000
-    };
-    this.messages = [...this.messages];
-    this.messages[idx] = msg;
+    this.demoRoom.editMessageContent(id, content);
   }
 
   sendImage(url: string) {
@@ -223,7 +199,7 @@ export class DemoChatComponent implements OnInit, OnDestroy {
       challenge: this.challengeService.challenge.hash,
       timestamp: Date.now() / 1000
     };
-    this.messages = [...this.messages, msg];
+    this.demoRoom.addMessage(msg);
   }
 
 }
