@@ -2,11 +2,11 @@ import { Injectable, ApplicationRef } from '@angular/core';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 import { RpVoiceSerialized, typeFromVoice } from '../models/rp-voice';
+import { transformRpMessage } from '../models/parser';
 
 interface ConversationPart {
   messages(input: {messages: RpMessage[], charas: RpChara[], userMsg: RpMessage}): RpMessage[];
   next(msg: RpMessage): string;
-  sideEffects?(): void;
 }
 
 function MSG(voice: RpVoiceSerialized, content: string) {
@@ -17,6 +17,15 @@ function MSG(voice: RpVoiceSerialized, content: string) {
     ...typeFromVoice(voice),
   };
 }
+
+const PICS = [
+  {
+    uri: 'https://pbs.twimg.com/media/DiGi4JCUYAATXAy.jpg',
+    author: 'Himi https://twitter.com/SugoiBanana_',
+  },
+];
+
+const PIC: string = PICS[Math.floor(Math.random() * PICS.length)].uri;
 
 const CONVERSATION = new Map<string, ConversationPart>([
   ['start', {
@@ -44,7 +53,40 @@ const CONVERSATION = new Map<string, ConversationPart>([
   ['3', {
     messages: ({ userMsg, charas }) => [
       MSG('c1', `Nice to meet you, ${charas.find(c => c._id === userMsg.charaId).name}!`),
-      MSG('c1', 'RPNow is great because you can create as many characters as you want!'),
+      MSG('c1', "In RPNow, you can create __as many characters as you want!__ It's easy to switch between them."),
+      MSG('c1', 'You can also post pictures! __Copy the link__ to this picture, and click the __"Post Image"__ icon:'),
+      MSG('c1', PIC),
+    ],
+    next: msg => {
+      if (msg.type === 'image') return '4';
+      if (transformRpMessage(msg.content, null).indexOf('<a') >= 0) return '4bad';
+      return null;
+    },
+  }],
+  ['4bad', {
+    messages: () => [
+      MSG('c1', 'Rather than just sending the link in the chat box, click the __Post image__ icon.'),
+    ],
+    next: msg => msg.type === 'image' ? '4' : null,
+  }],
+  ['4', {
+    messages: ({ userMsg }) => [
+      MSG('c1', (function() {
+        const pic = PICS.find(p => p.uri === userMsg.url);
+        if (pic) return `That's me! (Art credit: ${pic.author})`;
+        else return "That's a different picture, but that's okay!";
+      }())),
+      MSG('c1', 'How about some text formatting, like _italics_, __bold__ and ~~strikethrough~~? You can also indicate actions like this: *grins*'),
+      MSG('c1', 'Click the __Formatting info__ icon to see how. Try formatting something!'),
+    ],
+    // next: () => null,
+    next: msg => (transformRpMessage(msg.content, null).indexOf('<') >= 0) ? '5' : null,
+  }],
+  ['5', {
+    messages: () => [
+      MSG('c1', 'Nice! Well, that covers the basics.'),
+      MSG('c1', "There's more to do in a real RP, such as viewing the archive, downloading a transcript, and changing options (like night mode.)"),
+      MSG('c1', 'Click the __back arrow__ to return to the homepage and create your first RP. Have fun! ★'),
     ],
     next: () => null,
   }],
@@ -100,7 +142,7 @@ export class DemoRoomService {
     }).forEach((msg, i) => {
       setTimeout(() => {
         this.messages = [...this.messages, msg];
-      }, i * 1500 + 500);
+      }, i * 2500 + 500);
     });
   }
 }
