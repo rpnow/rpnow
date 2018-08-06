@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { OptionsService } from '../services/options.service';
@@ -95,7 +95,6 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     private metaService: Meta,
     private breakpointObserver: BreakpointObserver,
     public challengeService: ChallengeService,
-    private changeDetectorRef: ChangeDetectorRef,
     public demoRoom: DemoRoomService,
   ) { }
 
@@ -109,13 +108,6 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     this.charaDrawerMode$ = this.isSmall$.pipe(
       map(isSmall => isSmall ? 'over' : 'side')
     );
-
-    setTimeout(() => {
-      if (!this.breakpointObserver.isMatched(this.SMALL_BREAKPOINT)) {
-        this.charaSelectorOpen = true;
-      }
-      this.changeDetectorRef.detectChanges();
-    }, 800);
 
     this.metaService.addTag({ name: 'description', content:
       'Learn how to use RPNow.'
