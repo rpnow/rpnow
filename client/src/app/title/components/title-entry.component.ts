@@ -54,7 +54,6 @@ import { Observable, Subscription } from 'rxjs';
       align-self: stretch;
       border: none;
       outline: none;
-      cursor: pointer;
       border-radius: 0;
       box-shadow: none;
       padding: 0;
@@ -63,6 +62,7 @@ import { Observable, Subscription } from 'rxjs';
       transition: 0.2s;
     }
     #go-button:not([disabled]) {
+      cursor: pointer;
       background-color: #7c4dff;
       color: white;
     }
