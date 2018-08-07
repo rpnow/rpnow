@@ -23,6 +23,10 @@ const PICS = [
     uri: 'https://pbs.twimg.com/media/DiGi4JCUYAATXAy.jpg',
     author: 'Himi https://twitter.com/SugoiBanana_',
   },
+  {
+    uri: 'https://78.media.tumblr.com/be81b19872926ee3388ebf12c12c8c01/tumblr_ood5t2VSVM1urbwufo1_1280.png',
+    author: 'Nin_Ei https://www.instagram.com/nin_ei'
+  },
 ];
 
 const PIC: string = PICS[Math.floor(Math.random() * PICS.length)].uri;
