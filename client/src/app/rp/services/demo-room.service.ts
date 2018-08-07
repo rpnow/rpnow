@@ -1,8 +1,9 @@
-import { Injectable, ApplicationRef } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 import { RpVoiceSerialized, typeFromVoice } from '../models/rp-voice';
 import { transformRpMessage } from '../models/parser';
+import { BehaviorSubject } from 'rxjs';
 
 interface ConversationPart {
   messages(input: {messages: RpMessage[], charas: RpChara[], userMsg: RpMessage}): RpMessage[];
@@ -97,36 +98,45 @@ const CONVERSATION = new Map<string, ConversationPart>([
 ]);
 
 @Injectable()
-export class DemoRoomService {
-  messages: RpMessage[] = [];
-  charas: RpChara[] = [
+export class DemoRoomService implements OnDestroy {
+  private readonly messagesSubject = new BehaviorSubject<RpMessage[]>([]);
+  private readonly charasSubject = new BehaviorSubject<RpChara[]>([
     {
       _id: 'c1',
       name: 'Ruella Prunella',
       color: '#8a4fdb',
     }
-  ];
+  ]);
 
-  conversationState: string;
+  private conversationState: string;
+
+  readonly messages$ = this.messagesSubject.asObservable();
+  readonly charas$ = this.charasSubject.asObservable();
+
+  ngOnDestroy() {
+    this.messagesSubject.complete();
+    this.charasSubject.complete();
+  }
 
   addMessage(msg: RpMessage) {
-    this.messages = [...this.messages, msg];
+    this.messagesSubject.next([...this.messagesSubject.value, msg]);
     this.triggerNext(msg);
   }
 
   addChara(chara: RpChara) {
-    this.charas = [...this.charas, chara];
+    this.charasSubject.next([...this.charasSubject.value, chara]);
   }
 
   editMessageContent(id: RpMessageId, content: string) {
-    const idx = this.messages.findIndex(m => m._id === id);
+    const messages = [...this.messagesSubject.value];
+    const idx = messages.findIndex(m => m._id === id);
     const msg: RpMessage = {
-      ...this.messages[idx],
+      ...messages[idx],
       content,
       edited: Date.now() / 1000
     };
-    this.messages = [...this.messages];
-    this.messages[idx] = msg;
+    messages[idx] = msg;
+    this.messagesSubject.next(messages);
   }
 
   triggerNext(userMsg) {
@@ -139,13 +149,15 @@ export class DemoRoomService {
       else return;
     }
 
+    const messages = this.messagesSubject.value;
+    const charas = this.charasSubject.value;
     CONVERSATION.get(this.conversationState).messages({
       userMsg,
-      messages: this.messages,
-      charas: this.charas
+      messages,
+      charas,
     }).forEach((msg, i) => {
       setTimeout(() => {
-        this.messages = [...this.messages, msg];
+        this.messagesSubject.next([...this.messagesSubject.value, msg]);
       }, i * 2500 + 500);
     });
   }

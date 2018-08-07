@@ -21,10 +21,10 @@ import { DemoRoomService } from '../services/demo-room.service';
 
         <rpn-title-bar rpTitle="Test RP" [menuIcon]="'arrow_back'" (clickMenu)="navigateToHome()"></rpn-title-bar>
 
-        <rpn-scroll-anchor #scrollAnchor [watch]="demoRoom.messages" style="z-index:-1">
+        <rpn-scroll-anchor #scrollAnchor [watch]="demoRoom.messages$|async" style="z-index:-1">
           <rpn-message-list
-            [messages]="demoRoom.messages"
-            [charas]="demoRoom.charas"
+            [messages]="demoRoom.messages$|async"
+            [charas]="demoRoom.charas$|async"
             [challenge]="challengeService.challenge.hash"
             [showMessageDetails]="true"
             [pressEnterToSend]="true"
@@ -48,7 +48,7 @@ import { DemoRoomService } from '../services/demo-room.service';
       <mat-sidenav position="end" [mode]="charaDrawerMode$|async" [(opened)]="charaSelectorOpen">
 
         <rpn-chara-drawer-contents
-          [charas]="demoRoom.charas"
+          [charas]="demoRoom.charas$|async"
           [recentCharas]="recentCharas"
           [currentChara]="currentVoice"
           [isInline]="(isSmall$|async) === false"
@@ -75,7 +75,7 @@ import { DemoRoomService } from '../services/demo-room.service';
     ChallengeService,
     DemoRoomService,
   ],
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DemoChatComponent implements OnInit, OnDestroy {
   private readonly SMALL_BREAKPOINT = '(max-width: 1023px)';
