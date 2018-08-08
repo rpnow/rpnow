@@ -36,7 +36,7 @@ const CONVERSATION = new Map<string, ConversationPart>([
   ['start', {
     messages: () => [
       MSG('narrator', 'You see a young woman clad in a purple dress and a tall pointed hat. She greets you with a warm smile.'),
-      MSG('c1', 'Hi! Welcome to the __RPNow Test Room!__ *bows*'),
+      MSG('c1', 'Hi! Welcome to the __RPNow Test Room!__ *curtsies*'),
       MSG('c1', "Let's get started -- __send your first message__ using the message box below!"),
     ],
     next: msg => msg.type !== 'image' ? (msg.type === 'chara' ? (msg.charaId === 'c1' ? '2rp' : '3') : '2') : null,
