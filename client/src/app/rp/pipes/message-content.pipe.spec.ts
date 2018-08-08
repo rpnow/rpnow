@@ -70,8 +70,8 @@ const tests: { [testName: string]: [string, string|null, string][] } = {
   ],
 
   'links': [
-    ['http://rpnow.net', null, '<a href="http://rpnow.net">http://rpnow.net</a>'],
-    ['http://rpnow.net?x=1&y=2+_-5', null, '<a href="http://rpnow.net?x=1&y=2+_-5">http://rpnow.net?x=1&y=2+_-5</a>'],
+    ['http://rpnow.net', null, '<a href="http://rpnow.net" target="_blank">http://rpnow.net</a>'],
+    ['http://rpnow.net?x=1&y=2+_-5', null, '<a href="http://rpnow.net?x=1&y=2+_-5" target="_blank">http://rpnow.net?x=1&y=2+_-5</a>'],
   ],
 
   'mdash': [

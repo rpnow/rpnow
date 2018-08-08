@@ -39,7 +39,7 @@ function escape(str: string): string {
 }
 
 const tagLexers = [
-    { r: /^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/i, replace: link => `<a href="${link}">${link}</a>` },
+    { r: /^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/i, replace: link => `<a href="${link}" target="_blank">${link}</a>` },
     { r: /^____/ }, // if there's a lot of _, don't treat it as anything
     { r: /^___/, tag: Tag.BoldItalics },
     { r: /^__/, tag: Tag.Bold },
