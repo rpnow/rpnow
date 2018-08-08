@@ -151,14 +151,20 @@ export class DemoRoomService implements OnDestroy {
 
     const messages = this.messagesSubject.value;
     const charas = this.charasSubject.value;
-    CONVERSATION.get(this.conversationState).messages({
+    let delay = 1500;
+
+    const conversation = CONVERSATION.get(this.conversationState).messages({
       userMsg,
       messages,
       charas,
-    }).forEach((msg, i) => {
+    });
+
+    for (const msg of conversation) {
       setTimeout(() => {
         this.messagesSubject.next([...this.messagesSubject.value, msg]);
-      }, i * 2500 + 500);
-    });
+      }, delay);
+
+      delay += msg.content.length * 33 + 2000;
+    }
   }
 }
