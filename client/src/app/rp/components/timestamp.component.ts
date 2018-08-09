@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectionStrategy, Input, OnDestroy, HostBinding, ChangeDetectorRef } from '@angular/core';
-import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 import * as format from 'date-fns/format';
 
 const LONG_FORMAT = 'MMMM Do[,] YYYY [at] h:mm A';
@@ -8,7 +7,7 @@ const LONG_FORMAT = 'MMMM Do[,] YYYY [at] h:mm A';
   selector: 'rpn-timestamp',
   template: `
     {{ timeAgoText }}
-    <ng-container *ngIf="timeAgoEditedDate">(Edited)</ng-container>
+    <ng-container *ngIf="hasEditedDate()">(Edited)</ng-container>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -16,13 +15,13 @@ export class TimestampComponent implements OnInit, OnDestroy {
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
-  timeAgoDate: Date;
-  timeAgoEditedDate: Date;
+  private timeAgoDate: Date;
+  private timeAgoEditedDate: Date;
 
   timeAgoText: string;
   @HostBinding('title') timeAgoTitleText: string;
 
-  timerHandle: number;
+  private timerHandle: number;
 
   @Input('createdAt') set _createdAt(ts: number) {
     this.timeAgoDate = ts ? new Date(ts * 1000) : null;
@@ -45,16 +44,19 @@ export class TimestampComponent implements OnInit, OnDestroy {
     clearInterval(this.timerHandle);
   }
 
-  updateRelativeTime() {
+  hasEditedDate() {
+    return !!this.timeAgoEditedDate;
+  }
+
+  private updateRelativeTime() {
     if (!this.timeAgoDate) {
       this.timeAgoText = null;
     } else {
-      this.timeAgoText = distanceInWordsToNow(this.timeAgoDate) + ' ago';
+      this.timeAgoText = this.timeAgo(this.timeAgoDate);
     }
-
   }
 
-  updateAbsoluteTimes() {
+  private updateAbsoluteTimes() {
     if (!this.timeAgoDate) {
       this.timeAgoTitleText = null;
     } else {
@@ -64,4 +66,23 @@ export class TimestampComponent implements OnInit, OnDestroy {
     }
   }
 
+  private timeAgo(date: Date): string {
+    // close enough
+    const periods = [
+      {label: 'm', div: 60},
+      {label: 'h', div: 24},
+      {label: 'd', div: 30},
+      {label: 'mo', div: 12},
+      {label: 'y', div: Infinity},
+    ];
+
+    let t = (Date.now() - date.getTime()) / 1000 / 60;
+
+    while (Math.round(t) >= periods[0].div) t /= periods.shift().div;
+
+    const { label } = periods[0];
+
+    if (Math.round(t) === 0) return 'now';
+    return `${Math.round(t)}${label} ago`;
+  }
 }
