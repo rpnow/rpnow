@@ -6,8 +6,9 @@ import { transformRpMessage } from '../models/parser';
 import { BehaviorSubject } from 'rxjs';
 
 interface ConversationPart {
-  messages(input: {messages: RpMessage[], charas: RpChara[], userMsg: RpMessage}): RpMessage[];
-  next(msg: RpMessage): string;
+  messages(input: {messages: RpMessage[], charas: RpChara[], userMsg?: RpMessage, userChara?: RpChara}): RpMessage[];
+  onMessage(msg: RpMessage): string;
+  onChara(chara: RpChara): string;
 }
 
 function MSG(voice: RpVoiceSerialized, content: string) {
@@ -39,21 +40,31 @@ const CONVERSATION = new Map<string, ConversationPart>([
       MSG('c1', 'Hi! Welcome to the __RPNow Test Room!__ *curtsies*'),
       MSG('c1', "Let's get started -- __send your first message__ using the message box below!"),
     ],
-    next: msg => msg.type !== 'image' ? (msg.type === 'chara' ? (msg.charaId === 'c1' ? '2rp' : '3') : '2') : null,
+    onMessage: msg => msg.type !== 'image' ? (msg.type === 'chara' ? (msg.charaId === 'c1' ? '2rp' : '3') : '2') : null,
+    onChara: () => null,
   }],
   ['2', {
     messages: () => [
       MSG('c1', 'Good job! :)'),
       MSG('c1', 'RPNow is fun because you can create lots of characters, like me! Click the __"Change Character"__ icon and __create a new character!__'),
     ],
-    next: msg => msg.type === 'chara' ? (msg.charaId === 'c1' ? '2rp' : '3') : null,
+    onMessage: msg => msg.charaId === 'c1' ? '2rp' : null,
+    onChara: () => '2then',
   }],
   ['2rp', {
     messages: () => [
       MSG('c1', 'Hey, you sent a message as me!'),
-      MSG('c1', 'Try creating a new character! Click the __"Change Character"__ icon and __create a new character!__ Then, send a message as them.'),
+      MSG('c1', 'Try creating a new character! Click the __"Change Character"__ icon and __create a new character!__'),
     ],
-    next: msg => (msg.type === 'chara' && msg.charaId !== 'c1') ? '3' : null,
+    onMessage: msg => null,
+    onChara: () => '2then',
+  }],
+  ['2then', {
+    messages: () => [
+      MSG('c1', 'OK! Now send a message!'),
+    ],
+    onMessage: msg => (msg.type === 'chara' && msg.charaId !== 'c1') ? '3' : null,
+    onChara: () => null,
   }],
   ['3', {
     messages: ({ userMsg, charas }) => [
@@ -62,17 +73,19 @@ const CONVERSATION = new Map<string, ConversationPart>([
       MSG('c1', 'You can also post pictures! __Copy the link__ to this picture, and click the __"Post Image"__ icon:'),
       MSG('c1', PIC),
     ],
-    next: msg => {
+    onMessage: msg => {
       if (msg.type === 'image') return '4';
       if (transformRpMessage(msg.content, null).indexOf('<a') >= 0) return '4bad';
       return null;
     },
+    onChara: () => null,
   }],
   ['4bad', {
     messages: () => [
       MSG('c1', 'Rather than just sending the link in the chat box, click the __Post image__ icon.'),
     ],
-    next: msg => msg.type === 'image' ? '4' : null,
+    onMessage: msg => msg.type === 'image' ? '4' : null,
+    onChara: () => null,
   }],
   ['4', {
     messages: ({ userMsg }) => [
@@ -84,8 +97,8 @@ const CONVERSATION = new Map<string, ConversationPart>([
       MSG('c1', 'How about some text formatting, like _italics_, __bold__ and ~~strikethrough~~? You can also indicate actions like this: *grins*'),
       MSG('c1', 'Click the __Formatting info__ icon to see how. Try formatting something!'),
     ],
-    // next: () => null,
-    next: msg => (transformRpMessage(msg.content, null).indexOf('<') >= 0) ? '5' : null,
+    onMessage: msg => (transformRpMessage(msg.content, null).indexOf('<') >= 0) ? '5' : null,
+    onChara: () => null,
   }],
   ['5', {
     messages: () => [
@@ -93,7 +106,8 @@ const CONVERSATION = new Map<string, ConversationPart>([
       MSG('c1', "There's more to do in a real RP, such as viewing the archive, downloading a transcript, and changing options (like night mode.)"),
       MSG('c1', 'Click the __back arrow__ to return to the homepage and create your first RP. Have fun! ★'),
     ],
-    next: () => null,
+    onMessage: () => null,
+    onChara: () => null,
   }],
 ]);
 
@@ -120,11 +134,12 @@ export class DemoRoomService implements OnDestroy {
 
   addMessage(msg: RpMessage) {
     this.messagesSubject.next([...this.messagesSubject.value, msg]);
-    this.triggerNext(msg);
+    this.onUserMessage(msg);
   }
 
   addChara(chara: RpChara) {
     this.charasSubject.next([...this.charasSubject.value, chara]);
+    this.onUserChara(chara);
   }
 
   editMessageContent(id: RpMessageId, content: string) {
@@ -139,22 +154,36 @@ export class DemoRoomService implements OnDestroy {
     this.messagesSubject.next(messages);
   }
 
-  triggerNext(userMsg) {
-    if (!this.conversationState) {
-      this.conversationState = 'start';
-    } else {
-      const next = CONVERSATION.get(this.conversationState).next(userMsg);
+  start() {
+    this.conversationState = 'start';
+    this.doConversationStep({});
+  }
 
-      if (next) this.conversationState = next;
-      else return;
+  onUserMessage(userMsg) {
+    const next = CONVERSATION.get(this.conversationState).onMessage(userMsg);
+
+    if (next) {
+      this.conversationState = next;
+      this.doConversationStep({ userMsg });
     }
+  }
 
+  onUserChara(userChara) {
+    const next = CONVERSATION.get(this.conversationState).onChara(userChara);
+
+    if (next) {
+      this.conversationState = next;
+      this.doConversationStep({ userChara });
+    }
+  }
+
+  private doConversationStep(userUpdates: { userMsg?: RpMessage, userChara?: RpChara }) {
     const messages = this.messagesSubject.value;
     const charas = this.charasSubject.value;
     let delay = 1500;
 
     const conversation = CONVERSATION.get(this.conversationState).messages({
-      userMsg,
+      ...userUpdates,
       messages,
       charas,
     });

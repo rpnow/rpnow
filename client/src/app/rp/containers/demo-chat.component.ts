@@ -113,7 +113,7 @@ export class DemoChatComponent implements OnInit, OnDestroy {
       'Learn how to use RPNow.'
     });
 
-    this.demoRoom.triggerNext(null);
+    this.demoRoom.start();
   }
 
   ngOnDestroy() {
