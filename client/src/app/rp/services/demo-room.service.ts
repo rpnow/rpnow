@@ -106,6 +106,22 @@ const CONVERSATION = new Map<string, ConversationPart>([
       MSG('c1', "There's more to do in a real RP, such as viewing the archive, downloading a transcript, and changing options (like night mode.)"),
       MSG('c1', 'Click the __back arrow__ to return to the homepage and create your first RP. Have fun! ★'),
     ],
+    onMessage: () => 'ps1',
+    onChara: () => null,
+  }],
+  ['ps1', {
+    messages: () => [
+      MSG('c1', 'Take care!'),
+      MSG('ooc', 'hey, this is nigel, creator of RPNow. if you ever have any issues with the site, let me know!'),
+      MSG('ooc', 'my email: rpnow.net@gmail.com'),
+    ],
+    onMessage: () => 'ps2',
+    onChara: () => null,
+  }],
+  ['ps2', {
+    messages: () => [
+      MSG('ooc', 'this is the last message! bye!'),
+    ],
     onMessage: () => null,
     onChara: () => null,
   }],
