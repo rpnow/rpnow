@@ -12,6 +12,20 @@ const routes: Routes = [
     component: DemoChatComponent,
   },
   {
+    // defunct stats route - send back to main rp chat
+    path: ':rpCode/stats',
+    redirectTo: ':rpCode'
+  },
+  {
+    /**
+     * defunct exports route -
+     * some users were linking to it directly as a means of distributing rp's I think?
+     * just send them back to the main page
+     */
+    path: ':rpCode/export',
+    redirectTo: '/'
+  },
+  {
     path: ':rpCode',
     component: RpComponent,
     children: [

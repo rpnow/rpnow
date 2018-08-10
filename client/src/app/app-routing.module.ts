@@ -13,6 +13,11 @@ const appRoutes: Routes = [
     loadChildren: './terms/terms.module#TermsModule'
   },
   {
+    // defunct sample rp url - send to new demo page
+    path: 'sample',
+    redirectTo: '/rp/demo'
+  },
+  {
     path: '**',
     component: NotFoundComponent
   }
