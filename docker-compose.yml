@@ -36,6 +36,10 @@ services:
     networks:
       - front-layer
       - back-layer
+    deploy:
+      resources:
+        limits:
+          memory: 750M
 
   db:
     image: mongo:3.6
