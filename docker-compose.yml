@@ -5,7 +5,7 @@ services:
     image: abiosoft/caddy
     restart: "no"
     volumes:
-      - caddy_certs:/etc/caddycerts
+      - caddy_data:/root/.caddy
       - ./Caddyfile:/etc/Caddyfile:ro
     ports:
       - mode: host # mode:host required to get correct client ip from docker swarm
@@ -54,5 +54,5 @@ networks:
   back-layer:
 
 volumes:
-  caddy_certs:
+  caddy_data:
   db_data:
