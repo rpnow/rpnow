@@ -1,4 +1,10 @@
-*.rpnow.net {
+www.rpnow.net, beta.rpnow.net {
+    redir {
+        https://rpnow.net{uri}
+    }
+}
+
+rpnow.net {
     log stdout
     gzip
     realip {
