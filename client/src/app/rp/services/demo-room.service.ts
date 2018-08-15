@@ -29,6 +29,10 @@ const PICS = [
     uri: 'https://78.media.tumblr.com/be81b19872926ee3388ebf12c12c8c01/tumblr_ood5t2VSVM1urbwufo1_1280.png',
     author: 'Nin_Ei https://www.instagram.com/nin_ei'
   },
+  {
+    uri: 'https://78.media.tumblr.com/3baf5e9d0d727a165bdeb0fba6a176b4/tumblr_messaging_pc58rrB63F1qmy8yj_1280.jpg',
+    author: 'Sillybro https://www.instagram.com/bearuto'
+  }
 ];
 
 const PIC: string = PICS[Math.floor(Math.random() * PICS.length)].uri;
