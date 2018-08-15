@@ -19,13 +19,23 @@ require('./api/api.sockets')(server);
 
 // static file serving + SPA routes
 const staticRoutes = new express.Router();
-const staticDir = __dirname.replace('server/src', 'client/dist/rpnow');
-staticRoutes.use('/client-files', express.static(staticDir));
-staticRoutes.get('/', (req, res) => res.sendFile(`${staticDir}/index.html`));
-staticRoutes.get('/terms', (req, res) => res.sendFile(`${staticDir}/index.html`));
-staticRoutes.get('/rp/demo', (req, res) => res.sendFile(`${staticDir}/index.html`));
-staticRoutes.get('/rp/*', xRobotsTag, (req, res) => res.sendFile(`${staticDir}/index.html`));
 app.use(staticRoutes);
+const clientFiles = __dirname.replace('server/src', 'client/dist/rpnow');
+// bundle
+staticRoutes.use('/client-files', express.static(clientFiles));
+// legacy redirects
+staticRoutes.get('/about', (req, res) => res.redirect('/'));
+staticRoutes.get('/format', (req, res) => res.redirect('/'));
+staticRoutes.get('/sample', (req, res) => res.redirect('/rp/demo'));
+staticRoutes.get('/rp/*/export', (req, res) => res.redirect('/'));
+staticRoutes.get('/rp/:rpCode/stats', (req, res) => res.redirect(`/rp/${req.params.rpCode}`));
+// valid routes
+staticRoutes.get('/', (req, res) => res.sendFile(`${clientFiles}/index.html`));
+staticRoutes.get('/terms', (req, res) => res.sendFile(`${clientFiles}/index.html`));
+staticRoutes.get('/rp/demo', (req, res) => res.sendFile(`${clientFiles}/index.html`)); // separate, because no xRobotsTag
+staticRoutes.get('/rp/*', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/index.html`));
+// 404
+staticRoutes.get('*', (req, res) => res.status(404).sendFile(`${clientFiles}/index.html`));
 
 // listen
 server.listen(config.get('port'), (err) => {
