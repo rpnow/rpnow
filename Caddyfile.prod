@@ -1,6 +1,9 @@
-www.rpnow.net, beta.rpnow.net {
+*.rpnow.net {
     redir {
         https://rpnow.net{uri}
+    }
+    tls {
+        max_certs 10
     }
 }
 
@@ -14,8 +17,5 @@ rpnow.net {
     proxy / rpnow:3000 {
         websocket
         transparent
-    }
-    tls {
-        max_certs 10
     }
 }
