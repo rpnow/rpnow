@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output, OnChanges } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 
@@ -49,16 +49,24 @@ export class MessageListComponent implements OnChanges {
   private idsSeen: Set<RpMessageId> = new Set();
   public nags: Set<RpMessageId> = new Set();
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     if (this.showNags) {
-      for (const {_id} of this.messages) {
-        if (this.idsSeen.has(_id)) continue;
+      // nag at the bottom upon first load
+      if (changes.messages.previousValue == null && changes.messages.currentValue != null) {
+        const bottomMessage = this.messages[this.messages.length - 1];
+        if (bottomMessage && Math.random() < 0.2) this.nags.add(bottomMessage._id);
 
-        this.idsSeen.add(_id);
-        if (this.idsSeen.size % 40 === 0) {
-          this.nags.add(_id);
-        }
+        this.messages.forEach(msg => this.idsSeen.add(msg._id));
       }
+      // nags periodically later on
+      // for (const {_id} of this.messages) {
+      //   if (this.idsSeen.has(_id)) continue;
+
+      //   this.idsSeen.add(_id);
+      //   if (this.idsSeen.size % 100 === 0) {
+      //     this.nags.add(_id);
+      //   }
+      // }
     }
   }
 

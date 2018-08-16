@@ -15,9 +15,9 @@ import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
       max-width: 600px;
       text-align: center;
       word-wrap: break-word;
-      opacity: 0.9;
+      opacity: 0.6;
       font-style: italic;
-      font-size: 110%;
+      font-size: 90%;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
