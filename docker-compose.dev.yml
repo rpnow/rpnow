@@ -12,6 +12,7 @@ services:
     environment:
       RPNOW_CORS: 'true'
       RPNOW_LOG_LEVEL: 'debug'
+      RPNOW_BUNDLE_COMPRESSION: ''
     command: npm run start-dev
 
   db:

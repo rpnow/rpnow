@@ -21,6 +21,15 @@ require('./api/api.sockets')(server);
 const staticRoutes = new express.Router();
 app.use(staticRoutes);
 const clientFiles = __dirname.replace('server/src', 'client/dist/rpnow');
+// set compression header if we're serving compressed files
+if (config.get('bundleCompression') === 'gzip') {
+    staticRoutes.use((req, res, next) => {
+        if (!req.path.endsWith('.mp3')) {
+            res.set('Content-Encoding', 'gzip');
+        }
+        next();
+    });
+}
 // bundle
 staticRoutes.use('/client-files', express.static(clientFiles));
 // legacy redirects

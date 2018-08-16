@@ -1,6 +1,5 @@
 :80 {
     log stdout
-    gzip
     realip {
         from 10.0.0.0/8
         from 172.16.0.0/12
