@@ -90,7 +90,9 @@ export class ArchiveComponent implements OnInit {
 
   pageNumChange(page: number) {
     this.router.navigate(['../', page], { relativeTo: this.route });
-    (this.messageContainer.nativeElement as HTMLElement).scrollTop = 0;
+    if (this.messageContainer) {
+      (this.messageContainer.nativeElement as HTMLElement).scrollTop = 0;
+    }
   }
 
   openMenu() {

@@ -52,7 +52,7 @@ export class MessageListComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (this.showNags) {
       // nag at the bottom upon first load
-      if (changes.messages.previousValue == null && changes.messages.currentValue != null) {
+      if (changes.messages && changes.previousValue == null && changes.messages.currentValue != null) {
         const bottomMessage = this.messages[this.messages.length - 1];
         if (bottomMessage && Math.random() < 0.2) this.nags.add(bottomMessage._id);
 
