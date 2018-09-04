@@ -33,6 +33,7 @@
     "marked": "^0.3.12",
     "material-design-icons": "^3.0.1",
     "ngx-color-picker": "^6.2.0",
+    "raven-js": "^3.27.0",
     "rxjs": "^6.2.0",
     "sha.js": "^2.4.11",
     "socket.io-client": "1.7",

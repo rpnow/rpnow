@@ -12,6 +12,7 @@ import { TitleModule } from './title/title.module';
 import { Angulartics2Module } from 'angulartics2';
 import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 import { TrackService } from './track.service';
+import { sentryProviderArray } from './error-provider';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,9 @@ import { TrackService } from './track.service';
     Angulartics2Module.forRoot([Angulartics2GoogleAnalytics])
   ],
   bootstrap: [AppComponent],
-  providers: [TrackService]
+  providers: [
+    TrackService,
+    ...sentryProviderArray
+  ],
 })
 export class AppModule { }
