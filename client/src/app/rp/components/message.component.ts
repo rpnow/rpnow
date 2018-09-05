@@ -52,7 +52,7 @@ import { OptionsService } from '../services/options.service';
 
     </div>
   `,
-  styleUrls: ['message.css'],
+  styleUrls: ['./message.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MessageComponent {
