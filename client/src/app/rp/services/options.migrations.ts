@@ -1,14 +1,9 @@
-const migrations: [string, () => void][] = [
-    ['Copy challenge from old beta', () => {
-        // was there previously a challenge recorded?
-        const hash = JSON.parse(localStorage.getItem('rpnow.challenge.hash'));
-        const secret = JSON.parse(localStorage.getItem('rpnow.challenge.secret'));
+import { getLocalObject, setLocalObject } from "../models/storage";
 
-        if (hash && secret) {
-            localStorage.clear();
-            localStorage.setItem('rpnow.global.challenge', JSON.stringify({ hash, secret }));
-        }
-    }]
+const migrations: [string, () => void][] = [
+    // ['Copy challenge from old beta', () => {
+    //     // do stuff with getLocalObject and setLocalObject
+    // }]
 ];
 
 let alreadyDone = false;
@@ -17,7 +12,7 @@ export function migrateOptions() {
     if (alreadyDone) return;
     alreadyDone = true;
 
-    const completedMigrations: string[] = JSON.parse(localStorage.getItem('rpnow.migrations')) || [];
+    const completedMigrations: string[] = getLocalObject('rpnow.migrations') || [];
 
     migrations
         .filter(([migrationName, _]) => completedMigrations.indexOf(migrationName) === -1)
@@ -27,6 +22,6 @@ export function migrateOptions() {
             migrate();
 
             completedMigrations.push(migrationName);
-            localStorage.setItem('rpnow.migrations', JSON.stringify(completedMigrations));
+            setLocalObject('rpnow.migrations', completedMigrations)
         });
 }

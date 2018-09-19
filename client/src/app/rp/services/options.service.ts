@@ -5,6 +5,7 @@ import { migrateOptions } from './options.migrations';
 import { RpVoiceSerialized } from '../models/rp-voice';
 import { RpCharaId } from '../models/rp-chara';
 import { RpCodeService } from './rp-code.service';
+import { getLocalObject, setLocalObject } from '../models/storage';
 
 const GLOBAL = 'GLOBAL';
 const ROOM = 'ROOM';
@@ -23,12 +24,12 @@ export class OptionsService implements OnDestroy {
       `rpnow.global.${propName}` :
       `rpnow.rp.${this.rpCodeService.rpCode}.${propName}`;
 
-    const stringValue = localStorage.getItem(localStorageKey);
-    const value = (stringValue != null) ? JSON.parse(stringValue) : defaultValue;
+    const rawValue = getLocalObject(localStorageKey);
+    const value = (rawValue == null) ? defaultValue : rawValue;
 
     const subj = new BehaviorSubject(value);
 
-    this.subscriptions.push(subj.subscribe(val => localStorage.setItem(localStorageKey, JSON.stringify(val))));
+    this.subscriptions.push(subj.subscribe(val => setLocalObject(localStorageKey, val)));
 
     return subj;
   }
