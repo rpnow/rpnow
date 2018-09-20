@@ -66,19 +66,19 @@ function onConnection(socket) {
     });
 
     socket.on('add message', (msg, doPromise) => {
-        doPromise(model.addMessage(rpCode, socket.id, msg, ipid));
+        doPromise(model.addMessage(rpCode, msg, ipid));
     });
 
     socket.on('edit message', (editInfo, doPromise) => {
-        doPromise(model.editMessage(rpCode, socket.id, editInfo, ipid));
+        doPromise(model.editMessage(rpCode, editInfo, ipid));
     });
 
     socket.on('add image', (url, doPromise) => {
-        doPromise(model.addImage(rpCode, socket.id, url, ipid));
+        doPromise(model.addImage(rpCode, url, ipid));
     });
 
     socket.on('add character', (chara, doPromise) => {
-        doPromise(model.addChara(rpCode, socket.id, chara, ipid));
+        doPromise(model.addChara(rpCode, chara, ipid));
     });
 
     socket.on('disconnect', () => {
@@ -87,16 +87,16 @@ function onConnection(socket) {
 }
 
 function listenToModelEvents(io) {
-    model.events.on('add message', (rpCode, connectionId, msg) => {
-        io.sockets.connected[connectionId].to(rpCode).emit('add message', msg);
+    model.events.on('add message', (rpCode, msg) => {
+        io.to(rpCode).emit('add message', msg);
     });
 
-    model.events.on('edit message', (rpCode, connectionId, msg) => {
-        io.sockets.connected[connectionId].to(rpCode).emit('edit message', msg);
+    model.events.on('edit message', (rpCode, msg) => {
+        io.to(rpCode).emit('edit message', msg);
     });
 
-    model.events.on('add character', (rpCode, connectionId, chara) => {
-        io.sockets.connected[connectionId].to(rpCode).emit('add character', chara);
+    model.events.on('add character', (rpCode, chara) => {
+        io.to(rpCode).emit('add character', chara);
     });
 }
 
