@@ -12,7 +12,6 @@ function onConnection(socket) {
     const { rpCode } = socket.handshake.query;
 
     model.getLatest(rpCode).then((data) => {
-        socket.join(rpCode);
         logger.info(`JOIN (${ip}): ${rpCode} - connection id ${socket.id}`);
         socket.emit('load rp', data);
     }).catch((err) => {
@@ -21,22 +20,19 @@ function onConnection(socket) {
         socket.disconnect();
     });
 
+    ['add message', 'edit message', 'add character']
+        .map(eventType => [eventType, (thisRpCode, data) => {
+            if (thisRpCode === rpCode) {
+                socket.emit(eventType, data);
+            }
+        }])
+        .forEach(([eventType, listener]) => {
+            model.events.addListener(eventType, listener);
+            socket.on('disconnect', () => model.events.removeListener(eventType, listener));
+        });
+
     socket.on('disconnect', () => {
         logger.info(`EXIT (${ip}): ${rpCode} - connection id ${socket.id}`);
-    });
-}
-
-function listenToModelEvents(io) {
-    model.events.on('add message', (rpCode, msg) => {
-        io.to(rpCode).emit('add message', msg);
-    });
-
-    model.events.on('edit message', (rpCode, msg) => {
-        io.to(rpCode).emit('edit message', msg);
-    });
-
-    model.events.on('add character', (rpCode, chara) => {
-        io.to(rpCode).emit('add character', chara);
     });
 }
 
@@ -44,8 +40,6 @@ module.exports = function createSocketApi(httpServer) {
     const io = socketio(httpServer, { serveClient: false });
 
     io.on('connection', socket => onConnection(socket));
-
-    listenToModelEvents(io);
 
     process.on('SIGINT', () => {
         // force close
