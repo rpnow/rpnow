@@ -13,14 +13,20 @@ function onConnection(socket) {
 
     model.getLatest(rpCode).then((data) => {
         logger.info(`JOIN (${ip}): ${rpCode} - connection id ${socket.id}`);
-        socket.emit('load rp', data);
+        const payload = { type: 'load rp', data };
+        socket.send(JSON.stringify(payload));
     }).catch((err) => {
         logger.info(`JERR (${ip}): ${rpCode} ${(err && err.code) || err}`);
-        socket.emit('rp error', err);
+        const payload = { type: 'rp error', data: err };
+        socket.send(JSON.stringify(payload));
         socket.disconnect();
     });
 
-    const listener = (eventType, data) => socket.emit(eventType, data);
+    const listener = (type, data) => {
+        const payload = { type, data };
+        socket.send(JSON.stringify(payload));
+    };
+
     model.events.addListener(rpCode, listener);
 
     socket.on('disconnect', () => {

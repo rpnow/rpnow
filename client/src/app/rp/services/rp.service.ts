@@ -57,33 +57,47 @@ export class RpService implements OnDestroy {
     this.socket = io(environment.apiUrl, { query: `rpCode=${this.rpCode}` });
 
     this.loaded = new Promise((resolve, reject) => {
-      this.socket.on('load rp', () => resolve(true));
-      this.socket.on('rp error', () => resolve(false));
+      this.socket.on('message', (msg) => {
+        if (JSON.parse(msg).type === 'load rp') resolve(true);
+        if (JSON.parse(msg).type === 'rp error') resolve(false);
+      });
     });
 
     this.notFound = new Promise((resolve, reject) => {
-      this.socket.on('load rp', () => resolve(false));
-      this.socket.on('rp error', () => resolve(true));
+      this.socket.on('message', (msg) => {
+        if (JSON.parse(msg).type === 'load rp') resolve(false);
+        if (JSON.parse(msg).type === 'rp error') resolve(true);
+      });
     });
 
     const firstMessages: Subject<RpMessage[]> = new Subject();
     const firstCharas: Subject<RpChara[]> = new Subject();
 
-    this.socket.on('load rp', (data) => {
-      this.title = data.title;
-      this.desc = data.desc;
+    this.socket.on('message', message => {
+      const { type, data } = JSON.parse(message);
 
-      firstMessages.next(data.msgs);
-      firstMessages.complete();
-      firstCharas.next(data.charas);
-      firstCharas.complete();
+      if (type === 'load rp') {
+        this.title = data.title;
+        this.desc = data.desc;
+
+        firstMessages.next(data.msgs);
+        firstMessages.complete();
+        firstCharas.next(data.charas);
+        firstCharas.complete();
+      }
+
+      else if (type === 'add message') {
+        this.newMessagesSubject.next(data);
+      }
+
+      else if (type === 'add character') {
+        this.newCharasSubject.next(data);
+      }
+
+      else if (type === 'edit message') {
+        this.editedMessagesSubject.next(data);
+      }
     });
-
-    this.socket.on('add message', msg => this.newMessagesSubject.next(msg));
-
-    this.socket.on('add character', chara => this.newCharasSubject.next(chara));
-
-    this.socket.on('edit message', data => this.editedMessagesSubject.next(data));
 
     // observable structure
     this.newMessages$ = this.newMessagesSubject.asObservable();
