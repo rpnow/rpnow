@@ -35,7 +35,7 @@ function onConnection(socket) {
 }
 
 module.exports = function createSocketApi(httpServer) {
-    const io = socketio(httpServer, { serveClient: false });
+    const io = socketio(httpServer, { serveClient: false, transports: ['websocket'] });
 
     io.on('connection', socket => onConnection(socket));
 
