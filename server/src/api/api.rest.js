@@ -25,6 +25,46 @@ router.post('/rp.json', (req, res, next) => {
         .catch(err => next(err));
 });
 
+router.post('/rp/:rpCode([-0-9a-zA-Z]+)/message', async (req, res, next) => {
+    const { rpCode } = req.params;
+    const input = req.body;
+    const ipid = getIpid(req.ip);
+    
+    model.addMessage(rpCode, input, ipid)
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err));
+});
+
+router.post('/rp/:rpCode([-0-9a-zA-Z]+)/image', async (req, res, next) => {
+    const { rpCode } = req.params;
+    const input = req.body;
+    const ipid = getIpid(req.ip);
+    
+    model.addImage(rpCode, input, ipid)
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err));
+});
+
+router.post('/rp/:rpCode([-0-9a-zA-Z]+)/chara', async (req, res, next) => {
+    const { rpCode } = req.params;
+    const input = req.body;
+    const ipid = getIpid(req.ip);
+    
+    model.addChara(rpCode, input, ipid)
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err));
+});
+
+router.patch('/rp/:rpCode([-0-9a-zA-Z]+)/message', async (req, res, next) => {
+    const { rpCode } = req.params;
+    const input = req.body;
+    const ipid = getIpid(req.ip);
+    
+    model.editMessage(rpCode, input, ipid)
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err));
+});
+
 router.get('/challenge.json', (req, res, next) => {
     generateChallenge()
         .then(data => res.status(200).json(data))

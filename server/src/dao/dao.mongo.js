@@ -19,6 +19,13 @@ connection.then((db) => {
 
 module.exports = ({
 
+    async roomExists(rpCode) {
+        const db = await connection;
+        const rpCodeData = (await db.collection('rpCodes').findOne({ _id: rpCode }));
+
+        return rpCodeData != null;
+    },
+
     async getRoomByCode(rpCode) {
         const db = await connection;
         const rpCodeData = (await db.collection('rpCodes').findOne({ _id: rpCode }));

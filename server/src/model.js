@@ -28,6 +28,11 @@ const editMessageSchema = nJ({
     secret: [String, 64],
 });
 
+async function checkRpCode(rpCode) {
+    if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
+    if (!dao.roomExists(rpCode)) throw { code: 'RP_NOT_FOUND' };
+}
+
 module.exports = ({
     events,
 
@@ -82,6 +87,8 @@ module.exports = ({
     },
 
     async addMessage(rpCode, input, ipid) {
+        await checkRpCode(rpCode);
+
         let msg;
         try {
             msg = addMessageSchema(input);
@@ -105,7 +112,10 @@ module.exports = ({
         return msg;
     },
 
-    async addImage(rpCode, url, ipid) {
+    async addImage(rpCode, input, ipid) {
+        await checkRpCode(rpCode);
+
+        const url = input && input.url;
         if (typeof url !== 'string') throw { code: 'BAD_URL' };
 
         // validate image
@@ -134,6 +144,8 @@ module.exports = ({
     },
 
     async addChara(rpCode, inputChara, ipid) {
+        await checkRpCode(rpCode);
+
         let chara;
         try {
             chara = addCharaSchema(inputChara);
@@ -151,6 +163,8 @@ module.exports = ({
     },
 
     async editMessage(rpCode, input /* ,ipid */) {
+        await checkRpCode(rpCode);
+
         let editInfo;
         try {
             editInfo = editMessageSchema(input);

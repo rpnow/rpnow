@@ -9,6 +9,7 @@ import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpVoice, typeFromVoice } from '../models/rp-voice';
 import { RpCodeService } from './rp-code.service';
+import { HttpClient } from '@angular/common/http';
 
 
 @Injectable()
@@ -43,6 +44,7 @@ export class RpService implements OnDestroy {
   public readonly charasById$: Observable<Map<RpCharaId, RpChara>>;
 
   constructor(
+    private http: HttpClient,
     challengeService: ChallengeService,
     rpCodeService: RpCodeService,
     private track: TrackService
@@ -151,13 +153,6 @@ export class RpService implements OnDestroy {
     this.newCharasSubject.complete();
   }
 
-  // helper to let us 'await' on a socket emit completing
-  private socketEmit(messageType: string, data: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.socket.emit(messageType, data, (err, receivedData) => err ? reject(err) : resolve(receivedData));
-    });
-  }
-
   async addMessage(content: string, voice: RpVoice) {
     const msg: Partial<RpMessage> = {
       content,
@@ -166,7 +161,7 @@ export class RpService implements OnDestroy {
     };
     this.track.event('Messages', 'create', msg.type, content.length);
 
-    const receivedMsg: RpMessage = await this.socketEmit('add message', msg);
+    const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${this.rpCode}/message`, msg).toPromise() as any;
     this.newMessagesSubject.next(receivedMsg);
 
     return receivedMsg;
@@ -179,16 +174,17 @@ export class RpService implements OnDestroy {
     };
     this.track.event('Charas', 'create');
 
-    const receivedChara: RpChara = await this.socketEmit('add character', chara);
+    const receivedChara: RpChara = await this.http.post(`${environment.apiUrl}/api/rp/${this.rpCode}/chara`, chara).toPromise() as any;
     this.newCharasSubject.next(receivedChara);
 
     return receivedChara;
   }
 
   async addImage(url: string) {
+    const msg = { url };
     this.track.event('Messages', 'create', 'image');
 
-    const receivedMsg: RpMessage = await this.socketEmit('add image', url);
+    const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${this.rpCode}/image`, msg).toPromise() as any;
     this.newMessagesSubject.next(receivedMsg);
 
     return receivedMsg;
@@ -202,7 +198,7 @@ export class RpService implements OnDestroy {
     };
     this.track.event('Messages', 'edit', null, content.length);
 
-    const msg: RpMessage = await this.socketEmit('edit message', editInfo);
+    const msg: RpMessage = await this.http.patch(`${environment.apiUrl}/api/rp/${this.rpCode}/message`, editInfo).toPromise() as any;
     this.editedMessagesSubject.next(msg);
   }
 
