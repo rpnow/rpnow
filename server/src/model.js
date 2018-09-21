@@ -108,7 +108,7 @@ module.exports = ({
 
         msg._id = await dao.addMessage(rpCode, msg);
 
-        events.emit('add message', rpCode, msg);
+        events.emit(rpCode, 'add message', msg);
         return msg;
     },
 
@@ -139,7 +139,7 @@ module.exports = ({
 
         msg._id = await dao.addMessage(rpCode, msg);
 
-        events.emit('add message', rpCode, msg);
+        events.emit(rpCode, 'add message', msg);
         return msg;
     },
 
@@ -158,7 +158,7 @@ module.exports = ({
 
         chara._id = await dao.addChara(rpCode, chara);
 
-        events.emit('add character', rpCode, chara);
+        events.emit(rpCode, 'add character', chara);
         return chara;
     },
 
@@ -183,7 +183,7 @@ module.exports = ({
 
         await dao.editMessage(rpCode, editInfo.id, msg);
 
-        events.emit('edit message', rpCode, msg);
+        events.emit(rpCode, 'edit message', msg);
         return msg;
     },
 });

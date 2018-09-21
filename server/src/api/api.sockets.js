@@ -20,19 +20,12 @@ function onConnection(socket) {
         socket.disconnect();
     });
 
-    ['add message', 'edit message', 'add character']
-        .map(eventType => [eventType, (thisRpCode, data) => {
-            if (thisRpCode === rpCode) {
-                socket.emit(eventType, data);
-            }
-        }])
-        .forEach(([eventType, listener]) => {
-            model.events.addListener(eventType, listener);
-            socket.on('disconnect', () => model.events.removeListener(eventType, listener));
-        });
+    const listener = (eventType, data) => socket.emit(eventType, data);
+    model.events.addListener(rpCode, listener);
 
     socket.on('disconnect', () => {
         logger.info(`EXIT (${ip}): ${rpCode} - connection id ${socket.id}`);
+        model.events.removeListener(rpCode, listener);
     });
 }
 
