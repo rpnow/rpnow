@@ -3,6 +3,7 @@ const socketio = require('socket.io');
 const model = require('../model');
 const logger = require('../services/logger');
 const config = require('../config');
+const { subscribe } = require('../services/events');
 
 function onConnection(socket) {
     const ip =
@@ -22,16 +23,14 @@ function onConnection(socket) {
         socket.disconnect();
     });
 
-    const listener = (type, data) => {
+    const unsub = subscribe(rpCode, (type, data) => {
         const payload = { type, data };
         socket.send(JSON.stringify(payload));
-    };
-
-    model.events.addListener(rpCode, listener);
+    });
 
     socket.on('disconnect', () => {
         logger.info(`EXIT (${ip}): ${rpCode} - connection id ${socket.id}`);
-        model.events.removeListener(rpCode, listener);
+        unsub();
     });
 }
 

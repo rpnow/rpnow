@@ -30,8 +30,10 @@ services:
     restart: on-failure
     depends_on:
       - db
+      - redis
     environment:
       RPNOW_DB_HOST: 'db'
+      RPNOW_REDIS_HOST: 'redis'
       RPNOW_TRUST_PROXY: 'true'
     networks:
       - front-layer
@@ -46,6 +48,12 @@ services:
     restart: on-failure
     volumes:
       - db_data:/data/db
+    networks:
+      - back-layer
+
+  redis:
+    image: redis:4-32bit # 32bit is for decreased memory usage, see docs
+    restart: on-failure
     networks:
       - back-layer
 

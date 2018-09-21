@@ -16,6 +16,7 @@
     "nanoid": "^1.0.2",
     "nconf": "^0.10.0",
     "normalize-json": "^0.1.3",
+    "redis": "^2.8.0",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.5",
     "socket.io": "^1.7.2",

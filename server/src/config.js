@@ -19,6 +19,6 @@ const conf = require('nconf')
         bundleCompression: '',
     });
 
-conf.required(['dbHost']);
+conf.required(['dbHost', 'redisHost']);
 
 module.exports = conf;

@@ -1,12 +1,9 @@
 const request = require('request-promise-native');
 const nJ = require('normalize-json');
-const EventEmitter = require('events');
+const { publish } = require('./services/events');
 const dao = require('./dao/dao.mongo');
 const { generateRpCode } = require('./services/rpcode.js');
 const { verifyChallenge } = require('./services/challenge');
-
-class RpEventEmitter extends EventEmitter {}
-const events = new RpEventEmitter();
 
 const roomOptionsSchema = nJ({
     title: [String, 30],
@@ -34,8 +31,6 @@ async function checkRpCode(rpCode) {
 }
 
 module.exports = ({
-    events,
-
     async createRp(input, ipid) {
         let roomOptions;
         try {
@@ -108,7 +103,7 @@ module.exports = ({
 
         msg._id = await dao.addMessage(rpCode, msg);
 
-        events.emit(rpCode, 'add message', msg);
+        publish(rpCode, 'add message', msg);
         return msg;
     },
 
@@ -139,7 +134,7 @@ module.exports = ({
 
         msg._id = await dao.addMessage(rpCode, msg);
 
-        events.emit(rpCode, 'add message', msg);
+        publish(rpCode, 'add message', msg);
         return msg;
     },
 
@@ -158,7 +153,7 @@ module.exports = ({
 
         chara._id = await dao.addChara(rpCode, chara);
 
-        events.emit(rpCode, 'add character', chara);
+        publish(rpCode, 'add character', chara);
         return chara;
     },
 
@@ -183,7 +178,7 @@ module.exports = ({
 
         await dao.editMessage(rpCode, editInfo.id, msg);
 
-        events.emit(rpCode, 'edit message', msg);
+        publish(rpCode, 'edit message', msg);
         return msg;
     },
 });
