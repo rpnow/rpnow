@@ -39,9 +39,12 @@ services:
       - front-layer
       - back-layer
     deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
       resources:
         limits:
-          memory: 750M
+          memory: 400M
 
   db:
     image: mongo:3.6
