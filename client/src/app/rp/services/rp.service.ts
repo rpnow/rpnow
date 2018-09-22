@@ -1,22 +1,22 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import * as io from 'socket.io-client';
 import { ChallengeService, Challenge } from './challenge.service';
 import { environment } from '../../../environments/environment';
 import { Subject, ReplaySubject, Observable, merge } from 'rxjs';
-import { map, scan } from 'rxjs/operators';
+import { map, scan, filter, first } from 'rxjs/operators';
 import { TrackService } from '../../track.service';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpVoice, typeFromVoice } from '../models/rp-voice';
 import { RpCodeService } from './rp-code.service';
 import { HttpClient } from '@angular/common/http';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 
 @Injectable()
 export class RpService implements OnDestroy {
 
   private readonly challenge: Challenge;
-  private readonly socket: SocketIOClient.Socket;
+  private readonly socket$: WebSocketSubject<{type: string, data: any }>;
 
   public readonly loaded: Promise<boolean>;
   public readonly notFound: Promise<boolean>;
@@ -53,29 +53,21 @@ export class RpService implements OnDestroy {
     this.rpCode = rpCodeService.rpCode;
     this.challenge = challengeService.challenge;
 
-    // socket.io events
-    this.socket = io(environment.apiUrl, { query: `rpCode=${this.rpCode}`, transports: ['websocket'] });
+    // websocket events
+    this.socket$ = webSocket<{type: string, data: any }>(`${environment.wsUrl}?rpCode=${this.rpCode}`);
 
-    this.loaded = new Promise((resolve, reject) => {
-      this.socket.on('message', (msg) => {
-        if (JSON.parse(msg).type === 'load rp') resolve(true);
-        if (JSON.parse(msg).type === 'rp error') resolve(false);
-      });
-    });
+    this.loaded = this.socket$.pipe(
+      filter(({ type }) => type === 'load rp' || type === 'rp error'),
+      map(({ type }) => type === 'load rp'),
+      first(),
+    ).toPromise();
 
-    this.notFound = new Promise((resolve, reject) => {
-      this.socket.on('message', (msg) => {
-        if (JSON.parse(msg).type === 'load rp') resolve(false);
-        if (JSON.parse(msg).type === 'rp error') resolve(true);
-      });
-    });
+    this.notFound = this.loaded.then(loaded => !loaded);
 
     const firstMessages: Subject<RpMessage[]> = new Subject();
     const firstCharas: Subject<RpChara[]> = new Subject();
 
-    this.socket.on('message', message => {
-      const { type, data } = JSON.parse(message);
-
+    this.socket$.subscribe(({type, data}) => {
       if (type === 'load rp') {
         this.title = data.title;
         this.desc = data.desc;
@@ -161,7 +153,7 @@ export class RpService implements OnDestroy {
 
   // because rp service is provided in rp component, this is called when navigating away from an rp
   public ngOnDestroy() {
-    this.socket.close();
+    this.socket$.complete();
     this.newMessagesSubject.complete();
     this.editedMessagesSubject.complete();
     this.newCharasSubject.complete();

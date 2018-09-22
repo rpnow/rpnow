@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Observable, Observer, of } from 'rxjs';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
-import * as io from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { RpVoice, typeFromVoice } from '../models/rp-voice';
 import { TrackService } from '../../track.service';

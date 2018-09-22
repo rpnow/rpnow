@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: ''
+  apiUrl: '',
+  wsUrl: `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}`,
 };
