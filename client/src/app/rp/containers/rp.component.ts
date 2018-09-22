@@ -8,6 +8,7 @@ import { BannerMessageService } from '../services/banner-message.service';
 import { tap } from 'rxjs/operators';
 import { RpCodeService } from '../services/rp-code.service';
 import { RoomService } from '../services/room.service';
+import { ChallengeService } from '../services/challenge.service';
 
 @Component({
   selector: 'rpn-room',
@@ -41,6 +42,7 @@ import { RoomService } from '../services/room.service';
   `],
   providers: [
     BannerMessageService,
+    ChallengeService,
     MainMenuService,
     OptionsService,
     RoomService,

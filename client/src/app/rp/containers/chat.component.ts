@@ -7,11 +7,12 @@ import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';
-import { RpChara } from '../models/rp-chara';
+import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpVoice, isSpecialVoice } from '../models/rp-voice';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Title } from '@angular/platform-browser';
-import { ChallengeService } from '../services/challenge.service';
+import { RpCodeService } from '../services/rp-code.service';
+import { RoomService } from '../services/room.service';
 
 @Component({
   selector: 'rpn-chat',
@@ -119,7 +120,6 @@ import { ChallengeService } from '../services/challenge.service';
     }
   `],
   providers: [
-    ChallengeService,
     RpService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -148,7 +148,9 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   constructor(
     public rp: RpService,
+    private rpCodeService: RpCodeService,
     private title: Title,
+    private roomService: RoomService,
     public options: OptionsService,
     private mainMenuService: MainMenuService,
     private snackbar: MatSnackBar,
@@ -236,27 +238,29 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   async createNewChara($event: {name: string, color: string}) {
     this.closeCharaSelectorIfOverlay();
-    const chara = await this.rp.addChara($event.name, $event.color);
-    this.options.msgBoxVoice = chara._id;
-    this.updateRecentCharas(chara);
+    const charaId = (
+      await this.roomService.addChara(this.rpCodeService.rpCode, $event.name, $event.color)
+    )._id;
+    this.options.msgBoxVoice = charaId;
+    this.updateRecentCharas(charaId);
   }
 
   setVoice(voice: RpVoice) {
     this.track.event('Charas', 'pick', typeof voice === 'string' ? voice : 'chara');
 
     this.options.msgBoxVoice = isSpecialVoice(voice) ? voice : voice._id;
-    if (!isSpecialVoice(voice)) this.updateRecentCharas(voice);
+    if (!isSpecialVoice(voice)) this.updateRecentCharas(voice._id);
     this.closeCharaSelectorIfOverlay();
   }
 
-  private updateRecentCharas(chara: RpChara) {
+  private updateRecentCharas(charaId: RpCharaId) {
     this.options.recentCharas = [
-      chara._id, ...this.options.recentCharas.filter(id => id !== chara._id)
+      charaId, ...this.options.recentCharas.filter(id => id !== charaId)
     ].slice(0, 5);
   }
 
   async sendMessage(content: string, voice: RpChara) {
-    await this.rp.addMessage(content, voice);
+    await this.roomService.addMessage(this.rpCodeService.rpCode, content, voice);
 
     // erase saved message box content upon successful message delivery
     if (content === this.options.msgBoxContent) {
@@ -265,11 +269,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   editMessageContent(id: RpMessageId, content: string) {
-    this.rp.editMessage(id, content);
+    this.roomService.editMessage(this.rpCodeService.rpCode, id, content);
   }
 
   sendImage(url: string) {
-    this.rp.addImage(url);
+    this.roomService.addImage(this.rpCodeService.rpCode, url);
   }
 
 }
