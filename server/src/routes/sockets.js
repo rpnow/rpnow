@@ -4,12 +4,12 @@ const logger = require('../services/logger');
 const config = require('../config');
 const { subscribe } = require('../services/events');
 
-function onConnection(socket) {
+function onConnection(socket, req) {
     const ip =
-        (config.get('trustProxy') && socket.upgradeReq.headers['x-forwarded-for'])
-        || socket.upgradeReq.connection.remoteAddress;
+        (config.get('trustProxy') && req.headers['x-forwarded-for'])
+        || req.connection.remoteAddress;
 
-    const rpCode = /rpCode=([-a-zA-Z0-9]+)/g.exec(socket.upgradeReq.url)[1];
+    const rpCode = /rpCode=([-a-zA-Z0-9]+)/g.exec(req.url)[1];
 
     const send = (type, data) => socket.send(JSON.stringify({ type, data }));
 
