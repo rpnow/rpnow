@@ -87,7 +87,7 @@ export class SendBoxComponent {
   }
 
   get isChara() {
-    return !(typeof this.voice === 'string');
+    return this.voice && !(typeof this.voice === 'string');
   }
 
   get chara() {

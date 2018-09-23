@@ -11,14 +11,14 @@ function onConnection(socket, req) {
 
     const rpCode = /rpCode=([-a-zA-Z0-9]+)/g.exec(req.url)[1];
 
-    const send = (type, data) => socket.send(JSON.stringify({ type, data }));
+    const send = data => socket.send(JSON.stringify(data));
 
     model.getLatest(rpCode).then((data) => {
         logger.info(`JOIN (${ip}): ${rpCode}`);
-        send('load rp', data);
-    }).catch((err) => {
-        logger.info(`JERR (${ip}): ${rpCode} ${(err && err.code) || err}`);
-        send('rp error', err);
+        send({ type: 'init', data });
+    }).catch((error) => {
+        logger.info(`JERR (${ip}): ${rpCode} ${(error && error.code) || error}`);
+        send({ type: 'error', data: error });
         socket.disconnect();
     });
 

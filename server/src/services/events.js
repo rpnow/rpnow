@@ -8,16 +8,13 @@ const pub = promisify(pubClient.publish).bind(pubClient);
 process.on('SIGINT', () => pubClient.quit());
 
 module.exports = {
-    publish(channel, type, data) {
-        return pub(channel, JSON.stringify({ type, data }));
+    publish(channel, data) {
+        return pub(channel, JSON.stringify(data));
     },
     subscribe(channel, listener) {
         const subClient = redis.createClient(`redis://${config.get('redisHost')}`);
 
-        subClient.on('message', (_channel, msg) => {
-            const { type, data } = JSON.parse(msg);
-            listener(type, data);
-        });
+        subClient.on('message', (_channel, data) => listener(JSON.parse(data)));
         subClient.subscribe(channel);
 
         process.on('SIGINT', () => subClient.quit());

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/
 import { RpService } from '../services/rp.service';
 import { Subscription, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scan, map, first, combineLatest } from 'rxjs/operators';
+import { scan, map, first, combineLatest, filter } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
@@ -35,7 +35,7 @@ import { RoomService } from '../services/room.service';
         </div>
 
         <ng-container *ngIf="rp.loaded|async">
-          <rpn-title-bar [rpTitle]="rp.title" [desc]="rp.desc" (clickMenu)="openMenu()"></rpn-title-bar>
+          <rpn-title-bar [rpTitle]="rp.title$|async" [desc]="rp.desc$|async" (clickMenu)="openMenu()"></rpn-title-bar>
 
           <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
             <rpn-welcome *ngIf="isNewRp$|async"></rpn-welcome>
@@ -161,8 +161,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.title.setTitle('Loading... | RPNow');
     this.rp.loaded.then(found => {
-      if (found) this.title.setTitle(this.rp.title + ' | RPNow');
-      else this.title.setTitle('Not Found | RPNow');
+      // if (found) this.title.setTitle(this.rp.title + ' | RPNow');
+      // else this.title.setTitle('Not Found | RPNow');
     });
 
     this.currentChara$ = this.options.msgBoxVoice$.pipe(
@@ -238,9 +238,17 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   async createNewChara($event: {name: string, color: string}) {
     this.closeCharaSelectorIfOverlay();
+
     const charaId = (
       await this.roomService.addChara(this.rpCodeService.rpCode, $event.name, $event.color)
     )._id;
+
+    // wait until the charas array has this chara in it
+    await this.rp.charasById$.pipe(
+      filter(charas => charas.has(charaId)),
+      first(),
+    ).toPromise();
+
     this.options.msgBoxVoice = charaId;
     this.updateRecentCharas(charaId);
   }

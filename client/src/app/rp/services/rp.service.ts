@@ -1,122 +1,126 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Subject, ReplaySubject, Observable, merge } from 'rxjs';
-import { map, scan, filter, first } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, scan, filter, first, distinctUntilChanged, tap, shareReplay } from 'rxjs/operators';
 import { RpChara, RpCharaId } from '../models/rp-chara';
-import { RpMessage, RpMessageId } from '../models/rp-message';
+import { RpMessage } from '../models/rp-message';
 import { RpCodeService } from './rp-code.service';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
+interface RpEvent {
+  type: 'init' | 'append' | 'put' | 'error';
+  data: any;
+}
+
+interface RpState {
+  title?: string;
+  desc?: string;
+  msgs?: RpMessage[];
+  charas?: RpChara[];
+}
 
 @Injectable()
 export class RpService implements OnDestroy {
 
-  private readonly socket$: WebSocketSubject<{type: string, data: any }>;
+  private readonly socketSubject: WebSocketSubject<RpEvent>;
 
   public readonly loaded: Promise<boolean>;
   public readonly notFound: Promise<boolean>;
-  public title: string = null;
-  public desc: string = null;
 
-  private readonly newMessagesSubject: Subject<RpMessage> = new Subject();
-  private readonly editedMessagesSubject: Subject<RpMessage> = new Subject();
-
-  private readonly newCharasSubject: Subject<RpChara> = new Subject();
+  public readonly title$: Observable<string>;
+  public readonly desc$: Observable<string>;
 
   public readonly newMessages$: Observable<RpMessage>;
-  public readonly editedMessages$: Observable<RpMessage>;
-  public readonly messages$: Observable<RpMessage[]> = new ReplaySubject(1);
-  public readonly messagesById$: Observable<Map<RpMessageId, RpMessage>>;
+  public readonly messages$: Observable<RpMessage[]>;
 
-  public readonly newCharas$: Observable<RpChara>;
-  public readonly charas$: Observable<RpChara[]> = new ReplaySubject(1);
+  public readonly charas$: Observable<RpChara[]>;
   public readonly charasById$: Observable<Map<RpCharaId, RpChara>>;
 
   constructor(rpCodeService: RpCodeService) {
     // websocket events
-    this.socket$ = webSocket<{type: string, data: any }>(`${environment.wsUrl}?rpCode=${rpCodeService.rpCode}`);
+    this.socketSubject = webSocket<RpEvent>(`${environment.wsUrl}?rpCode=${rpCodeService.rpCode}`);
 
-    this.loaded = this.socket$.pipe(
-      filter(({ type }) => type === 'load rp' || type === 'rp error'),
-      map(({ type }) => type === 'load rp'),
+    const socket$ = this.socketSubject.pipe(
+      shareReplay(1),
+    )
+
+    this.loaded = socket$.pipe(
+      filter(({ type }) => type === 'init' || type === 'error'),
+      map(({ type }) => type === 'init'),
       first(),
     ).toPromise();
 
     this.notFound = this.loaded.then(loaded => !loaded);
 
-    const firstMessages: Subject<RpMessage[]> = new Subject();
-    const firstCharas: Subject<RpChara[]> = new Subject();
+    const stateOperations$ = socket$.pipe<(state: RpState) => RpState>(
+      map(({type, data}) => (state: RpState) => {
+        if (type === 'init') {
+          return data;
+        }
 
-    this.socket$.subscribe(({type, data}) => {
-      if (type === 'load rp') {
-        this.title = data.title;
-        this.desc = data.desc;
+        else if (type === 'append') {
+          const newState = { ...state };
+          for (const key in data) {
+            if (Array.isArray(data[key])) {
+              newState[key] = [...state[key], ...data[key]];
+            }
+          }
+          return newState;
+        }
 
-        firstMessages.next(data.msgs);
-        firstMessages.complete();
-        firstCharas.next(data.charas);
-        firstCharas.complete();
-      }
+        else if (type === 'put') {
+          const newState = { ...state };
+          for (const key in data) {
+            if (Array.isArray(data[key])) {
+              const arr = [...state[key]];
+              for (const item of data[key]) {
+                const index = arr.findIndex(oldItem => oldItem._id === item._id);
+                if (index !== -1) arr.splice(index, 1, item);
+              }
+              newState[key] = arr;
+            }
+          }
+          return newState;
+        }
 
-      else if (type === 'add message') {
-        this.newMessagesSubject.next(data);
-      }
-
-      else if (type === 'add character') {
-        this.newCharasSubject.next(data);
-      }
-
-      else if (type === 'edit message') {
-        this.editedMessagesSubject.next(data);
-      }
-    });
-
-    // observable structure
-    this.newMessages$ = this.newMessagesSubject.asObservable();
-
-    this.editedMessages$ = this.editedMessagesSubject.asObservable();
-
-    const messageOperations$: Observable<(msgs: RpMessage[]) => RpMessage[]> = merge(
-      firstMessages.pipe(
-        map(msgs => () => msgs)
-      ),
-      this.newMessages$.pipe(
-        map(msg => (msgs: RpMessage[]) => [...msgs, msg])
-      ),
-      this.editedMessages$.pipe(
-        map(msg => (msgs: RpMessage[]) => {
-          const index = msgs.findIndex(m => m._id === msg._id);
-          if (index !== -1) msgs.splice(index, 1, msg);
-          return msgs;
-        })
-      )
+        else if (type === 'error') {
+          // TODO handle error
+        }
+      }),
     );
 
-    messageOperations$.pipe(
-      scan((arr, fn: (msgs: RpMessage[]) => RpMessage[]) => fn(arr), <RpMessage[]>[]),
-    ).subscribe(
-      this.messages$ as Subject<RpMessage[]>
+    const state$ = stateOperations$.pipe<RpState>(
+      scan((state, fn: (state: RpState) => RpState) => fn(state), {}),
+      shareReplay(1),
     );
 
-    this.messagesById$ = this.messages$.pipe(
-      map(msgs => msgs.reduce((msgMap, msg) => msgMap.set(msg._id, msg), new Map()))
+    this.newMessages$ = socket$.pipe(
+      filter(({ type, data }) => type === 'append' && data.msgs),
+      map(({ data }) => data.msgs[0])
     );
 
-    this.newCharas$ = this.newCharasSubject.asObservable();
-
-    const charaOperations$: Observable<((charas: RpChara[]) => RpChara[])> = merge(
-      firstCharas.pipe(
-        map(charas => () => charas)
-      ),
-      this.newCharas$.pipe(
-        map(chara => (charas: RpChara[]) => [...charas, chara])
-      )
+    this.messages$ = state$.pipe(
+      filter(({ msgs=null }) => !!msgs),
+      map(({ msgs }) => msgs),
+      distinctUntilChanged(),
     );
 
-    charaOperations$.pipe(
-      scan((arr, fn: {(charas)}) => fn(arr), <RpChara[]>[]),
-    ).subscribe(
-      this.charas$ as Subject<RpChara[]>
+    this.charas$ = state$.pipe(
+      filter(({ charas=null }) => !!charas),
+      map(({ charas }) => charas),
+      distinctUntilChanged(),
+    );
+
+    this.title$ = state$.pipe(
+      filter(({ title=null }) => !!title),
+      map(({ title }) => title),
+      distinctUntilChanged(),
+    );
+
+    this.desc$ = state$.pipe(
+      filter(({ desc=null }) => !!desc),
+      map(({ desc }) => desc),
+      distinctUntilChanged(),
     );
 
     this.charasById$ = this.charas$.pipe(
@@ -126,10 +130,6 @@ export class RpService implements OnDestroy {
 
   // because rp service is provided in rp component, this is called when navigating away from an rp
   public ngOnDestroy() {
-    this.socket$.complete();
-    this.newMessagesSubject.complete();
-    this.editedMessagesSubject.complete();
-    this.newCharasSubject.complete();
+    this.socketSubject.complete();
   }
-
 }
