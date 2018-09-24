@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/
 import { RpService } from '../services/rp.service';
 import { Subscription, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scan, map, first, combineLatest, filter } from 'rxjs/operators';
+import { scan, map, first, combineLatest, filter, take } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
@@ -161,10 +161,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.title.setTitle('Loading... | RPNow');
 
-    this.rp.title$.pipe(first()).subscribe(title => {
+    this.rp.title$.pipe(take(1)).subscribe(title => {
       this.title.setTitle(title + ' | RPNow');
     });
-    this.rp.error$.pipe(first()).subscribe(() => {
+    this.rp.error$.pipe(take(1)).subscribe(() => {
       this.title.setTitle('Not Found | RPNow');
     });
 
