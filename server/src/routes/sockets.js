@@ -19,7 +19,7 @@ function onConnection(socket, req) {
     }).catch((error) => {
         logger.info(`JERR (${ip}): ${rpCode} ${(error && error.code) || error}`);
         send({ type: 'init', data: { error } });
-        socket.disconnect();
+        socket.close();
     });
 
     const unsub = subscribe(rpCode, send);
