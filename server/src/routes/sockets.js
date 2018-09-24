@@ -17,15 +17,35 @@ function onConnection(socket, req) {
         logger.info(`JOIN (${ip}): ${rpCode}`);
         send({ type: 'init', data });
     }).catch((error) => {
-        logger.info(`JERR (${ip}): ${rpCode} ${(error && error.code) || error}`);
-        send({ type: 'init', data: { error } });
-        socket.close();
+        logger.info(`JERR (${ip}): ${rpCode} - ${error.code || error}`);
+        if (error.code === 'RP_NOT_FOUND') {
+            socket.close(4404, error.code);
+        } else {
+            socket.close(4500, `${error.code || error}`);
+        }
     });
 
     const unsub = subscribe(rpCode, send);
 
-    socket.on('close', () => {
-        logger.info(`EXIT (${ip}): ${rpCode}`);
+    let alive = true;
+    setInterval(() => {
+        if (socket.readyState === 2 || socket.readyState === 3) {
+            // socket is closing or closed. no pinging
+        } else if (alive) {
+            alive = false;
+            socket.ping();
+        } else {
+            logger.info(`DIED (${ip}): ${rpCode}`);
+            socket.terminate();
+        }
+    }, 3000);
+    socket.on('pong', () => {
+        logger.info(`PONG (${ip}): ${rpCode}`);
+        alive = true;
+    });
+
+    socket.on('close', (code, reason) => {
+        logger.info(`EXIT (${ip}): ${rpCode} - ${code} ${reason}`);
         unsub();
     });
 }

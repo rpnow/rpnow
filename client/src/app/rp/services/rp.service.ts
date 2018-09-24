@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable, Observer, Subject, ReplaySubject, Subscription } from 'rxjs';
-import { map, filter, first, distinctUntilChanged, mapTo, pairwise } from 'rxjs/operators';
+import { map, filter, take, distinctUntilChanged, mapTo, pairwise } from 'rxjs/operators';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpMessage } from '../models/rp-message';
 import { RpCodeService } from './rp-code.service';
@@ -11,12 +11,18 @@ interface RpEvent {
   data: any;
 }
 
+interface RpWsError {
+  code: number;
+  reason: string;
+  wasClean?: boolean;
+}
+
 interface RpState {
   title?: string;
   desc?: string;
   msgs?: RpMessage[];
   charas?: RpChara[];
-  error?: { code: string };
+  error?: RpWsError;
 }
 
 @Injectable()
@@ -26,7 +32,7 @@ export class RpService implements OnDestroy {
   private readonly subscription: Subscription;
 
   public readonly loaded$: Observable<true>;
-  public readonly error$: Observable<{ code: string }>;
+  public readonly error$: Observable<RpWsError>;
 
   public readonly title$: Observable<string>;
   public readonly desc$: Observable<string>;
@@ -92,17 +98,26 @@ export class RpService implements OnDestroy {
         console.log('error');
       };
 
-      ws.onclose = () => {
+      ws.onclose = ({ code, wasClean, reason }: CloseEvent) => {
         console.log('close');
+        if (code === 1000) {
+          observer.complete();
+        } else if (reason === 'RP_NOT_FOUND') {
+          observer.next({ ...state, error: { code, reason } });
+          observer.complete();
+        } else {
+          observer.next({ ...state, error: { code, wasClean, reason }});
+          observer.complete();
+        }
       };
 
-      return () => ws.close(1000); // normal completion
+      return () => ws.close(1000, 'SPA navigation');
     })).subscribe(this.rpState);
 
     this.loaded$ = this.rpState.pipe<true>(
       filter(({ msgs=null, error=null }) => !!msgs && !error),
       mapTo(true),
-      first(),
+      take(1),
     );
 
     this.messages$ = this.rpState.pipe(
