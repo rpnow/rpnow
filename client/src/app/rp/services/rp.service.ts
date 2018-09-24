@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Observable, Observer, Subject, ReplaySubject } from 'rxjs';
+import { Observable, Observer, Subject, ReplaySubject, Subscription } from 'rxjs';
 import { map, filter, first, distinctUntilChanged, mapTo, pairwise } from 'rxjs/operators';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpMessage } from '../models/rp-message';
@@ -23,6 +23,7 @@ interface RpState {
 export class RpService implements OnDestroy {
 
   private readonly rpState: Subject<RpState>;
+  private readonly subscription: Subscription;
 
   public readonly loaded$: Observable<true>;
   public readonly error$: Observable<{ code: string }>;
@@ -72,18 +73,30 @@ export class RpService implements OnDestroy {
   constructor(rpCodeService: RpCodeService) {
     // websocket events
     this.rpState = new ReplaySubject(1);
-    (<Observable<RpState>>Observable.create((observer: Observer<RpState>) => {
+    this.subscription = (<Observable<RpState>>Observable.create((observer: Observer<RpState>) => {
       let state: RpState = RpService.initialState();
       observer.next(state);
 
       const ws = new WebSocket(`${environment.wsUrl}?rpCode=${rpCodeService.rpCode}`);
+
+      ws.onopen = () => {
+        console.log('open');
+      };
 
       ws.onmessage = (evt: MessageEvent) => {
         state = RpService.updateState(state, JSON.parse(evt.data));
         observer.next(state);
       };
 
-      return () => ws.close();
+      ws.onerror = () => {
+        console.log('error');
+      };
+
+      ws.onclose = () => {
+        console.log('close');
+      };
+
+      return () => ws.close(1000); // normal completion
     })).subscribe(this.rpState);
 
     this.loaded$ = this.rpState.pipe<true>(
@@ -135,6 +148,7 @@ export class RpService implements OnDestroy {
 
   // because rp service is provided in rp component, this is called when navigating away from an rp
   public ngOnDestroy() {
+    this.subscription.unsubscribe();
     this.rpState.complete();
   }
 }
