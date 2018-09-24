@@ -18,7 +18,7 @@ function onConnection(socket, req) {
         send({ type: 'init', data });
     }).catch((error) => {
         logger.info(`JERR (${ip}): ${rpCode} ${(error && error.code) || error}`);
-        send({ type: 'error', data: error });
+        send({ type: 'init', data: { error } });
         socket.disconnect();
     });
 

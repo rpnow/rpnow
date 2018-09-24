@@ -1,14 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { map, scan, filter, first, distinctUntilChanged, tap, shareReplay } from 'rxjs/operators';
+import { map, scan, filter, first, distinctUntilChanged, shareReplay, mapTo } from 'rxjs/operators';
 import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpMessage } from '../models/rp-message';
 import { RpCodeService } from './rp-code.service';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 interface RpEvent {
-  type: 'init' | 'append' | 'put' | 'error';
+  type: 'init' | 'append' | 'put';
   data: any;
 }
 
@@ -17,6 +17,7 @@ interface RpState {
   desc?: string;
   msgs?: RpMessage[];
   charas?: RpChara[];
+  error?: { code: string };
 }
 
 @Injectable()
@@ -24,8 +25,8 @@ export class RpService implements OnDestroy {
 
   private readonly socketSubject: WebSocketSubject<RpEvent>;
 
-  public readonly loaded: Promise<boolean>;
-  public readonly notFound: Promise<boolean>;
+  public readonly loaded$: Observable<true>;
+  public readonly error$: Observable<{ code: string }>;
 
   public readonly title$: Observable<string>;
   public readonly desc$: Observable<string>;
@@ -44,13 +45,11 @@ export class RpService implements OnDestroy {
       shareReplay(1),
     )
 
-    this.loaded = socket$.pipe(
-      filter(({ type }) => type === 'init' || type === 'error'),
-      map(({ type }) => type === 'init'),
+    this.loaded$ = socket$.pipe<true>(
+      filter(({ type, data }) => type === 'init' && !data.error),
+      mapTo(true),
       first(),
-    ).toPromise();
-
-    this.notFound = this.loaded.then(loaded => !loaded);
+    );
 
     const stateOperations$ = socket$.pipe<(state: RpState) => RpState>(
       map(({type, data}) => (state: RpState) => {
@@ -81,10 +80,6 @@ export class RpService implements OnDestroy {
             }
           }
           return newState;
-        }
-
-        else if (type === 'error') {
-          // TODO handle error
         }
       }),
     );
@@ -120,6 +115,12 @@ export class RpService implements OnDestroy {
     this.desc$ = state$.pipe(
       filter(({ desc=null }) => !!desc),
       map(({ desc }) => desc),
+      distinctUntilChanged(),
+    );
+
+    this.error$ = state$.pipe(
+      filter(({ error=null }) => !!error),
+      map(({ error }) => error),
       distinctUntilChanged(),
     );
 

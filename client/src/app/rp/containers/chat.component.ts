@@ -21,12 +21,12 @@ import { RoomService } from '../services/room.service';
 
       <mat-sidenav-content>
 
-        <div *ngIf="(rp.loaded|async) == null && (rp.notFound|async) == null" class="center-contents">
-          <p>Loading your RP...</p>
+        <div *ngIf="(rp.loaded$|async) == null && (rp.error$|async) == null" class="center-contents">
+          <p>Connecting to your RP...</p>
           <mat-spinner></mat-spinner>
         </div>
 
-        <div *ngIf="rp.notFound|async" class="center-contents">
+        <div *ngIf="rp.error$|async" class="center-contents">
           <h1>RP Not Found!</h1>
 
           <p>We couldn't find an RP at <code>/rp/{{ rp.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
@@ -34,7 +34,7 @@ import { RoomService } from '../services/room.service';
           <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
         </div>
 
-        <ng-container *ngIf="rp.loaded|async">
+        <ng-container *ngIf="rp.loaded$|async">
           <rpn-title-bar [rpTitle]="rp.title$|async" [desc]="rp.desc$|async" (clickMenu)="openMenu()"></rpn-title-bar>
 
           <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
@@ -160,9 +160,12 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.title.setTitle('Loading... | RPNow');
-    this.rp.loaded.then(found => {
-      // if (found) this.title.setTitle(this.rp.title + ' | RPNow');
-      // else this.title.setTitle('Not Found | RPNow');
+
+    this.rp.title$.pipe(first()).subscribe(title => {
+      this.title.setTitle(title + ' | RPNow');
+    });
+    this.rp.error$.pipe(first()).subscribe(() => {
+      this.title.setTitle('Not Found | RPNow');
     });
 
     this.currentChara$ = this.options.msgBoxVoice$.pipe(
