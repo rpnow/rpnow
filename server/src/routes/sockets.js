@@ -40,7 +40,7 @@ function onConnection(socket, req) {
         }
     }, 3000);
     socket.on('pong', () => {
-        logger.info(`PONG (${ip}): ${rpCode}`);
+        logger.debug(`PONG (${ip}): ${rpCode}`);
         alive = true;
     });
 
