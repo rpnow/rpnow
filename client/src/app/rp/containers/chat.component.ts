@@ -29,7 +29,7 @@ import { RoomService } from '../services/room.service';
         <div *ngIf="rp.error$|async" class="center-contents">
           <h1>RP Not Found!</h1>
 
-          <p>We couldn't find an RP at <code>/rp/{{ rp.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
+          <p>We couldn't find an RP at <code>/rp/{{ rpCodeService.rpCode }}</code>. Make sure you've spelled the URL correctly.</p>
 
           <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
         </div>
