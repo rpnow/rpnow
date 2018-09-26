@@ -53,6 +53,13 @@ function onConnection(socket, req) {
 module.exports = function createSocketListener(httpServer) {
     const wss = new Server({ server: httpServer });
 
+    setInterval(() => {
+        logger.debug(`Connected clients: ${wss.clients.size}`);
+    }, 3 * 1000);
+    setInterval(() => {
+        logger.info(`Connected clients: ${wss.clients.size}`);
+    }, 5 * 60 * 1000);
+
     wss.on('connection', onConnection);
 
     process.on('SIGINT', () => {
