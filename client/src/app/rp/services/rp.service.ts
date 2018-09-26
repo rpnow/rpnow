@@ -17,7 +17,10 @@ interface RpWsError {
   wasClean?: boolean;
 }
 
+export type RpConnectionState = 'connecting' | 'loading' | 'connected' | 'offline' | 'reconnecting' | 'reloading' | 'done';
+
 interface RpState {
+  connection: RpConnectionState;
   title?: string;
   desc?: string;
   msgs?: RpMessage[];
@@ -32,6 +35,7 @@ export class RpService implements OnDestroy {
   private readonly subscription: Subscription;
 
   public readonly loaded$: Observable<true>;
+  public readonly connection$: Observable<RpConnectionState>;
   public readonly error$: Observable<RpWsError>;
 
   public readonly title$: Observable<string>;
@@ -43,11 +47,11 @@ export class RpService implements OnDestroy {
   public readonly charas$: Observable<RpChara[]>;
   public readonly charasById$: Observable<Map<RpCharaId, RpChara>>;
 
-  private static initialState = () => <RpState>{};
+  private static initialState: () => RpState = () => ({ connection: 'connecting' });
 
-  private static updateState(state: RpState, { type, data }: RpEvent) {
+  private static updateState(state: RpState, { type, data }: RpEvent): RpState {
     if (type === 'init') {
-      return data;
+      return { ...state, ...data, connection: 'connected' };
     }
 
     else if (type === 'append') {
@@ -83,39 +87,65 @@ export class RpService implements OnDestroy {
       let state: RpState = RpService.initialState();
       observer.next(state);
 
-      const ws = new WebSocket(`${environment.wsUrl}?rpCode=${rpCodeService.rpCode}`);
+      let ws: WebSocket;
 
-      ws.onopen = () => {
-        console.log('open');
-      };
+      // ws event handlers
+      const onopen = () => {
+        if (state.connection === 'connecting') {
+          state = { ...state, connection: 'loading' };
+        } else if (state.connection === 'reconnecting') {
+          state = { ...state, connection: 'reloading' };
+        }
+        observer.next(state);
+      }
 
-      ws.onmessage = (evt: MessageEvent) => {
+      const onmessage = (evt: MessageEvent) => {
         state = RpService.updateState(state, JSON.parse(evt.data));
         observer.next(state);
-      };
+      }
 
-      ws.onerror = () => {
-        console.log('error');
-      };
-
-      ws.onclose = ({ code, wasClean, reason }: CloseEvent) => {
-        console.log('close');
+      const onclose = ({ code, wasClean, reason }: CloseEvent) => {
         if (code === 1000) {
+          state = { ...state, connection: 'done' };
+          observer.next(state);
           observer.complete();
+        } else if (code === 1006) {
+          state = { ...state, connection: 'offline' };
+          observer.next(state);
+          setTimeout(() => {
+            ws = createWs();
+            state = { ...state, connection: 'reconnecting' };
+            observer.next(state);
+          }, 5000);
         } else if (reason === 'RP_NOT_FOUND') {
-          observer.next({ ...state, error: { code, reason } });
+          observer.next({ ...state, connection: 'done', error: { code, reason } });
           observer.complete();
         } else {
-          observer.next({ ...state, error: { code, wasClean, reason }});
+          observer.next({ ...state, connection: 'done', error: { code, wasClean, reason }});
           observer.complete();
         }
       };
 
+      function createWs() {
+        const ws = new WebSocket(`${environment.wsUrl}?rpCode=${rpCodeService.rpCode}`);
+        ws.onopen = onopen;
+        ws.onmessage = onmessage;
+        ws.onclose = onclose;
+        return ws;
+      }
+
+      ws = createWs();
+
       return () => ws.close(1000, 'SPA navigation');
     })).subscribe(this.rpState);
 
+    this.connection$ = this.rpState.pipe(
+      map(({ connection }) => connection),
+      distinctUntilChanged(),
+    );
+
     this.loaded$ = this.rpState.pipe<true>(
-      filter(({ msgs=null, error=null }) => !!msgs && !error),
+      filter(({ connection, error=null }) => connection === 'connected' && !error),
       mapTo(true),
       take(1),
     );
