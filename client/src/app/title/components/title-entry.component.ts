@@ -10,13 +10,13 @@ import { Observable, Subscription } from 'rxjs';
       (input)="0"
       maxlength="30"
       placeholder="Name your story"
-      (focus)="trackableEvent.emit('focus')"
-      (change)="trackableEvent.emit('change')"
+      (focus)="trackableEvent.emit('Title focus')"
+      (change)="trackableEvent.emit('Title change')"
       >
-    <button id="random-button" (click)="spinTitle(); trackableEvent.emit('spin')" matTooltip="Random title!">
+    <button id="random-button" (click)="spinTitle(); trackableEvent.emit('Title spin')" matTooltip="Random title!">
       <mat-icon>casino</mat-icon>
     </button>
-    <button id="go-button" (click)="clickGoButton(); trackableEvent.emit('create')" [disabled]="!input.value">
+    <button id="go-button" (click)="clickGoButton(); trackableEvent.emit('Create RP')" [disabled]="!input.value">
       <mat-icon>arrow_forward</mat-icon>
     </button>
   `,

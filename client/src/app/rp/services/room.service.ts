@@ -55,7 +55,7 @@ export class RoomService {
       ... typeFromVoice(voice),
       challenge: challenge.hash
     };
-    this.track.event('Messages', 'create', msg.type, content.length);
+    this.track.event('RP', 'Create message', msg.type, content.length);
 
     const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/message`, msg).toPromise() as RpMessage;
     // this.newMessagesSubject.next(receivedMsg);
@@ -71,7 +71,7 @@ export class RoomService {
       color,
       challenge: challenge.hash
     };
-    this.track.event('Charas', 'create');
+    this.track.event('RP', 'Create chara');
 
     const receivedChara: RpChara = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/chara`, chara).toPromise() as any;
     // this.newCharasSubject.next(receivedChara);
@@ -81,7 +81,7 @@ export class RoomService {
 
   async addImage(rpCode: string, url: string) {
     const msg = { url };
-    this.track.event('Messages', 'create', 'image');
+    this.track.event('RP', 'Create image');
 
     const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/image`, msg).toPromise() as any;
     // this.newMessagesSubject.next(receivedMsg);
@@ -97,7 +97,7 @@ export class RoomService {
       content,
       secret: challenge.secret
     };
-    this.track.event('Messages', 'edit', null, content.length);
+    this.track.event('RP', 'Edit message', null, content.length);
 
     const msg: RpMessage = await this.http.patch(`${environment.apiUrl}/api/rp/${rpCode}/message`, editInfo).toPromise() as any;
     // this.editedMessagesSubject.next(msg);
@@ -112,7 +112,7 @@ export class RoomService {
       color,
       secret: challenge.secret
     };
-    this.track.event('Charas', 'edit');
+    this.track.event('RP', 'Edit chara');
 
     const chara: RpChara = await this.http.patch(`${environment.apiUrl}/api/rp/${rpCode}/chara`, editInfo).toPromise() as any;
     // this.editedMessagesSubject.next(msg);

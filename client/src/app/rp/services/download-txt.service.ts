@@ -12,7 +12,7 @@ export class DownloadTxtService {
   ) { }
 
   public downloadTxt(includeOOC: boolean) {
-    this.track.event('Download', 'txt', includeOOC ? 'ooc: yes' : 'ooc: no');
+    this.track.event('Download', 'Download txt', includeOOC ? 'ooc: yes' : 'ooc: no');
     const url = `${environment.apiUrl}/api/rp/${this.rpCodeService.rpCode}/download.txt${includeOOC ? '?includeOOC=true' : ''}`;
     window.open(url, '_blank');
   }

@@ -12,7 +12,7 @@ export class DownloadDocxService {
   ) { }
 
   public downloadDocx(includeOOC: boolean) {
-    this.track.event('Download', 'docx', includeOOC ? 'ooc: yes' : 'ooc: no');
+    this.track.event('Download', 'Download docx', includeOOC ? 'ooc: yes' : 'ooc: no');
     const url = `${environment.apiUrl}/api/rp/${this.rpCodeService.rpCode}/download.docx${includeOOC ? '?includeOOC=true' : ''}`;
     window.open(url, '_blank');
   }

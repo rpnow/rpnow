@@ -265,7 +265,7 @@ export class ChatComponent implements OnInit, OnDestroy {
  }
 
   setVoice(voice: RpVoice) {
-    this.track.event('Charas', 'pick', typeof voice === 'string' ? voice : 'chara');
+    this.track.event('RP', 'Select chara', typeof voice === 'string' ? voice : 'chara');
 
     this.options.msgBoxVoice = isSpecialVoice(voice) ? voice : voice._id;
     if (!isSpecialVoice(voice)) this.updateRecentCharas(voice._id);
