@@ -25,7 +25,7 @@ import { DemoRoomService } from '../services/demo-room.service';
           <rpn-message-list
             [messages]="demoRoom.messages$|async"
             [charas]="demoRoom.charas$|async"
-            [challenge]="challengeService.challenge.hash"
+            [challenge]="(challengeService.challenge$|async)?.hash"
             [showMessageDetails]="true"
             [pressEnterToSend]="true"
             [showNags]="true"
@@ -162,12 +162,14 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     ].slice(0, 5);
   }
 
-  sendMessage(content: string, voice: RpChara) {
+  async sendMessage(content: string, voice: RpChara) {
+    const challenge = await this.challengeService.challenge$;
+
     const msg = {
       _id: Math.random() + '',
       content,
       ...typeFromVoice(voice),
-      challenge: this.challengeService.challenge.hash,
+      challenge: challenge.hash,
       timestamp: Date.now() / 1000
     };
 
@@ -183,12 +185,14 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     this.demoRoom.editMessageContent(id, content);
   }
 
-  sendImage(url: string) {
+  async sendImage(url: string) {
+    const challenge = await this.challengeService.challenge$;
+
     const msg: RpMessage = {
       _id: Math.random() + '',
       type: 'image',
       url,
-      challenge: this.challengeService.challenge.hash,
+      challenge: challenge.hash,
       timestamp: Date.now() / 1000
     };
     this.demoRoom.addMessage(msg);

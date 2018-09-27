@@ -49,7 +49,7 @@ import { RoomService } from '../services/room.service';
             <rpn-message-list
               [messages]="messages$|async"
               [charas]="rp.charas$|async"
-              [challenge]="(options.challenge$|async).hash"
+              [challenge]="(options.challenge$|async)?.hash"
               [showMessageDetails]="options.showMessageDetails$|async"
               [pressEnterToSend]="options.pressEnterToSend$|async"
               [showNags]="true"

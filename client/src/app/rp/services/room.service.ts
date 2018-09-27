@@ -26,8 +26,6 @@ export class RoomService {
     private track: TrackService,
   ) {}
 
-  private readonly challenge = this.challengeService.challenge;
-
   // getChatStream(rpCode: string): Observable<Partial<RpPageResponse>> {
   //   return Observable.create((observer: Observer<string>) => {
   //     const socket = io(`${environment.apiUrl}/room`, { query: `rpCode=${rpCode}` });
@@ -50,10 +48,12 @@ export class RoomService {
   }
 
   async addMessage(rpCode: string, content: string, voice: RpVoice) {
+    const challenge = await this.challengeService.challenge$;
+
     const msg: Partial<RpMessage> = {
       content,
       ... typeFromVoice(voice),
-      challenge: this.challenge.hash
+      challenge: challenge.hash
     };
     this.track.event('Messages', 'create', msg.type, content.length);
 
@@ -87,10 +87,12 @@ export class RoomService {
   }
 
   async editMessage(rpCode: string, id: RpMessageId, content: string) {
+    const challenge = await this.challengeService.challenge$;
+
     const editInfo = {
       id,
       content,
-      secret: this.challenge.secret
+      secret: challenge.secret
     };
     this.track.event('Messages', 'edit', null, content.length);
 

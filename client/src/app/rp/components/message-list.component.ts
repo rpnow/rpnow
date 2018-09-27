@@ -75,7 +75,7 @@ export class MessageListComponent implements OnChanges {
   }
 
   canEdit(msg: RpMessage) {
-    return msg.challenge === this.challenge;
+    return this.challenge != null && msg.challenge === this.challenge;
   }
 
   charaFor(msg: RpMessage) {

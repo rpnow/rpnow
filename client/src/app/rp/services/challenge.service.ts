@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import * as shaJs from 'sha.js';
 import { OptionsService } from './options.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 export interface Challenge {
   secret: string;
@@ -10,25 +11,22 @@ export interface Challenge {
 @Injectable()
 export class ChallengeService {
 
-  public challenge: Challenge;
+  public challenge$: Promise<Challenge>;
 
-  constructor(private options: OptionsService) {
+  constructor(
+    private options: OptionsService,
+    private http: HttpClient,
+  ) {
     if (this.options.challenge) {
-      this.challenge = this.options.challenge;
+      this.challenge$ = Promise.resolve(this.options.challenge);
     } else {
-      this.challenge = this.options.challenge = this.createChallenge();
+      this.challenge$ = this.createChallenge();
+      this.challenge$.then(challenge => this.options.challenge = challenge);
     }
   }
 
-  private createChallenge(): Challenge {
-    const bytes = new Uint32Array(64 / 8);
-    (window.crypto || <Crypto>window['msCrypto']).getRandomValues(bytes);
-
-    const secret = Array.from(bytes, str => str.toString(16).padStart(8, '0')).join('');
-
-    const hash = shaJs('sha512').update(secret).digest('hex');
-
-    return { secret, hash };
+  private async createChallenge() {
+    return <Challenge>(await this.http.get(environment.apiUrl + '/api/challenge.json').toPromise());
   }
 
 }
