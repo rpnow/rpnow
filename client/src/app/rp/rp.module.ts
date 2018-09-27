@@ -48,6 +48,7 @@ import { NagComponent } from './components/nag.component';
 import { NotifyComponent } from './components/notify.component';
 import { ScrollAnchorComponent } from './components/scroll-anchor.component';
 import { DemoChatComponent } from './containers/demo-chat.component';
+import { ConnectionIndicatorComponent } from './components/connection-indicator.component';
 
 
 @NgModule({
@@ -79,6 +80,7 @@ import { DemoChatComponent } from './containers/demo-chat.component';
     NotifyComponent,
     ScrollAnchorComponent,
     DemoChatComponent,
+    ConnectionIndicatorComponent,
   ],
   imports: [
     CommonModule,

@@ -35,6 +35,8 @@ import { RoomService } from '../services/room.service';
         </div>
 
         <ng-container *ngIf="rp.loaded$|async">
+          <rpn-connection-indicator [connection]="rp.connection$|async"></rpn-connection-indicator>
+
           <rpn-title-bar [rpTitle]="rp.title$|async" [desc]="rp.desc$|async" (clickMenu)="openMenu()"></rpn-title-bar>
 
           <rpn-scroll-anchor #scrollAnchor [watch]="rp.messages$|async" (atBottomChanged)="atBottom=$event" style="z-index:-1">
