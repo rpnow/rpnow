@@ -65,6 +65,16 @@ router.patch('/rp/:rpCode([-0-9a-zA-Z]+)/message', async (req, res, next) => {
         .catch(err => next(err));
 });
 
+router.patch('/rp/:rpCode([-0-9a-zA-Z]+)/chara', async (req, res, next) => {
+    const { rpCode } = req.params;
+    const input = req.body;
+    const ipid = getIpid(req.ip);
+
+    model.editChara(rpCode, input, ipid)
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err));
+});
+
 router.get('/challenge.json', (req, res, next) => {
     generateChallenge()
         .then(data => res.status(200).json(data))
@@ -112,6 +122,7 @@ router.all('*', (req, res, next) => {
 });
 
 router.use((err, req, res, next) => {
+    console.log(err);
     res.status(400).json({ error: err });
 });
 

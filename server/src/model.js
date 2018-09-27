@@ -12,12 +12,19 @@ const roomOptionsSchema = nJ({
 const addCharaSchema = nJ({
     name: [String, 30],
     color: /^#[0-9a-f]{6}$/g,
+    challenge: [String, 128],
 });
 const addMessageSchema = nJ({
     content: [String, 10000],
     type: ['narrator', 'chara', 'ooc'],
     charaId: msg => (msg.type === 'chara' ? [String] : undefined),
     challenge: [String, 128],
+});
+const editCharaSchema = nJ({
+    id: [String],
+    name: [String, 30],
+    color: /^#[0-9a-f]{6}$/g,
+    secret: [String, 64],
 });
 const editMessageSchema = nJ({
     id: [String],
@@ -180,5 +187,31 @@ module.exports = ({
 
         publish(rpCode, { type: 'put', data: { msgs: [msg] } });
         return msg;
+    },
+
+    async editChara(rpCode, input /* ,ipid */) {
+        await checkRpCode(rpCode);
+
+        let editInfo;
+        try {
+            editInfo = editCharaSchema(input);
+        } catch (error) {
+            throw { code: 'BAD_EDIT', details: error.message };
+        }
+
+        // check if the message is there
+        const chara = await dao.getChara(rpCode, editInfo.id);
+        if (!chara) throw { code: 'BAD_MSG_ID' };
+
+        if (!verifyChallenge(editInfo.secret, chara.challenge)) throw { code: 'BAD_SECRET' };
+
+        chara.name = editInfo.name;
+        chara.color = editInfo.color;
+        chara.edited = (Date.now() / 1000);
+
+        await dao.editChara(rpCode, editInfo.id, chara);
+
+        publish(rpCode, { type: 'put', data: { charas: [chara] } });
+        return chara;
     },
 });

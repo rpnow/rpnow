@@ -122,10 +122,22 @@ module.exports = ({
         return db.collection('messages').findOne({ roomId, _id: new ObjectID(_id) }, { roomId: 0 });
     },
 
+    async getChara(rpCode, _id) {
+        const db = await connection;
+        const { roomId } = (await db.collection('rpCodes').findOne({ _id: rpCode }));
+        return db.collection('charas').findOne({ roomId, _id: new ObjectID(_id) }, { roomId: 0 });
+    },
+
     async editMessage(rpCode, _id, { content, edited }) {
         const db = await connection;
         const { roomId } = (await db.collection('rpCodes').findOne({ _id: rpCode }));
         await db.collection('messages').updateOne({ roomId, _id: new ObjectID(_id) }, { $set: { content, edited } });
+    },
+
+    async editChara(rpCode, _id, { name, color, edited }) {
+        const db = await connection;
+        const { roomId } = (await db.collection('rpCodes').findOne({ _id: rpCode }));
+        await db.collection('charas').updateOne({ roomId, _id: new ObjectID(_id) }, { $set: { name, color, edited } });
     },
 
 });

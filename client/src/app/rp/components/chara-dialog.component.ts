@@ -1,11 +1,11 @@
-import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   template: `
     <div id="dialog-header">
 
-      <h3 mat-dialog-title>New Character</h3>
+      <h3 mat-dialog-title>{{ isEditing ? 'Editing Character' : 'New Character' }}</h3>
 
       <button mat-icon-button mat-dialog-title mat-dialog-close>
         <mat-icon aria-label="Close dialog" matTooltip="Close">close</mat-icon>
@@ -38,14 +38,22 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CharaDialogComponent {
+export class CharaDialogComponent implements OnInit {
 
+  isEditing: boolean;
   name = '';
   color = '#80c9ff';
 
   constructor(
     private dialogRef: MatDialogRef<CharaDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) private data: { edit: boolean, name: string, color: string },
   ) { }
+
+  ngOnInit() {
+    this.isEditing = this.data.edit;
+    if (this.data.name) this.name = this.data.name;
+    if (this.data.color) this.color = this.data.color;
+  }
 
   get valid() {
     return this.name.trim() && this.color;

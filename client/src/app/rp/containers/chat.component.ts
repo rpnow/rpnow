@@ -77,9 +77,11 @@ import { RoomService } from '../services/room.service';
           [recentCharas]="recentCharas$|async"
           [currentChara]="currentChara$|async"
           [isInline]="(isSmall$|async) === false"
+          [challenge]="(options.challenge$|async)?.hash"
           (closeDrawer)="closeCharaSelector()"
           (setVoice)="setVoice($event)"
           (newChara)="createNewChara($event)"
+          (editChara)="editChara($event)"
         ></rpn-chara-drawer-contents>
 
       </mat-sidenav>
@@ -257,6 +259,10 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.options.msgBoxVoice = charaId;
     this.updateRecentCharas(charaId);
   }
+
+  async editChara($event: {id: string, name: string, color: string}) {
+    await this.roomService.editChara(this.rpCodeService.rpCode, $event.id, $event.name, $event.color);
+ }
 
   setVoice(voice: RpVoice) {
     this.track.event('Charas', 'pick', typeof voice === 'string' ? voice : 'chara');

@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { RpMessage, RpMessageId } from '../models/rp-message';
-import { RpChara } from '../models/rp-chara';
+import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpVoiceSerialized, typeFromVoice } from '../models/rp-voice';
 import { transformRpMessage } from '../models/parser';
 import { BehaviorSubject } from 'rxjs';
@@ -172,6 +172,19 @@ export class DemoRoomService implements OnDestroy {
     };
     messages[idx] = msg;
     this.messagesSubject.next(messages);
+  }
+
+  editChara(id: RpCharaId, name: string, color: string) {
+    const charas = [...this.charasSubject.value];
+    const idx = charas.findIndex(c => c._id === id);
+    const chara: RpChara = {
+      ...charas[idx],
+      name,
+      color,
+      edited: Date.now() / 1000
+    };
+    charas[idx] = chara;
+    this.charasSubject.next(charas);
   }
 
   start() {

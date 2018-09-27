@@ -64,9 +64,12 @@ export class RoomService {
   }
 
   async addChara(rpCode: string, name: string, color: string) {
+    const challenge = await this.challengeService.challenge$;
+
     const chara: Partial<RpChara> = {
       name,
-      color
+      color,
+      challenge: challenge.hash
     };
     this.track.event('Charas', 'create');
 
@@ -97,6 +100,21 @@ export class RoomService {
     this.track.event('Messages', 'edit', null, content.length);
 
     const msg: RpMessage = await this.http.patch(`${environment.apiUrl}/api/rp/${rpCode}/message`, editInfo).toPromise() as any;
+    // this.editedMessagesSubject.next(msg);
+  }
+
+  async editChara(rpCode: string, id: RpMessageId, name: string, color: string) {
+    const challenge = await this.challengeService.challenge$;
+
+    const editInfo = {
+      id,
+      name,
+      color,
+      secret: challenge.secret
+    };
+    this.track.event('Charas', 'edit');
+
+    const chara: RpChara = await this.http.patch(`${environment.apiUrl}/api/rp/${rpCode}/chara`, editInfo).toPromise() as any;
     // this.editedMessagesSubject.next(msg);
   }
 

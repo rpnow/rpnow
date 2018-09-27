@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, EventEmitter, Output, Input, ViewContainerRef } from '@angular/core';
-import { RpChara } from '../models/rp-chara';
+import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpVoice } from '../models/rp-voice';
 import { MatDialog } from '@angular/material/dialog';
 import { CharaDialogComponent } from './chara-dialog.component';
@@ -18,15 +18,13 @@ import { CharaDialogComponent } from './chara-dialog.component';
     </mat-toolbar>
 
     <mat-nav-list class="flex-scroll-container">
-      <a mat-list-item (click)="onSetVoice('narrator')">
+      <a mat-list-item [class.chara-selected]="isNarratorSelected" (click)="onSetVoice('narrator')">
         <mat-icon mat-list-icon>local_library</mat-icon>
         <p mat-line>Narrator</p>
-        <mat-icon *ngIf="isNarratorSelected">check</mat-icon>
       </a>
-      <a mat-list-item (click)="onSetVoice('ooc')">
+      <a mat-list-item [class.chara-selected]="isOocSelected" (click)="onSetVoice('ooc')">
         <mat-icon mat-list-icon>chat</mat-icon>
         <p mat-line>Out of Character</p>
-        <mat-icon *ngIf="isOocSelected">check</mat-icon>
       </a>
 
       <mat-divider></mat-divider>
@@ -42,10 +40,12 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
         <h3 matSubheader>Recent</h3>
 
-        <a mat-list-item *ngFor="let chara of recentCharas; trackBy: trackById" (click)="onSetVoice(chara)">
+        <a mat-list-item *ngFor="let chara of recentCharas; trackBy: trackById" [class.chara-selected]="isCharaSelected(chara)" (click)="onSetVoice(chara)">
           <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
           <p mat-line>{{ chara.name }}</p>
-          <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
+          <button mat-icon-button (click)="onEditChara(chara); $event.stopPropagation()">
+            <mat-icon *ngIf="canEdit(chara)">edit</mat-icon>
+          </button>
         </a>
 
         <mat-divider></mat-divider>
@@ -54,10 +54,12 @@ import { CharaDialogComponent } from './chara-dialog.component';
 
       <h3 matSubheader *ngIf="hasManyCharas()">All Characters</h3>
 
-      <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" (click)="onSetVoice(chara)">
+      <a mat-list-item *ngFor="let chara of charas; trackBy: trackById" [class.chara-selected]="isCharaSelected(chara)" (click)="onSetVoice(chara)">
         <mat-icon mat-list-icon [rpnIconColor]="chara.color">person</mat-icon>
         <p mat-line>{{ chara.name }}</p>
-        <mat-icon *ngIf="isCharaSelected(chara)">check</mat-icon>
+        <button mat-icon-button (click)="onEditChara(chara); $event.stopPropagation()">
+          <mat-icon *ngIf="canEdit(chara)">edit</mat-icon>
+        </button>
       </a>
 
     </mat-nav-list>
@@ -77,6 +79,13 @@ import { CharaDialogComponent } from './chara-dialog.component';
     h1 {
       flex: 1 1 auto;
     }
+    .mat-list-item.chara-selected {
+      border-left: solid;
+      background-color: rgba(0,0,0,0.02);
+    }
+    :host-context(.dark-theme) .mat-list-item.chara-selected {
+      background-color: rgba(255,255,255,0.02);
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -92,10 +101,12 @@ export class CharaDrawerComponent {
 
   @Input() currentChara: RpVoice;
   @Input() isInline: boolean;
+  @Input() challenge: string;
 
   @Output() readonly closeDrawer: EventEmitter<void> = new EventEmitter();
   @Output() readonly setVoice: EventEmitter<RpVoice> = new EventEmitter();
   @Output() readonly newChara: EventEmitter<{name: string, color: string}> = new EventEmitter();
+  @Output() readonly editChara: EventEmitter<{id: RpCharaId, name: string, color: string}> = new EventEmitter();
 
   @Input('charas') set _charas(charas: RpChara[]) {
     this.charas = (charas != null) ? [...charas].sort(this.nameSorter) : null;
@@ -118,6 +129,10 @@ export class CharaDrawerComponent {
     return (typeof this.currentChara !== 'string') && (this.currentChara._id === chara._id);
   }
 
+  canEdit(chara: RpChara) {
+    return this.challenge != null && chara.challenge === this.challenge;
+  }
+
   hasManyCharas() {
     return this.charas && this.charas.length >= 10 && this.recentCharas && this.recentCharas.length > 0;
   }
@@ -127,9 +142,22 @@ export class CharaDrawerComponent {
   }
 
   onNewChara() {
-    const dialogRef = this.dialog.open(CharaDialogComponent, { viewContainerRef: this.viewContainerRef });
+    const dialogRef = this.dialog.open(CharaDialogComponent, {
+      viewContainerRef: this.viewContainerRef,
+      data: { edit: false },
+    });
     dialogRef.beforeClose().subscribe(chara => {
       if (chara) this.newChara.emit(chara);
+    });
+  }
+
+  onEditChara(chara: RpChara) {
+    const dialogRef = this.dialog.open(CharaDialogComponent, {
+      viewContainerRef: this.viewContainerRef,
+      data: { edit: true, name: chara.name, color: chara.color },
+    });
+    dialogRef.beforeClose().subscribe(editedChara => {
+      if (editedChara) this.editChara.emit({ ...editedChara, id: chara._id });
     });
   }
 

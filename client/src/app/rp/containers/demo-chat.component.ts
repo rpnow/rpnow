@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { OptionsService } from '../services/options.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
@@ -52,9 +52,11 @@ import { DemoRoomService } from '../services/demo-room.service';
           [recentCharas]="recentCharas"
           [currentChara]="currentVoice"
           [isInline]="(isSmall$|async) === false"
+          [challenge]="(challengeService.challenge$|async)?.hash"
           (closeDrawer)="closeCharaSelector()"
           (setVoice)="setVoice($event)"
           (newChara)="createNewChara($event)"
+          (editChara)="editChara($event)"
         ></rpn-chara-drawer-contents>
 
       </mat-sidenav>
@@ -138,16 +140,28 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  createNewChara($event: {name: string, color: string}) {
+  async createNewChara($event: {name: string, color: string}) {
+    const challenge = await this.challengeService.challenge$;
+
     this.closeCharaSelectorIfOverlay();
     const chara: RpChara = {
       _id: Math.random() + '',
       ...$event,
+      challenge: challenge.hash,
       timestamp: Date.now() / 1000
     };
     this.demoRoom.addChara(chara);
     this.currentVoice = chara;
     this.updateRecentCharas(chara);
+  }
+
+  async editChara($event: {id: string, name: string, color: string}) {
+    this.demoRoom.editChara($event.id, $event.name, $event.color);
+
+    // manually update the current char if we just edited it
+    if (!isSpecialVoice(this.currentVoice) && this.currentVoice._id === $event.id) {
+      this.currentVoice = (await this.demoRoom.charas$.pipe(take(1)).toPromise()).find(c => c._id === $event.id);
+    }
   }
 
   setVoice(voice: RpVoice) {
