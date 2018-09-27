@@ -4,6 +4,7 @@ import { RpChara, RpCharaId } from '../models/rp-chara';
 import { RpVoiceSerialized, typeFromVoice } from '../models/rp-voice';
 import { transformRpMessage } from '../models/parser';
 import { BehaviorSubject } from 'rxjs';
+import { TrackService } from '../../track.service';
 
 interface ConversationPart {
   messages(input: {messages: RpMessage[], charas: RpChara[], userMsg?: RpMessage, userChara?: RpChara}): RpMessage[];
@@ -133,6 +134,10 @@ const CONVERSATION = new Map<string, ConversationPart>([
 
 @Injectable()
 export class DemoRoomService implements OnDestroy {
+  constructor(
+    private track: TrackService,
+  ) {}
+
   private readonly messagesSubject = new BehaviorSubject<RpMessage[]>([]);
   private readonly charasSubject = new BehaviorSubject<RpChara[]>([
     {
@@ -195,6 +200,8 @@ export class DemoRoomService implements OnDestroy {
   onUserMessage(userMsg) {
     const next = CONVERSATION.get(this.conversationState).onMessage(userMsg);
 
+    this.track.event('Demo', 'Create message', `${this.conversationState} to ${next || '(itself)'}`)
+
     if (next) {
       this.conversationState = next;
       this.doConversationStep({ userMsg });
@@ -203,6 +210,8 @@ export class DemoRoomService implements OnDestroy {
 
   onUserChara(userChara) {
     const next = CONVERSATION.get(this.conversationState).onChara(userChara);
+
+    this.track.event('Demo', 'Create chara', `${this.conversationState} to ${next || '(itself)'}`)
 
     if (next) {
       this.conversationState = next;
