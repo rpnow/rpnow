@@ -38,7 +38,7 @@ function onConnection(socket, req) {
             logger.info(`DIED (${ip}): ${rpCode}`);
             socket.terminate();
         }
-    }, 3000);
+    }, 30000);
     socket.on('pong', () => {
         logger.debug(`PONG (${ip}): ${rpCode}`);
         alive = true;
