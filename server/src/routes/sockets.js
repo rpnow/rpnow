@@ -9,7 +9,19 @@ function onConnection(socket, req) {
         (config.get('trustProxy') && req.headers['x-forwarded-for'])
         || req.connection.remoteAddress;
 
-    const rpCode = /rpCode=([-a-zA-Z0-9]+)/g.exec(req.url)[1];
+    const rpCode = (() => {
+        const match = /rpCode=([-a-zA-Z0-9]+)/g.exec(req.url);
+        if (!match) {
+            logger.notice(`JERR (${ip}): Weird websocket url: ${req.url}`);
+            return null;
+        }
+        return match[1];
+    })();
+
+    if (!rpCode) {
+        socket.close(4400, 'Websocket URL is missing the rpCode');
+        return;
+    }
 
     const send = data => socket.send(JSON.stringify(data));
 
