@@ -17,25 +17,35 @@ import { MatDialogRef } from '@angular/material/dialog';
     <ng-container *ngIf="!loading">
 
       <mat-form-field>
-        <input matInput placeholder="Enter a URL:" [(ngModel)]="url" cdkFocusInitial (keyup.enter)="submit()">
+        <input id="url-input" matInput placeholder="Enter a URL:" [(ngModel)]="url" (ngModelChange)="this.updateUrl($event)" cdkFocusInitial (keyup.enter)="submit()">
       </mat-form-field>
 
-      <div id="image-container">
+      <div id="image-container-busted" *ngIf="(valid|async) !== true && (valid|async) !== false">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <div id="image-container" *ngIf="(valid|async) === true">
         <img [src]="url">
       </div>
 
+      <div id="image-container-busted" *ngIf="(valid|async) === false">
+        <span *ngIf="url.length > 0 && !isWellFormed(url)">RPNow can't read this URL.</span>
+        <span *ngIf="isWellFormed(url)">Can't load this image.</span>
+      </div>
+
       <mat-dialog-actions>
-        <button mat-raised-button [disabled]="!valid()" color="primary" (click)="submit()">OK</button>
+        <button mat-raised-button [disabled]="(valid|async) !== true" color="primary" (click)="submit()">OK</button>
         <button mat-raised-button mat-dialog-close>Cancel</button>
       </mat-dialog-actions>
 
     </ng-container>
 
-    <ng-container *ngIf="loading">
-      <mat-spinner></mat-spinner>
-    </ng-container>
   `,
   styles: [`
+    mat-form-field {
+      width: 300px;
+      max-width: 100%;
+    }
     #dialog-header {
       display: flex;
       justify-content: space-between;
@@ -61,6 +71,13 @@ import { MatDialogRef } from '@angular/material/dialog';
       max-height: 100%;
       margin: auto;
     }
+    #image-container-busted {
+      width: 300px;
+      max-width: 100%;
+      height: 200px;
+
+      display: flex;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -69,32 +86,39 @@ export class ImageDialogComponent {
   // https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
   private urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
 
-  loading = false;
-
   url = '';
+  valid = Promise.resolve(false);
 
   constructor(
     private dialogRef: MatDialogRef<ImageDialogComponent>
     // private snackbar: MatSnackBar
   ) { }
 
-  valid() {
-    return this.url.match(this.urlRegex);
+  updateUrl(url) {
+    this.valid = this.isValid(url);
+  }
+
+  isWellFormed(url: string) {
+    return !!url.match(this.urlRegex); 
+  }
+
+  private async isValid(url: string) {
+    if (!this.isWellFormed(url)) return false;
+
+    return new Promise<boolean>(resolve => {
+      const img = document.createElement('img');
+
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.onabort = () => resolve(false);
+      setTimeout(() => resolve(false), 45000);
+
+      img.src = url;
+    });
   }
 
   submit() {
-    if (!this.valid()) return;
-
-    this.loading = true;
-
-    // TODO we need to actually validate whether the upload succeeds rather than just closing the dialog!
-    setTimeout(() => {
-      this.dialogRef.close(this.url);
-    }, 250);
-
-    // if we upload a bad image, we might use this logic:
-      // this.snackbar.open("Invalid image URL. Make sure it's correct or try a different image.", 'Close', {duration:5000, verticalPosition:'top'});
-      // this.loading = false;
+    this.dialogRef.close(this.url);
   }
 
 }
