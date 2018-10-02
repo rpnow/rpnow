@@ -37,9 +37,14 @@ export class NotifyComponent implements OnInit {
       });
     }
 
-    // play noise
+    // attempt to play noise
     const audio = noises[this.options.notificationNoise].audio;
-    if (audio) audio.play();
+    if (audio) {
+      const audioPromise = audio.play();
+      if (audioPromise !== undefined) audioPromise.catch(error => {
+        // TODO handle audio play failure
+      })
+    }
 
     // page title
     if (!this.oldTitle) this.oldTitle = this.document.title;
