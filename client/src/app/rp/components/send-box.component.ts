@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, ViewContainerRef, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, Output, EventEmitter, ViewContainerRef, ChangeDetectionStrategy, Input, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormatGuideDialogComponent } from './format-guide-dialog.component';
 import { ImageDialogComponent } from './image-dialog.component';
@@ -42,19 +42,28 @@ import { RpChara } from '../models/rp-chara';
 
       <div id="typing-area">
 
-        <textarea
+        <textarea #textarea
           matTextareaAutosize
           matAutosizeMinRows="3"
           [(ngModel)]="content"
           (ngModelChange)="contentChange.emit($event)"
           placeholder="Type your message."
           maxlength="10000"
+          [disabled]="isSending"
           (keypress)="keypressCheckEnter($event)"
         ></textarea>
 
-        <button mat-icon-button [disabled]="!valid()" (click)="onSendMessage()">
-          <mat-icon aria-label="Send" matTooltip="Send" matTooltipPosition="above">send</mat-icon>
-        </button>
+        <ng-container *ngIf="!isSending">
+          <button mat-icon-button [disabled]="!valid()" (click)="onSendMessage()">
+            <mat-icon aria-label="Send" matTooltip="Send" matTooltipPosition="above">send</mat-icon>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="isSending">
+          <div id="send-loader-container">
+            <mat-spinner [diameter]="24"></mat-spinner>
+          </div>
+        </ng-container>
 
       </div>
 
@@ -63,20 +72,28 @@ import { RpChara } from '../models/rp-chara';
   styleUrls: ['./send-box.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SendBoxComponent {
+export class SendBoxComponent implements OnChanges {
 
   @Input() voice: RpVoice;
   @Input() content = '';
   @Input() pressEnterToSend: boolean;
+  @Input() isSending: boolean;
   @Output() readonly contentChange: EventEmitter<string> = new EventEmitter();
   @Output() readonly sendMessage: EventEmitter<[string, RpVoice]> = new EventEmitter();
   @Output() readonly sendImage: EventEmitter<string> = new EventEmitter();
   @Output() readonly changeChara: EventEmitter<void> = new EventEmitter();
+  @ViewChild('textarea') textarea: ElementRef<HTMLTextAreaElement>;
 
   constructor(
     private dialog: MatDialog,
     private viewContainerRef: ViewContainerRef,
   ) { }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.isSending && this.isSending === false && changes.isSending.previousValue === true) {
+      setTimeout(() => this.textarea.nativeElement.focus(), 1);
+    }
+  }
 
   get isNarrator() {
     return this.voice === 'narrator';
@@ -129,8 +146,6 @@ export class SendBoxComponent {
     if (!content.trim()) return;
 
     this.sendMessage.emit([content, voice]);
-
-    this.content = '';
   }
 
   openCharaSelector() {
@@ -151,7 +166,7 @@ export class SendBoxComponent {
     if ($event.shiftKey) return;
 
     if (this.pressEnterToSend || $event.ctrlKey) {
-      this.onSendMessage();
+      if (!this.isSending) this.onSendMessage();
       return false;
     }
   }

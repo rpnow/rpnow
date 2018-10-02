@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { RpService } from '../services/rp.service';
 import { Subscription, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -62,6 +62,7 @@ import { RoomService } from '../services/room.service';
             [(content)]="options.msgBoxContent"
             [voice]="currentChara$|async"
             [pressEnterToSend]="options.pressEnterToSend$|async"
+            [isSending]="isMessageSending"
             (sendMessage)="sendMessage($event[0],$event[1])"
             (sendImage)="sendImage($event)"
             (changeChara)="toggleCharaSelector()"
@@ -148,6 +149,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   isSmall$: Observable<boolean>;
   charaDrawerMode$: Observable<'over'|'side'>;
 
+  isMessageSending = false;
   charaSelectorOpen = false;
 
   constructor(
@@ -159,7 +161,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     private mainMenuService: MainMenuService,
     private snackbar: MatSnackBar,
     private track: TrackService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
@@ -279,12 +282,21 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   async sendMessage(content: string, voice: RpChara) {
-    await this.roomService.addMessage(this.rpCodeService.rpCode, content, voice);
+    try {
+      this.isMessageSending = true;
 
-    // erase saved message box content upon successful message delivery
-    if (content === this.options.msgBoxContent) {
-      this.options.msgBoxContent = '';
+      await this.roomService.addMessage(this.rpCodeService.rpCode, content, voice);
+
+      // erase saved message box content upon successful message delivery
+      if (content === this.options.msgBoxContent) {
+        this.options.msgBoxContent = '';
+      }
+    } catch (ex) {
+      this.snackbar.open('Failed to deliver message.', 'Close', { duration: 2000 });
     }
+
+    this.isMessageSending = false;
+    this.changeDetectorRef.detectChanges();
   }
 
   editMessageContent(id: RpMessageId, content: string) {
