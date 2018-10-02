@@ -28,29 +28,52 @@ export class NotifyComponent implements OnInit {
     // no alert if screen is visible
     if (this.document.visibilityState === 'visible') return;
 
+    // desktop notifications
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(this.getNotificationTextFor(msg), {
+        body: msg.content || null,
+        icon: msg.url || null,
+        tag: msg._id,
+      });
+    }
+
     // play noise
     const audio = noises[this.options.notificationNoise].audio;
     if (audio) audio.play();
 
     // page title
     if (!this.oldTitle) this.oldTitle = this.document.title;
-    this.document.title = this.getAlertTextFor(msg);
+    this.document.title = this.getTitleTextFor(msg);
   }
 
   @Input() charasById: Map<RpCharaId, RpChara>;
+  @Input('title') rpTitle: string;
 
   ngOnInit() {
+    if ('Notification' in window) {
+      if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+      }
+    }
     document.addEventListener('visibilitychange', () => {
       if (this.oldTitle) this.document.title = this.oldTitle;
     });
   }
 
-  getAlertTextFor(msg: RpMessage) {
+  getTitleTextFor(msg: RpMessage) {
     if (msg.type === 'narrator') return '* The narrator says...';
     if (msg.type === 'ooc') return '* OOC message...';
     if (msg.type === 'image') return '* Image posted...';
     if (msg.type === 'chara') return `* ${this.charasById.get(msg.charaId).name} says...`;
     return '* New message...';
+  }
+
+  getNotificationTextFor(msg: RpMessage) {
+    if (msg.type === 'narrator') return `[${this.rpTitle}] The narrator says...`;
+    if (msg.type === 'ooc') return `[${this.rpTitle}] OOC message...`;
+    if (msg.type === 'image') return `[${this.rpTitle}] An image was posted!`;
+    if (msg.type === 'chara') return `[${this.rpTitle}] ${this.charasById.get(msg.charaId).name} says...`;
+    return `[${this.rpTitle}] New message!`;
   }
 
 }

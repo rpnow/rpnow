@@ -88,7 +88,7 @@ import { RoomService } from '../services/room.service';
 
     </mat-sidenav-container>
 
-    <rpn-notify [lastMessage]="rp.newMessages$|async" [charasById]="rp.charasById$|async"></rpn-notify>
+    <rpn-notify [title]="rp.title$|async" [lastMessage]="rp.newMessages$|async" [charasById]="rp.charasById$|async"></rpn-notify>
   `,
   styles: [`
     :host, mat-sidenav-container, mat-sidenav-content {
