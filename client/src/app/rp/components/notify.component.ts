@@ -32,8 +32,8 @@ export class NotifyComponent implements OnInit {
     // TODO remove any-typing of Notification when upgrading to typescript 3
     if ('Notification' in window && (Notification as any).permission === 'granted') {
       new Notification(this.getNotificationTextFor(msg), {
-        body: msg.content || null,
-        icon: msg.url || null,
+        body: msg.content || undefined,
+        icon: msg.url || undefined,
         tag: msg._id,
       });
     }
