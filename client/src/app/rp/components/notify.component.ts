@@ -29,7 +29,8 @@ export class NotifyComponent implements OnInit {
     if (this.document.visibilityState === 'visible') return;
 
     // desktop notifications
-    if ('Notification' in window && Notification.permission === 'granted') {
+    // TODO remove any-typing of Notification when upgrading to typescript 3
+    if ('Notification' in window && (Notification as any).permission === 'granted') {
       new Notification(this.getNotificationTextFor(msg), {
         body: msg.content || null,
         icon: msg.url || null,
@@ -56,7 +57,8 @@ export class NotifyComponent implements OnInit {
 
   ngOnInit() {
     if ('Notification' in window) {
-      if (Notification.permission !== 'granted') {
+      // TODO remove any-typing of Notification when upgrading to typescript 3
+      if ((Notification as any).permission !== 'granted') {
         Notification.requestPermission();
       }
     }
