@@ -14,32 +14,27 @@ import { MatDialogRef } from '@angular/material/dialog';
 
     </div>
 
-    <ng-container *ngIf="!loading">
+    <mat-form-field>
+      <input id="url-input" matInput placeholder="Enter a URL:" [(ngModel)]="url" (ngModelChange)="this.updateUrl($event)" cdkFocusInitial (keyup.enter)="submit()">
+    </mat-form-field>
 
-      <mat-form-field>
-        <input id="url-input" matInput placeholder="Enter a URL:" [(ngModel)]="url" (ngModelChange)="this.updateUrl($event)" cdkFocusInitial (keyup.enter)="submit()">
-      </mat-form-field>
+    <div id="image-container-busted" *ngIf="(valid|async) !== true && (valid|async) !== false">
+      <mat-spinner></mat-spinner>
+    </div>
 
-      <div id="image-container-busted" *ngIf="(valid|async) !== true && (valid|async) !== false">
-        <mat-spinner></mat-spinner>
-      </div>
+    <div id="image-container" *ngIf="(valid|async) === true">
+      <img [src]="url">
+    </div>
 
-      <div id="image-container" *ngIf="(valid|async) === true">
-        <img [src]="url">
-      </div>
+    <div id="image-container-busted" *ngIf="(valid|async) === false">
+      <span *ngIf="url.length > 0 && !isWellFormed(url)">RPNow can't read this URL.</span>
+      <span *ngIf="isWellFormed(url)">Can't load this image.</span>
+    </div>
 
-      <div id="image-container-busted" *ngIf="(valid|async) === false">
-        <span *ngIf="url.length > 0 && !isWellFormed(url)">RPNow can't read this URL.</span>
-        <span *ngIf="isWellFormed(url)">Can't load this image.</span>
-      </div>
-
-      <mat-dialog-actions>
-        <button mat-raised-button [disabled]="(valid|async) !== true" color="primary" (click)="submit()">OK</button>
-        <button mat-raised-button mat-dialog-close>Cancel</button>
-      </mat-dialog-actions>
-
-    </ng-container>
-
+    <mat-dialog-actions>
+      <button mat-raised-button [disabled]="(valid|async) !== true" color="primary" (click)="submit()">OK</button>
+      <button mat-raised-button mat-dialog-close>Cancel</button>
+    </mat-dialog-actions>
   `,
   styles: [`
     mat-form-field {
