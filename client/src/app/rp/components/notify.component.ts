@@ -31,11 +31,18 @@ export class NotifyComponent implements OnInit {
     // desktop notifications
     // TODO remove any-typing of Notification when upgrading to typescript 3
     if ('Notification' in window && (Notification as any).permission === 'granted') {
-      new Notification(this.getNotificationTextFor(msg), {
-        body: msg.content || undefined,
-        icon: msg.url || undefined,
-        tag: msg._id,
-      });
+      try {
+        new Notification(this.getNotificationTextFor(msg), {
+          body: msg.content || undefined,
+          icon: msg.url || undefined,
+          tag: msg._id,
+        });
+      }
+      catch (ex) {
+        // Chrome on Android (at least Android 4-7) throws an error
+        // "Failed to construct 'Notification': Illegal constructor. Use ServiceWorkerRegistration.showNotification() instead."
+        // No action needed
+      }
     }
 
     // attempt to play noise
