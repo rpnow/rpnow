@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, ApplicationRef } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable, Observer, Subject, ReplaySubject, Subscription } from 'rxjs';
 import { map, filter, take, distinctUntilChanged, mapTo, pairwise } from 'rxjs/operators';
@@ -47,9 +47,13 @@ export class RpService implements OnDestroy {
   public readonly charas$: Observable<RpChara[]>;
   public readonly charasById$: Observable<Map<RpCharaId, RpChara>>;
 
-  private static initialState: () => RpState = () => ({ connection: 'connecting' });
+  private initialState: () => RpState = () => ({ connection: 'connecting' });
 
-  private static updateState(state: RpState, { type, data }: RpEvent): RpState {
+  private updateState(state: RpState, { type, data }: RpEvent): RpState {
+    // For unfathomable reasons, this applicationRef.tick() is needed to make change detection happen on old iOS.
+    setTimeout(() => this.applicationRef.tick(), 1);
+
+    // Anyway, do the actual thing we're going to do
     if (type === 'init') {
       return { ...state, ...data, connection: 'connected' };
     }
@@ -80,11 +84,14 @@ export class RpService implements OnDestroy {
     }
   }
 
-  constructor(rpCodeService: RpCodeService) {
+  constructor(
+    private applicationRef: ApplicationRef,
+    rpCodeService: RpCodeService
+  ) {
     // websocket events
     this.rpState = new ReplaySubject(1);
     this.subscription = (<Observable<RpState>>Observable.create((observer: Observer<RpState>) => {
-      let state: RpState = RpService.initialState();
+      let state: RpState = this.initialState();
       observer.next(state);
 
       let ws: WebSocket;
@@ -100,7 +107,7 @@ export class RpService implements OnDestroy {
       }
 
       const onmessage = (evt: MessageEvent) => {
-        state = RpService.updateState(state, JSON.parse(evt.data));
+        state = this.updateState(state, JSON.parse(evt.data));
         observer.next(state);
       }
 
