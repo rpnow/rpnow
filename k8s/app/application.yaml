@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rpnow
+spec:
+  selector:
+    name: rpnow
+  ports:
+    - name: rpnow
+      port: 3000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rpnow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: rpnow
+  template:
+    metadata:
+      labels:
+        name: rpnow
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - image: 'rpnow/rpnow:latest'
+          name: rpnow
+          env:
+            - name: RPNOW_DB_HOST
+              value: mongo
+            - name: RPNOW_REDIS_HOST
+              value: redis
+            - name: RPNOW_TRUST_PROXY
+              value: 'true'
+          ports:
+            - name: rpnow
+              containerPort: 3000
+          resources:
+            requests:
+              cpu: "0"
+              memory: 100Mi
+            limits:
+              cpu: "1"
+              memory: 400Mi

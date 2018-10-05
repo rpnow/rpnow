@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy
+spec:
+  type: LoadBalancer
+  # loadBalancerIP: "35.188.71.44"
+  selector:
+    name: caddy
+  ports:
+    - name: caddy-http
+      port: 80
+    # - name: caddy-https
+    #   port: 443
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: caddy
+  template:
+    metadata:
+      labels:
+        name: caddy
+    spec:
+      containers:
+        - image: 'abiosoft/caddy:latest'
+          name: caddy
+          env:
+            - name: ACME_AGREE
+              value: 'true'
+          ports:
+            - name: caddy-http
+              containerPort: 80
+            # - name: caddy-https
+            #   containerPort: 443
+          volumeMounts:
+            - name: caddyfile
+              mountPath: /etc/Caddyfile
+              subPath: caddyfile
+            - name: caddy-persistent-storage
+              mountPath: /root/.caddy
+          resources:
+            requests:
+              cpu: "0"
+              memory: 40Mi
+            limits:
+              cpu: 250m
+              memory: 200Mi
+      volumes:
+        - name: caddyfile
+          configMap:
+            name: caddyfile-cm
+        - name: caddy-persistent-storage
+          persistentVolumeClaim:
+            claimName: caddy-pv-claim
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddyfile-cm
+data:
+  caddyfile: |
+    :80 {
+      log stdout
+      realip {
+          from 10.0.0.0/8
+          from 172.16.0.0/12
+      }
+      proxy / rpnow:3000 {
+          websocket
+          transparent
+      }
+    }
+
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: caddy-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: do-block-storage
