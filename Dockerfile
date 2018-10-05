@@ -5,7 +5,7 @@ WORKDIR /root/client
 
 COPY ./client/package.json .
 COPY ./client/package-lock.json .
-RUN npm install
+RUN npm install --production
 
 COPY ./client/angular.json .
 COPY ./client/ngsw-config.json .
@@ -23,7 +23,7 @@ WORKDIR /root/server
 
 COPY ./server/package.json .
 COPY ./server/package-lock.json .
-RUN npm install
+RUN npm install --production
 
 COPY ./server/src ./src
 COPY ./server/admin ./admin
