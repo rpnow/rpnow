@@ -1,6 +1,6 @@
 {
   "name": "rpnow",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -15,7 +15,7 @@
     "sentry:new": "sentry-cli releases new $npm_package_version",
     "sentry:upload": "sentry-cli releases files $npm_package_version upload-sourcemaps ./dist/rpnow --url-prefix 'https://rpnow.net/client-files/' --validate --no-sourcemap-reference",
     "sentry:finalize": "sentry-cli releases finalize $npm_package_version",
-    "remove-map-comments": "TODO"
+    "remove-map-comments": "sed -i '$ d' ./dist/rpnow/*.js"
   },
   "private": true,
   "dependencies": {
