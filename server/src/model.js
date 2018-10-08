@@ -4,6 +4,7 @@ const { publish } = require('./services/events');
 const dao = require('./dao/dao.mongo');
 const { generateRpCode } = require('./services/rpcode.js');
 const { verifyChallenge } = require('./services/challenge');
+const errors = require('./errors');
 
 const roomOptionsSchema = nJ({
     title: [String, 30],
@@ -33,8 +34,8 @@ const editMessageSchema = nJ({
 });
 
 async function checkRpCode(rpCode) {
-    if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
-    if (!dao.roomExists(rpCode)) throw { code: 'RP_NOT_FOUND' };
+    if (typeof rpCode !== 'string') throw errors.badRpCode;
+    if (rpCode.length > 500) throw errors.badRpCode;
 }
 
 module.exports = ({
@@ -56,36 +57,44 @@ module.exports = ({
     },
 
     async getWholeRp(rpCode) {
-        if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
+        await checkRpCode(rpCode);
 
-        const data = await dao.getRoomByCode(rpCode);
-        if (!data) throw { code: 'RP_NOT_FOUND' };
-
-        return data;
+        const [meta, msgs, charas] = await Promise.all([
+            dao.getRoomMeta(rpCode),
+            dao.getRoomMessagesAll(rpCode),
+            dao.getRoomCharas(rpCode),
+        ]);
+        return { ...meta, msgs, charas };
     },
 
     async getPage(rpCode, pageNum) {
-        if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
+        await checkRpCode(rpCode);
         if (typeof pageNum !== 'number') throw { code: 'BAD_PAGE' };
 
         const limit = 20;
         const skip = (pageNum - 1) * limit;
 
-        const data = await dao.getPage(rpCode, skip, limit);
-        if (!data) throw { code: 'RP_NOT_FOUND' };
+        const [meta, msgs, charas, msgCount] = await Promise.all([
+            dao.getRoomMeta(rpCode),
+            dao.getRoomMessagesSkipLimit(rpCode, skip, limit),
+            dao.getRoomCharas(rpCode),
+            dao.getRoomMessageCount(rpCode),
+        ]);
 
-        const pageCount = Math.ceil(data.msgCount / limit);
+        const pageCount = Math.ceil(msgCount / limit);
 
-        return { ...data, pageCount };
+        return { ...meta, msgs, charas, msgCount, pageCount };
     },
 
     async getLatest(rpCode) {
-        if (typeof rpCode !== 'string') throw { code: 'BAD_RPCODE' };
+        await checkRpCode(rpCode);
 
-        const data = await dao.getLatest(rpCode, 60);
-        if (!data) throw { code: 'RP_NOT_FOUND' };
-
-        return data;
+        const [meta, msgs, charas] = await Promise.all([
+            dao.getRoomMeta(rpCode),
+            dao.getRoomMessagesLatest(rpCode, 60),
+            dao.getRoomCharas(rpCode),
+        ]);
+        return { ...meta, msgs, charas };
     },
 
     async addMessage(rpCode, input, ipid) {

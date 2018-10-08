@@ -1,5 +1,6 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const config = require('../config');
+const errors = require('../errors');
 
 const url = `mongodb://${config.get('dbHost')}/rpnow`;
 const connection = MongoClient.connect(url);
@@ -21,93 +22,54 @@ async function getRoomId(rpCode) {
     const db = await connection;
     const rpCodeData = await db.collection('rpCodes').findOne({ _id: rpCode });
 
-    if (rpCodeData == null) throw new Error(`Room not found ${rpCode}`);
+    if (rpCodeData == null) throw errors.roomNotFound;
     return rpCodeData.roomId;
 }
 
-async function roomExists(rpCode) {
-    try {
-        await getRoomId(rpCode);
-        return true;
-    } catch (ex) {
-        return false;
-    }
-}
-
-async function getRoomMeta(rpCode) {
-    const db = await connection;
-    const roomId = await getRoomId(rpCode);
-    return db.collection('rooms').findOne({ _id: roomId }, { _id: 0 });
-}
-
-async function getRoomCharas(rpCode) {
-    const db = await connection;
-    const roomId = await getRoomId(rpCode);
-    return db.collection('charas').find({ roomId }, { roomId: 0 }).toArray();
-}
-
-async function getRoomMessageCount(rpCode) {
-    const db = await connection;
-    const roomId = await getRoomId(rpCode);
-    return db.collection('messages').count({ roomId });
-}
-
-async function getRoomMessagesLatest(rpCode, latestNum) {
-    const db = await connection;
-    const roomId = await getRoomId(rpCode);
-    return (
-        await db.collection('messages')
-            .find({ roomId }, { roomId: 0 })
-            .sort({ _id: -1 })
-            .limit(latestNum)
-            .toArray()
-    ).reverse();
-}
-
-async function getRoomMessagesSkipLimit(rpCode, skip, limit) {
-    const db = await connection;
-    const roomId = await getRoomId(rpCode);
-    return db.collection('messages').find({ roomId }, { roomId: 0 })
-        .skip(skip)
-        .limit(limit)
-        .toArray();
-}
-
-async function getRoomMessagesAll(rpCode) {
-    const db = await connection;
-    const roomId = await getRoomId(rpCode);
-    return db.collection('messages').find({ roomId }, { roomId: 0 }).toArray();
-}
-
 module.exports = ({
-    roomExists,
-
-    async getRoomByCode(rpCode) {
-        const [meta, msgs, charas] = await Promise.all([
-            getRoomMeta(rpCode),
-            getRoomMessagesAll(rpCode),
-            getRoomCharas(rpCode),
-        ]);
-        return { ...meta, msgs, charas };
+    async getRoomMeta(rpCode) {
+        const db = await connection;
+        const roomId = await getRoomId(rpCode);
+        return db.collection('rooms').findOne({ _id: roomId }, { _id: 0 });
     },
 
-    async getPage(rpCode, skip, limit) {
-        const [meta, msgs, charas, msgCount] = await Promise.all([
-            getRoomMeta(rpCode),
-            getRoomMessagesSkipLimit(rpCode, skip, limit),
-            getRoomCharas(rpCode),
-            getRoomMessageCount(rpCode),
-        ]);
-        return { ...meta, msgs, charas, msgCount };
+    async getRoomCharas(rpCode) {
+        const db = await connection;
+        const roomId = await getRoomId(rpCode);
+        return db.collection('charas').find({ roomId }, { roomId: 0 }).toArray();
     },
 
-    async getLatest(rpCode, msgCount) {
-        const [meta, msgs, charas] = await Promise.all([
-            getRoomMeta(rpCode),
-            getRoomMessagesLatest(rpCode, msgCount),
-            getRoomCharas(rpCode),
-        ]);
-        return { ...meta, msgs, charas };
+    async getRoomMessageCount(rpCode) {
+        const db = await connection;
+        const roomId = await getRoomId(rpCode);
+        return db.collection('messages').count({ roomId });
+    },
+
+    async getRoomMessagesLatest(rpCode, latestNum) {
+        const db = await connection;
+        const roomId = await getRoomId(rpCode);
+        return (
+            await db.collection('messages')
+                .find({ roomId }, { roomId: 0 })
+                .sort({ _id: -1 })
+                .limit(latestNum)
+                .toArray()
+        ).reverse();
+    },
+
+    async getRoomMessagesSkipLimit(rpCode, skip, limit) {
+        const db = await connection;
+        const roomId = await getRoomId(rpCode);
+        return db.collection('messages').find({ roomId }, { roomId: 0 })
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+    },
+
+    async getRoomMessagesAll(rpCode) {
+        const db = await connection;
+        const roomId = await getRoomId(rpCode);
+        return db.collection('messages').find({ roomId }, { roomId: 0 }).toArray();
     },
 
     async addRoom(rpCode, roomOptions) {
