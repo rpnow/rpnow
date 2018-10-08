@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rpnow
+  name: rpnow-service
 spec:
   selector:
     name: rpnow
