@@ -32,9 +32,9 @@ spec:
           name: rpnow
           env:
             - name: RPNOW_DB_HOST
-              value: mongo
+              value: mongo-service
             - name: RPNOW_REDIS_HOST
-              value: redis
+              value: redis-service
             - name: RPNOW_TRUST_PROXY
               value: 'true'
           ports:
