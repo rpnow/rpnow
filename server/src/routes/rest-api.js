@@ -92,7 +92,7 @@ router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.txt', async (req, res, next) => 
 
     let rp;
     try {
-        ({ rp } = await model.getWholeRp(req.params.rpCode));
+        (rp = await model.getWholeRp(req.params.rpCode));
     } catch (err) {
         return next(err);
     }
