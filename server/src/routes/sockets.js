@@ -4,7 +4,7 @@ const logger = require('../services/logger');
 const config = require('../config');
 const { subscribe } = require('../services/events');
 
-function onConnection(socket, req) {
+async function onConnection(socket, req) {
     const ip =
         (config.get('trustProxy') && req.headers['x-forwarded-for'])
         || req.connection.remoteAddress;
@@ -25,17 +25,19 @@ function onConnection(socket, req) {
 
     const send = data => socket.send(JSON.stringify(data));
 
-    model.getLatest(rpCode).then((data) => {
+    try {
+        const data = await model.getLatest(rpCode);
+
         logger.info(`JOIN (${ip}): ${rpCode}`);
         send({ type: 'init', data });
-    }).catch((error) => {
+    } catch (error) {
         logger.info(`JERR (${ip}): ${rpCode} - ${error.code || error}`);
         if (error.code === 'RP_NOT_FOUND') {
             socket.close(4404, error.code);
         } else {
             socket.close(4500, `${error.code || error}`);
         }
-    });
+    }
 
     const unsub = subscribe(rpCode, send);
 
