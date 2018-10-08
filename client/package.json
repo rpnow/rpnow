@@ -1,14 +1,21 @@
 {
   "name": "rpnow",
-  "version": "0.0.0",
+  "version": "2.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "npm run build:ng && npm run build:inject-version",
+    "build:ng": "ng build --prod --source-map",
+    "build:inject-version": "replace-in-file 'RPNOW_VERSION_TOKEN_DEV' $npm_package_version ./dist/rpnow/index.html",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "http-server": "http-server ./dist -p 4300 --push-state"
+    "http-server": "http-server ./dist -p 4300 --push-state",
+    "sentry": "npm run sentry:new && npm run sentry:upload && npm run sentry:finalize",
+    "sentry:new": "sentry-cli releases new $npm_package_version",
+    "sentry:upload": "sentry-cli releases files $npm_package_version upload-sourcemaps ./dist/rpnow --url-prefix 'https://rpnow.net/client-files/' --validate --no-sourcemap-reference",
+    "sentry:finalize": "sentry-cli releases finalize $npm_package_version",
+    "remove-map-comments": "TODO"
   },
   "private": true,
   "dependencies": {
@@ -38,11 +45,13 @@
     "material-design-icons": "^3.0.1",
     "ngx-color-picker": "^6.2.0",
     "raven-js": "^3.27.0",
+    "replace-in-file": "^3.4.2",
     "rxjs": "^6.2.0",
     "web-animations-js": "^2.3.1",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
+    "@sentry/cli": "^1.36.1",
     "@types/crypto-js": "^3.1.38",
     "@types/file-saver": "^1.3.0",
     "@types/jasmine": "~2.8.6",

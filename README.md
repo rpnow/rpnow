@@ -17,6 +17,14 @@ While running in dev, run server tests with:
     docker-compose exec rpnow npm test
 
 
+## Version
+Here's the flow of getting a new version ready for Sentry.io:
+
+1. You can run `npm version patch`, etc to increment the version number
+2. Make sure to do an `npm run build` to get an up-to-date bundle and sourcemap available.
+3. `npm run sentry` does everything needed to upload sourcemaps to sentry.
+
+
 ## Production
 Docker Cloud is currently automatically building images from `master`, so deploying
 RPNow just requires `docker-compose.yml` and a `Caddyfile`. Use `Caddyfile.prod`, but rename it to just `Caddyfile`. Put that in a directory and run:

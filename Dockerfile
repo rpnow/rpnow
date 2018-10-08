@@ -11,7 +11,14 @@ COPY ./client/angular.json .
 COPY ./client/ngsw-config.json .
 COPY ./client/tsconfig.json .
 COPY ./client/src ./src
-RUN npx ng build --prod
+
+# Due to a bug in Angular (at least in verison 6) the bundles are different when generated
+# without source maps
+# However, we want to be able to upload sourcemaps to sentry.io. So we generate the bundle
+# with maps and then remove the maps.
+RUN npm run build \
+    && rm ./dist/rpnow/*.map \
+    && npm run remove-map-comments
 
 # compress all non-mp3 files using gzip, then rename them back without the .gz extension
 RUN find ./dist/rpnow -type f -not -name "*.mp3" -exec gzip "{}" \; -exec mv "{}.gz" "{}" \;
