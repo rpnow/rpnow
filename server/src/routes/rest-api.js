@@ -5,6 +5,7 @@ const { Router } = require('express');
 const { txtFileStream } = require('../services/download.txt');
 const { getIpid } = require('../services/ipid');
 const xRobotsTag = require('../services/x-robots-tag');
+const logger = require('../services/logger');
 
 const model = require('../model');
 const config = require('../config');
@@ -123,7 +124,7 @@ router.all('*', (req, res, next) => {
 });
 
 router.use((err, req, res, next) => {
-    console.log(err);
+    logger.debug(err);
     res.status(400).json({ error: err });
 });
 

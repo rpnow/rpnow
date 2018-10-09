@@ -22,7 +22,6 @@ module.exports = ({
     txtFileStream({ title, desc = null, msgStream, charas }, { includeOOC }) {
         const rpStream = new Transform({
             transform(chunk, encoding, callback) {
-                console.log(typeof chunk);
                 this.push(`${chunk.toString().replace(/\n/g, '\r\n')}\r\n\r\n`);
                 callback();
             },
