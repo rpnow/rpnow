@@ -8,10 +8,6 @@ connection.catch(() => {
     console.error('Could not connect to mongodb');
     process.exit(1);
 });
-process.on('SIGINT', () => {
-    // force close
-    connection.then(db => db.close(true));
-});
 
 connection.then((db) => {
     db.collection('messages').ensureIndex('roomId');
@@ -27,6 +23,15 @@ async function getRoomId(rpCode) {
 }
 
 module.exports = ({
+    async close() {
+        try {
+            const db = await connection;
+            await db.close();
+        } catch (err) {
+            // meh
+        }
+    },
+
     async getRoomMeta(rpCode) {
         const db = await connection;
         const roomId = await getRoomId(rpCode);

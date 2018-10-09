@@ -70,8 +70,10 @@ async function onConnection(socket, req) {
     });
 }
 
-module.exports = function createSocketListener(httpServer) {
-    const wss = new Server({ server: httpServer });
+let wss;
+
+module.exports.createWss = function createWss(httpServer) {
+    wss = new Server({ server: httpServer });
 
     setInterval(() => {
         logger.debug(`Connected clients: ${wss.clients.size}`);
@@ -81,9 +83,10 @@ module.exports = function createSocketListener(httpServer) {
     }, 5 * 60 * 1000);
 
     wss.on('connection', onConnection);
+};
 
-    process.on('SIGINT', () => {
-        // force close
-        wss.close();
+module.exports.closeWss = function closeWss() {
+    return new Promise((resolve) => {
+        wss.close(() => resolve());
     });
 };

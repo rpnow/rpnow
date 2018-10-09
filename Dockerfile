@@ -40,4 +40,4 @@ ENV RPNOW_PORT 3000
 ENV RPNOW_BUNDLE_COMPRESSION gzip
 EXPOSE ${RPNOW_PORT}
 
-CMD ["npm", "start"]
+CMD ["node", "src/index.js"]
