@@ -56,15 +56,15 @@ module.exports = ({
         return { rpCode };
     },
 
-    async getWholeRp(rpCode) {
+    async getRpWithMessageStream(rpCode) {
         await checkRpCode(rpCode);
 
-        const [meta, msgs, charas] = await Promise.all([
+        const [meta, msgStream, charas] = await Promise.all([
             dao.getRoomMeta(rpCode),
-            dao.getRoomMessagesAll(rpCode),
+            dao.getRoomMessagesStream(rpCode),
             dao.getRoomCharas(rpCode),
         ]);
-        return { ...meta, msgs, charas };
+        return { ...meta, msgStream, charas };
     },
 
     async getPage(rpCode, pageNum) {

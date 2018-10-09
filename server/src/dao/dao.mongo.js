@@ -66,10 +66,10 @@ module.exports = ({
             .toArray();
     },
 
-    async getRoomMessagesAll(rpCode) {
+    async getRoomMessagesStream(rpCode) {
         const db = await connection;
         const roomId = await getRoomId(rpCode);
-        return db.collection('messages').find({ roomId }, { roomId: 0 }).toArray();
+        return db.collection('messages').find({ roomId }, { roomId: 0 }).stream();
     },
 
     async addRoom(rpCode, roomOptions) {

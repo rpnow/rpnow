@@ -2,7 +2,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Router } = require('express');
 // const { downloadDocx } = require('../services/download.docx');
-const { downloadTxt } = require('../services/download.txt');
+const { txtFileStream } = require('../services/download.txt');
 const { getIpid } = require('../services/ipid');
 const xRobotsTag = require('../services/x-robots-tag');
 
@@ -88,17 +88,18 @@ router.get('/rp/:rpCode([-0-9a-zA-Z]+)/page/:pageNum([1-9][0-9]{0,})', (req, res
 });
 
 router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
-    const { includeOOC } = req.query;
+    const { includeOOC = false } = req.query;
 
     let rp;
     try {
-        (rp = await model.getWholeRp(req.params.rpCode));
+        (rp = await model.getRpWithMessageStream(req.params.rpCode));
     } catch (err) {
         return next(err);
     }
 
-    const body = downloadTxt(rp, { includeOOC });
-    return res.attachment(`${rp.title}.txt`).type('.txt').send(body);
+    const rpStream = txtFileStream(rp, { includeOOC });
+    res.attachment(`${rp.title}.txt`).type('.txt');
+    return rpStream.pipe(res);
 });
 
 router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.docx', async (req, res, next) => {
