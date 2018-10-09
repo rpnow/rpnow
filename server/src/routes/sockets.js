@@ -23,7 +23,13 @@ async function onConnection(socket, req) {
         return;
     }
 
-    const send = data => socket.send(JSON.stringify(data));
+    const send = (data) => {
+        if (socket.readyState === 1) {
+            socket.send(JSON.stringify(data));
+        } else {
+            logger.warn(`NRDY (${ip}): ${rpCode} - tried to send data at readyState ${socket.readyState}`);
+        }
+    };
 
     try {
         const data = await model.getLatest(rpCode);
