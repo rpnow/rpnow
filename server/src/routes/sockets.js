@@ -27,7 +27,7 @@ async function onConnection(socket, req) {
         if (socket.readyState === 1) {
             socket.send(JSON.stringify(data));
         } else {
-            logger.warn(`NRDY (${ip}): ${rpCode} - tried to send data at readyState ${socket.readyState}`);
+            logger.warning(`NRDY (${ip}): ${rpCode} - tried to send data at readyState ${socket.readyState}`);
         }
     };
 
