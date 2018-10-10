@@ -2,27 +2,20 @@ version: '3.2'
 
 services:
   caddy:
-    image: abiosoft/caddy
+    image: abiosoft/caddy:no-stats
     restart: "no"
+    environment:
+      ACME_AGREE: 'true'
     volumes:
       - caddy_data:/root/.caddy
       - ./Caddyfile:/etc/Caddyfile:ro
     ports:
-      - mode: host # mode:host required to get correct client ip from docker swarm
-        protocol: tcp
-        published: "${RPNOW_PORT-80}"
+      - published: "${RPNOW_PORT-80}"
         target: 80
-      - mode: host # mode:host required to get correct client ip from docker swarm
-        protocol: tcp
-        published: "${RPNOW_SSL_PORT-443}"
+      - published: "${RPNOW_SSL_PORT-443}"
         target: 443
     networks:
       - front-layer
-    # http2 is off because... no websockets in http2!
-    command: ["-agree", "-conf", "/etc/Caddyfile", "-http2=false", "-ca", "${ACME_CA-https://acme-v02.api.letsencrypt.org/directory}"]
-    deploy:
-      placement:
-        constraints: [node.role == manager]
 
   rpnow:
     image: rpnow/rpnow
@@ -38,13 +31,6 @@ services:
     networks:
       - front-layer
       - back-layer
-    deploy:
-      replicas: 2
-      update_config:
-        parallelism: 1
-      resources:
-        limits:
-          memory: 400M
 
   db:
     image: mongo:3.6

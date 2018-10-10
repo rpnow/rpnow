@@ -1,11 +1,8 @@
-:80 {
-    log stdout
-    realip {
-        from 10.0.0.0/8
-        from 172.16.0.0/12
-    }
-    proxy / rpnow:3000 {
-        websocket
-        transparent
-    }
+:80
+
+log stdout
+
+proxy / rpnow:3000 {
+    websocket
+    transparent
 }
