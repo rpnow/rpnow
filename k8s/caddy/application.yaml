@@ -91,18 +91,3 @@ data:
           transparent
       }
     }
-
-
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: caddy-pv-claim
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: do-block-storage

@@ -45,17 +45,3 @@ spec:
         - name: mongo-persistent-storage
           persistentVolumeClaim:
             claimName: mongo-pv-claim
-
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongo-pv-claim
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 30Gi
-  storageClassName: do-block-storage
