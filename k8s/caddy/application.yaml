@@ -70,9 +70,19 @@ metadata:
   name: caddyfile-cm
 data:
   caddyfile: |
+    # *.rpnow.net {
+    #   redir {
+    #       https://rpnow.net{uri}
+    #   }
+    #   tls {
+    #       max_certs 10
+    #   }
+    # }
     :80 {
+    # rpnow.net {
       log stdout
       realip {
+          # TODO find correct range
           from 10.0.0.0/8
           from 172.16.0.0/12
       }
