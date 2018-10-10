@@ -1,4 +1,6 @@
+.env*
 .git
+k8s
 **/node_modules
 **/npm-debug.log
 client/dist*
