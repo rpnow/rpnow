@@ -1,0 +1,1 @@
+read -s -p "Docker registry password:" DOCKER_REG_PASS; kubectl create secret docker-registry regcred --docker-username="rpnow" --docker-email='rpnow.net@gmail.com' --docker-password=$DOCKER_REG_PASS
