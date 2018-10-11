@@ -23,3 +23,24 @@ spec:
     requests:
       storage: 30Gi
   storageClassName: do-block-storage
+
+---
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mongo-snapshot-job
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: mongo-snapshot
+              image: busybox
+              args:
+                - /bin/sh
+                - -c
+                - date; echo Hello from Kubernetes Cluster
+          restartPolicy: OnFailure
