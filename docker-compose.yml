@@ -19,7 +19,7 @@ services:
     networks:
       - front-layer
     # http2 is off because... no websockets in http2!
-    command: ["-agree", "-conf", "/etc/Caddyfile", "-http2=false", "-ca", "${ACME_CA-https://acme-v02.api.letsencrypt.org/directory}"]
+    command: ["-agree", "-conf", "/etc/Caddyfile", "-http2=true", "-ca", "${ACME_CA-https://acme-v02.api.letsencrypt.org/directory}"]
     deploy:
       placement:
         constraints: [node.role == manager]
