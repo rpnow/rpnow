@@ -43,22 +43,27 @@ async function onConnection(socket, req) {
         } else {
             socket.close(4500, `${error.code || error}`);
         }
+        return;
     }
 
     const unsub = subscribe(rpCode, send);
 
     let alive = true;
-    setInterval(() => {
-        if (socket.readyState === 2 || socket.readyState === 3) {
-            // socket is closing or closed. no pinging
-        } else if (alive) {
-            alive = false;
-            socket.ping();
-        } else {
-            logger.info(`DIED (${ip}): ${rpCode}`);
-            socket.terminate();
-        }
-    }, 30000);
+
+    (function scheduleHeartbeat() {
+        setTimeout(() => {
+            if (socket.readyState === 2 || socket.readyState === 3) {
+                // socket is closing or closed. no pinging
+            } else if (alive) {
+                alive = false;
+                socket.ping();
+                scheduleHeartbeat();
+            } else {
+                logger.info(`DIED (${ip}): ${rpCode}`);
+                socket.terminate();
+            }
+        }, 30000);
+    }());
     socket.on('pong', () => {
         logger.debug(`PONG (${ip}): ${rpCode}`);
         alive = true;
