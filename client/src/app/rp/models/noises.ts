@@ -1,4 +1,4 @@
-const audioDir = '/client-files/assets/sounds/';
+const audioDir = 'assets/sounds/';
 
 export const noises = [
   {'name': 'Off', 'audio': null},
