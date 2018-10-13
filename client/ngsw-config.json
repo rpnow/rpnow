@@ -6,9 +6,8 @@
     "resources": {
       "files": [
         "/index.html",
-        "/*.bundle.css",
-        "/*.bundle.js",
-        "/*.chunk.js"
+        "/*.css",
+        "/*.js"
       ]
     }
   }, {

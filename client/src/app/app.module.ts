@@ -23,8 +23,7 @@ import { sentryProviderArray } from './error-provider';
     BrowserModule,
     BrowserAnimationsModule,
     MatProgressSpinnerModule,
-    // TODO re-enable service worker someday
-    // ServiceWorkerModule.register('/ngsw-worker.js', {enabled: environment.production}),
+    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     TitleModule,
     AppRoutingModule,
     Angulartics2Module.forRoot([Angulartics2GoogleAnalytics])
