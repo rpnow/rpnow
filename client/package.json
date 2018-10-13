@@ -1,12 +1,10 @@
 {
   "name": "rpnow",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "scripts": {
     "ng": "ng",
     "start": "ng build --watch",
-    "build": "npm run build:ng && npm run build:inject-version",
-    "build:ng": "ng build --prod --source-map",
-    "build:inject-version": "replace-in-file 'RPNOW_VERSION_TOKEN_DEV' $npm_package_version ./dist/rpnow/index.html",
+    "build": "ng build --prod --source-map",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
@@ -14,8 +12,7 @@
     "sentry": "npm run sentry:new && npm run sentry:upload && npm run sentry:finalize",
     "sentry:new": "sentry-cli releases new $npm_package_version",
     "sentry:upload": "sentry-cli releases files $npm_package_version upload-sourcemaps ./dist/rpnow --url-prefix 'https://rpnow.net/' --validate --no-sourcemap-reference",
-    "sentry:finalize": "sentry-cli releases finalize $npm_package_version",
-    "remove-map-comments": "sed -i '/^\\(\\/\\/# sourceMappingURL\\)/d' ./dist/rpnow/*.js"
+    "sentry:finalize": "sentry-cli releases finalize $npm_package_version"
   },
   "private": true,
   "dependencies": {

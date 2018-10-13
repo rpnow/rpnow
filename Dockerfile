@@ -17,8 +17,7 @@ COPY ./client/src ./src
 # However, we want to be able to upload sourcemaps to sentry.io. So we generate the bundle
 # with maps and then remove the maps.
 RUN npm run build \
-    && rm ./dist/rpnow/*.map \
-    && npm run remove-map-comments
+    && rm ./dist/rpnow/*.map
 
 # compress all non-mp3 files using gzip, then rename them back without the .gz extension
 RUN find ./dist/rpnow -type f -not -name "*.mp3" -exec gzip "{}" \; -exec mv "{}.gz" "{}" \;
