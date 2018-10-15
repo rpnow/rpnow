@@ -19,6 +19,10 @@ COPY ./client/src ./src
 RUN npm run build \
     && rm ./dist/rpnow/*.map
 
+# We also need to delete this old ngsw because it might cause bugs if it's loaded on accident,
+# see ngsw-worker-polyfilled for more info
+RUN rm ./dist/rpnow/ngsw-worker.js
+
 # compress all non-mp3 files using gzip, then rename them back without the .gz extension
 RUN find ./dist/rpnow -type f -not -name "*.mp3" -exec gzip "{}" \; -exec mv "{}.gz" "{}" \;
 
