@@ -1,6 +1,6 @@
 {
   "name": "rpnow",
-  "version": "2.1.6",
+  "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng build --watch",
@@ -10,9 +10,9 @@
     "e2e": "ng e2e",
     "http-server": "http-server ./dist/rpnow -p 4300 --push-state",
     "sentry": "npm run sentry:new && npm run sentry:upload && npm run sentry:finalize",
-    "sentry:new": "sentry-cli releases new $npm_package_version",
-    "sentry:upload": "sentry-cli releases files $npm_package_version upload-sourcemaps ./dist/rpnow --url-prefix 'https://rpnow.net/' --validate --no-sourcemap-reference",
-    "sentry:finalize": "sentry-cli releases finalize $npm_package_version"
+    "sentry:new": "sentry-cli releases new $VERSION",
+    "sentry:upload": "sentry-cli releases files $VERSION upload-sourcemaps ./dist/rpnow --url-prefix 'https://rpnow.net/' --validate --no-sourcemap-reference",
+    "sentry:finalize": "sentry-cli releases finalize $VERSION"
   },
   "private": true,
   "dependencies": {
