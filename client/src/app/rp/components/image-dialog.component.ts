@@ -103,9 +103,9 @@ export class ImageDialogComponent {
     return new Promise<boolean>(resolve => {
       const img = document.createElement('img');
 
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.onabort = () => resolve(false);
+      img.addEventListener('load', () => resolve(true));
+      img.addEventListener('error', () => resolve(false));
+      img.addEventListener('abort', () => resolve(false));
       setTimeout(() => resolve(false), 45000);
 
       img.src = url;

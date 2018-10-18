@@ -50,10 +50,6 @@ export class RpService implements OnDestroy {
   private initialState: () => RpState = () => ({ connection: 'connecting' });
 
   private updateState(state: RpState, { type, data }: RpEvent): RpState {
-    // For unfathomable reasons, this applicationRef.tick() is needed to make change detection happen on old iOS.
-    setTimeout(() => this.applicationRef.tick(), 1);
-
-    // Anyway, do the actual thing we're going to do
     if (type === 'init') {
       return { ...state, ...data, connection: 'connected' };
     }
@@ -85,7 +81,6 @@ export class RpService implements OnDestroy {
   }
 
   constructor(
-    private applicationRef: ApplicationRef,
     rpCodeService: RpCodeService
   ) {
     // websocket events
@@ -135,9 +130,9 @@ export class RpService implements OnDestroy {
 
       function createWs() {
         const ws = new WebSocket(`${environment.wsUrl}?rpCode=${rpCodeService.rpCode}`);
-        ws.onopen = onopen;
-        ws.onmessage = onmessage;
-        ws.onclose = onclose;
+        ws.addEventListener('open', onopen);
+        ws.addEventListener('message', onmessage);
+        ws.addEventListener('close', onclose);
         return ws;
       }
 
