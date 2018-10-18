@@ -14,4 +14,5 @@ export interface RpMessage {
   challenge?: string;
   url?: string;
   ipid?: string;
+  deleted?: boolean;
 }

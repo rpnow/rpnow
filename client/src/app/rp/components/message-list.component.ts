@@ -14,6 +14,7 @@ import { RpChara } from '../models/rp-chara';
           [type]="msg.type"
           [createdAt]="msg.timestamp"
           [editedAt]="msg.edited"
+          [deleted]="msg.deleted"
           [ipid]="msg.ipid"
 
           [charaName]="charaFor(msg)?.name"
@@ -24,6 +25,8 @@ import { RpChara } from '../models/rp-chara';
           [showMessageDetails]="showMessageDetails"
 
           (editContent)="editMessage(msg._id, $event)"
+          (delete)="onDeleteMessage(msg._id)"
+          (undelete)="onUndeleteMessage(msg._id)"
           (imageLoaded)="onImageLoaded()"
         ></rpn-message>
 
@@ -43,7 +46,9 @@ export class MessageListComponent implements OnChanges {
   @Input() pressEnterToSend: boolean;
   @Input() showNags = false;
 
-  @Output() readonly editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
+  @Output() readonly editMessageContent: EventEmitter<[RpMessageId, string]> = new EventEmitter();
+  @Output() readonly deleteMessage: EventEmitter<RpMessageId> = new EventEmitter();
+  @Output() readonly undeleteMessage: EventEmitter<RpMessageId> = new EventEmitter();
   @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
 
   private idsSeen: Set<RpMessageId> = new Set();
@@ -82,8 +87,16 @@ export class MessageListComponent implements OnChanges {
     return this.charas && (msg.type === 'chara') ? this.charas.find(c => c._id === msg.charaId) : null;
   }
 
-  editMessage(id: string, content: string) {
+  editMessage(id: RpMessageId, content: string) {
     this.editMessageContent.emit([id, content]);
+  }
+
+  onDeleteMessage(id: RpMessageId) {
+    this.deleteMessage.emit(id);
+  }
+
+  onUndeleteMessage(id: RpMessageId) {
+    this.undeleteMessage.emit(id);
   }
 
   onImageLoaded() {

@@ -30,6 +30,8 @@ import { DemoRoomService } from '../services/demo-room.service';
             [pressEnterToSend]="true"
             [showNags]="true"
             (editMessageContent)="editMessageContent($event[0], $event[1])"
+            (deleteMessage)="onDeleteMessage($event)"
+            (undeleteMessage)="onUndeleteMessage($event)"
             (imageLoaded)="scrollAnchor.checkHeight()"
           ></rpn-message-list>
         </rpn-scroll-anchor>
@@ -197,6 +199,14 @@ export class DemoChatComponent implements OnInit, OnDestroy {
 
   editMessageContent(id: RpMessageId, content: string) {
     this.demoRoom.editMessageContent(id, content);
+  }
+
+  onDeleteMessage(id: RpMessageId) {
+    this.demoRoom.deleteMesage(id);
+  }
+
+  onUndeleteMessage(id: RpMessageId) {
+    this.demoRoom.undeleteMesage(id);
   }
 
   async sendImage(url: string) {

@@ -4,6 +4,7 @@ import { OptionsService } from '../services/options.service';
 @Component({
   selector: 'rpn-message',
   template: `
+    <ng-container *ngIf="!deleted">
     <div [ngClass]="elementClasses" [style.background-color]="charaColor||''" [style.color]="(charaColor|bw)">
 
       <div *ngIf="isChara" class="name">{{ charaName }}</div>
@@ -25,6 +26,9 @@ import { OptionsService } from '../services/options.service';
           </button>
         </ng-container>
         <ng-container *ngIf="editing">
+          <button mat-icon-button (click)="confirmDelete()">
+            <mat-icon aria-label="Delete message" matTooltip="Delete message">delete</mat-icon>
+          </button>
           <button mat-icon-button [disabled]="!validEdit()" (click)="confirmEdit()">
             <mat-icon aria-label="Save edits" matTooltip="Save edits">save</mat-icon>
           </button>
@@ -51,6 +55,14 @@ import { OptionsService } from '../services/options.service';
       </ng-container>
 
     </div>
+    </ng-container>
+
+    <ng-container *ngIf="deleted">
+      <div class="deleted-message">
+        <span>Message was deleted.</span>
+        <a *ngIf="canEdit" href="javascript:;" (click)="onUndelete()">Undo</a>
+      </div>
+    </ng-container>
   `,
   styleUrls: ['./message.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -63,6 +75,7 @@ export class MessageComponent {
   @Input() createdAt: number;
   @Input() editedAt: number;
   @Input() ipid: string;
+  @Input() deleted: boolean;
 
   @Input() charaName: string;
   @Input() charaColor: string;
@@ -73,6 +86,8 @@ export class MessageComponent {
 
   @Output() readonly editContent: EventEmitter<string> = new EventEmitter();
   @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
+  @Output() readonly delete: EventEmitter<void> = new EventEmitter();
+  @Output() readonly undelete: EventEmitter<void> = new EventEmitter();
 
   editing = false;
   newContent = '';
@@ -124,6 +139,16 @@ export class MessageComponent {
     this.editing = false;
     this.editContent.emit(this.newContent);
     // TODO when do we set? this.sending = true and false;
+  }
+
+  confirmDelete() {
+    if (!confirm('Delete message?')) return;
+    this.editing = false;
+    this.delete.emit();
+  }
+
+  onUndelete() {
+    this.undelete.emit();
   }
 
   keypressCheckEnter($event: KeyboardEvent) {

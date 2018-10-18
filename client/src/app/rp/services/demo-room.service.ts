@@ -179,6 +179,28 @@ export class DemoRoomService implements OnDestroy {
     this.messagesSubject.next(messages);
   }
 
+  deleteMesage(id: RpMessageId) {
+    const messages = [...this.messagesSubject.value];
+    const idx = messages.findIndex(m => m._id === id);
+    const msg: RpMessage = {
+      ...messages[idx],
+      deleted: true,
+    };
+    messages[idx] = msg;
+    this.messagesSubject.next(messages);
+  }
+
+  undeleteMesage(id: RpMessageId) {
+    const messages = [...this.messagesSubject.value];
+    const idx = messages.findIndex(m => m._id === id);
+    const msg: RpMessage = {
+      ...messages[idx],
+      deleted: false,
+    };
+    messages[idx] = msg;
+    this.messagesSubject.next(messages);
+  }
+
   editChara(id: RpCharaId, name: string, color: string) {
     const charas = [...this.charasSubject.value];
     const idx = charas.findIndex(c => c._id === id);
