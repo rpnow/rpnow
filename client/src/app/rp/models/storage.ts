@@ -4,8 +4,7 @@ export function getLocalObject(key) {
     let str;
     try {
         str = localStorage.getItem(key);
-    }
-    catch (ex) {
+    } catch (ex) {
         str = fakeStorage[key];
     }
     if (str == null) return str;
@@ -16,8 +15,7 @@ export function setLocalObject(key, obj) {
     const str = JSON.stringify(obj);
     try {
         localStorage.setItem(key, str);
-    }
-    catch (ex) {
+    } catch (ex) {
         fakeStorage[key] = str;
     }
 }

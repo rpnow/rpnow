@@ -50,9 +50,9 @@ export class ConnectionIndicatorComponent {
   }
 
   text() {
-    if (this.connection === 'offline') return 'Connection lost. Retrying in 3 seconds.'
-    if (this.connection === 'reconnecting') return 'Attempting to reconnect...'
-    if (this.connection === 'reloading') return 'Synchronizing...'
+    if (this.connection === 'offline') return 'Connection lost. Retrying in 3 seconds.';
+    if (this.connection === 'reconnecting') return 'Attempting to reconnect...';
+    if (this.connection === 'reloading') return 'Synchronizing...';
 
     return this.connection;
   }

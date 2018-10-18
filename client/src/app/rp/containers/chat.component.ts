@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { RpService } from '../services/rp.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, combineLatest } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scan, map, first, combineLatest, filter, take } from 'rxjs/operators';
+import { scan, map, first, filter, take } from 'rxjs/operators';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
@@ -175,12 +175,11 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.title.setTitle('Not Found | RPNow');
     });
 
-    this.currentChara$ = this.options.msgBoxVoice$.pipe(
-      combineLatest(this.rp.charasById$, (msgBoxVoice, charasById) => {
-        return isSpecialVoice(msgBoxVoice) ?
-          msgBoxVoice :
-          charasById.get(msgBoxVoice);
-      })
+    this.currentChara$ = combineLatest(
+      this.options.msgBoxVoice$,
+      this.rp.charasById$,
+    ).pipe(
+      map(([msgBoxVoice, charasById]) => isSpecialVoice(msgBoxVoice) ? msgBoxVoice : charasById.get(msgBoxVoice)),
     );
 
     this.messages$ = this.rp.messages$.pipe(
@@ -209,10 +208,11 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.recentCharas$ = this.options.recentCharas$.pipe(
-      combineLatest(this.rp.charasById$, (recentCharas, charasById) => {
-        return recentCharas.map(id => charasById.get(id));
-      }),
+    this.recentCharas$ = combineLatest(
+      this.options.recentCharas$,
+      this.rp.charasById$,
+    ).pipe(
+      map(([recentCharas, charasById]) => recentCharas.map(id => charasById.get(id))),
     );
 
     this.isSmall$ = this.breakpointObserver.observe(this.SMALL_BREAKPOINT).pipe(

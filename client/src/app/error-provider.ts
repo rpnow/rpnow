@@ -20,7 +20,7 @@ export class RavenErrorHandler implements ErrorHandler {
 export const sentryProvider = {
   provide: ErrorHandler,
   useClass: RavenErrorHandler
-}
+};
 
 export const sentryProviderArray = (environment.production) ? [sentryProvider] : [];
 

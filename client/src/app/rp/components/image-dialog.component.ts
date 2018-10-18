@@ -94,7 +94,7 @@ export class ImageDialogComponent {
   }
 
   isWellFormed(url: string) {
-    return !!url.match(this.urlRegex); 
+    return !!url.match(this.urlRegex);
   }
 
   private async isValid(url: string) {

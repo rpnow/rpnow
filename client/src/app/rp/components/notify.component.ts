@@ -32,13 +32,13 @@ export class NotifyComponent implements OnInit {
     // TODO remove any-typing of Notification when upgrading to typescript 3
     if ('Notification' in window && (Notification as any).permission === 'granted') {
       try {
+        // tslint:disable-next-line:no-unused-expression
         new Notification(this.getNotificationTextFor(msg), {
           body: msg.content || undefined,
           icon: msg.url || undefined,
           tag: msg._id,
         });
-      }
-      catch (ex) {
+      } catch (ex) {
         // Chrome on Android (at least Android 4-7) throws an error
         // "Failed to construct 'Notification': Illegal constructor. Use ServiceWorkerRegistration.showNotification() instead."
         // No action needed
@@ -49,9 +49,11 @@ export class NotifyComponent implements OnInit {
     const audio = noises[this.options.notificationNoise].audio;
     if (audio) {
       const audioPromise = audio.play();
-      if (audioPromise !== undefined) audioPromise.catch(error => {
-        // TODO handle audio play failure
-      })
+      if (audioPromise !== undefined) {
+        audioPromise.catch(error => {
+          // TODO handle audio play failure
+        });
+      }
     }
 
     // page title
@@ -60,7 +62,7 @@ export class NotifyComponent implements OnInit {
   }
 
   @Input() charasById: Map<RpCharaId, RpChara>;
-  @Input('title') rpTitle: string;
+  @Input() title: string;
 
   ngOnInit() {
     if ('Notification' in window) {
@@ -83,11 +85,11 @@ export class NotifyComponent implements OnInit {
   }
 
   getNotificationTextFor(msg: RpMessage) {
-    if (msg.type === 'narrator') return `[${this.rpTitle}] The narrator says...`;
-    if (msg.type === 'ooc') return `[${this.rpTitle}] OOC message...`;
-    if (msg.type === 'image') return `[${this.rpTitle}] An image was posted!`;
-    if (msg.type === 'chara') return `[${this.rpTitle}] ${this.charasById.get(msg.charaId).name} says...`;
-    return `[${this.rpTitle}] New message!`;
+    if (msg.type === 'narrator') return `[${this.title}] The narrator says...`;
+    if (msg.type === 'ooc') return `[${this.title}] OOC message...`;
+    if (msg.type === 'image') return `[${this.title}] An image was posted!`;
+    if (msg.type === 'chara') return `[${this.title}] ${this.charasById.get(msg.charaId).name} says...`;
+    return `[${this.title}] New message!`;
   }
 
 }

@@ -1,4 +1,4 @@
-import { getLocalObject, setLocalObject } from "../models/storage";
+import { getLocalObject, setLocalObject } from '../models/storage';
 
 const migrations: [string, () => void][] = [
     // ['Copy challenge from old beta', () => {
@@ -22,6 +22,6 @@ export function migrateOptions() {
             migrate();
 
             completedMigrations.push(migrationName);
-            setLocalObject('rpnow.migrations', completedMigrations)
+            setLocalObject('rpnow.migrations', completedMigrations);
         });
 }

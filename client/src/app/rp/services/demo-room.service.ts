@@ -200,7 +200,7 @@ export class DemoRoomService implements OnDestroy {
   onUserMessage(userMsg) {
     const next = CONVERSATION.get(this.conversationState).onMessage(userMsg);
 
-    this.track.event('Demo', 'Create message', `${this.conversationState} to ${next || '(itself)'}`)
+    this.track.event('Demo', 'Create message', `${this.conversationState} to ${next || '(itself)'}`);
 
     if (next) {
       this.conversationState = next;
@@ -211,7 +211,7 @@ export class DemoRoomService implements OnDestroy {
   onUserChara(userChara) {
     const next = CONVERSATION.get(this.conversationState).onChara(userChara);
 
-    this.track.event('Demo', 'Create chara', `${this.conversationState} to ${next || '(itself)'}`)
+    this.track.event('Demo', 'Create chara', `${this.conversationState} to ${next || '(itself)'}`);
 
     if (next) {
       this.conversationState = next;

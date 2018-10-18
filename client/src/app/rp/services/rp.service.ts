@@ -58,7 +58,7 @@ export class RpService implements OnDestroy {
       return { ...state, ...data, connection: 'connected' };
     }
 
-    else if (type === 'append') {
+    if (type === 'append') {
       const newState = { ...state };
       for (const key in data) {
         if (Array.isArray(data[key])) {
@@ -68,7 +68,7 @@ export class RpService implements OnDestroy {
       return newState;
     }
 
-    else if (type === 'put') {
+    if (type === 'put') {
       const newState = { ...state };
       for (const key in data) {
         if (Array.isArray(data[key])) {
@@ -94,7 +94,7 @@ export class RpService implements OnDestroy {
       let state: RpState = this.initialState();
       observer.next(state);
 
-      let ws: WebSocket;
+      let websocket: WebSocket;
 
       // ws event handlers
       const onopen = () => {
@@ -104,12 +104,12 @@ export class RpService implements OnDestroy {
           state = { ...state, connection: 'reloading' };
         }
         observer.next(state);
-      }
+      };
 
       const onmessage = (evt: MessageEvent) => {
         state = this.updateState(state, JSON.parse(evt.data));
         observer.next(state);
-      }
+      };
 
       const onclose = ({ code, wasClean, reason }: CloseEvent) => {
         if (code === 1000) {
@@ -120,7 +120,7 @@ export class RpService implements OnDestroy {
           state = { ...state, connection: 'offline' };
           observer.next(state);
           setTimeout(() => {
-            ws = createWs();
+            websocket = createWs();
             state = { ...state, connection: 'reconnecting' };
             observer.next(state);
           }, 5000);
@@ -141,9 +141,9 @@ export class RpService implements OnDestroy {
         return ws;
       }
 
-      ws = createWs();
+      websocket = createWs();
 
-      return () => ws.close(1000, 'SPA navigation');
+      return () => websocket.close(1000, 'SPA navigation');
     })).subscribe(this.rpState);
 
     this.connection$ = this.rpState.pipe(
@@ -152,13 +152,13 @@ export class RpService implements OnDestroy {
     );
 
     this.loaded$ = this.rpState.pipe<true>(
-      filter(({ connection, error=null }) => connection === 'connected' && !error),
+      filter(({ connection, error = null }) => connection === 'connected' && !error),
       mapTo(true),
       take(1),
     );
 
     this.messages$ = this.rpState.pipe(
-      filter(({ msgs=null }) => !!msgs),
+      filter(({ msgs = null }) => !!msgs),
       map(({ msgs }) => msgs),
       distinctUntilChanged(),
     );
@@ -170,7 +170,7 @@ export class RpService implements OnDestroy {
     );
 
     this.charas$ = this.rpState.pipe(
-      filter(({ charas=null }) => !!charas),
+      filter(({ charas = null }) => !!charas),
       map(({ charas }) => charas),
       distinctUntilChanged(),
     );
@@ -180,19 +180,19 @@ export class RpService implements OnDestroy {
     );
 
     this.title$ = this.rpState.pipe(
-      filter(({ title=null }) => !!title),
+      filter(({ title = null }) => !!title),
       map(({ title }) => title),
       distinctUntilChanged(),
     );
 
     this.desc$ = this.rpState.pipe(
-      filter(({ desc=null }) => !!desc),
+      filter(({ desc = null }) => !!desc),
       map(({ desc }) => desc),
       distinctUntilChanged(),
     );
 
     this.error$ = this.rpState.pipe(
-      filter(({ error=null }) => !!error),
+      filter(({ error = null }) => !!error),
       map(({ error }) => error),
       distinctUntilChanged(),
     );

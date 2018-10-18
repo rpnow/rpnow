@@ -79,11 +79,11 @@ import { CharaDialogComponent } from './chara-dialog.component';
     h1 {
       flex: 1 1 auto;
     }
-    .mat-list-item.chara-selected {
+    .chara-selected {
       border-left: solid;
       background-color: rgba(0,0,0,0.02);
     }
-    :host-context(.dark-theme) .mat-list-item.chara-selected {
+    :host-context(.dark-theme) .chara-selected {
       background-color: rgba(255,255,255,0.02);
     }
   `],
