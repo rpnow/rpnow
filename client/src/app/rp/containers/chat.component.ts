@@ -154,7 +154,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   constructor(
     public rp: RpService,
-    private rpCodeService: RpCodeService,
+    public rpCodeService: RpCodeService,
     private title: Title,
     private roomService: RoomService,
     public options: OptionsService,
