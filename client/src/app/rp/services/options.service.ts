@@ -60,6 +60,10 @@ export class OptionsService implements OnDestroy {
   public get showMessageDetails() { return this.showMessageDetails$.value; }
   public set showMessageDetails(value) { this.showMessageDetails$.next(value); }
 
+  public readonly agreeToTerms$: BehaviorSubject<boolean> = this.subject('agreeToTerms', GLOBAL, false);
+  public get agreeToTerms() { return this.agreeToTerms$.value; }
+  public set agreeToTerms(value) { this.agreeToTerms$.next(value); }
+
   public readonly lastBannerSeen$: BehaviorSubject<string> = this.subject('lastBannerSeen', GLOBAL, null);
   public get lastBannerSeen() { return this.lastBannerSeen$.value; }
   public set lastBannerSeen(value) { this.lastBannerSeen$.next(value); }

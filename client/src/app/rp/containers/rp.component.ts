@@ -3,9 +3,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MainMenuService } from '../services/main-menu.service';
 import { OptionsService } from '../services/options.service';
 import { DOCUMENT } from '@angular/common';
-import { Subscription, Observable, combineLatest } from 'rxjs';
-import { BannerMessageService } from '../services/banner-message.service';
-import { tap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { RpCodeService } from '../services/rp-code.service';
 import { RoomService } from '../services/room.service';
 import { ChallengeService } from '../services/challenge.service';
@@ -23,7 +21,7 @@ import { ChallengeService } from '../services/challenge.service';
 
       <mat-sidenav-content>
 
-          <rpn-banner-message [message]="bannerMessage$|async" (dismiss)="dismissBanner($event)"></rpn-banner-message>
+          <rpn-banner-message [showTos]="(options.agreeToTerms$|async) === false" (dismiss)="acceptTerms()"></rpn-banner-message>
 
           <router-outlet></router-outlet>
 
@@ -41,7 +39,6 @@ import { ChallengeService } from '../services/challenge.service';
     }
   `],
   providers: [
-    BannerMessageService,
     ChallengeService,
     MainMenuService,
     OptionsService,
@@ -55,14 +52,11 @@ export class RpComponent implements OnInit, OnDestroy {
 
   public subscription: Subscription;
 
-  bannerMessage$: Observable<string>;
-
   constructor(
     public rpCodeService: RpCodeService,
     private mainMenuService: MainMenuService,
     public options: OptionsService,
     @Inject(DOCUMENT) private document: Document,
-    private bannerService: BannerMessageService,
   ) { }
 
   ngOnInit() {
@@ -71,20 +65,6 @@ export class RpComponent implements OnInit, OnDestroy {
     this.subscription = this.options.nightMode$.subscribe(nightMode => {
       this.document.body.className = nightMode ? 'dark-theme' : '';
     });
-
-    this.bannerMessage$ = combineLatest(
-      this.bannerService.message$.pipe(
-        tap(msg => {
-          if (!msg) this.options.lastBannerSeen = null;
-        })
-      ),
-      this.options.lastBannerSeen$,
-      (msg, lastMsg) => {
-        if (!msg) return null;
-        if (msg === lastMsg) return null;
-        return msg;
-      }
-    );
   }
 
   ngOnDestroy() {
@@ -92,8 +72,8 @@ export class RpComponent implements OnInit, OnDestroy {
     this.document.body.className = '';
   }
 
-  dismissBanner(message: string) {
-    this.options.lastBannerSeen = message;
+  acceptTerms() {
+    this.options.agreeToTerms = true;
   }
 
 }

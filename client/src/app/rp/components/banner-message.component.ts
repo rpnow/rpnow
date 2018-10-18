@@ -1,12 +1,13 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Component, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'rpn-banner-message',
   template: `
-    <div *ngIf="messageHtml">
+    <div *ngIf="showTos">
 
-      <span class="generated-links-contrast" [innerHTML]="messageHtml"></span>
+      <span class="generated-links-contrast">
+        By using RPNow, you agree to its <a class="link" target="_blank" href="/terms">terms of use.</a>
+      </span>
 
       <button mat-icon-button (click)="onDismiss()">
         <mat-icon>close</mat-icon>
@@ -39,18 +40,12 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 })
 export class BannerMessageComponent {
 
-  constructor(private sanitizer: DomSanitizer) { }
-
-  @Input() message: string;
+  @Input() showTos: boolean;
 
   @Output() readonly dismiss: EventEmitter<string> = new EventEmitter();
 
-  get messageHtml() {
-    return this.message && this.sanitizer.bypassSecurityTrustHtml(this.message);
-  }
-
   onDismiss() {
-    this.dismiss.emit(this.message);
+    this.dismiss.emit();
   }
 
 }
