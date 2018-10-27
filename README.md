@@ -18,11 +18,7 @@ While running in dev, run server tests with:
 
 
 ## Version
-Here's the flow of getting a new version ready for Sentry.io:
-
-1. Update the version number in `version.ts`
-2. Make sure to do an `npm run build` to get an up-to-date bundle and sourcemap available.
-3. `VERSION=x.y.z npm run sentry` does everything needed to upload sourcemaps to sentry.
+Be sure to update `client/src/app/version.ts` so it's easier to track errors in Sentry.io.
 
 
 ## Production

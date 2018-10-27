@@ -12,14 +12,9 @@ COPY ./client/ngsw-config.json .
 COPY ./client/tsconfig.json .
 COPY ./client/src ./src
 
-# Due to a bug in Angular (at least in verison 6) the bundles are different when generated
-# without source maps
-# However, we want to be able to upload sourcemaps to sentry.io. So we generate the bundle
-# with maps and then remove the maps.
-RUN npm run build \
-    && rm ./dist/rpnow/*.map
+RUN npm run build
 
-# We also need to delete this old ngsw because it might cause bugs if it's loaded on accident,
+# Delete this old ngsw because it might cause bugs if it's loaded on accident,
 # see ngsw-worker-polyfilled for more info
 RUN rm ./dist/rpnow/ngsw-worker.js
 
