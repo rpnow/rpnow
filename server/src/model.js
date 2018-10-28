@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
 const nJ = require('normalize-json');
-const { publish } = require('./services/events');
+const { publish } = require('./events');
 const dao = require('./dao/dao.mongo');
 const { generateRpCode } = require('./services/rpcode.js');
 const { verifyChallenge } = require('./services/challenge');

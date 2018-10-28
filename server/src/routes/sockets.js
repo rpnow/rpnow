@@ -2,7 +2,7 @@ const { Server } = require('ws');
 const model = require('../model');
 const logger = require('../services/logger');
 const config = require('../config');
-const { subscribe } = require('../services/events');
+const { subscribe } = require('../events');
 
 async function onConnection(socket, req) {
     const ip =

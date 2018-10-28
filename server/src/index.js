@@ -6,7 +6,7 @@ const restApi = require('./routes/rest-api');
 const staticFiles = require('./routes/static-files');
 const { createWss, closeWss } = require('./routes/sockets');
 const dao = require('./dao/dao.mongo');
-const events = require('./services/events');
+const events = require('./events');
 
 logger.debug('Starting RPNow API...');
 
