@@ -28,10 +28,7 @@ services:
     image: rpnow/rpnow
     build: .
     restart: on-failure
-    depends_on:
-      - db
     environment:
-      RPNOW_DB_HOST: 'db'
       RPNOW_TRUST_PROXY: 'true'
     networks:
       - front-layer
@@ -44,18 +41,9 @@ services:
         limits:
           memory: 400M
 
-  db:
-    image: mongo:3.6
-    restart: on-failure
-    volumes:
-      - db_data:/data/db
-    networks:
-      - back-layer
-
 networks:
   front-layer:
   back-layer:
 
 volumes:
   caddy_data:
-  db_data:
