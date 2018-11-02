@@ -6,35 +6,75 @@ const orm = knex({
     connection: {
         filename: 'data.sqlite3',
     },
+    // connection: ':memory:',
 });
 
 const connected = (async function connect() {
     if (!(await orm.schema.hasTable('docs'))) {
         await orm.schema.createTable('docs', (t) => {
-            t.string('id', 36).primary().notNullable();
-            t.string('parent_id', 36).nullable();
-            t.string('type').notNullable();
-
-            t.foreign('parent_id').references('docs.id');
-            t.index('parent_id');
-            t.index('type');
-        });
-    }
-    if (!(await orm.schema.hasTable('revs'))) {
-        await orm.schema.createTable('revs', (t) => {
-            t.string('doc_id', 36).nullable();
+            t.increments('event_id').primary();
+            t.string('doc_id', 64).notNullable();
+            t.string('namespace').notNullable();
+            t.integer('revision_age').defaultTo(0).notNullable();
+            t.json('body', 50000).nullable();
             t.timestamp('timestamp').defaultTo(orm.fn.now()).notNullable();
             t.string('ip', 47).nullable();
-            t.string('body', 20000).notNullable();
-            t.increments('event_index').primary().notNullable();
 
-            t.foreign('doc_id').references('docs.id');
+            t.unique(['doc_id', 'namespace', 'revision_age']);
             t.index('doc_id');
+            t.index('namespace');
+            t.index('revision_age');
             t.index('timestamp');
             t.index('ip');
         });
     }
 }());
+
+const getDocs = async ({ namespace, allVersions = false, where = null, prefix = null }) => {
+    await connected;
+
+    let query = orm('docs');
+
+    if (namespace !== null) {
+        query = query.where('namespace', namespace);
+    }
+    if (!allVersions) {
+        query = query.where('revision_age', 0);
+    }
+    if (where) {
+        query = query.where(where);
+    }
+    if (prefix) {
+        query = query.whereRaw('doc_id like ?', [`${prefix}%`]);
+    }
+
+    query = query.orderBy('event_id', 'asc');
+
+    return query;
+};
+
+const putDoc = async ({ id, namespace = null, ip, ...body }) => {
+    await connected;
+    return knex.transaction(async (tx) => {
+        await tx('docs').where('doc_id', id).update('revision_age', 'revision_age + 1');
+        await tx('docs').insert({ doc_id: id, namespace, ip, body: JSON.stringify(body) });
+    });
+};
+
+const getRpNamespace = async (rpCode) => {
+    const [doc] = await getDocs({ namespace: null, where: { doc_id: rpCode } });
+    return doc.namespace;
+};
+
+const getDocsForRp = async ({ rpCode, ...args }) => {
+    const namespace = await getRpNamespace(rpCode);
+    return getDocs({ namespace, ...args });
+};
+
+const putDocForRp = async ({ rpCode, ...args }) => {
+    const namespace = await getRpNamespace(rpCode);
+    return putDoc({ namespace, ...args });
+};
 
 module.exports = ({
     async close() {
@@ -46,20 +86,11 @@ module.exports = ({
     },
 
     async getRoomMeta(rpCode) {
-        await connected;
-        return orm.raw(`
-            SELECT roomsRev.body
-            FROM docs AS rooms
-            JOIN revs AS roomsRev ON (roomsRev.doc_id = rooms.id)
-            WHERE rooms.type = 'room'
-            AND rooms.id = '${rpCode}'
-        `);
+        return (await getDocsForRp({ rpCode, where: { doc_id: 'meta' } }))[0].body;
     },
 
     async getRoomCharas(rpCode) {
-        const db = await connection;
-        const roomId = await getRoomId(rpCode);
-        return db.collection('charas').find({ roomId }, { roomId: 0 }).toArray();
+        return getDocsForRp({ rpCode, prefix: 'chara' });
     },
 
     async getRoomMessageCount(rpCode) {
