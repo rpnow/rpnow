@@ -7,9 +7,8 @@ $config = ['settings' => [
 $app = new \Slim\App($config);
 
 // Define app routes
-$app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->write("Hello " . $args['name']);
-});
+require './api/rest.php';
+require './api/stream.php';
 
 // Run app
 $app->run();
