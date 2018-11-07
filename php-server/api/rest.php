@@ -6,12 +6,15 @@ $app->group('/api', function() {
         // Insert doc in (namespace, 'meta', {title}, ip)
         // Insert doc in ('urls', rpCode, {namespace}, ip)
         // return rpCode
-        return $response->withJson(['foo' => 'bar'], 200);
+        return $response->withJson(['rpCode' => 'abc'], 201);
     });
     $this->get('/challenge.json', function ($request, $response, $args) {
         // generate this magically
         // return {secret, hash}
-        return $response->withJson(['foo' => 'bar'], 200);
+        return $response->withJson([
+            "secret" => "701021d9d39286c9c19b5c65504b8393230811f9c1a814232bdb29bd90b83e9e",
+            "hash" => "f82fa215887270cbfcd3d677fe7044db66b0a49f51248873863969617f45b1a1041abd047cff837904b8b848439be0287c358c193c90440a0e9b9790e2051159"
+        ], 200);
     });
     $this->group('/rp/{rpCode:[-0-9a-zA-Z]+}', function() {
         $this->get('/', function ($request, $response, $args) {
