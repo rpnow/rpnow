@@ -3,7 +3,7 @@ version: '2.0'
 services:
   rpnow:
     container_name: rpnow
-    image: rpnow/rpnow
+    image: rpnow/rpnow:php
     build: .
     volumes:
       - ./php-server:/var/www/html:ro
