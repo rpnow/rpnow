@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy, ApplicationRef } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable, Observer, Subject, ReplaySubject, Subscription } from 'rxjs';
@@ -81,13 +82,28 @@ export class RpService implements OnDestroy {
   }
 
   constructor(
+    http: HttpClient,
     rpCodeService: RpCodeService
   ) {
     // websocket events
     this.rpState = new ReplaySubject(1);
-    this.subscription = (<Observable<RpState>>Observable.create((observer: Observer<RpState>) => {
+    this.subscription = (<Observable<RpState>>Observable.create(async (observer: Observer<RpState>) => {
       let state: RpState = this.initialState();
       observer.next(state);
+
+      // while (true) {
+        const res = await http.get(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}`).toPromise();
+        console.log(res);
+        state = { ...state, ...res, connection: 'connected' };
+        observer.next(state);
+      // }
+
+
+
+      return;
+
+
+
 
       let websocket: WebSocket;
 
