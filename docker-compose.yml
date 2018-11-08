@@ -9,4 +9,4 @@ services:
       - ./php-server:/var/www/html:ro
       - ./client/dist:/var/www/bundle:ro
     ports:
-      - "3000:80"
+      - "13000:80"
