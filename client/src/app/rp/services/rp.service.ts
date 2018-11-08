@@ -94,7 +94,7 @@ export class RpService implements OnDestroy {
       // while (true) {
         const res = await http.get(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}`).toPromise();
         console.log(res);
-        state = { ...state, ...res, connection: 'connected' };
+        state = <any>{ ...state, ...res, connection: 'connected' };
         observer.next(state);
       // }
 
