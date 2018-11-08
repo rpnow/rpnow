@@ -2,7 +2,7 @@
 
 $app->group('/admin', function() {
     $this->get('/setup', function ($request, $response, $args) {
-        $this->get('db')->exec(
+        $this->get('pdo')->exec(
             "CREATE TABLE docs (
                 event_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 namespace TEXT NOT NULL,
@@ -16,7 +16,7 @@ $app->group('/admin', function() {
                 CONSTRAINT doc_id_namespace_table UNIQUE (namespace, revision_age, doc_id)
             )"
         );
-        $this->get('db')->exec(
+        $this->get('pdo')->exec(
             "CREATE INDEX hash_index ON docs (hash) WHERE hash IS NOT NULL"
         );
         return $response->withJson(['ok'], 200);

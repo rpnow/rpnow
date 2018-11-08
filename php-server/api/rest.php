@@ -65,7 +65,7 @@ $app->group('/api', function() {
             // Get charas
             $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->array();
             // Get Math.ceil(msgCount/20)
-            $msgCount = $Docs->count($namespace, ['prefix' => 'msg_']);
+            $msgCount = $Docs->docs($namespace, ['prefix' => 'msg_'])->count();
             $pageCount = ceil($msgCount / 20);
             // obfuscate ip's
             // return all
@@ -85,14 +85,14 @@ $app->group('/api', function() {
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
             // Get msgs
-            $msgs = $Docs->docs($namespace, ['prefix' => 'msg_'], ['type', 'content', 'url', 'charaId'])->cursor();
+            $msgCursor = $Docs->docs($namespace, ['prefix' => 'msg_'], ['type', 'content', 'url', 'charaId'])->cursor();
             // Get charas
             $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->map();
             // print title & desc
             $response->write($meta['title']);
             $response->write('---');
             // print all msgs
-            while($msg = $msgs->next()) {
+            while($msg = $msgCursor()) {
                 $response->write($msg['content']);
             }
             // send as download
@@ -120,7 +120,7 @@ $app->group('/api', function() {
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['rp_namespace'];
             // validate {id, content, type, charaId, secret, hash}
-            $doc_id = 'msg_501'
+            $doc_id = 'msg_501';
             $content = 'asdfasfa';
             $type = 'narrator';
             $charaId = null;
