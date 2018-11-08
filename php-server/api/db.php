@@ -10,8 +10,7 @@ $container['pdo'] = function($c) {
 };
 
 $container['docs'] = function($c) {
-    return new class($c['pdo']) {
-
+    class DocsOperator {
         private $pdo;
 
         function __construct($pdo) {
@@ -31,25 +30,7 @@ $container['docs'] = function($c) {
         }
 
         public function docs($ns, $params, $selectFields) {
-            return new class($ns, $params, $selectFields) {
-                public function array() {
-
-                }
-                
-                public function map() {
-
-                }
-
-                public function count() {
-
-                }
-
-                public function cursor() {
-                    return function() {
-
-                    };
-                }
-            };
+            return new DocsQuery($ns, $params, $selectFields);
         }
 
         public function lastEventId() {
@@ -64,5 +45,24 @@ $container['docs'] = function($c) {
 
         }
     };
+    class DocsQuery {
+        public function asArray() {
 
+        }
+        
+        public function asMap() {
+
+        }
+
+        public function count() {
+
+        }
+
+        public function cursor() {
+            return function() {
+
+            };
+        }
+    };
+    return new DocsOperator($c['pdo']);
 };
