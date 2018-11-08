@@ -35,9 +35,9 @@ $app->group('/api', function() {
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
             // Get msgs limit 60 desc
-            $msgs = $Docs->docs($namespace, ['prefix' => 'msg_', 'reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->array();
+            $msgs = $Docs->docs($namespace, ['prefix' => 'msg_', 'reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->array();
+            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->asArray();
             // Get max event_id in database
             $lastEventId = $Docs->lastEventId();
             // end TX
@@ -61,9 +61,9 @@ $app->group('/api', function() {
             $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
             // Get msgs skip x*20 limit 20
             $skip = ($args['pageNum'] - 1) * 20;
-            $msgs = $Docs->docs($namespace, ['prefix' => 'msg_', 'skip' => $skip, 'limit' => 20], ['type', 'content', 'url', 'charaId'])->array();
+            $msgs = $Docs->docs($namespace, ['prefix' => 'msg_', 'skip' => $skip, 'limit' => 20], ['type', 'content', 'url', 'charaId'])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->array();
+            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->asArray();
             // Get Math.ceil(msgCount/20)
             $msgCount = $Docs->docs($namespace, ['prefix' => 'msg_'])->count();
             $pageCount = ceil($msgCount / 20);
@@ -87,7 +87,7 @@ $app->group('/api', function() {
             // Get msgs
             $msgCursor = $Docs->docs($namespace, ['prefix' => 'msg_'], ['type', 'content', 'url', 'charaId'])->cursor();
             // Get charas
-            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->map();
+            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->asMap();
             // print title & desc
             $response->write($meta['title']);
             $response->write('---');
