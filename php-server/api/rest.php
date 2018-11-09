@@ -6,8 +6,9 @@ $app->group('/api', function() {
         // validate {hash}
         $title = 'My New RP';
         $desc = '';
-        $rpCode = 'abc';
-        $namespace = 'rp1';
+        // TODO this isn't secure enough!
+        $rpCode = random_int(1000,9999) . '-' . random_int(1000,9999) . '-' . random_int(1000,9999);
+        $namespace = 'rp' . random_int(0,999999);
         $ip = '1.1.1.1';
         // Insert meta doc for RP
         $Docs->create($namespace, 'meta', ['title' => $title, 'desc' => $desc], $ip);
@@ -31,7 +32,7 @@ $app->group('/api', function() {
             $Docs->transactionStart();
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['rp_namespace'];
+            $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
             // Get msgs limit 60 desc
@@ -45,8 +46,8 @@ $app->group('/api', function() {
             // obfuscate ip's
             // return all
             return $response->withJson([
-                'title' => $meta['title'],
-                'desc' => $meta['desc'],
+                'title' => $meta['body']['title'],
+                'desc' => $meta['body']['desc'],
                 'msgs' => [],
                 'charas' => [],
                 'lastEventId' => $lastEventId
