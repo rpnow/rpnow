@@ -2,10 +2,21 @@
 
 $container = $app->getContainer();
 
+$container['eloquent'] = function($c) {
+    $capsule = new \Illuminate\Database\Capsule\Manager;
+    $capsule->addConnection($c['settings']['db']);
+
+    $capsule->setAsGlobal();
+    $capsule->bootEloquent();
+
+    return $capsule;
+};
+
 $container['pdo'] = function($c) {
-    $pdo = new PDO('sqlite:/tmp/db.sqlite3');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    // $pdo = new PDO('sqlite:/tmp/db.sqlite3');
+    // $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo = $c['eloquent']->connection()->getPdo();
     return $pdo;
 };
 
