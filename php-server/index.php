@@ -3,7 +3,12 @@ require 'vendor/autoload.php';
 // Create and configure Slim app
 $config = ['settings' => [
     'addContentLengthHeader' => false,
-    'displayErrorDetails' => true
+    'displayErrorDetails' => true,
+    'db' => [
+        'driver' => 'sqlite',
+        'database' => '/tmp/db.sqlite3',
+        'prefix' => ''
+    ]
 ]];
 $app = new \Slim\App($config);
 
