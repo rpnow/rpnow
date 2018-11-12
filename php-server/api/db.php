@@ -10,8 +10,9 @@ $container['docs'] = function($c) {
     $illuminate->bootEloquent();
 
     class Doc extends \Illuminate\Database\Eloquent\Model {
+        protected $visible = ['doc_id', 'revision_age', 'body', 'timestamp', 'auth_hash'];
         protected $fillable = ['namespace', 'doc_id', 'body', 'ip', 'auth_hash'];
-        protected $casts = ['body' => 'array'];
+        protected $casts = ['event_id' => 'integer', 'body' => 'array', 'revision_age' => 'integer'];
         public $timestamps = false;
         public function scopeNs($query, $ns) {
             return $query->where('namespace', $ns);
@@ -77,7 +78,20 @@ $container['docs'] = function($c) {
         }
 
         public function docs($ns, $filters, $selectFields) {
-            return new DocsQuery($ns, $filters, $selectFields);
+            $q = Doc::ns($ns);
+            if ($filters['prefix']) {
+                $q = $q->where('doc_id', 'like', $filters['prefix'].'%');
+            }
+            if ($filters['skip']) {
+
+            }
+            if ($filters['limit']) {
+
+            }
+            if ($filters['reverse']) {
+
+            }
+            return new DocsQuery($q);
         }
 
         public function lastEventId() {
@@ -93,22 +107,22 @@ $container['docs'] = function($c) {
         }
     };
     class DocsQuery {
-        private $stmt;
+        private $query;
 
-        function __construct($ns, $filters, $selectFields) {
-
+        function __construct($q) {
+            $this->query = $q;
         }
 
         public function asArray() {
-
+            return $this->query->get()->toArray();
         }
         
         public function asMap() {
-
+            return $this->query->get()->keyBy('doc_id')->toArray();
         }
 
         public function count() {
-
+            return $this->query->count();
         }
 
         public function cursor() {
