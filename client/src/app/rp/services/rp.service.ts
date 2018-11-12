@@ -100,8 +100,8 @@ export class RpService implements OnDestroy {
 
 
 
-      return;
 
+      /*
 
 
 
@@ -155,6 +155,7 @@ export class RpService implements OnDestroy {
       websocket = createWs();
 
       return () => websocket.close(1000, 'SPA navigation');
+      */
     })).subscribe(this.rpState);
 
     this.connection$ = this.rpState.pipe(
