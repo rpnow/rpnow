@@ -7,6 +7,7 @@ import { RpVoice, typeFromVoice } from '../models/rp-voice';
 import { TrackService } from '../../track.service';
 import { HttpClient } from '@angular/common/http';
 import { ChallengeService } from './challenge.service';
+import * as cuid from 'cuid';
 
 export interface RpPageResponse {
   title: string;
@@ -51,16 +52,14 @@ export class RoomService {
     const challenge = await this.challengeService.challenge$;
 
     const msg: Partial<RpMessage> = {
+      _id: `msg_${cuid()}`,
       content,
       ... typeFromVoice(voice),
       challenge: challenge.hash
     };
     this.track.event('RP', 'Create message', msg.type, content.length);
 
-    const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/message`, msg).toPromise() as RpMessage;
-    // this.newMessagesSubject.next(receivedMsg);
-
-    return receivedMsg;
+    await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/message`, msg).toPromise();
   }
 
   async addChara(rpCode: string, name: string, color: string) {
