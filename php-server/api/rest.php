@@ -48,8 +48,8 @@ $app->group('/api', function() {
             return $response->withJson([
                 'title' => $meta['body']['title'],
                 'desc' => $meta['body']['desc'],
-                'msgs' => [],
-                'charas' => [],
+                'msgs' => $msgs,
+                'charas' => $charas,
                 'lastEventId' => $lastEventId
             ], 200);
         });
@@ -57,7 +57,7 @@ $app->group('/api', function() {
             $Docs = $this->get('docs');
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['rp_namespace'];
+            $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
             // Get msgs skip x*20 limit 20
@@ -82,7 +82,7 @@ $app->group('/api', function() {
             $Docs = $this->get('docs');
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['rp_namespace'];
+            $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
             // Get msgs
@@ -105,7 +105,7 @@ $app->group('/api', function() {
             $Docs = $this->get('docs');
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['rp_namespace'];
+            $namespace = $urlDoc['body']['rp_namespace'];
             // validate {title, desc, secret, hash}
             $title = 'Edited Title';
             $desc = 'Edited Title';
@@ -119,8 +119,9 @@ $app->group('/api', function() {
             $Docs = $this->get('docs');
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['rp_namespace'];
+            $namespace = $urlDoc['body']['rp_namespace'];
             // validate {id, content, type, charaId, secret, hash}
+            $body = $request->getBody();
             $doc_id = 'msg_501';
             $content = 'asdfasfa';
             $type = 'narrator';
@@ -137,7 +138,7 @@ $app->group('/api', function() {
             $Docs = $this->get('docs');
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['rp_namespace'];
+            $namespace = $urlDoc['body']['rp_namespace'];
             // validate {url, secret, hash}
             // put the doc
             // done
@@ -147,7 +148,7 @@ $app->group('/api', function() {
             $Docs = $this->get('docs');
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['rp_namespace'];
+            $namespace = $urlDoc['body']['rp_namespace'];
             // validate {name, color, secret, hash}
             // put the doc
             // done
