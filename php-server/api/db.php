@@ -134,6 +134,9 @@ $container['docs'] = function($c) {
                 ->orderBy('doc_id', 'ASC')
                 ->orderBy('revision_age', 'DESC')
                 ->get()
+                ->map(function($doc) {
+                    return collect($doc['body'])->merge($doc)->forget('body')->toArray();
+                })
                 ->toArray();
         }
         
@@ -141,6 +144,9 @@ $container['docs'] = function($c) {
             return $this->query
                 ->get()
                 ->keyBy('doc_id')
+                ->map(function($doc) {
+                    return collect($doc['body'])->merge($doc)->forget('body')->toArray();
+                })
                 ->toArray();
         }
 
