@@ -71,6 +71,11 @@ $container['docs'] = function($c) {
             Doc::create(['namespace' => $ns, 'doc_id' => $id, 'ip' => $ip, 'body' => $body, 'revision' => 0]);
         }
 
+        public function update($ns, $id, $body, $ip) {
+            Doc::ns($ns)->docId($id)->firstOrFail();
+            $this->put($ns, $id, $body, $ip);
+        }
+
         public function put($ns, $id, $body, $ip) {
             $this->transactionStart();
             Doc::ns($ns)->docId($id)->increment('revision_age');
