@@ -10,9 +10,10 @@ $container['docs'] = function($c) {
     $illuminate->bootEloquent();
 
     class Doc extends \Illuminate\Database\Eloquent\Model {
-        protected $visible = ['doc_id', 'revision_age', 'body', 'timestamp', 'auth_hash'];
-        protected $fillable = ['namespace', 'doc_id', 'body', 'ip', 'auth_hash'];
-        protected $casts = ['event_id' => 'integer', 'body' => 'array', 'revision_age' => 'integer'];
+        protected $visible = ['doc_id', 'revision', 'revision_age', 'body', 'timestamp', 'auth_hash', 'deleted'];
+        protected $fillable = ['namespace', 'doc_id', 'body', 'ip', 'auth_hash', 'revision'];
+        protected $casts = ['event_id' => 'integer', 'body' => 'array', 'revision' => 'integer', 'revision_age' => 'integer'];
+        protected $appends = ['deleted'];
         public $timestamps = false;
         public function scopeNs($query, $ns) {
             return $query->where('namespace', $ns);
@@ -22,6 +23,9 @@ $container['docs'] = function($c) {
         }
         public function scopeCurrent($query) {
             return $query->where('revision_age', 0);
+        }
+        public function getDeletedAttribute() {
+            return is_null($this->attributes['body']);
         }
     }
 
@@ -49,6 +53,7 @@ $container['docs'] = function($c) {
                 $table->increments('event_id');
                 $table->string('namespace');
                 $table->string('doc_id');
+                $table->integer('revision');
                 $table->integer('revision_age')->default(0);
                 $table->string('body')->nullable();
                 $table->timestamp('timestamp')->useCurrent();
@@ -63,13 +68,14 @@ $container['docs'] = function($c) {
         }
 
         public function create($ns, $id, $body, $ip) {
-            Doc::create(['namespace' => $ns, 'doc_id' => $id, 'ip' => $ip, 'body' => $body]);
+            Doc::create(['namespace' => $ns, 'doc_id' => $id, 'ip' => $ip, 'body' => $body, 'revision' => 0]);
         }
 
         public function put($ns, $id, $body, $ip) {
             $this->transactionStart();
             Doc::ns($ns)->docId($id)->increment('revision_age');
-            $this->create($ns, $id, $body, $ip);
+            $revision = +Doc::ns($ns)->docId($id)->max('revision_age');
+            Doc::create(['namespace' => $ns, 'doc_id' => $id, 'ip' => $ip, 'body' => $body, 'revision' => $revision]);
             $this->transactionEnd();
         }
 
@@ -78,7 +84,7 @@ $container['docs'] = function($c) {
         }
 
         public function docs($ns, $filters, $selectFields) {
-            $q = Doc::ns($ns);
+            $q = Doc::ns($ns)->current();
             if ($filters['prefix']) {
                 $q = $q->where('doc_id', 'like', $filters['prefix'].'%');
             }
@@ -114,11 +120,19 @@ $container['docs'] = function($c) {
         }
 
         public function asArray() {
-            return $this->query->get()->toArray();
+            return $this->query
+                ->orderBy('namespace', 'ASC')
+                ->orderBy('doc_id', 'ASC')
+                ->orderBy('revision_age', 'DESC')
+                ->get()
+                ->toArray();
         }
         
         public function asMap() {
-            return $this->query->get()->keyBy('doc_id')->toArray();
+            return $this->query
+                ->get()
+                ->keyBy('doc_id')
+                ->toArray();
         }
 
         public function count() {

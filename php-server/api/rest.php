@@ -120,17 +120,16 @@ $app->group('/api', function() {
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['body']['rp_namespace'];
-            // validate {id, content, type, charaId, secret, hash}
-            $body = $request->getBody();
-            $doc_id = 'msg_501';
-            $content = 'asdfasfa';
-            $type = 'narrator';
-            $charaId = null;
-            $secret = null;
-            $hash = null;
+            // validate {id, content, type, charaId}
+            $reqBody = $request->getParsedBody();
+            $doc_id = $reqBody['_id'];
+            $fields = [];
+            $fields['content'] = $reqBody['content'];
+            $fields['type'] = $reqBody['type'];
+            if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
             $ip = '1.1.1.1';
             // put the doc
-            $Docs->put($namespace, $doc_id, ['content' => $content, 'type' => $type], $ip);
+            $Docs->put($namespace, $doc_id, $fields, $ip);
             // done
             return $response->withStatus(204);
         });
@@ -139,8 +138,13 @@ $app->group('/api', function() {
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['body']['rp_namespace'];
-            // validate {url, secret, hash}
+            // validate {id, url}
+            $reqBody = $request->getParsedBody();
+            $doc_id = $reqBody['_id'];
+            $fields = ['url' => $reqBody['url']];
+            $ip = '1.1.1.1';
             // put the doc
+            $Docs->put($namespace, $doc_id, $fields, $ip);
             // done
             return $response->withStatus(204);
         });
@@ -149,7 +153,7 @@ $app->group('/api', function() {
             // Lookup namespace
             $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['body']['rp_namespace'];
-            // validate {name, color, secret, hash}
+            // validate {id, name, color}
             // put the doc
             // done
             return $response->withStatus(204);
