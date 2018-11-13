@@ -11,12 +11,15 @@ $container['docs'] = function($c) {
 
     class Doc extends \Illuminate\Database\Eloquent\Model {
         protected $visible = ['doc_id', 'revision', 'revision_age', 'body', 'timestamp', 'auth_hash', 'deleted'];
-        protected $fillable = ['namespace', 'doc_id', 'body', 'ip', 'auth_hash', 'revision'];
+        protected $fillable = ['namespace', 'collection', 'doc_id', 'body', 'ip', 'auth_hash', 'revision'];
         protected $casts = ['event_id' => 'integer', 'body' => 'array', 'revision' => 'integer', 'revision_age' => 'integer'];
         protected $appends = ['deleted'];
         public $timestamps = false;
         public function scopeNs($query, $ns) {
             return $query->where('namespace', $ns);
+        }
+        public function scopeColl($query, $coll) {
+            return $query->where('collection', $coll);
         }
         public function scopeDocId($query, $id) {
             return $query->where('doc_id', $id);
@@ -52,6 +55,7 @@ $container['docs'] = function($c) {
             $this->illuminate->schema()->create('docs', function($table) {
                 $table->increments('event_id');
                 $table->string('namespace');
+                $table->string('collection');
                 $table->string('doc_id');
                 $table->integer('revision');
                 $table->integer('revision_age')->default(0);
@@ -60,38 +64,38 @@ $container['docs'] = function($c) {
                 $table->string('ip')->nullable();
                 $table->string('auth_hash')->nullable();
 
-                $table->unique(['namespace', 'revision_age', 'doc_id']);
-                $table->index(['namespace', 'doc_id']);
+                $table->unique(['namespace', 'collection', 'revision_age', 'doc_id']);
+                $table->index(['namespace', 'collection', 'doc_id']);
                 $table->index('timestamp');
                 $table->index('auth_hash');
             });
         }
 
-        public function create($ns, $id, $body, $ip) {
-            Doc::create(['namespace' => $ns, 'doc_id' => $id, 'ip' => $ip, 'body' => $body, 'revision' => 0]);
+        public function create($ns, $coll, $id, $body, $ip) {
+            Doc::create(['namespace' => $ns, 'collection' => $coll, 'doc_id' => $id, 'ip' => $ip, 'body' => $body, 'revision' => 0]);
         }
 
-        public function update($ns, $id, $body, $ip) {
-            Doc::ns($ns)->docId($id)->firstOrFail();
+        public function update($ns, $coll, $id, $body, $ip) {
+            Doc::ns($ns)->coll($coll)->docId($id)->firstOrFail();
             $this->put($ns, $id, $body, $ip);
         }
 
-        public function put($ns, $id, $body, $ip) {
+        public function put($ns, $coll, $id, $body, $ip) {
             $this->transactionStart();
-            Doc::ns($ns)->docId($id)->increment('revision_age');
-            $revision = +Doc::ns($ns)->docId($id)->max('revision_age');
-            Doc::create(['namespace' => $ns, 'doc_id' => $id, 'ip' => $ip, 'body' => $body, 'revision' => $revision]);
+            Doc::ns($ns)->coll($coll)->docId($id)->increment('revision_age');
+            $revision = +Doc::ns($ns)->coll($coll)->docId($id)->max('revision_age');
+            Doc::create(['namespace' => $ns, 'collection' => $coll, 'doc_id' => $id, 'ip' => $ip, 'body' => $body, 'revision' => $revision]);
             $this->transactionEnd();
         }
 
-        public function doc($ns, $id, $selectFields) {
-            return Doc::ns($ns)->docId($id)->current()->firstOrFail();
+        public function doc($ns, $coll, $id, $selectFields) {
+            return Doc::ns($ns)->coll($coll)->docId($id)->current()->firstOrFail();
         }
 
-        public function docs($ns, $filters, $selectFields) {
+        public function docs($ns, $coll, $filters, $selectFields) {
             $q = Doc::ns($ns)->current();
-            if ($filters['prefix']) {
-                $q = $q->where('doc_id', 'like', $filters['prefix'].'%');
+            if (!is_null($coll)) {
+                $q = $q->coll($coll);
             }
             if ($filters['skip']) {
 
