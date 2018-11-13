@@ -11,9 +11,9 @@ $app->group('/api', function() {
         $namespace = 'rp' . random_int(0,999999);
         $ip = '1.1.1.1';
         // Insert meta doc for RP
-        $Docs->create($namespace, 'meta', ['title' => $title, 'desc' => $desc], $ip);
+        $Docs->create($namespace, 'meta', 'meta', ['title' => $title, 'desc' => $desc], $ip);
         // Insert doc for URL to refer to RP
-        $Docs->create('urls', $rpCode, ['rp_namespace' => $namespace], $ip);
+        $Docs->create('system', 'urls', $rpCode, ['rp_namespace' => $namespace], $ip);
         // return rpCode
         return $response->withJson(['rpCode' => $rpCode], 201);
     });
@@ -31,14 +31,14 @@ $app->group('/api', function() {
             // begin TX
             $Docs->transactionStart();
             // Lookup namespace
-            $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
-            $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
+            $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
             // Get msgs limit 60 desc
-            $msgs = $Docs->docs($namespace, ['prefix' => 'msg_', 'reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
+            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->asArray();
+            $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asArray();
             // Get max event_id in database
             $lastEventId = $Docs->lastEventId();
             // end TX
@@ -56,39 +56,39 @@ $app->group('/api', function() {
         $this->get('/page/{pageNum:[1-9][0-9]*}', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
-            $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
+            $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
             // Get msgs skip x*20 limit 20
             $skip = ($args['pageNum'] - 1) * 20;
-            $msgs = $Docs->docs($namespace, ['prefix' => 'msg_', 'skip' => $skip, 'limit' => 20], ['type', 'content', 'url', 'charaId'])->asArray();
+            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->asArray();
+            $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asArray();
             // Get Math.ceil(msgCount/20)
-            $msgCount = $Docs->docs($namespace, ['prefix' => 'msg_'])->count();
+            $msgCount = $Docs->docs($namespace, 'message', [], [])->count();
             $pageCount = ceil($msgCount / 20);
             // obfuscate ip's
             // return all
             return $response->withJson([
-                'title' => $meta['title'],
-                'desc' => $meta['desc'],
-                'msgs' => [],
-                'charas' => [],
+                'title' => $meta['body']['title'],
+                'desc' => $meta['body']['desc'],
+                'msgs' => $msgs,
+                'charas' => $charas,
                 'pageCount' => $pageCount
             ]);
         });
         $this->get('/download.txt', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
-            $meta = $Docs->doc($namespace, 'meta', ['title', 'desc']);
+            $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
             // Get msgs
-            $msgCursor = $Docs->docs($namespace, ['prefix' => 'msg_'], ['type', 'content', 'url', 'charaId'])->cursor();
+            $msgCursor = $Docs->docs($namespace, 'message', [], ['type', 'content', 'url', 'charaId'])->cursor();
             // Get charas
-            $charas = $Docs->docs($namespace, ['prefix' => 'chara_'], ['name', 'color'])->asMap();
+            $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asMap();
             // print title & desc
             $response->write($meta['title']);
             $response->write('---');
@@ -101,62 +101,41 @@ $app->group('/api', function() {
                 ->withAddedHeader('Content-Type', 'text/plain')
                 ->withAddedHeader('Content-Disposition', 'attachment; filename="rp.txt"');
         });
-        $this->patch('/meta', function ($request, $response, $args) {
+        $this->post('/{collection:[a-z]+}', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
             $namespace = $urlDoc['body']['rp_namespace'];
-            // validate {title, desc, secret, hash}
-            $title = 'Edited Title';
-            $desc = 'Edited Title';
-            $ip = '1.1.1.1';
-            // put the doc
-            $Docs->put($namespace, 'meta', ['title' => $title, 'desc' => $desc], $ip);
-            // done
-            return $response->withStatus(204);
-        });
-        $this->put('/message', function ($request, $response, $args) {
-            $Docs = $this->get('docs');
-            // Lookup namespace
-            $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['body']['rp_namespace'];
-            // validate {id, content, type, charaId}
+            // generate ID
+            $doc_id = \EndyJasmi\Cuid::cuid();
+            // validate {document collection and body}
+            $collection = $args['collection'];
             $reqBody = $request->getParsedBody();
-            $doc_id = $reqBody['_id'];
             $fields = [];
-            $fields['content'] = $reqBody['content'];
-            $fields['type'] = $reqBody['type'];
-            if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
+            if ($collection === 'message') {
+                $fields['content'] = $reqBody['content'];
+                $fields['type'] = $reqBody['type'];
+                if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
+            }
+            else if ($collection === 'chara') {
+                $fields['name'] = $reqBody['name'];
+                $fields['color'] = $reqBody['color'];
+            }
+            else if ($collection === 'image') {
+                $fields['url'] = $reqBody['url'];
+            }
+            else if ($collection === 'meta') {
+                return $response->withStatus(501);
+            }
+            else {
+                return $response->withJson(['error'=>'Invalid collection'], 400);
+            }
+            // get ip
             $ip = '1.1.1.1';
             // put the doc
-            $Docs->put($namespace, $doc_id, $fields, $ip);
+            $Docs->create($namespace, $collection, $doc_id, $fields, $ip);
             // done
-            return $response->withStatus(204);
-        });
-        $this->put('/image', function ($request, $response, $args) {
-            $Docs = $this->get('docs');
-            // Lookup namespace
-            $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['body']['rp_namespace'];
-            // validate {id, url}
-            $reqBody = $request->getParsedBody();
-            $doc_id = $reqBody['_id'];
-            $fields = ['url' => $reqBody['url']];
-            $ip = '1.1.1.1';
-            // put the doc
-            $Docs->put($namespace, $doc_id, $fields, $ip);
-            // done
-            return $response->withStatus(204);
-        });
-        $this->put('/chara', function ($request, $response, $args) {
-            $Docs = $this->get('docs');
-            // Lookup namespace
-            $urlDoc = $Docs->doc('urls', $args['rpCode'], ['rp_namespace']);
-            $namespace = $urlDoc['body']['rp_namespace'];
-            // validate {id, name, color}
-            // put the doc
-            // done
-            return $response->withStatus(204);
+            return $response->withJson(['id'=>$doc_id], 201);
         });
     });
 });

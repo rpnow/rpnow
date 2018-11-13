@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6e2e87c795d1b0d155410b096f94080a",
+    "content-hash": "0f9398baf1c15b057b1e318e83fb4b4e",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -159,6 +159,55 @@
                 "string"
             ],
             "time": "2015-11-06T14:35:42+00:00"
+        },
+        {
+            "name": "endyjasmi/cuid",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/endyjasmi/cuid.git",
+                "reference": "c410a702d7089cdd2e96f416ffc9bfb3f7130b88"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/endyjasmi/cuid/zipball/c410a702d7089cdd2e96f416ffc9bfb3f7130b88",
+                "reference": "c410a702d7089cdd2e96f416ffc9bfb3f7130b88",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">= 5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.*",
+                "satooshi/php-coveralls": "0.*",
+                "squizlabs/php_codesniffer": "1.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EndyJasmi\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Endy Jasmi",
+                    "email": "endyjasmi@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Cuid php port",
+            "keywords": [
+                "UID",
+                "cuid",
+                "guid",
+                "id",
+                "uuid"
+            ],
+            "time": "2014-11-08T02:31:32+00:00"
         },
         {
             "name": "illuminate/container",
