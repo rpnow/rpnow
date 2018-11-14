@@ -61,22 +61,19 @@ $app->group('/api', function() {
             $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // poll db for updates
+            $lastEventId = $Stream->lastEventId();
             while(true) {
-                // Get meta
-                $meta = $Docs->doc($namespace, 'meta', 'meta');
-                // Get msgs limit 60 desc
-                $msgs = $Docs->docs($namespace, 'msgs', ['reverse' => 'true', 'limit' => 60])->asArray();
-                // Get charas
-                $charas = $Docs->docs($namespace, 'charas', [])->asArray();
-                // send event
-                $evtBody = json_encode([
-                    'title' => $meta['body']['title'],
-                    'desc' => $meta['body']['desc'],
-                    'msgs' => $msgs,
-                    'charas' => $charas
-                ]);
-                $Stream->send(['data' => $evtBody]);
-                // sleep for a second before polling the db again
+                // What do we have here?
+                $updates = $Docs->docs($namespace, null, ['since' => $lastEventId])->asArray();
+                foreach ($updates as $doc) {
+                    $evtBody = json_encode(['type' => $doc['collection'], 'data' => $doc]);
+                    $lastEventId = max($lastEventId, $doc['event_id']);
+                    $Stream->send(['data' => $evtBody, 'id' => $lastEventId]);
+                }
+                if (count($updates) == 0) {
+                    // sleep for a second before polling the db again
+                    $Stream->ping();
+                }
                 sleep(1);
             }
         });
