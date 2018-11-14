@@ -31,14 +31,14 @@ $app->group('/api', function() {
             // begin TX
             $Docs->transactionStart();
             // Lookup namespace
-            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
-            $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
+            $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs limit 60 desc
-            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
+            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asArray();
+            $charas = $Docs->docs($namespace, 'chara', [])->asArray();
             // Get max event_id in database
             $lastEventId = $Docs->lastEventId();
             // end TX
@@ -58,16 +58,16 @@ $app->group('/api', function() {
             $Docs = $this->get('docs');
             $Stream->start();
             // Lookup namespace
-            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // poll db for updates
             while(true) {
                 // Get meta
-                $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
+                $meta = $Docs->doc($namespace, 'meta', 'meta');
                 // Get msgs limit 60 desc
-                $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
+                $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60])->asArray();
                 // Get charas
-                $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asArray();
+                $charas = $Docs->docs($namespace, 'chara', [])->asArray();
                 // send event
                 $evtBody = json_encode([
                     'title' => $meta['body']['title'],
@@ -83,17 +83,17 @@ $app->group('/api', function() {
         $this->get('/page/{pageNum:[1-9][0-9]*}', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
-            $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
+            $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs skip x*20 limit 20
             $skip = ($args['pageNum'] - 1) * 20;
-            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
+            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asArray();
+            $charas = $Docs->docs($namespace, 'chara', [])->asArray();
             // Get Math.ceil(msgCount/20)
-            $msgCount = $Docs->docs($namespace, 'message', [], [])->count();
+            $msgCount = $Docs->docs($namespace, 'message', [])->count();
             $pageCount = ceil($msgCount / 20);
             // obfuscate ip's
             // return all
@@ -108,14 +108,14 @@ $app->group('/api', function() {
         $this->get('/download.txt', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls');
             $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
-            $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
+            $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs
-            $msgCursor = $Docs->docs($namespace, 'message', [], ['type', 'content', 'url', 'charaId'])->cursor();
+            $msgCursor = $Docs->docs($namespace, 'message', [])->cursor();
             // Get charas
-            $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asMap();
+            $charas = $Docs->docs($namespace, 'chara', [])->asMap();
             // print title & desc
             $response->write($meta['title']);
             $response->write('---');
@@ -131,7 +131,7 @@ $app->group('/api', function() {
         $this->post('/{collection:[a-z]+}', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // generate ID
             $doc_id = \EndyJasmi\Cuid::cuid();
@@ -152,7 +152,7 @@ $app->group('/api', function() {
         $this->put('/{collection:[a-z]+}/{doc_id:[a-z0-9]+}', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // generate ID
             $doc_id = $args['doc_id'];
