@@ -10,7 +10,7 @@ $container['docs'] = function($c) {
     $illuminate->bootEloquent();
 
     class Doc extends \Illuminate\Database\Eloquent\Model {
-        protected $visible = ['_id', 'revision', 'body', 'timestamp', 'auth_hash', 'deleted'];
+        protected $hidden = ['event_id', 'namespace', 'collection', 'doc_id', 'revision_age', 'body', 'ip'];
         protected $fillable = ['namespace', 'collection', 'doc_id', 'body', 'ip', 'auth_hash', 'revision'];
         protected $casts = ['event_id' => 'integer', 'body' => 'array', 'revision' => 'integer', 'revision_age' => 'integer'];
         protected $appends = ['_id', 'deleted'];
@@ -32,6 +32,12 @@ $container['docs'] = function($c) {
         }
         public function getIdAttribute() {
             return $this->attributes['doc_id'];
+        }
+        public function dissolveBody() {
+            foreach ($this['body'] as $prop => $val) {
+                $this[$prop] = $val;
+            }
+            return $this;
         }
     }
 
@@ -92,13 +98,16 @@ $container['docs'] = function($c) {
         }
 
         public function doc($ns, $coll, $id) {
-            return Doc::ns($ns)->coll($coll)->docId($id)->current()->firstOrFail();
+            return Doc::ns($ns)->coll($coll)->docId($id)->current()->firstOrFail()->dissolveBody();
         }
 
         public function docs($ns, $coll, $filters) {
             $q = Doc::ns($ns)->current();
             if (!is_null($coll)) {
                 $q = $q->coll($coll);
+            }
+            if ($filters['since']) {
+                $q = $q->where('event_id', '>', $filters['since']);
             }
             if ($filters['skip']) {
 
@@ -133,30 +142,20 @@ $container['docs'] = function($c) {
 
         public function asArray() {
             return $this->query
-                ->orderBy('namespace', 'ASC')
-                ->orderBy('doc_id', 'ASC')
-                ->orderBy('revision_age', 'DESC')
+                ->orderBy('event_id', 'ASC')
                 ->get()
-                ->map(function($doc) {
-                    return collect($doc['body'])
-                        ->merge($doc)
-                        ->forget('body')
-                        ->toArray();
-                })
-                ->toArray();
+                ->transform(function($doc) {
+                    return $doc->dissolveBody();
+                });
         }
         
         public function asMap() {
             return $this->query
                 ->get()
-                ->keyBy('doc_id')
-                ->map(function($doc) {
-                    return collect($doc['body'])
-                        ->merge($doc)
-                        ->forget('body')
-                        ->toArray();
+                ->transform(function($doc) {
+                    return $doc->dissolveBody();
                 })
-                ->toArray();
+                ->keyBy('doc_id');
         }
 
         public function count() {
