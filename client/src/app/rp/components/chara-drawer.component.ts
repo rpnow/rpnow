@@ -130,7 +130,8 @@ export class CharaDrawerComponent {
   }
 
   canEdit(chara: RpChara) {
-    return this.challenge != null && chara.challenge === this.challenge;
+    // return this.challenge != null && chara.challenge === this.challenge;
+    return true;
   }
 
   hasManyCharas() {
