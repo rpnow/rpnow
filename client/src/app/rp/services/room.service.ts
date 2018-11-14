@@ -57,7 +57,7 @@ export class RoomService {
     };
     this.track.event('RP', 'Create message', msg.type, content.length);
 
-    const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/message`, msg).toPromise() as RpMessage;
+    const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/msgs`, msg).toPromise() as RpMessage;
     // this.newMessagesSubject.next(receivedMsg);
 
     return receivedMsg;
@@ -73,7 +73,7 @@ export class RoomService {
     };
     this.track.event('RP', 'Create chara');
 
-    const receivedChara: RpChara = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/chara`, chara).toPromise() as any;
+    const receivedChara: RpChara = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/charas`, chara).toPromise() as any;
     // this.newCharasSubject.next(receivedChara);
 
     return receivedChara;
@@ -99,7 +99,7 @@ export class RoomService {
     };
     this.track.event('RP', 'Edit message', null, content.length);
 
-    const msg: RpMessage = await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/message/${id}`, editInfo).toPromise() as any;
+    const msg: RpMessage = await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/msgs/${id}`, editInfo).toPromise() as any;
     // this.editedMessagesSubject.next(msg);
   }
 
@@ -113,7 +113,7 @@ export class RoomService {
     };
     this.track.event('RP', 'Edit chara');
 
-    const chara: RpChara = await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/chara/${id}`, editInfo).toPromise() as any;
+    const chara: RpChara = await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/charas/${id}`, editInfo).toPromise() as any;
     // this.editedMessagesSubject.next(msg);
   }
 
