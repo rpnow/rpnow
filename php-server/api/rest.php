@@ -53,6 +53,33 @@ $app->group('/api', function() {
                 'lastEventId' => $lastEventId
             ], 200);
         });
+        $this->get('/stream', function($request, $response, $args) {
+            $Stream = $this->get('stream');
+            $Docs = $this->get('docs');
+            $Stream->start();
+            // Lookup namespace
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $namespace = $urlDoc['body']['rp_namespace'];
+            // poll db for updates
+            while(true) {
+                // Get meta
+                $meta = $Docs->doc($namespace, 'meta', 'meta', ['title', 'desc']);
+                // Get msgs limit 60 desc
+                $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60], ['type', 'content', 'url', 'charaId'])->asArray();
+                // Get charas
+                $charas = $Docs->docs($namespace, 'chara', [], ['name', 'color'])->asArray();
+                // send event
+                $evtBody = json_encode([
+                    'title' => $meta['body']['title'],
+                    'desc' => $meta['body']['desc'],
+                    'msgs' => $msgs,
+                    'charas' => $charas
+                ]);
+                $Stream->send(['data' => $evtBody]);
+                // sleep for a second before polling the db again
+                sleep(1);
+            }
+        });
         $this->get('/page/{pageNum:[1-9][0-9]*}', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace

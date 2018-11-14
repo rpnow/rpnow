@@ -91,13 +91,23 @@ export class RpService implements OnDestroy {
       let state: RpState = this.initialState();
       observer.next(state);
 
-      while (true) {
-        const res = await http.get(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}`).toPromise();
-        console.log(res);
-        state = <any>{ ...state, ...res, connection: 'connected' };
+      // while (true) {
+      //   const res = await http.get(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}`).toPromise();
+      //   console.log(res);
+      //   state = <any>{ ...state, ...res, connection: 'connected' };
+      //   observer.next(state);
+      //   await new Promise((resolve) => setTimeout(() => resolve(), 1000));
+      // }
+
+      const es = new EventSource(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}/stream`);
+
+      es.addEventListener('open', () => console.log('open'));
+      es.addEventListener('error', () => console.log('error'));
+      es.addEventListener('message', (event: Event) => {
+        const res = JSON.parse(event['data']);
+        state = { ...state, ...res, connection: 'connected' };
         observer.next(state);
-        await new Promise((resolve) => setTimeout(() => resolve(), 1000));
-      }
+      });
 
 
 
