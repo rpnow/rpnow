@@ -39,6 +39,10 @@ $container['stream'] = function($c) {
             ob_end_flush();
             flush();
         }
+
+        public function ping() {
+            $this->send(['event'=>'ping']);
+        }
     }
     return new Streamer();
 };
