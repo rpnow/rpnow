@@ -91,11 +91,11 @@ $container['docs'] = function($c) {
             $this->transactionEnd();
         }
 
-        public function doc($ns, $coll, $id, $selectFields) {
+        public function doc($ns, $coll, $id) {
             return Doc::ns($ns)->coll($coll)->docId($id)->current()->firstOrFail();
         }
 
-        public function docs($ns, $coll, $filters, $selectFields) {
+        public function docs($ns, $coll, $filters) {
             $q = Doc::ns($ns)->current();
             if (!is_null($coll)) {
                 $q = $q->coll($coll);
