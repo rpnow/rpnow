@@ -93,14 +93,13 @@ export class RoomService {
     const challenge = await this.challengeService.challenge$;
 
     const editInfo = {
-      id,
       content,
       ... typeFromVoice(voice),
       secret: challenge.secret
     };
     this.track.event('RP', 'Edit message', null, content.length);
 
-    const msg: RpMessage = await this.http.patch(`${environment.apiUrl}/api/rp/${rpCode}/message`, editInfo).toPromise() as any;
+    const msg: RpMessage = await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/message/${id}`, editInfo).toPromise() as any;
     // this.editedMessagesSubject.next(msg);
   }
 
@@ -108,14 +107,13 @@ export class RoomService {
     const challenge = await this.challengeService.challenge$;
 
     const editInfo = {
-      id,
       name,
       color,
       secret: challenge.secret
     };
     this.track.event('RP', 'Edit chara');
 
-    const chara: RpChara = await this.http.patch(`${environment.apiUrl}/api/rp/${rpCode}/chara`, editInfo).toPromise() as any;
+    const chara: RpChara = await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/chara/${id}`, editInfo).toPromise() as any;
     // this.editedMessagesSubject.next(msg);
   }
 

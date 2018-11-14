@@ -135,7 +135,43 @@ $app->group('/api', function() {
             // put the doc
             $Docs->create($namespace, $collection, $doc_id, $fields, $ip);
             // done
-            return $response->withJson(['id'=>$doc_id], 201);
+            return $response->withJson(['_id'=>$doc_id], 201);
+        });
+        $this->put('/{collection:[a-z]+}/{doc_id:[a-z0-9]+}', function ($request, $response, $args) {
+            $Docs = $this->get('docs');
+            // Lookup namespace
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode'], ['rp_namespace']);
+            $namespace = $urlDoc['body']['rp_namespace'];
+            // generate ID
+            $doc_id = $args['doc_id'];
+            // validate {document collection and body}
+            $collection = $args['collection'];
+            $reqBody = $request->getParsedBody();
+            $fields = [];
+            if ($collection === 'message') {
+                $fields['content'] = $reqBody['content'];
+                $fields['type'] = $reqBody['type'];
+                if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
+            }
+            else if ($collection === 'chara') {
+                $fields['name'] = $reqBody['name'];
+                $fields['color'] = $reqBody['color'];
+            }
+            else if ($collection === 'image') {
+                $fields['url'] = $reqBody['url'];
+            }
+            else if ($collection === 'meta') {
+                return $response->withStatus(501);
+            }
+            else {
+                return $response->withJson(['error'=>'Invalid collection'], 400);
+            }
+            // get ip
+            $ip = '1.1.1.1';
+            // put the doc
+            $Docs->update($namespace, $collection, $doc_id, $fields, $ip);
+            // done
+            return $response->withStatus(204);
         });
     });
 });
