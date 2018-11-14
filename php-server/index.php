@@ -16,6 +16,7 @@ $app = new \Slim\App($config);
 require_once './api/db.php';
 require_once './api/stream.php';
 require_once './api/validate.php';
+require_once './api/pubsub.php';
 
 // Define app routes
 require_once './api/admin.php';
