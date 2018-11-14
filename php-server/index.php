@@ -14,12 +14,12 @@ $app = new \Slim\App($config);
 
 // Dependencies
 require_once './api/db.php';
+require_once './api/stream.php';
 require_once './api/validate.php';
 
 // Define app routes
 require_once './api/admin.php';
 require_once './api/rest.php';
-require_once './api/stream.php';
 
 // Frontend
 // TODO X-Robots-Tag
