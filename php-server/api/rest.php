@@ -110,25 +110,10 @@ $app->group('/api', function() {
             $doc_id = \EndyJasmi\Cuid::cuid();
             // validate {document collection and body}
             $collection = $args['collection'];
-            $reqBody = $request->getParsedBody();
-            $fields = [];
-            if ($collection === 'message') {
-                $fields['content'] = $reqBody['content'];
-                $fields['type'] = $reqBody['type'];
-                if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
-            }
-            else if ($collection === 'chara') {
-                $fields['name'] = $reqBody['name'];
-                $fields['color'] = $reqBody['color'];
-            }
-            else if ($collection === 'image') {
-                $fields['url'] = $reqBody['url'];
-            }
-            else if ($collection === 'meta') {
-                return $response->withStatus(501);
-            }
-            else {
-                return $response->withJson(['error'=>'Invalid collection'], 400);
+            try {
+                $fields = $this->get('validate')($collection, $request->getParsedBody());
+            } catch (Exception $e) {
+                return $response->withJson(['error'=>$e->getMessage()], 400);
             }
             // get ip
             $ip = '1.1.1.1';
@@ -146,25 +131,10 @@ $app->group('/api', function() {
             $doc_id = $args['doc_id'];
             // validate {document collection and body}
             $collection = $args['collection'];
-            $reqBody = $request->getParsedBody();
-            $fields = [];
-            if ($collection === 'message') {
-                $fields['content'] = $reqBody['content'];
-                $fields['type'] = $reqBody['type'];
-                if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
-            }
-            else if ($collection === 'chara') {
-                $fields['name'] = $reqBody['name'];
-                $fields['color'] = $reqBody['color'];
-            }
-            else if ($collection === 'image') {
-                $fields['url'] = $reqBody['url'];
-            }
-            else if ($collection === 'meta') {
-                return $response->withStatus(501);
-            }
-            else {
-                return $response->withJson(['error'=>'Invalid collection'], 400);
+            try {
+                $fields = $this->get('validate')($collection, $request->getParsedBody());
+            } catch (Exception $e) {
+                return $response->withJson(['error'=>$e->getMessage()], 400);
             }
             // get ip
             $ip = '1.1.1.1';
