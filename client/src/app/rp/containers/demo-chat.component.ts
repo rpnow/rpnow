@@ -4,7 +4,7 @@ import { map, take } from 'rxjs/operators';
 import { OptionsService } from '../services/options.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
-import { RpVoice, isSpecialVoice, typeFromVoice } from '../models/rp-voice';
+import { RpVoice, isSpecialVoice, typeFromVoice, RpVoiceSerialized } from '../models/rp-voice';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Title, Meta } from '@angular/platform-browser';
 import { ChallengeService } from '../services/challenge.service';
@@ -29,7 +29,7 @@ import { DemoRoomService } from '../services/demo-room.service';
             [showMessageDetails]="true"
             [pressEnterToSend]="true"
             [showNags]="true"
-            (editMessageContent)="editMessageContent($event[0], $event[1])"
+            (editMessage)="editMessage($event[0], $event[1], $event[2])"
             (imageLoaded)="scrollAnchor.checkHeight()"
           ></rpn-message-list>
         </rpn-scroll-anchor>
@@ -195,8 +195,8 @@ export class DemoChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  editMessageContent(id: RpMessageId, content: string) {
-    this.demoRoom.editMessageContent(id, content);
+  editMessage(id: RpMessageId, content: string, voice: RpVoiceSerialized) {
+    this.demoRoom.editMessage(id, content, voice);
   }
 
   async sendImage(url: string) {

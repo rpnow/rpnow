@@ -8,7 +8,7 @@ import { OptionsService } from '../services/options.service';
 import { TrackService } from '../../track.service';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara, RpCharaId } from '../models/rp-chara';
-import { RpVoice, isSpecialVoice } from '../models/rp-voice';
+import { RpVoice, isSpecialVoice, RpVoiceSerialized } from '../models/rp-voice';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Title } from '@angular/platform-browser';
 import { RpCodeService } from '../services/rp-code.service';
@@ -53,7 +53,7 @@ import { RoomService } from '../services/room.service';
               [showMessageDetails]="options.showMessageDetails$|async"
               [pressEnterToSend]="options.pressEnterToSend$|async"
               [showNags]="true"
-              (editMessageContent)="editMessageContent($event[0], $event[1])"
+              (editMessage)="editMessage($event[0], $event[1], $event[2])"
               (imageLoaded)="scrollAnchor.checkHeight()"
             ></rpn-message-list>
           </rpn-scroll-anchor>
@@ -299,8 +299,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
   }
 
-  editMessageContent(id: RpMessageId, content: string) {
-    this.roomService.editMessage(this.rpCodeService.rpCode, id, content);
+  editMessage(id: RpMessageId, content: string, voice: RpVoiceSerialized) {
+    this.roomService.editMessage(this.rpCodeService.rpCode, id, content, voice);
   }
 
   sendImage(url: string) {

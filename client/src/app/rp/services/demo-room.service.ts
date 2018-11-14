@@ -167,12 +167,13 @@ export class DemoRoomService implements OnDestroy {
     this.onUserChara(chara);
   }
 
-  editMessageContent(id: RpMessageId, content: string) {
+  editMessage(id: RpMessageId, content: string, voice: RpVoiceSerialized) {
     const messages = [...this.messagesSubject.value];
     const idx = messages.findIndex(m => m._id === id);
     const msg: RpMessage = {
       ...messages[idx],
       content,
+      ... typeFromVoice(voice),
       edited: Date.now() / 1000
     };
     messages[idx] = msg;
