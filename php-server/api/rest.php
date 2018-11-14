@@ -111,7 +111,7 @@ $app->group('/api', function() {
             // validate {document collection and body}
             $collection = $args['collection'];
             try {
-                $fields = $this->get('validate')($collection, $request->getParsedBody());
+                $fields = $this->get('validator')->validate($collection, $request->getParsedBody());
             } catch (Exception $e) {
                 return $response->withJson(['error'=>$e->getMessage()], 400);
             }
@@ -132,7 +132,7 @@ $app->group('/api', function() {
             // validate {document collection and body}
             $collection = $args['collection'];
             try {
-                $fields = $this->get('validate')($collection, $request->getParsedBody());
+                $fields = $this->get('validator')->validate($collection, $request->getParsedBody());
             } catch (Exception $e) {
                 return $response->withJson(['error'=>$e->getMessage()], 400);
             }
