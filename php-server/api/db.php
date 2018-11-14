@@ -10,10 +10,10 @@ $container['docs'] = function($c) {
     $illuminate->bootEloquent();
 
     class Doc extends \Illuminate\Database\Eloquent\Model {
-        protected $visible = ['doc_id', 'revision', 'revision_age', 'body', 'timestamp', 'auth_hash', 'deleted'];
+        protected $visible = ['_id', 'revision', 'body', 'timestamp', 'auth_hash', 'deleted'];
         protected $fillable = ['namespace', 'collection', 'doc_id', 'body', 'ip', 'auth_hash', 'revision'];
         protected $casts = ['event_id' => 'integer', 'body' => 'array', 'revision' => 'integer', 'revision_age' => 'integer'];
-        protected $appends = ['deleted'];
+        protected $appends = ['_id', 'deleted'];
         public $timestamps = false;
         public function scopeNs($query, $ns) {
             return $query->where('namespace', $ns);
@@ -29,6 +29,9 @@ $container['docs'] = function($c) {
         }
         public function getDeletedAttribute() {
             return is_null($this->attributes['body']);
+        }
+        public function getIdAttribute() {
+            return $this->attributes['doc_id'];
         }
     }
 
@@ -77,7 +80,7 @@ $container['docs'] = function($c) {
 
         public function update($ns, $coll, $id, $body, $ip) {
             Doc::ns($ns)->coll($coll)->docId($id)->firstOrFail();
-            $this->put($ns, $id, $body, $ip);
+            $this->put($ns, $coll, $id, $body, $ip);
         }
 
         public function put($ns, $coll, $id, $body, $ip) {
@@ -135,7 +138,10 @@ $container['docs'] = function($c) {
                 ->orderBy('revision_age', 'DESC')
                 ->get()
                 ->map(function($doc) {
-                    return collect($doc['body'])->merge($doc)->forget('body')->toArray();
+                    return collect($doc['body'])
+                        ->merge($doc)
+                        ->forget('body')
+                        ->toArray();
                 })
                 ->toArray();
         }
@@ -145,7 +151,10 @@ $container['docs'] = function($c) {
                 ->get()
                 ->keyBy('doc_id')
                 ->map(function($doc) {
-                    return collect($doc['body'])->merge($doc)->forget('body')->toArray();
+                    return collect($doc['body'])
+                        ->merge($doc)
+                        ->forget('body')
+                        ->toArray();
                 })
                 ->toArray();
         }
