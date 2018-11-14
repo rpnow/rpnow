@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output, OnChanges, SimpleChanges } from '@angular/core';
-import { RpMessage, RpMessageId } from '../models/rp-message';
-import { RpChara } from '../models/rp-chara';
+import { RpMessage, RpMessageId, RpMessageType } from '../models/rp-message';
+import { RpChara, RpCharaId } from '../models/rp-chara';
+import { RpVoiceSerialized } from './../models/rp-voice';
 
 @Component({
   selector: 'rpn-message-list',
@@ -23,7 +24,7 @@ import { RpChara } from '../models/rp-chara';
           [pressEnterToSend]="pressEnterToSend"
           [showMessageDetails]="showMessageDetails"
 
-          (editContent)="editMessage(msg._id, $event)"
+          (editContent)="onEditMessage(msg._id, $event, msg.type, msg.charaId)"
           (imageLoaded)="onImageLoaded()"
         ></rpn-message>
 
@@ -43,7 +44,7 @@ export class MessageListComponent implements OnChanges {
   @Input() pressEnterToSend: boolean;
   @Input() showNags = false;
 
-  @Output() readonly editMessageContent: EventEmitter<[string, string]> = new EventEmitter();
+  @Output() readonly editMessage: EventEmitter<[string, string, RpVoiceSerialized]> = new EventEmitter();
   @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
 
   private idsSeen: Set<RpMessageId> = new Set();
@@ -82,8 +83,9 @@ export class MessageListComponent implements OnChanges {
     return this.charas && (msg.type === 'chara') ? this.charas.find(c => c._id === msg.charaId) : null;
   }
 
-  editMessage(id: string, content: string) {
-    this.editMessageContent.emit([id, content]);
+  onEditMessage(id: string, content: string, type: RpMessageType, charaId?: RpCharaId) {
+    const voice: RpVoiceSerialized = (type === 'chara') ? charaId : type;
+    this.editMessage.emit([id, content, voice]);
   }
 
   onImageLoaded() {

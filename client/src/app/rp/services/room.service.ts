@@ -3,7 +3,7 @@ import { Observable, Observer, of } from 'rxjs';
 import { RpMessage, RpMessageId } from '../models/rp-message';
 import { RpChara } from '../models/rp-chara';
 import { environment } from '../../../environments/environment';
-import { RpVoice, typeFromVoice } from '../models/rp-voice';
+import { RpVoice, typeFromVoice, RpVoiceSerialized } from '../models/rp-voice';
 import { TrackService } from '../../track.service';
 import { HttpClient } from '@angular/common/http';
 import { ChallengeService } from './challenge.service';
@@ -89,12 +89,13 @@ export class RoomService {
     return receivedMsg;
   }
 
-  async editMessage(rpCode: string, id: RpMessageId, content: string) {
+  async editMessage(rpCode: string, id: RpMessageId, content: string, voice: RpVoiceSerialized) {
     const challenge = await this.challengeService.challenge$;
 
     const editInfo = {
       id,
       content,
+      ... typeFromVoice(voice),
       secret: challenge.secret
     };
     this.track.event('RP', 'Edit message', null, content.length);

@@ -8,6 +8,7 @@ import { RpCodeService } from '../services/rp-code.service';
 import { Observable, merge, of } from 'rxjs';
 import { map, switchMap, share, tap } from 'rxjs/operators';
 import { Title } from '@angular/platform-browser';
+import { RpVoiceSerialized } from './../models/rp-voice';
 
 @Component({
   selector: 'rpn-archive',
@@ -23,7 +24,7 @@ import { Title } from '@angular/platform-browser';
         [challenge]="null"
         [showMessageDetails]="options.showMessageDetails$|async"
         [pressEnterToSend]="options.pressEnterToSend$|async"
-        (editMessageContent)="editMessageContent($event[0], $event[1])"
+        (editMessage)="editMessage($event[0], $event[1], $event[2])"
       ></rpn-message-list>
     </ng-container>
 
@@ -99,7 +100,7 @@ export class ArchiveComponent implements OnInit {
     this.mainMenuService.menu.open();
   }
 
-  editMessageContent(id: RpMessageId, content: string) {
+  editMessage(id: RpMessageId, content: string, voice: RpVoiceSerialized) {
     // TODO make it possible to edit from the archive again
     // this.rp.editMessage(id, content);
   }
