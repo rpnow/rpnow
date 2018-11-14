@@ -122,7 +122,7 @@ $container['docs'] = function($c) {
         }
 
         public function lastEventId() {
-            return Doc::max('event_id');
+            return intval(Doc::max('event_id'));
         }
 
         public function transactionStart() {
