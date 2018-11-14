@@ -36,9 +36,9 @@ $app->group('/api', function() {
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs limit 60 desc
-            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60])->asArray();
+            $msgs = $Docs->docs($namespace, 'msgs', ['reverse' => 'true', 'limit' => 60])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, 'chara', [])->asArray();
+            $charas = $Docs->docs($namespace, 'charas', [])->asArray();
             // Get max event_id in database
             $lastEventId = $Docs->lastEventId();
             // end TX
@@ -65,9 +65,9 @@ $app->group('/api', function() {
                 // Get meta
                 $meta = $Docs->doc($namespace, 'meta', 'meta');
                 // Get msgs limit 60 desc
-                $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60])->asArray();
+                $msgs = $Docs->docs($namespace, 'msgs', ['reverse' => 'true', 'limit' => 60])->asArray();
                 // Get charas
-                $charas = $Docs->docs($namespace, 'chara', [])->asArray();
+                $charas = $Docs->docs($namespace, 'charas', [])->asArray();
                 // send event
                 $evtBody = json_encode([
                     'title' => $meta['body']['title'],
@@ -89,11 +89,11 @@ $app->group('/api', function() {
             $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs skip x*20 limit 20
             $skip = ($args['pageNum'] - 1) * 20;
-            $msgs = $Docs->docs($namespace, 'message', ['reverse' => 'true', 'limit' => 60])->asArray();
+            $msgs = $Docs->docs($namespace, 'msgs', ['reverse' => 'true', 'limit' => 60])->asArray();
             // Get charas
-            $charas = $Docs->docs($namespace, 'chara', [])->asArray();
+            $charas = $Docs->docs($namespace, 'charas', [])->asArray();
             // Get Math.ceil(msgCount/20)
-            $msgCount = $Docs->docs($namespace, 'message', [])->count();
+            $msgCount = $Docs->docs($namespace, 'msgs', [])->count();
             $pageCount = ceil($msgCount / 20);
             // obfuscate ip's
             // return all
@@ -113,9 +113,9 @@ $app->group('/api', function() {
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs
-            $msgCursor = $Docs->docs($namespace, 'message', [])->cursor();
+            $msgCursor = $Docs->docs($namespace, 'msgs', [])->cursor();
             // Get charas
-            $charas = $Docs->docs($namespace, 'chara', [])->asMap();
+            $charas = $Docs->docs($namespace, 'charas', [])->asMap();
             // print title & desc
             $response->write($meta['title']);
             $response->write('---');
