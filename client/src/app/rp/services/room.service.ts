@@ -80,10 +80,10 @@ export class RoomService {
   }
 
   async addImage(rpCode: string, url: string) {
-    const msg = { url };
+    const msg = { type: 'image', url };
     this.track.event('RP', 'Create image');
 
-    const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/image`, msg).toPromise() as any;
+    const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/msgs`, msg).toPromise() as any;
     // this.newMessagesSubject.next(receivedMsg);
 
     return receivedMsg;
