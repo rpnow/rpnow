@@ -8,17 +8,18 @@ $container['validator'] = function($c) {
         public function validate($collection, $reqBody) {
             $fields = [];
             if ($collection === 'msgs') {
-                $fields['content'] = $reqBody['content'];
                 $fields['type'] = $reqBody['type'];
-                if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
+                if ($fields['type'] === 'image') {
+                    $fields['url'] = $reqBody['url'];
+                }
+                else {
+                    $fields['content'] = $reqBody['content'];
+                    if ($fields['type'] === 'chara') $fields['charaId'] = $reqBody['charaId'];
+                }
             }
             else if ($collection === 'charas') {
                 $fields['name'] = $reqBody['name'];
                 $fields['color'] = $reqBody['color'];
-            }
-            // TODO merge 'image' with msgs, make it work on the client
-            else if ($collection === 'image') {
-                $fields['url'] = $reqBody['url'];
             }
             else if ($collection === 'meta') {
                 throw new Exception('Not implemented');
