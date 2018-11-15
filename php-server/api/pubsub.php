@@ -1,5 +1,7 @@
 <?php
 
+// TODO use this?
+
 $container = $app->getContainer();
 
 $container['pubsub'] = function($c) {
@@ -42,6 +44,7 @@ $container['pubsub'] = function($c) {
     return new PubSub();
 };
 
+// TODO remove test route
 $app->get('/sub', function ($request, $response, $args) {
     $this->get('stream')->start();
 
@@ -55,6 +58,7 @@ $app->get('/sub', function ($request, $response, $args) {
     });
 });
 
+// TODO remove test route
 $app->get('/pub/{stuff}', function ($request, $response, $args) {
     $this->get('pubsub')->pub('abc', $args['stuff']);
     $response->withStatus(204);

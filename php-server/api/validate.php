@@ -4,6 +4,7 @@ $container = $app->getContainer();
 
 $container['validator'] = function($c) {
     class Validator {
+        // TODO actually validate anything
         public function validate($collection, $reqBody) {
             $fields = [];
             if ($collection === 'msgs') {
@@ -15,6 +16,7 @@ $container['validator'] = function($c) {
                 $fields['name'] = $reqBody['name'];
                 $fields['color'] = $reqBody['color'];
             }
+            // TODO merge 'image' with msgs, make it work on the client
             else if ($collection === 'image') {
                 $fields['url'] = $reqBody['url'];
             }
