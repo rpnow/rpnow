@@ -41,6 +41,7 @@ $container['stream'] = function($c) {
         }
 
         public function ping() {
+            // TODO maybe just send a newline if that works
             $this->send(['event'=>'ping']);
         }
     }

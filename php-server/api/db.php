@@ -15,6 +15,7 @@ $container['docs'] = function($c) {
         protected $casts = ['event_id' => 'integer', 'body' => 'array', 'revision' => 'integer', 'revision_age' => 'integer'];
         protected $appends = ['_id', 'deleted'];
         public $timestamps = false;
+        // TODO do we realy need all these scope methods?
         public function scopeNs($query, $ns) {
             return $query->where('namespace', $ns);
         }
@@ -65,6 +66,7 @@ $container['docs'] = function($c) {
                 $table->increments('event_id');
                 $table->string('namespace');
                 $table->string('collection');
+                // TODO consider just calling this _id for client consistency
                 $table->string('doc_id');
                 $table->integer('revision');
                 $table->integer('revision_age')->default(0);
@@ -90,6 +92,7 @@ $container['docs'] = function($c) {
         }
 
         public function put($ns, $coll, $id, $body, $ip) {
+            // TODO use illuminate's transaction closure?
             $this->transactionStart();
             Doc::ns($ns)->coll($coll)->docId($id)->increment('revision_age');
             $revision = +Doc::ns($ns)->coll($coll)->docId($id)->max('revision_age');
@@ -109,12 +112,15 @@ $container['docs'] = function($c) {
             if ($filters['since']) {
                 $q = $q->where('event_id', '>', $filters['since']);
             }
+            // TODO implement skip filter
             if ($filters['skip']) {
 
             }
+            // TODO implement limit filter
             if ($filters['limit']) {
 
             }
+            // TODO implement reverse filter
             if ($filters['reverse']) {
 
             }
@@ -126,10 +132,12 @@ $container['docs'] = function($c) {
         }
 
         public function transactionStart() {
+            // TODO use illuminate's transaction closure?
             $this->illuminate->connection()->beginTransaction();
         }
 
         public function transactionEnd() {
+            // TODO use illuminate's transaction closure?
             $this->illuminate->connection()->commit();
         }
     };
@@ -163,6 +171,7 @@ $container['docs'] = function($c) {
         }
 
         public function cursor() {
+            // TODO implement cursor
             return function() {
 
             };

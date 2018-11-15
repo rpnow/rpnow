@@ -3,12 +3,14 @@
 $app->group('/api', function() {
     $this->post('/rp.json', function ($request, $response, $args) {
         $Docs = $this->get('docs');
-        // validate {hash}
+        // TODO implement more secure rpCode generation
+        $rpCode = random_int(1000,9999) . '-' . random_int(1000,9999) . '-' . random_int(1000,9999);
+        // TODO consider using cuid's for rp namespace generation
+        $namespace = 'rp' . random_int(0,999999);
+        // TODO get this stuff from post data
         $title = 'My New RP';
         $desc = '';
-        // TODO this isn't secure enough!
-        $rpCode = random_int(1000,9999) . '-' . random_int(1000,9999) . '-' . random_int(1000,9999);
-        $namespace = 'rp' . random_int(0,999999);
+        // TODO get real IP
         $ip = '1.1.1.1';
         // Insert meta doc for RP
         $Docs->create($namespace, 'meta', 'meta', ['title' => $title, 'desc' => $desc], $ip);
@@ -18,8 +20,7 @@ $app->group('/api', function() {
         return $response->withJson(['rpCode' => $rpCode], 201);
     });
     $this->get('/challenge.json', function ($request, $response, $args) {
-        // generate this magically
-        // return {secret, hash}
+        // TODO implement challenge/hash mechanism, or get rid of this if it's not needed
         return $response->withJson([
             "secret" => "701021d9d39286c9c19b5c65504b8393230811f9c1a814232bdb29bd90b83e9e",
             "hash" => "f82fa215887270cbfcd3d677fe7044db66b0a49f51248873863969617f45b1a1041abd047cff837904b8b848439be0287c358c193c90440a0e9b9790e2051159"
@@ -37,14 +38,14 @@ $app->group('/api', function() {
             $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs limit 60 desc
             $msgs = $Docs->docs($namespace, 'msgs', ['reverse' => 'true', 'limit' => 60])->asArray();
+            // TODO msgs will need to be re-reversed back to normal
             // Get charas
             $charas = $Docs->docs($namespace, 'charas', [])->asArray();
             // Get max event_id in database
             $lastEventId = $Docs->lastEventId();
             // end TX
             $Docs->transactionEnd();
-            // obfuscate ip's
-            // return all
+            // done
             return $response->withJson([
                 'title' => $meta['body']['title'],
                 'desc' => $meta['body']['desc'],
@@ -54,26 +55,32 @@ $app->group('/api', function() {
             ], 200);
         });
         $this->get('/stream', function($request, $response, $args) {
-            $Stream = $this->get('stream');
             $Docs = $this->get('docs');
-            $Stream->start();
             // Lookup namespace
             $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
+            // Start streaming
+            $Stream = $this->get('stream');
+            $Stream->start();
             // poll db for updates
+            // TODO consider using pubsub
             $lastEventId = $Stream->lastEventId();
             while(true) {
-                // What do we have here?
+                // Get new/updated docs in this rp's namespace
                 $updates = $Docs->docs($namespace, null, ['since' => $lastEventId])->asArray();
-                foreach ($updates as $doc) {
-                    $evtBody = json_encode(['type' => $doc['collection'], 'data' => $doc]);
-                    $lastEventId = max($lastEventId, $doc['event_id']);
-                    $Stream->send(['data' => $evtBody, 'id' => $lastEventId]);
+                if (count($updates) > 0) {
+                    // Spit each out as an event to the stream, and update the last event id
+                    foreach ($updates as $doc) {
+                        $evtBody = json_encode(['type' => $doc['collection'], 'data' => $doc]);
+                        $lastEventId = max($lastEventId, $doc['event_id']);
+                        $Stream->send(['data' => $evtBody, 'id' => $lastEventId]);
+                    }
                 }
-                if (count($updates) == 0) {
-                    // sleep for a second before polling the db again
+                else {
+                    // If no updates, just keep the stream alive
                     $Stream->ping();
                 }
+                // sleep for a second before checking the db again
                 sleep(1);
             }
         });
@@ -89,7 +96,7 @@ $app->group('/api', function() {
             $msgs = $Docs->docs($namespace, 'msgs', ['reverse' => 'true', 'limit' => 60])->asArray();
             // Get charas
             $charas = $Docs->docs($namespace, 'charas', [])->asArray();
-            // Get Math.ceil(msgCount/20)
+            // Get page count
             $msgCount = $Docs->docs($namespace, 'msgs', [])->count();
             $pageCount = ceil($msgCount / 20);
             // obfuscate ip's
@@ -102,6 +109,7 @@ $app->group('/api', function() {
                 'pageCount' => $pageCount
             ]);
         });
+        // TODO potentially send download over POST request
         $this->get('/download.txt', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
@@ -113,6 +121,7 @@ $app->group('/api', function() {
             $msgCursor = $Docs->docs($namespace, 'msgs', [])->cursor();
             // Get charas
             $charas = $Docs->docs($namespace, 'charas', [])->asMap();
+            // TODO make this actually work correctly
             // print title & desc
             $response->write($meta['title']);
             $response->write('---');
@@ -139,6 +148,8 @@ $app->group('/api', function() {
             } catch (Exception $e) {
                 return $response->withJson(['error'=>$e->getMessage()], 400);
             }
+            // TODO get actual IP
+            // TODO authentication/authorization, if that is added
             // get ip
             $ip = '1.1.1.1';
             // put the doc
@@ -160,6 +171,8 @@ $app->group('/api', function() {
             } catch (Exception $e) {
                 return $response->withJson(['error'=>$e->getMessage()], 400);
             }
+            // TODO get actual IP
+            // TODO authentication/authorization, if that is added
             // get ip
             $ip = '1.1.1.1';
             // put the doc
