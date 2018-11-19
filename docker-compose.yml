@@ -10,6 +10,7 @@ services:
       - ./php-server/vendor:/var/www/html/vendor:ro
       - ./php-server/.htaccess:/var/www/html/.htaccess:ro
       - ./php-server/index.php:/var/www/html/index.php:ro
+      - ./php-server/db-settings.php:/var/www/html/db-settings.php:ro
       - ./client/dist/rpnow:/var/www/html/client-files:ro
     ports:
       - "13000:80"
