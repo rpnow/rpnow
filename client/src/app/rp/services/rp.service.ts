@@ -58,7 +58,7 @@ export class RpService implements OnDestroy {
       const newState = { ...state, lastEventId: id };
 
       for (const { type, data } of updates) {
-        const arr = [...state[type]];
+        const arr = [...newState[type]];
 
         const index = arr.findIndex(oldItem => oldItem._id === data._id);
         if (index >= 0) arr.splice(index, 1, data);
