@@ -9,7 +9,7 @@ cp ./php-server/index.php $TEMPDIR
 cp -r ./client/dist/rpnow $TEMPDIR/client-files
 
 cd $TEMPDIR
-zip -r good.zip .
+zip -r rpnow-server-contents.zip .
 
 cd -
-cp $TEMPDIR/good.zip .
+cp $TEMPDIR/rpnow-server-contents.zip .
