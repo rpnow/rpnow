@@ -5,6 +5,7 @@
 
 export const environment = {
   production: false,
+  assetRoot: '/client-files/',
   apiUrl: `//${location.hostname}:13000`,
   wsUrl: `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:13000`,
 };

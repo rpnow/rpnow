@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
+import { environment } from '../../../environments/environment.prod';
 
 @Component({
   template: `
@@ -64,7 +65,7 @@ export class ContactDialogComponent {
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
   ) {
-    const iconDir = 'assets/img';
+    const iconDir = `${environment.assetRoot}assets/img`;
     iconRegistry.addSvgIcon('facebook', sanitizer.bypassSecurityTrustResourceUrl(`${iconDir}/facebook.svg`));
     iconRegistry.addSvgIcon('twitter', sanitizer.bypassSecurityTrustResourceUrl(`${iconDir}/twitter.svg`));
     iconRegistry.addSvgIcon('tumblr', sanitizer.bypassSecurityTrustResourceUrl(`${iconDir}/tumblr.svg`));

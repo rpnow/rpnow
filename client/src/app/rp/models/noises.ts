@@ -1,4 +1,6 @@
-const audioDir = 'assets/sounds/';
+import { environment } from '../../../environments/environment';
+
+const audioDir  = `${environment.assetRoot}assets/sounds/`;
 
 export const noises = [
   {'name': 'Off', 'audio': null},
