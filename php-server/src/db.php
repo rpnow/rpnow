@@ -12,7 +12,6 @@ $container['docs'] = function($c) {
     // Immediately initialize document database if it doesn't already exist
     if (!file_exists($c['settings']['db']['database'])) {
         // Create empty file
-        mkdir(dirname($c['settings']['db']['database']), 0770, true);
         fopen($c['settings']['db']['database'], 'w');
 
         // Schema
