@@ -26,7 +26,7 @@ $container['docs'] = function($c) {
             $table->string('auth_hash')->nullable();
 
             $table->unique(['namespace', 'collection', 'revision_age', 'doc_id']);
-            $table->index(['namespace', 'collection', 'doc_id']);
+            $table->unique(['namespace', 'collection', 'doc_id', 'revision']);
             $table->index('timestamp');
             $table->index('auth_hash');
         });
@@ -98,6 +98,7 @@ $container['docs'] = function($c) {
 
         public function docs($ns, $coll, $filters) {
             $q = Doc::ns($ns)->current();
+
             if (!is_null($coll)) {
                 $q = $q->coll($coll);
             }
@@ -110,11 +111,13 @@ $container['docs'] = function($c) {
             if ($filters['limit']) {
                 $q = $q->take($filters['limit']);
             }
-            if ($filters['reverse']) {
-                $q = $q->orderBy('event_id', 'DESC');
-            } else {
-                $q = $q->orderBy('event_id', 'ASC');
-            }
+
+            $q = $q
+                ->orderBy('namespace', 'ASC')
+                ->orderBy('collection', 'ASC')
+                ->orderBy('doc_id', $filters['reverse'] ? 'DESC' : 'ASC')
+                ->orderBy('revision', 'ASC');
+
             return new DocsQuery($q);
         }
 
