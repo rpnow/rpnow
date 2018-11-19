@@ -6,7 +6,7 @@ $config = ['settings' => [
     'displayErrorDetails' => true,
     'db' => [
         'driver' => 'sqlite',
-        'database' => '/tmp/db.sqlite3',
+        'database' => './data/docdb.sqlite3',
         'prefix' => ''
     ]
 ]];
