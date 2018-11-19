@@ -7,7 +7,7 @@ $config = ['settings' => [
     'db' => [
         'driver' => 'mysql',
         'prefix' => '',
-        'host' => 'localhost',
+        'host' => 'db',
         'database' => 'rpnow',
         'username' => 'nigel',
         'password' => 'abc123'

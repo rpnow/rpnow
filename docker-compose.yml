@@ -13,3 +13,11 @@ services:
       - ./client/dist/rpnow:/var/www/html/client-files:ro
     ports:
       - "13000:80"
+  db:
+    container_name: rpnow_db
+    image: mysql:5.5
+    environment:
+      MYSQL_DATABASE: rpnow
+      MYSQL_USER: nigel
+      MYSQL_PASSWORD: abc123
+      MYSQL_ROOT_PASSWORD: abc123
