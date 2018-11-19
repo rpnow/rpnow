@@ -6,10 +6,10 @@ services:
     image: rpnow/rpnow:php
     build: .
     volumes:
-      - ./php-server/api:/var/www/html/api:ro
+      - ./php-server/src:/var/www/html/src:ro
       - ./php-server/vendor:/var/www/html/vendor:ro
       - ./php-server/.htaccess:/var/www/html/.htaccess:ro
       - ./php-server/index.php:/var/www/html/index.php:ro
-      - ./client/dist/rpnow:/var/www/html/static:ro
+      - ./client/dist/rpnow:/var/www/html/client-files:ro
     ports:
       - "13000:80"

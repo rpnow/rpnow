@@ -14,15 +14,14 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/rpnow",
-            "deployUrl": "/",
+            "deployUrl": "/client-files/",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/assets",
-              "src/manifest.json",
-              "src/ngsw-worker-polyfilled.js"
+              "src/manifest.json"
             ],
             "styles": [
               "src/styles.scss"
@@ -46,7 +45,7 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
-              "serviceWorker": true
+              "serviceWorker": false
             }
           }
         },
