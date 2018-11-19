@@ -54,6 +54,27 @@ $app->group('/api', function() {
                 'lastEventId' => $lastEventId
             ], 200);
         });
+        $this->get('/updates', function($request, $response, $args) {
+            $Docs = $this->get('docs');
+            // Lookup namespace
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
+            $namespace = $urlDoc['body']['rp_namespace'];
+            // Get updates
+            $lastEventId = $request->getQueryParam('lastEventId');
+            $updates = $Docs->docs($namespace, null, ['since' => $lastEventId])->asArray();
+            foreach ($updates as $doc) {
+                $lastEventId = max($lastEventId, $doc['event_id']);
+            }
+            return $response->withJson([
+                'id' => $lastEventId,
+                'updates' => $updates->map(function($doc) {
+                    return [
+                        'type' => $doc['collection'],
+                        'data' => $doc
+                    ];
+                })
+            ]);
+        });
         $this->get('/stream', function($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
