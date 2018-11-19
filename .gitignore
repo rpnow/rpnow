@@ -3,3 +3,4 @@
 client/dist*
 php-server/vendor
 rpnow-server-contents.zip
+rpnow-server-contents/*
