@@ -13,31 +13,31 @@ $config = ['settings' => [
 $app = new \Slim\App($config);
 
 // Dependencies
-require_once './api/db.php';
-require_once './api/stream.php';
-require_once './api/validate.php';
-require_once './api/pubsub.php';
+require_once './src/db.php';
+require_once './src/stream.php';
+require_once './src/validate.php';
+require_once './src/pubsub.php';
 
 // Define app routes
-require_once './api/admin.php';
-require_once './api/rest.php';
+require_once './src/admin.php';
+require_once './src/rest.php';
 
 // Frontend
 // TODO X-Robots-Tag
 $app->get('/', function ($request, $response, $args) {
-    return $response->write(file_get_contents('./static/index.html'));
+    return $response->write(file_get_contents('./client-files/index.html'));
 });
 $app->get('/terms', function ($request, $response, $args) {
-    return $response->write(file_get_contents('./static/index.html'));
+    return $response->write(file_get_contents('./client-files/index.html'));
 });
 $app->get('/rp/demo', function ($request, $response, $args) {
-    return $response->write(file_get_contents('./static/index.html'));
+    return $response->write(file_get_contents('./client-files/index.html'));
 });
 $app->get('/rp/{rpRoute:.*}', function ($request, $response, $args) {
-    return $response->write(file_get_contents('./static/index.html'));
+    return $response->write(file_get_contents('./client-files/index.html'));
 });
 $app->get('{badRoute:.*}', function ($request, $response, $args) {
-    return $response->withStatus(404)->write(file_get_contents('./static/index.html'));
+    return $response->withStatus(404)->write(file_get_contents('./client-files/index.html'));
 });
 
 // Run app
