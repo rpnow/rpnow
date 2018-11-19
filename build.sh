@@ -1,15 +1,18 @@
 #!/bin/sh
 
 TEMPDIR=$(mktemp -d)
+BUILDDIR=$TEMPDIR/rpnow-server-contents
+mkdir $BUILDDIR
 
-cp -r ./php-server/src $TEMPDIR/src
-cp -r ./php-server/vendor $TEMPDIR/vendor
-cp ./php-server/.htaccess $TEMPDIR
-cp ./php-server/index.php $TEMPDIR
-cp -r ./client/dist/rpnow $TEMPDIR/client-files
+cp -r ./php-server/src $BUILDDIR/src
+cp -r ./php-server/vendor $BUILDDIR/vendor
+cp ./php-server/.htaccess $BUILDDIR
+cp ./php-server/index.php $BUILDDIR
+cp -r ./client/dist/rpnow $BUILDDIR/client-files
 
 cd $TEMPDIR
-zip -r rpnow-server-contents.zip .
+zip -r rpnow-server-contents.zip rpnow-server-contents
 
 cd -
 cp $TEMPDIR/rpnow-server-contents.zip .
+rm -rf $TEMPDIR
