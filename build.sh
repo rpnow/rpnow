@@ -9,7 +9,6 @@ cp -r ./php-server/vendor $BUILDDIR/vendor
 cp ./php-server/.htaccess $BUILDDIR
 cp ./php-server/index.php $BUILDDIR
 cp -r ./client/dist/rpnow $BUILDDIR/client-files
-mkdir $BUILDDIR/data
 
 cd $TEMPDIR
 zip -r rpnow-server-contents.zip rpnow-server-contents
