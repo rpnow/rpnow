@@ -5,9 +5,12 @@ $config = ['settings' => [
     'addContentLengthHeader' => false,
     'displayErrorDetails' => true,
     'db' => [
-        'driver' => 'sqlite',
-        'database' => './data/docdb.sqlite3',
-        'prefix' => ''
+        'driver' => 'mysql',
+        'prefix' => '',
+        'host' => 'localhost',
+        'database' => 'rpnow',
+        'username' => 'nigel',
+        'password' => 'abc123'
     ]
 ]];
 $app = new \Slim\App($config);

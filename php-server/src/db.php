@@ -10,10 +10,7 @@ $container['docs'] = function($c) {
     $illuminate->bootEloquent();
 
     // Immediately initialize document database if it doesn't already exist
-    if (!file_exists($c['settings']['db']['database'])) {
-        // Create empty file
-        fopen($c['settings']['db']['database'], 'w');
-
+    if (!$illuminate->schema()->hasTable('docs')) {
         // Schema
         $illuminate->schema()->create('docs', function($table) {
             $table->increments('event_id');
