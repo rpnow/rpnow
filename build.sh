@@ -8,6 +8,7 @@ cp -r ./php-server/src $BUILDDIR/src
 cp -r ./php-server/vendor $BUILDDIR/vendor
 cp ./php-server/.htaccess $BUILDDIR
 cp ./php-server/index.php $BUILDDIR
+cp ./php-server/db-settings.php $BUILDDIR
 cp -r ./client/dist/rpnow $BUILDDIR/client-files
 
 cd $TEMPDIR
