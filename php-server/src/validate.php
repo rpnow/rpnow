@@ -22,7 +22,8 @@ $container['validator'] = function($c) {
                 $fields['color'] = $reqBody['color'];
             }
             else if ($collection === 'meta') {
-                throw new Exception('Not implemented');
+                $fields['title'] = $reqBody['title'];
+                $fields['desc'] = $reqBody['desc'];
             }
             else {
                 throw new Exception('Invalid collection');
