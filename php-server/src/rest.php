@@ -1,19 +1,19 @@
 <?php
 
+use \EndyJasmi\Cuid;
+
 $app->group('/api', function() {
     $this->post('/rp.json', function ($request, $response, $args) {
         $Docs = $this->get('docs');
         // TODO implement more secure rpCode generation
         $rpCode = random_int(1000,9999) . '-' . random_int(1000,9999) . '-' . random_int(1000,9999);
-        // TODO consider using cuid's for rp namespace generation
-        $namespace = 'rp' . random_int(0,999999);
-        // TODO get this stuff from post data
-        $title = 'My New RP';
-        $desc = '';
+        $namespace = 'rp' . Cuid::cuid();
+        // Get metadata for this rp (title, desc)
+        $fields = $this->get('validator')->validate('meta', $request->getParsedBody());
         // TODO get real IP
         $ip = '1.1.1.1';
         // Insert meta doc for RP
-        $Docs->create($namespace, 'meta', 'meta', ['title' => $title, 'desc' => $desc], $ip);
+        $Docs->create($namespace, 'meta', 'meta', $fields, $ip);
         // Insert doc for URL to refer to RP
         $Docs->create('system', 'urls', $rpCode, ['rp_namespace' => $namespace], $ip);
         // return rpCode
@@ -38,7 +38,8 @@ $app->group('/api', function() {
             $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs limit 60 desc
             $msgs = $Docs->docs($namespace, 'msgs', ['reverse' => 'true', 'limit' => 60])->asArray();
-            // TODO msgs will need to be re-reversed back to normal
+            // Reverse msgs back to ascending order
+            $msgs = $msgs->reverse();
             // Get charas
             $charas = $Docs->docs($namespace, 'charas', [])->asArray();
             // Get max event_id in database
@@ -134,26 +135,51 @@ $app->group('/api', function() {
         $this->get('/download.txt', function ($request, $response, $args) {
             $Docs = $this->get('docs');
             // Lookup namespace
-            $urlDoc = $Docs->doc('system', 'urls');
+            $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // Get meta
             $meta = $Docs->doc($namespace, 'meta', 'meta');
             // Get msgs
-            $msgCursor = $Docs->docs($namespace, 'msgs', [])->cursor();
+            $msgs = $Docs->docs($namespace, 'msgs', []);
             // Get charas
             $charas = $Docs->docs($namespace, 'charas', [])->asMap();
-            // TODO make this actually work correctly
             // print title & desc
-            $response->write($meta['title']);
-            $response->write('---');
+            $response->write(strtoupper($meta['title']) . "\r\n");
+            $response->write(wordwrap($meta['desc'], 72, "\r\n") . "\r\n");
+            $response->write("--------\r\n\r\n");
             // print all msgs
-            while($msg = $msgCursor()) {
-                $response->write($msg['content']);
-            }
+            $msgs->each(function($msg) use ($response, $charas) {
+                if ($msg['type'] === 'chara') {
+                    $chara = $charas[$msg['charaId']];
+                    $response->write(
+                        strtoupper($chara['name']) . ":\r\n"
+                    );
+                    $response->write(
+                        '  ' . str_replace("\n", "\r\n  ", wordwrap($msg['content'], 70, "\n"))
+                    );
+                }
+                else if ($msg['type'] === 'ooc') {
+                    $response->write(
+                        str_replace("\n", "\r\n", wordwrap('(( OOC: ' . $msg['content'] . ' ))', 72, "\n"))
+                    );
+                }
+                else if ($msg['type'] === 'narrator') {
+                    $response->write(
+                        str_replace("\n", "\r\n", wordwrap($msg['content'], 72, "\n"))
+                    );
+                }
+                else if ($msg['type'] === 'image') {
+                    $response->write(
+                        '--- IMAGE ---\r\n' . wordwrap($msg['url'], 72, "\r\n")
+                    );
+                }
+                
+                $response->write("\r\n\r\n");
+            });
             // send as download
             return $response
                 ->withAddedHeader('Content-Type', 'text/plain')
-                ->withAddedHeader('Content-Disposition', 'attachment; filename="rp.txt"');
+                ->withAddedHeader('Content-Disposition', 'attachment; filename="' . $meta['body']['title'] . '.txt"');
         });
         $this->post('/{collection:[a-z]+}', function ($request, $response, $args) {
             $Docs = $this->get('docs');
@@ -161,7 +187,7 @@ $app->group('/api', function() {
             $urlDoc = $Docs->doc('system', 'urls', $args['rpCode']);
             $namespace = $urlDoc['body']['rp_namespace'];
             // generate ID
-            $doc_id = \EndyJasmi\Cuid::cuid();
+            $doc_id = Cuid::cuid();
             // validate {document collection and body}
             $collection = $args['collection'];
             try {

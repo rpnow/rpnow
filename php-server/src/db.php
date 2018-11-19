@@ -107,17 +107,16 @@ $container['docs'] = function($c) {
             if ($filters['since']) {
                 $q = $q->where('event_id', '>', $filters['since']);
             }
-            // TODO implement skip filter
             if ($filters['skip']) {
-
+                $q = $q->skip($filters['skip']);
             }
-            // TODO implement limit filter
             if ($filters['limit']) {
-
+                $q = $q->take($filters['limit']);
             }
-            // TODO implement reverse filter
             if ($filters['reverse']) {
-
+                $q = $q->orderBy('event_id', 'DESC');
+            } else {
+                $q = $q->orderBy('event_id', 'ASC');
             }
             return new DocsQuery($q);
         }
@@ -145,7 +144,6 @@ $container['docs'] = function($c) {
 
         public function asArray() {
             return $this->query
-                ->orderBy('event_id', 'ASC')
                 ->get()
                 ->transform(function($doc) {
                     return $doc->dissolveBody();
@@ -165,11 +163,13 @@ $container['docs'] = function($c) {
             return $this->query->count();
         }
 
-        public function cursor() {
-            // TODO implement cursor
-            return function() {
-
-            };
+        public function each($callback) {
+            $this->query->chunk(200, function($docs) use ($callback) {
+                foreach ($docs as $doc) {
+                    $doc = $doc->dissolveBody();
+                    $callback($doc);
+                }
+            });
         }
     };
     return new DocsOperator($illuminate, $c['settings']);
