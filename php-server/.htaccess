@@ -1,5 +1,6 @@
 RedirectMatch 403 ^/src/.*$
 RedirectMatch 403 ^/vendor/.*$
+RedirectMatch 403 ^/data/.*$
 
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
