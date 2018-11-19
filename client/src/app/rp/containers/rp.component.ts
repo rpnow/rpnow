@@ -26,9 +26,8 @@ import { SwUpdate } from '@angular/service-worker';
 
           <rpn-banner-message
             [showTos]="(options.agreeToTerms$|async) === false"
-            [hasUpdate]="updates$|async"
+            [hasUpdate]="false"
             (acceptTerms)="acceptTerms()"
-            (activateUpdate)="activateUpdate()"
           ></rpn-banner-message>
 
           <router-outlet></router-outlet>
@@ -68,7 +67,7 @@ export class RpComponent implements OnInit, OnDestroy {
     public options: OptionsService,
     @Inject(DOCUMENT) private document: Document,
     // private clientUpdateService: ClientUpdateService, // does stuff in the constructor
-    private clientUpdates: SwUpdate,
+    // private clientUpdates: SwUpdate,
   ) { }
 
   ngOnInit() {
@@ -78,9 +77,9 @@ export class RpComponent implements OnInit, OnDestroy {
       this.document.body.className = nightMode ? 'dark-theme' : '';
     });
 
-    this.updates$ = this.clientUpdates.available.pipe(
-      mapTo(true),
-    );
+    // this.updates$ = this.clientUpdates.available.pipe(
+    //   mapTo(true),
+    // );
   }
 
   ngOnDestroy() {
@@ -92,8 +91,8 @@ export class RpComponent implements OnInit, OnDestroy {
     this.options.agreeToTerms = true;
   }
 
-  activateUpdate() {
-    this.clientUpdates.activateUpdate().then(() => document.location.reload());
-  }
+  // activateUpdate() {
+  //   this.clientUpdates.activateUpdate().then(() => document.location.reload());
+  // }
 
 }
