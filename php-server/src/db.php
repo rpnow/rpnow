@@ -9,6 +9,32 @@ $container['docs'] = function($c) {
     $illuminate->setAsGlobal();
     $illuminate->bootEloquent();
 
+    // Immediately initialize document database if it doesn't already exist
+    if (!file_exists($c['settings']['db']['database'])) {
+        // Create empty file
+        fopen($c['settings']['db']['database'], 'w');
+
+        // Schema
+        $illuminate->schema()->create('docs', function($table) {
+            $table->increments('event_id');
+            $table->string('namespace');
+            $table->string('collection');
+            // TODO consider just calling this _id for client consistency
+            $table->string('doc_id');
+            $table->integer('revision');
+            $table->integer('revision_age')->default(0);
+            $table->string('body')->nullable();
+            $table->timestamp('timestamp')->useCurrent();
+            $table->string('ip')->nullable();
+            $table->string('auth_hash')->nullable();
+
+            $table->unique(['namespace', 'collection', 'revision_age', 'doc_id']);
+            $table->index(['namespace', 'collection', 'doc_id']);
+            $table->index('timestamp');
+            $table->index('auth_hash');
+        });
+    }
+
     class Doc extends \Illuminate\Database\Eloquent\Model {
         protected $hidden = ['event_id', 'namespace', 'collection', 'doc_id', 'revision_age', 'body', 'ip'];
         protected $fillable = ['namespace', 'collection', 'doc_id', 'body', 'ip', 'auth_hash', 'revision'];
@@ -49,37 +75,6 @@ $container['docs'] = function($c) {
         function __construct($illuminate, $settings) {
             $this->illuminate = $illuminate;
             $this->settings = $settings;
-        }
-
-        public function initializeDb() {
-            // Check that file doesn't already exist, then create a blank file
-            $dbFilename = $this->settings['db']['database'];
-
-            if (file_exists($dbFilename)) {
-                throw new Exception('Database already exists');
-            }
-
-            fopen($this->settings['db']['database'], 'w');
-
-            // Schema
-            $this->illuminate->schema()->create('docs', function($table) {
-                $table->increments('event_id');
-                $table->string('namespace');
-                $table->string('collection');
-                // TODO consider just calling this _id for client consistency
-                $table->string('doc_id');
-                $table->integer('revision');
-                $table->integer('revision_age')->default(0);
-                $table->string('body')->nullable();
-                $table->timestamp('timestamp')->useCurrent();
-                $table->string('ip')->nullable();
-                $table->string('auth_hash')->nullable();
-
-                $table->unique(['namespace', 'collection', 'revision_age', 'doc_id']);
-                $table->index(['namespace', 'collection', 'doc_id']);
-                $table->index('timestamp');
-                $table->index('auth_hash');
-            });
         }
 
         public function create($ns, $coll, $id, $body, $ip) {

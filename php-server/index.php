@@ -19,7 +19,6 @@ require_once './src/validate.php';
 require_once './src/pubsub.php';
 
 // Define app routes
-require_once './src/admin.php';
 require_once './src/rest.php';
 
 // Frontend
