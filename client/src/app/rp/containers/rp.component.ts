@@ -48,7 +48,7 @@ import { SwUpdate } from '@angular/service-worker';
   `],
   providers: [
     ChallengeService,
-    ClientUpdateService,
+    // ClientUpdateService,
     MainMenuService,
     OptionsService,
     RoomService,
@@ -67,7 +67,7 @@ export class RpComponent implements OnInit, OnDestroy {
     private mainMenuService: MainMenuService,
     public options: OptionsService,
     @Inject(DOCUMENT) private document: Document,
-    private clientUpdateService: ClientUpdateService, // does stuff in the constructor
+    // private clientUpdateService: ClientUpdateService, // does stuff in the constructor
     private clientUpdates: SwUpdate,
   ) { }
 
