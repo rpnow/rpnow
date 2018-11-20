@@ -1,0 +1,23 @@
+version: '2.2'
+
+services:
+  rpnow:
+    image: rpnow/rpnow
+    build: .
+    container_name: rpnow
+    restart: on-failure
+    environment:
+      RPNOW_TRUST_PROXY: 'true'
+      RPNOW_CORS: 'true'
+      RPNOW_LOG_LEVEL: 'debug'
+      RPNOW_BUNDLE_COMPRESSION: ''
+    volumes:
+      - ./client/dist:/root/client/dist:ro
+      - ./server/src:/root/server/src:ro
+      - ./server/admin:/root/server/admin:ro
+      - ./server/jasmine.json:/root/server/jasmine.json:ro
+      - ./server/package.json:/root/server/package.json:ro
+      - ./server/package-lock.json:/root/server/package-lock.json:ro
+    ports:
+      - "3000:3000"
+    command: npm run start-dev
