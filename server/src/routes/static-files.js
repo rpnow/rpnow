@@ -15,7 +15,7 @@ if (config.get('bundleCompression') === 'gzip') {
     });
 }
 // bundle
-staticRoutes.use('/', express.static(clientFiles));
+staticRoutes.use('/client-files/', express.static(clientFiles));
 // legacy redirects
 staticRoutes.get('/about', (req, res) => res.redirect('/'));
 staticRoutes.get('/format', (req, res) => res.redirect('/'));

@@ -1,13 +1,15 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Router } = require('express');
-// const { downloadDocx } = require('../services/download.docx');
 const { txtFileStream } = require('../services/download.txt');
 const { getIpid } = require('../services/ipid');
 const xRobotsTag = require('../services/x-robots-tag');
 const logger = require('../services/logger');
+const cuid = require('cuid');
+const { Docs } = require('../dao/dao.sqlite');
+const validate = require('../services/validate');
+const { generateRpCode } = require('../services/rpcode.js');
 
-const model = require('../model');
 const config = require('../config');
 const { generateChallenge } = require('../services/challenge');
 
@@ -17,106 +19,106 @@ router.use(bodyParser.urlencoded({ extended: true }));
 if (config.get('cors')) router.use(cors());
 router.use(xRobotsTag);
 
-router.post('/rp.json', (req, res, next) => {
-    const roomOptions = req.body;
+router.post('/rp.json', async (req, res, next) => {
+    const rpCode = generateRpCode();
+    const namespace = 'rp_' + cuid();
+    const fields = await validate('meta', req.body); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    model.createRp(roomOptions, ipid)
-        .then(data => res.status(201).json(data))
-        .catch(err => next(err));
+    await Docs.create(namespace, 'meta', 'meta', fields, ipid);
+    await Docs.create('system', 'urls', rpCode, { rpNamespace: namespace }, ipid);
+
+    res.status(201).json({ rpCode });
 });
 
-router.post('/rp/:rpCode([-0-9a-zA-Z]+)/message', async (req, res, next) => {
-    const { rpCode } = req.params;
-    const input = req.body;
-    const ipid = getIpid(req.ip);
-
-    model.addMessage(rpCode, input, ipid)
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err));
+router.get('/challenge.json', async (req, res, next) => {
+    const challenge = await generateChallenge();
+    res.status(200).json(challenge);
 });
 
-router.post('/rp/:rpCode([-0-9a-zA-Z]+)/image', async (req, res, next) => {
-    const { rpCode } = req.params;
-    const input = req.body;
-    const ipid = getIpid(req.ip);
+const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]+)';
 
-    model.addImage(rpCode, input, ipid)
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err));
+router.get(`${rpGroup}`, async (req, res, next) => {
+    // TODO transaction start
+    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+
+    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
+    const msgs = await Docs.docs(rpNamespace, 'msgs', { reverse: true, limit: 60 }).asArray();
+    msgs.reverse();
+    const charas = await Docs.docs(rpNamespace, 'charas', {}).asArray();
+    const lastEventId = await Docs.lastEventId();
+    // TODO transaction end
+
+    res.status(200).json({ title, desc, msgs, charas, lastEventId })
 });
 
-router.post('/rp/:rpCode([-0-9a-zA-Z]+)/chara', async (req, res, next) => {
-    const { rpCode } = req.params;
-    const input = req.body;
-    const ipid = getIpid(req.ip);
+router.get(`${rpGroup}/updates`, async (req, res, next) => {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
 
-    model.addChara(rpCode, input, ipid)
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err));
+    res.write("data: hello\n\n");
+    res.write("data: hello\n\n");
+    res.write("data: hello\n\n");
 });
 
-router.patch('/rp/:rpCode([-0-9a-zA-Z]+)/message', async (req, res, next) => {
-    const { rpCode } = req.params;
-    const input = req.body;
-    const ipid = getIpid(req.ip);
+router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, async (req, res, next) => {
+    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
 
-    model.editMessage(rpCode, input, ipid)
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err));
+    const skip = (req.params.pageNum - 1) * 20;
+    const limit = 20;
+
+    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
+    const msgs = await Docs.docs(rpNamespace, 'msgs', { skip, limit }).asArray();
+    const charas = await Docs.docs(rpNamespace, 'charas', {}).asArray();
+
+    const msgCount = await Docs.docs(rpNamespace, 'msgs', {}).count();
+    const pageCount = Math.ceil(msgCount / 20);
+
+    res.status(200).json({ title, desc, msgs, charas, pageCount })
 });
 
-router.patch('/rp/:rpCode([-0-9a-zA-Z]+)/chara', async (req, res, next) => {
-    const { rpCode } = req.params;
-    const input = req.body;
-    const ipid = getIpid(req.ip);
+router.get(`${rpGroup}/download.txt`, async (req, res, next) => {
+    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
 
-    model.editChara(rpCode, input, ipid)
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err));
-});
-
-router.get('/challenge.json', (req, res, next) => {
-    generateChallenge()
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err));
-});
-
-router.get('/rp/:rpCode([-0-9a-zA-Z]+)/page/:pageNum([1-9][0-9]{0,})', (req, res, next) => {
-    model.getPage(req.params.rpCode, +req.params.pageNum)
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err));
-});
-
-router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.txt', async (req, res, next) => {
+    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
+    const msgStream = await Docs.docs(rpNamespace, 'msgs', {}).asStream();
+    const charas = await Docs.docs(rpNamespace, 'charas', {}).asMap();
     const { includeOOC = false } = req.query;
 
-    let rp;
-    try {
-        (rp = await model.getRpWithMessageStream(req.params.rpCode));
-    } catch (err) {
-        return next(err);
-    }
+    // TODO I don't like this
+    const rp = { title, desc, msgStream, charas };
 
     const rpStream = txtFileStream(rp, { includeOOC });
     res.attachment(`${rp.title}.txt`).type('.txt');
+    // TODO do we need to 'return'
     return rpStream.pipe(res);
 });
 
-router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.docx', async (req, res, next) => {
-    return res.sendStatus(501); // TODO fix implementation
+router.post(`${rpGroup}/:collection([a-z]+)`, async (req, res, next) => {
+    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const collection = req.params.collection;
+    const _id = cuid();
+    const fields = await validate(collection, req.body); // TODO or throw BAD_RP
+    const ipid = getIpid(req.ip);
 
-    // const { includeOOC } = req.query;
+    await Docs.create(rpNamespace, collection, _id, fields, ipid);
 
-    // let rp;
-    // try {
-    //     ({ rp } = await model.getWholeRp(req.params.rpCode));
-    // } catch (err) {
-    //     return next(err);
-    // }
+    res.status(201).json({ _id });
+});
 
-    // const body = downloadDocx(rp, { includeOOC });
-    // return res.attachment(`${rp.title}.docx`).type('.docx').send(body);
+router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, async (req, res, next) => {
+    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const collection = req.params.collection;
+    const _id = req.params.doc_id;
+    const fields = await validate(collection, req.body); // TODO or throw BAD_RP
+    const ipid = getIpid(req.ip);
+
+    await Docs.update(rpNamespace, collection, _id, fields, ipid);
+
+    res.sendStatus(204);
 });
 
 router.all('*', (req, res, next) => {
