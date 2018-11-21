@@ -18,5 +18,5 @@ services:
       - ./server/package.json:/root/server/package.json:ro
       - ./server/package-lock.json:/root/server/package-lock.json:ro
     ports:
-      - "3000:3000"
+      - "13000:13000"
     command: npm run start-dev

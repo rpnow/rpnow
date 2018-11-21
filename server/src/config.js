@@ -12,7 +12,7 @@ const conf = require('nconf')
         parseValues: true,
     })
     .defaults({
-        port: 80,
+        port: 13000,
         trustProxy: false,
         cors: false,
         logLevel: 'info',
