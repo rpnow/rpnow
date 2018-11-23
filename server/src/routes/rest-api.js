@@ -9,6 +9,9 @@ const cuid = require('cuid');
 const { Docs } = require('../dao/dao.sqlite');
 const validate = require('../services/validate');
 const { generateRpCode } = require('../services/rpcode.js');
+const { verifyChallenge } = require('./services/challenge');
+const errors = require('./errors');
+const { publish } = require('./events');
 
 const config = require('../config');
 const { generateChallenge } = require('../services/challenge');
@@ -36,7 +39,7 @@ router.get('/challenge.json', async (req, res, next) => {
     res.status(200).json(challenge);
 });
 
-const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]+)';
+const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 
 router.get(`${rpGroup}`, async (req, res, next) => {
     // TODO transaction start
@@ -104,7 +107,9 @@ router.post(`${rpGroup}/:collection([a-z]+)`, async (req, res, next) => {
     const fields = await validate(collection, req.body); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    await Docs.create(rpNamespace, collection, _id, fields, ipid);
+    const doc = await Docs.create(rpNamespace, collection, _id, fields, ipid);
+
+    publish(rpCode, { type: 'append', data: { [collection]: [doc] } });
 
     res.status(201).json({ _id });
 });
@@ -116,7 +121,12 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, async (req, res,
     const fields = await validate(collection, req.body); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    await Docs.update(rpNamespace, collection, _id, fields, ipid);
+    const doc = await Docs.update(rpNamespace, collection, _id, fields, ipid);
+
+    // TODO verify auth
+    // if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
+
+    publish(rpCode, { type: 'put', data: { [collection]: [doc] } });
 
     res.sendStatus(204);
 });

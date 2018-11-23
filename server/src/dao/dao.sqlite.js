@@ -39,6 +39,7 @@ const formatQueryResult = (x) => {
 
 const Docs = {
     async create(namespace, collection, doc_id, body, ip) {
+        // TODO return entire created doc
         return knex('docs').insert({ namespace, collection, doc_id, ip, revision: 0, revision_age: 0, body: JSON.stringify(body) });
     },
 
@@ -56,6 +57,7 @@ const Docs = {
             const revision = tx('docs').where({ namespace, collection, doc_id }).max('revision_age');
             await tx('docs').insert({ namespace, collection, doc_id, ip, revision, revision_age: 0, body: JSON.stringify(body) });
         });
+        // TODO return entire updated doc
     },
 
     async exists(namespace, collection, doc_id) {
