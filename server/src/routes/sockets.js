@@ -1,5 +1,5 @@
 const { Server } = require('ws');
-const model = require('../model');
+// const model = require('../model');
 const logger = require('../services/logger');
 const config = require('../config');
 const { subscribe } = require('../events');
