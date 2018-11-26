@@ -6,15 +6,13 @@ const { getIpid } = require('../services/ipid');
 const xRobotsTag = require('../services/x-robots-tag');
 const logger = require('../services/logger');
 const cuid = require('cuid');
-const { Docs } = require('../dao/dao.sqlite');
+const Docs = require('../services/docs');
 const validate = require('../services/validate');
 const { generateRpCode } = require('../services/rpcode.js');
-const { verifyChallenge } = require('../services/challenge');
-const errors = require('../errors');
-const { publish, subscribe } = require('../events');
-
-const config = require('../config');
-const { generateChallenge } = require('../services/challenge');
+const { generateChallenge, verifyChallenge } = require('../services/challenge');
+const errors = require('../services/errors');
+const { publish, subscribe } = require('../services/event-bus');
+const config = require('../services/config');
 
 const router = Router();
 router.use(bodyParser.json());

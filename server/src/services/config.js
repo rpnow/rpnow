@@ -16,7 +16,6 @@ const conf = require('nconf')
         trustProxy: false,
         cors: false,
         logLevel: 'info',
-        bundleCompression: '',
     });
 
 module.exports = conf;
