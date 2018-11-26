@@ -13,7 +13,7 @@ const connected = (async function connect() {
             t.increments('event_id').primary();
             t.string('namespace').notNullable();
             t.string('collection').notNullable();
-            t.string('doc_id', 64).notNullable();
+            t.string('_id', 64).notNullable();
             t.integer('revision').notNullable();
             t.integer('revision_age').defaultTo(0).notNullable();
             t.json('body', 50000).nullable();
@@ -21,8 +21,8 @@ const connected = (async function connect() {
             t.string('ip', 47).nullable();
             t.string('auth_hash').nullable();
 
-            t.unique(['namespace', 'collection', 'revision_age', 'doc_id']);
-            t.unique(['namespace', 'collection', 'doc_id', 'revision']);
+            t.unique(['namespace', 'collection', 'revision_age', '_id']);
+            t.unique(['namespace', 'collection', '_id', 'revision']);
             t.index('timestamp');
             t.index('ip');
             t.index('auth_hash');
@@ -36,34 +36,34 @@ const formatQueryResult = (x) => {
 };
 
 const Docs = {
-    async create(namespace, collection, doc_id, body, ip) {
+    async create(namespace, collection, _id, body, ip) {
         // TODO return entire created doc
-        return knex('docs').insert({ namespace, collection, doc_id, ip, revision: 0, revision_age: 0, body: JSON.stringify(body) });
+        return knex('docs').insert({ namespace, collection, _id, ip, revision: 0, revision_age: 0, body: JSON.stringify(body) });
     },
 
-    async update(namespace, collection, doc_id, body, ip) {
-        if(!(await this.exists(namespace, collection, doc_id))) {
-            throw new Error(`Document ${collection}:${doc_id} does not exist`);
+    async update(namespace, collection, _id, body, ip) {
+        if(!(await this.exists(namespace, collection, _id))) {
+            throw new Error(`Document ${collection}:${_id} does not exist`);
         }
-        return this.put(namespace, collection, doc_id, body, ip);
+        return this.put(namespace, collection, _id, body, ip);
     },
 
-    async put(namespace, collection, doc_id, body, ip) {
+    async put(namespace, collection, _id, body, ip) {
         await connected;
         return knex.transaction(async (tx) => {
-            await tx('docs').where({ namespace, collection, doc_id }).increment('revision_age');
-            const revision = tx('docs').where({ namespace, collection, doc_id }).max('revision_age');
-            await tx('docs').insert({ namespace, collection, doc_id, ip, revision, revision_age: 0, body: JSON.stringify(body) });
+            await tx('docs').where({ namespace, collection, _id }).increment('revision_age');
+            const revision = tx('docs').where({ namespace, collection, _id }).max('revision_age');
+            await tx('docs').insert({ namespace, collection, _id, ip, revision, revision_age: 0, body: JSON.stringify(body) });
         });
         // TODO return entire updated doc
     },
 
-    async exists(namespace, collection, doc_id) {
-        return (await this.doc(namespace, collection, doc_id)) != null;
+    async exists(namespace, collection, _id) {
+        return (await this.doc(namespace, collection, _id)) != null;
     },
 
-    async doc(namespace, collection, doc_id) {
-        const x = await knex('docs').where({ namespace, collection, doc_id, revision_age: 0 }).first();
+    async doc(namespace, collection, _id) {
+        const x = await knex('docs').where({ namespace, collection, _id, revision_age: 0 }).first();
         return formatQueryResult(x);
     },
 
@@ -86,7 +86,7 @@ const Docs = {
         q = q
             .orderBy('namespace', 'asc')
             .orderBy('collection', 'asc')
-            .orderBy('doc_id', filters.reverse ? 'desc' : 'asc')
+            .orderBy('_id', filters.reverse ? 'desc' : 'asc')
             .orderBy('revision', 'asc')
         
         return {
@@ -99,7 +99,7 @@ const Docs = {
                 await connected;
                 const res = await q;
                 return res.map(formatQueryResult)
-                    .reduce((map, x) => map.set(x.doc_id, x), new Map());
+                    .reduce((map, x) => map.set(x._id, x), new Map());
             },
             async count() {
                 await connected;
