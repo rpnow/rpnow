@@ -1,4 +1,4 @@
-const bodyParser = require('body-parser');
+const express = require('express');
 const cors = require('cors');
 const { Router } = require('express');
 const { txtFileStream } = require('../services/download.txt');
@@ -15,9 +15,9 @@ const { publish, subscribe } = require('../services/event-bus');
 const config = require('../services/config');
 
 const router = Router();
-router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({ extended: true }));
-if (config.get('cors')) router.use(cors());
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
+if (config.cors) router.use(cors());
 router.use(xRobotsTag);
 
 router.post('/rp.json', async (req, res, next) => {

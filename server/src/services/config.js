@@ -1,21 +1,6 @@
-const camelcase = require('camelcase');
-const conf = require('nconf')
-    .add('memory')
-    .env({
-        transform(obj) {
-            if (!/^RPNOW_/.test(obj.key)) return false;
-            return {
-                ...obj,
-                key: camelcase(obj.key.substr('RPNOW_'.length)),
-            };
-        },
-        parseValues: true,
-    })
-    .defaults({
-        port: 13000,
-        trustProxy: false,
-        cors: false,
-        logLevel: 'info',
-    });
-
-module.exports = conf;
+module.exports = {
+    port: (+process.env.RPNOW_PORT) || 13000,
+    trustProxy: (process.env.RPNOW_TRUST_PROXY || '').toLowerCase() === 'true',
+    cors: (process.env.RPNOW_CORS || '').toLowerCase() === 'true',
+    logLevel: (process.env.RPNOW_LOG_LEVEL) || 'info',
+};
