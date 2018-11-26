@@ -41,15 +41,13 @@ router.get('/challenge.json', awrap(async (req, res, next) => {
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 
 router.get(`${rpGroup}`, awrap(async (req, res, next) => {
-    // TODO transaction start
     const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
 
-    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
-    const msgs = await Docs.docs(rpNamespace, 'msgs', { reverse: true, limit: 60 }).asArray();
-    msgs.reverse();
-    const charas = await Docs.docs(rpNamespace, 'charas', {}).asArray();
     const lastEventId = await Docs.lastEventId();
-    // TODO transaction end
+    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta', { snapshot: lastEventId });
+    const msgs = await Docs.docs(rpNamespace, 'msgs', { reverse: true, limit: 60, snapshot: lastEventId }).asArray();
+    msgs.reverse();
+    const charas = await Docs.docs(rpNamespace, 'charas', { snapshot: lastEventId }).asArray();
 
     res.status(200).json({ title, desc, msgs, charas, lastEventId })
 }));
