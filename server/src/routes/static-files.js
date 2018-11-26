@@ -1,9 +1,10 @@
 const express = require('express');
+const path = require('path');
 const xRobotsTag = require('../services/x-robots-tag');
 
 // static file serving + SPA routes
 const staticRoutes = new express.Router();
-const clientFiles = __dirname.replace('server/src/routes', 'client/dist/rpnow');
+const clientFiles = path.join(__dirname, '../../../client/dist/rpnow');
 // bundle
 staticRoutes.use('/client-files/', express.static(clientFiles));
 // valid routes
