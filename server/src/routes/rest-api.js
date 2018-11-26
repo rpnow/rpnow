@@ -11,7 +11,7 @@ const validate = require('../services/validate');
 const { generateRpCode } = require('../services/rpcode.js');
 const { verifyChallenge } = require('../services/challenge');
 const errors = require('../errors');
-const { publish } = require('../events');
+const { publish, subscribe } = require('../events');
 
 const config = require('../config');
 const { generateChallenge } = require('../services/challenge');
@@ -56,15 +56,36 @@ router.get(`${rpGroup}`, async (req, res, next) => {
 });
 
 router.get(`${rpGroup}/updates`, async (req, res, next) => {
+    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+
+    // Server-sent event headers
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive'
     });
 
-    res.write("data: hello\n\n");
-    res.write("data: hello\n\n");
-    res.write("data: hello\n\n");
+    // Server-sent event keep alive
+    res.write(':\n\n');
+    let keepAliveTimer = setInterval(() => {
+        res.write(':\n\n');
+    }, 10000);
+
+    const send = (json) => {
+        const { id, data } = json;
+        res.write(`id: ${id}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+    
+    // TODO get updates since ?lastMessageId=x, and send init message
+
+    const unsub = subscribe(rpNamespace, send);
+
+    // Stop streaming upon closing the connection
+    req.once('close', () => {
+        unsub();
+        clearInterval(keepAliveTimer);
+        res.end();
+    });
 });
 
 router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, async (req, res, next) => {
