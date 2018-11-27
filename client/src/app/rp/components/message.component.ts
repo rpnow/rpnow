@@ -13,7 +13,7 @@ import { OptionsService } from '../services/options.service';
           <mat-spinner [diameter]="16"></mat-spinner>
         </ng-container>
         <ng-container *ngIf="!sending">
-          <rpn-timestamp class="timestamp" [createdAt]="createdAt" [editedAt]="editedAt"></rpn-timestamp>
+          <rpn-timestamp class="timestamp" [timestamp]="timestamp" [revision]="revision"></rpn-timestamp>
           <rpn-ipid [style.visibility]="ipidVisibility" [ipid]="ipid"></rpn-ipid>
         </ng-container>
       </div>
@@ -60,8 +60,8 @@ export class MessageComponent {
   @Input() content: string;
   @Input() url: string;
   @Input() type: string;
-  @Input() createdAt: number;
-  @Input() editedAt: number;
+  @Input() timestamp: string;
+  @Input() revision: number;
   @Input() ipid: string;
 
   @Input() charaName: string;

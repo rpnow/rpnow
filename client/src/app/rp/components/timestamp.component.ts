@@ -6,8 +6,8 @@ const LONG_FORMAT = 'MMMM Do[,] YYYY [at] h:mm A';
 @Component({
   selector: 'rpn-timestamp',
   template: `
+    <ng-container *ngIf="wasEdited">Edited:</ng-container>
     {{ timeAgoText }}
-    <ng-container *ngIf="hasEditedDate()">(Edited)</ng-container>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -16,20 +16,20 @@ export class TimestampComponent implements OnInit, OnDestroy {
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
   private timeAgoDate: Date;
-  private timeAgoEditedDate: Date;
+  public wasEdited: boolean;
 
   timeAgoText: string;
   @HostBinding('title') timeAgoTitleText: string;
 
-  private timerHandle: number;
+  private timerHandle: any;
 
-  @Input('createdAt') set _createdAt(ts: number) {
-    this.timeAgoDate = ts ? new Date(ts * 1000) : null;
+  @Input('timestamp') set _createdAt(ts: string) {
+    this.timeAgoDate = ts ? new Date(ts) : null;
     this.updateRelativeTime();
     this.updateAbsoluteTimes();
   }
-  @Input('editedAt') set _editedAt(ts: number) {
-    this.timeAgoEditedDate  = ts ? new Date(ts * 1000) : null;
+  @Input('revision') set _editedAt(revision: number) {
+    this.wasEdited = (revision !== 0);
     this.updateAbsoluteTimes();
   }
 
@@ -44,10 +44,6 @@ export class TimestampComponent implements OnInit, OnDestroy {
     clearInterval(this.timerHandle);
   }
 
-  hasEditedDate() {
-    return !!this.timeAgoEditedDate;
-  }
-
   private updateRelativeTime() {
     if (!this.timeAgoDate) {
       this.timeAgoText = null;
@@ -60,8 +56,8 @@ export class TimestampComponent implements OnInit, OnDestroy {
     if (!this.timeAgoDate) {
       this.timeAgoTitleText = null;
     } else {
-      this.timeAgoTitleText = (this.timeAgoEditedDate) ?
-        (`Posted ${format(this.timeAgoDate, LONG_FORMAT)}\nEdited ${format(this.timeAgoEditedDate, LONG_FORMAT)}`) :
+      this.timeAgoTitleText = (this.wasEdited) ?
+        (`Edited ${format(this.timeAgoDate, LONG_FORMAT)}`) :
         (`Posted ${format(this.timeAgoDate, LONG_FORMAT)}`);
     }
   }

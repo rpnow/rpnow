@@ -12,10 +12,11 @@ interface ConversationPart {
   onChara(chara: RpChara): string;
 }
 
-function MSG(voice: RpVoiceSerialized, content: string) {
+function MSG(voice: RpVoiceSerialized, content: string): RpMessage {
   return {
     _id: Date.now() + '' + Math.random(),
-    timestamp: Date.now() / 1000,
+    timestamp: new Date().toISOString(),
+    revision: 0,
     content,
     ...typeFromVoice(voice),
   };
@@ -142,6 +143,8 @@ export class DemoRoomService implements OnDestroy {
   private readonly charasSubject = new BehaviorSubject<RpChara[]>([
     {
       _id: 'c1',
+      timestamp: new Date().toISOString(),
+      revision: 0,
       name: 'Ruella Prunella',
       color: '#8a4fdb',
     }
@@ -174,7 +177,8 @@ export class DemoRoomService implements OnDestroy {
       ...messages[idx],
       content,
       ... typeFromVoice(voice),
-      edited: Date.now() / 1000
+      timestamp: new Date().toISOString(),
+      revision: messages[idx].revision + 1,
     };
     messages[idx] = msg;
     this.messagesSubject.next(messages);
@@ -187,7 +191,8 @@ export class DemoRoomService implements OnDestroy {
       ...charas[idx],
       name,
       color,
-      edited: Date.now() / 1000
+      timestamp: new Date().toISOString(),
+      revision: charas[idx].revision + 1,
     };
     charas[idx] = chara;
     this.charasSubject.next(charas);

@@ -6,8 +6,8 @@ export type RpMessageType = 'narrator'|'ooc'|'chara'|'image';
 
 export interface RpMessage {
   _id?: RpMessageId;
-  timestamp: number;
-  edited?: number;
+  timestamp: string;
+  revision: number;
   type: RpMessageType;
   content?: string;
   charaId?: RpCharaId;

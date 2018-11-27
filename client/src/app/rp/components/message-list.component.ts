@@ -13,8 +13,8 @@ import { RpVoiceSerialized } from './../models/rp-voice';
           [content]="msg.content"
           [url]="msg.url"
           [type]="msg.type"
-          [createdAt]="msg.timestamp"
-          [editedAt]="msg.edited"
+          [timestamp]="msg.timestamp"
+          [revision]="msg.revision"
           [ipid]="msg.ipid"
 
           [charaName]="charaFor(msg)?.name"

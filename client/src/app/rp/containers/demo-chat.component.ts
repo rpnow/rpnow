@@ -148,7 +148,8 @@ export class DemoChatComponent implements OnInit, OnDestroy {
       _id: Math.random() + '',
       ...$event,
       challenge: challenge.hash,
-      timestamp: Date.now() / 1000
+      timestamp: new Date().toISOString(),
+      revision: 0,
     };
     this.demoRoom.addChara(chara);
     this.currentVoice = chara;
@@ -184,7 +185,8 @@ export class DemoChatComponent implements OnInit, OnDestroy {
       content,
       ...typeFromVoice(voice),
       challenge: challenge.hash,
-      timestamp: Date.now() / 1000
+      timestamp: new Date().toISOString(),
+      revision: 0,
     };
 
     this.demoRoom.addMessage(msg);
@@ -207,7 +209,8 @@ export class DemoChatComponent implements OnInit, OnDestroy {
       type: 'image',
       url,
       challenge: challenge.hash,
-      timestamp: Date.now() / 1000
+      timestamp: new Date().toISOString(),
+      revision: 0,
     };
     this.demoRoom.addMessage(msg);
   }
