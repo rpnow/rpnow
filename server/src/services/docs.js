@@ -5,6 +5,7 @@ const knex = Knex({
     connection: {
         filename: 'data.sqlite3',
     },
+    useNullAsDefault: true,
 });
 
 const connected = (async function connect() {
