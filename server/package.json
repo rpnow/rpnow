@@ -4,10 +4,9 @@
   "scripts": {
     "start": "node src/index.js",
     "start-dev": "nodemon src/index.js",
-    "build-nexe": "nexe src/index.js -r node_modules/sqlite3 -r node_modules/knex -r ../client/dist/rpnow",
-    "build-pkg": "pkg src/index.js -t node8-linux-x64",
     "lint": "eslint src/**/*.js src/*.js",
-    "test": "jasmine --config=./jasmine.json"
+    "test": "jasmine --config=./jasmine.json",
+    "build": "./build.sh"
   },
   "dependencies": {
     "cors": "^2.8.4",
@@ -26,7 +25,6 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.12.0",
     "jasmine": "^2.5.2",
-    "nexe": "^3.0.0-beta.9",
     "nodemon": "^1.11.0",
     "pkg": "^4.3.4"
   },
