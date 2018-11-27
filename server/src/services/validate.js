@@ -1,5 +1,5 @@
 const nJ = require('normalize-json');
-const request = require('request-promise-native');
+const got = require('got');
 
 // TODO integrate all this info into the validators
 const roomOptionsSchema = nJ({
@@ -38,12 +38,12 @@ const validators = {
             // validate image
             let res;
             try {
-                res = await request.head(url);
+                res = await got.head(url);
             } catch (err) {
                 throw { code: 'URL_FAILED', details: err.message };
             }
-            if (!res['content-type']) throw { code: 'UNKNOWN_CONTENT' };
-            if (!res['content-type'].startsWith('image/')) throw { code: 'BAD_IMAGE_CONTENT_TYPE' };
+            if (!res.headers['content-type']) throw { code: 'UNKNOWN_CONTENT' };
+            if (!res.headers['content-type'].startsWith('image/')) throw { code: 'BAD_IMAGE_CONTENT_TYPE' };
             // ok
             return { type, url };
         }
