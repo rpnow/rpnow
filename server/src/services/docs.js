@@ -125,7 +125,8 @@ const Docs = {
             },
             async count() {
                 await connected;
-                return q.count();
+                const [{ count }] = await q.count('* as count');
+                return count;
             },
             async asStream() {
                 // TODO
