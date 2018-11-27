@@ -1,9 +1,0 @@
-{
-    "require": {
-        "php" : "^5.5 || ^7.0",
-        "slim/slim": "^3.0",
-        "illuminate/database": "5.1.41",
-        "doctrine/inflector": "1.1.0",
-        "endyjasmi/cuid": "2.*"
-    }
-}
