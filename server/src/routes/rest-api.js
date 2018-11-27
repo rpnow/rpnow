@@ -52,7 +52,7 @@ router.get(`${rpGroup}`, awrap(async (req, res, next) => {
     res.status(200).json({ title, desc, msgs, charas, lastEventId })
 }));
 
-router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/stream`, awrap(async (req, res, next) => {
     const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
 
     // Server-sent event headers
@@ -68,11 +68,10 @@ router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
         res.write(':\n\n');
     }, 10000);
 
-    const send = (json) => {
-        const { id, data } = json;
-        res.write(`id: ${id}\ndata: ${JSON.stringify(data)}\n\n`);
+    const send = ({ eventId, collection, doc }) => {
+        res.write(`id: ${eventId}\ndata: ${JSON.stringify({ type: collection, data: doc })}\n\n`);
     };
-    
+
     // TODO get updates since ?lastMessageId=x, and send init message
 
     const unsub = subscribe(rpNamespace, send);
@@ -125,10 +124,9 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     const fields = await validate(collection, req.body); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    const doc = await Docs.create(rpNamespace, collection, _id, fields, ipid);
+    const { eventId, doc } = await Docs.create(rpNamespace, collection, _id, fields, ipid);
 
-    // TODO publish
-    // publish(rpCode, { type: 'append', data: { [collection]: [doc] } });
+    publish(rpNamespace, { eventId, collection, doc });
 
     res.status(201).json({ _id });
 }));
@@ -140,13 +138,12 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
     const fields = await validate(collection, req.body); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    const doc = await Docs.update(rpNamespace, collection, _id, fields, ipid);
+    const { eventId, doc } = await Docs.update(rpNamespace, collection, _id, fields, ipid);
 
     // TODO verify auth
     // if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
 
-    // TODO publish
-    // publish(rpCode, { type: 'put', data: { [collection]: [doc] } });
+    publish(rpNamespace, { eventId, collection, doc });
 
     res.sendStatus(204);
 }));

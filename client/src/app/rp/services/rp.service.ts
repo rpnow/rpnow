@@ -8,11 +8,8 @@ import { RpMessage } from '../models/rp-message';
 import { RpCodeService } from './rp-code.service';
 
 interface RpEvent {
-  id: number;
-  updates: {
-    type: 'msgs' | 'charas';
-    data: any;
-  }[];
+  type: 'msgs' | 'charas';
+  data: any;
 }
 
 interface RpWsError {
@@ -54,20 +51,14 @@ export class RpService implements OnDestroy {
 
   private initialState: () => RpState = () => ({ connection: 'connecting' });
 
-  private updateState(state: RpState, { id, updates }: RpEvent): RpState {
-      const newState = { ...state, lastEventId: id };
+  private updateState(state: RpState, { type, data }: RpEvent): RpState {
+      const arr = [...state[type]];
 
-      for (const { type, data } of updates) {
-        const arr = [...newState[type]];
+      const index = arr.findIndex(oldItem => oldItem._id === data._id);
+      if (index >= 0) arr.splice(index, 1, data);
+      else arr.push(data);
 
-        const index = arr.findIndex(oldItem => oldItem._id === data._id);
-        if (index >= 0) arr.splice(index, 1, data);
-        else arr.push(data);
-
-        newState[type] = <any>arr;
-      }
-
-      return newState;
+      return { ...state, [type]: arr };
   }
 
   constructor(
@@ -84,22 +75,22 @@ export class RpService implements OnDestroy {
       state = <any>{ ...state, ...firstStateUpdate, connection: 'connected' };
       observer.next(state);
 
-      while (true) {
-        const { id, updates } = <any>(await http.get(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}/updates?lastEventId=${state.lastEventId}`).toPromise());
-        state = this.updateState(state, { id, updates });
-        observer.next(state);
-
-        await new Promise(resolve => setTimeout(() => resolve(), 1000));
-      }
-
-      // const es = new EventSource(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}/stream?lastEventId=${state.lastEventId}`);
-
-      // es.addEventListener('open', () => console.log('open'));
-      // es.addEventListener('error', () => console.log('error'));
-      // es.addEventListener('message', (event: any) => {
-      //   state = this.updateState(state, JSON.parse(event.data));
+      // while (true) {
+      //   const { id, updates } = <any>(await http.get(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}/updates?lastEventId=${state.lastEventId}`).toPromise());
+      //   state = this.updateState(state, { id, updates });
       //   observer.next(state);
-      // });
+
+      //   await new Promise(resolve => setTimeout(() => resolve(), 1000));
+      // }
+
+      const es = new EventSource(`${environment.apiUrl}/api/rp/${rpCodeService.rpCode}/stream?lastEventId=${state.lastEventId}`);
+
+      es.addEventListener('open', () => console.log('open'));
+      es.addEventListener('error', () => console.log('error'));
+      es.addEventListener('message', (event: any) => {
+        state = this.updateState(state, JSON.parse(event.data));
+        observer.next(state);
+      });
 
 
 
