@@ -30,6 +30,7 @@ import { DemoRoomService } from '../services/demo-room.service';
             [pressEnterToSend]="true"
             [showNags]="true"
             (editMessage)="editMessage($event[0], $event[1], $event[2])"
+            (editImage)="editImage($event[0], $event[1])"
             (imageLoaded)="scrollAnchor.checkHeight()"
           ></rpn-message-list>
         </rpn-scroll-anchor>
@@ -199,6 +200,10 @@ export class DemoChatComponent implements OnInit, OnDestroy {
 
   editMessage(id: RpMessageId, content: string, voice: RpVoiceSerialized) {
     this.demoRoom.editMessage(id, content, voice);
+  }
+
+  editImage(id: RpMessageId, url: string) {
+    this.demoRoom.editImage(id, url);
   }
 
   async sendImage(url: string) {

@@ -1,5 +1,6 @@
-import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
-import { OptionsService } from '../services/options.service';
+import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output, ViewContainerRef } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ImageDialogComponent } from './image-dialog.component';
 
 @Component({
   selector: 'rpn-message',
@@ -56,6 +57,10 @@ import { OptionsService } from '../services/options.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MessageComponent {
+  constructor(
+    private dialog: MatDialog,
+    private viewContainerRef: ViewContainerRef,
+  ) {}
 
   @Input() content: string;
   @Input() url: string;
@@ -72,6 +77,7 @@ export class MessageComponent {
   @Input() showMessageDetails = false;
 
   @Output() readonly editContent: EventEmitter<string> = new EventEmitter();
+  @Output() readonly editUrl: EventEmitter<string> = new EventEmitter();
   @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
 
   editing = false;
@@ -108,8 +114,15 @@ export class MessageComponent {
   }
 
   beginEdit() {
-    this.editing = true;
-    this.newContent = this.content;
+    if (this.type === 'image') {
+      const dialogRef = this.dialog.open(ImageDialogComponent, { viewContainerRef: this.viewContainerRef, data: this.url });
+      dialogRef.beforeClose().subscribe(url => {
+        if (url) this.editUrl.emit(url);
+      });
+    } else {
+      this.editing = true;
+      this.newContent = this.content;
+    }
   }
 
   cancelEdit() {

@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, ChangeDetectionStrategy, Inject, OnInit } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 // import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -76,7 +76,7 @@ import { MatDialogRef } from '@angular/material/dialog';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ImageDialogComponent {
+export class ImageDialogComponent implements OnInit {
 
   // https://github.com/angular/angular.js/blob/master/src/ngSanitize/filter/linky.js#L3
   private urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
@@ -85,9 +85,18 @@ export class ImageDialogComponent {
   valid = Promise.resolve(false);
 
   constructor(
-    private dialogRef: MatDialogRef<ImageDialogComponent>
+    private dialogRef: MatDialogRef<ImageDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) private readonly initialUrl: string,
     // private snackbar: MatSnackBar
-  ) { }
+  ) {
+  }
+
+  ngOnInit() {
+    if (this.initialUrl) {
+      this.url = this.initialUrl;
+      this.updateUrl(this.url);
+    }
+  }
 
   updateUrl(url) {
     this.valid = this.isValid(url);

@@ -117,4 +117,17 @@ export class RoomService {
     // this.editedMessagesSubject.next(msg);
   }
 
+  async editImage(rpCode: string, id: RpMessageId, url: string) {
+    const challenge = await this.challengeService.challenge$;
+
+    const editInfo = {
+      url,
+      secret: challenge.secret
+    };
+    this.track.event('RP', 'Edit image');
+
+    const msg: RpMessage = await this.http.put(`${environment.apiUrl}/api/rp/${rpCode}/msgs/${id}`, editInfo).toPromise() as any;
+    // this.editedMessagesSubject.next(msg);
+  }
+
 }

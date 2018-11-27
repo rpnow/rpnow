@@ -25,6 +25,7 @@ import { RpVoiceSerialized } from './../models/rp-voice';
           [showMessageDetails]="showMessageDetails"
 
           (editContent)="onEditMessage(msg._id, $event, msg.type, msg.charaId)"
+          (editUrl)="onEditImage(msg._id, $event)"
           (imageLoaded)="onImageLoaded()"
         ></rpn-message>
 
@@ -44,7 +45,8 @@ export class MessageListComponent implements OnChanges {
   @Input() pressEnterToSend: boolean;
   @Input() showNags = false;
 
-  @Output() readonly editMessage: EventEmitter<[string, string, RpVoiceSerialized]> = new EventEmitter();
+  @Output() readonly editMessage: EventEmitter<[RpMessageId, string, RpVoiceSerialized]> = new EventEmitter();
+  @Output() readonly editImage: EventEmitter<[RpMessageId, string]> = new EventEmitter();
   @Output() readonly imageLoaded: EventEmitter<void> = new EventEmitter();
 
   private idsSeen: Set<RpMessageId> = new Set();
@@ -84,9 +86,13 @@ export class MessageListComponent implements OnChanges {
     return this.charas && (msg.type === 'chara') ? this.charas.find(c => c._id === msg.charaId) : null;
   }
 
-  onEditMessage(id: string, content: string, type: RpMessageType, charaId?: RpCharaId) {
+  onEditMessage(id: RpMessageId, content: string, type: RpMessageType, charaId?: RpCharaId) {
     const voice: RpVoiceSerialized = (type === 'chara') ? charaId : type;
     this.editMessage.emit([id, content, voice]);
+  }
+
+  onEditImage(id: RpMessageId, url: string) {
+    this.editImage.emit([id, url]);
   }
 
   onImageLoaded() {
