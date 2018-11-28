@@ -53,7 +53,7 @@ export class RoomService {
     const msg: Partial<RpMessage> = {
       content,
       ... typeFromVoice(voice),
-      challenge: challenge.hash
+      // challenge: challenge.hash
     };
     this.track.event('RP', 'Create message', msg.type, content.length);
 
@@ -69,7 +69,7 @@ export class RoomService {
     const chara: Partial<RpChara> = {
       name,
       color,
-      challenge: challenge.hash
+      // challenge: challenge.hash
     };
     this.track.event('RP', 'Create chara');
 
@@ -80,7 +80,11 @@ export class RoomService {
   }
 
   async addImage(rpCode: string, url: string) {
-    const msg = { type: 'image', url };
+    const msg = {
+      type: 'image',
+      url,
+      // challenge: challenge.hash
+    };
     this.track.event('RP', 'Create image');
 
     const receivedMsg: RpMessage = await this.http.post(`${environment.apiUrl}/api/rp/${rpCode}/msgs`, msg).toPromise() as any;
@@ -95,7 +99,7 @@ export class RoomService {
     const editInfo = {
       content,
       ... typeFromVoice(voice),
-      secret: challenge.secret
+      // secret: challenge.secret
     };
     this.track.event('RP', 'Edit message', null, content.length);
 
@@ -109,7 +113,7 @@ export class RoomService {
     const editInfo = {
       name,
       color,
-      secret: challenge.secret
+      // secret: challenge.secret
     };
     this.track.event('RP', 'Edit chara');
 
@@ -121,8 +125,9 @@ export class RoomService {
     const challenge = await this.challengeService.challenge$;
 
     const editInfo = {
+      type: 'image',
       url,
-      secret: challenge.secret
+      // secret: challenge.secret
     };
     this.track.event('RP', 'Edit image');
 

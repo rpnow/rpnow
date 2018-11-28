@@ -24,7 +24,8 @@ router.use(xRobotsTag);
 router.post('/rp.json', awrap(async (req, res, next) => {
     const rpCode = generateRpCode();
     const namespace = 'rp_' + cuid();
-    const fields = await validate('meta', req.body); // TODO or throw BAD_RP
+    const fields = req.body;
+    await validate(namespace, 'meta', fields); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
     await Docs.create(namespace, 'meta', 'meta', fields, ipid);
@@ -121,7 +122,8 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = cuid();
-    const fields = await validate(collection, req.body); // TODO or throw BAD_RP
+    const fields = req.body;
+    await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
     const { eventId, doc } = await Docs.create(rpNamespace, collection, _id, fields, ipid);
@@ -135,12 +137,14 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
     const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
-    const fields = await validate(collection, req.body); // TODO or throw BAD_RP
+    const fields = req.body;
+    await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
     const { eventId, doc } = await Docs.update(rpNamespace, collection, _id, fields, ipid);
 
     // TODO verify auth
+    // TODO secrets were 64 chars long, challenges were 128
     // if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
 
     publish(rpNamespace, { eventId, collection, doc });

@@ -1,75 +1,109 @@
-const nJ = require('normalize-json');
 const got = require('got');
+const Docs = require('../services/docs');
 
-// TODO integrate all this info into the validators
-const roomOptionsSchema = nJ({
-    title: [String, 30],
-    desc: [{ $optional: String }, 255],
-});
-const addCharaSchema = nJ({
-    name: [String, 30],
-    color: /^#[0-9a-f]{6}$/g,
-    challenge: [String, 128],
-});
-const addMessageSchema = nJ({
-    content: [String, 10000],
-    type: ['narrator', 'chara', 'ooc'],
-    charaId: msg => (msg.type === 'chara' ? [String] : undefined), // TODO validate chara exists?
-    challenge: [String, 128],
-});
-const editCharaSchema = nJ({
-    id: [String],
-    name: [String, 30],
-    color: /^#[0-9a-f]{6}$/g,
-    secret: [String, 64],
-});
-const editMessageSchema = nJ({
-    id: [String],
-    content: [String, 10000],
-    secret: [String, 64],
-});
+const isString = str => typeof str === 'string';
+const isStringMaxLength = length => str => isString(str) && str.length <= length;
+const matchRegex = regex => str => isString(str) && str.match(regex) !== null;
+const isOneOf = (...values) => str => values.includes(str);
+const is = isOneOf;
+const all = (...fns) => async (...args) => {
+    for (const fn of fns) {
+        if (!await fn(...args)) return false;
+    }
+    return true;
+};
+const any = (...fns) => async (...args) => {
+    for (const fn of fns) {
+        if (await fn(...args)) return true;
+    }
+    return false;
+};
 
 const validators = {
-    async msgs(body) {
-        const { type } = body;
-        if (type === 'image') {
-            const { url = null } = body;
-            if (typeof url !== 'string') throw { code: 'BAD_URL' }
-            // validate image
-            let res;
-            try {
-                res = await got.head(url);
-            } catch (err) {
-                throw { code: 'URL_FAILED', details: err.message };
+    msgs: [
+        {
+            type: is('image'),
+            url: async url => {
+                if (typeof url !== 'string') return false;
+                // validate image
+                let res;
+                try {
+                    res = await got.head(url);
+                } catch (err) {
+                    return false;
+                }
+                if (!res.headers['content-type']) return false;
+                if (!res.headers['content-type'].startsWith('image/')) return false;
+                return true;
             }
-            if (!res.headers['content-type']) throw { code: 'UNKNOWN_CONTENT' };
-            if (!res.headers['content-type'].startsWith('image/')) throw { code: 'BAD_IMAGE_CONTENT_TYPE' };
-            // ok
-            return { type, url };
+        },
+        {
+            type: is('chara'),
+            content: isStringMaxLength(10000),
+            charaId: async (charaId, { namespace }) => {
+                if (typeof charaId !== 'string') return false;
+                return Docs.exists(namespace, 'charas', charaId)
+            },
+        },
+        {
+            type: isOneOf('narrator', 'ooc'),
+            content: isStringMaxLength(10000),
         }
-        else if (type === 'chara') {
-            const { content, charaId } = body;
-            // TODO validate chara exists?
-            return { type, content, charaId };
+    ],
+    charas: [
+        {
+            name: isStringMaxLength(30),
+            color: matchRegex(/^#[0-9a-f]{6}$/g),
         }
-        else {
-            const { content } = body;
-            return { type, content };
+    ],
+    meta: [
+        {
+            title: isStringMaxLength(30),
+            desc: any(is(undefined), isStringMaxLength(255)),
         }
-    },
-    async charas(body) {
-        const { name, color } = body;
-        return { name, color };
-    },
-    async meta(body) {
-        const { title, desc } = body;
-        return { title, desc };
-    },
-}
+    ]
+};
 
-async function validate(collection, body) {
-    if (!validators[collection]) throw new Error('Invalid collection');
-    return validators[collection](body);
+async function validate(namespace, collection, body) {
+    // Only JS objects can be validated here
+    if (typeof body !== 'object') throw new Error("Tried to validate a non-object")
+
+    // Get the validator(s) for the specified collection
+    const validatorGroup = validators[collection];
+    if (!validatorGroup) throw new Error('Invalid collection');
+
+    // Iterate through the array of possible validators for this collection
+    // Only one of them has to succeed
+    for (const possibleValidator of validatorGroup) {
+        let failed = false;
+        // Make sure every property passes its test
+        for (const prop of Object.keys(possibleValidator)) {
+            const propTester = possibleValidator[prop]
+            const isPropValid = await propTester(body[prop], { namespace });
+            if (isPropValid === true) {
+                continue;
+            }
+            else if (isPropValid === false) {
+                failed = true;
+                break;
+            }
+            else {
+                throw new Error("Validator working incorrectly");
+            }
+        }
+        // If any property failed, try the next validator option
+        if (failed) {
+            continue;
+        }
+        // Make sure there's no extra properties
+        if (!Object.keys(body).every(prop => possibleValidator[prop] != null)) {
+            continue;
+        }
+        // This validator worked. Success
+        return true;
+    }
+    // No validators in this group worked. Fail
+    throw new Error('Invalid object');
 }
 
 module.exports = validate;
