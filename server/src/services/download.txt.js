@@ -1,4 +1,3 @@
-const { Transform } = require('stream');
 const wrap = require('word-wrap');
 
 function msgText(msg, charas) {
@@ -19,26 +18,21 @@ function msgText(msg, charas) {
 
 module.exports = ({
 
-    txtFileStream({ title, desc = null, msgStream, charas }, { includeOOC }) {
-        const rpStream = new Transform({
-            transform(chunk, encoding, callback) {
-                this.push(`${chunk.toString().replace(/\n/g, '\r\n')}\r\n\r\n`);
-                callback();
-            },
-        });
+    generateTextFile({ title, desc = null, msgs, charas, includeOOC }, writeRaw) {
+        // Make sure to only write windows-compatible newlines
+        const write = str => writeRaw(str.replace(/\n/g, '\r\n'));
 
         // header format
-        rpStream.write(`${title}\n${desc || ''}\n----------`);
+        write(`${title}\n${desc || ''}\n----------\n\n`);
 
-        msgStream.on('data', (msg) => {
+        // Write each message
+        msgs.forEach(msg => {
+            console.log(msg)
             if (msg.type !== 'ooc' || includeOOC) {
-                rpStream.write(msgText(msg, charas));
+                const msgBlock = msgText(msg, charas);
+                write(msgBlock+'\n\n');
             }
-        });
-
-        msgStream.on('end', () => rpStream.end());
-
-        return rpStream;
+        })
     },
 
 });

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { Router } = require('express');
-const { txtFileStream } = require('../services/download.txt');
+const { generateTextFile } = require('../services/download.txt');
 const { getIpid } = require('../services/ipid');
 const xRobotsTag = require('../services/x-robots-tag');
 const logger = require('../services/logger');
@@ -105,17 +105,14 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
     const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
 
     const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
-    const msgStream = await Docs.docs(rpNamespace, 'msgs', {}).asStream();
+    // TODO getting all msgs at once is potentially problematic for huge RP's; consider using streams if possible
+    const msgs = await Docs.docs(rpNamespace, 'msgs', {}).asArray(); 
     const charas = await Docs.docs(rpNamespace, 'charas', {}).asMap();
     const { includeOOC = false } = req.query;
 
-    // TODO I don't like this
-    const rp = { title, desc, msgStream, charas };
-
-    const rpStream = txtFileStream(rp, { includeOOC });
-    res.attachment(`${rp.title}.txt`).type('.txt');
-    // TODO do we need to 'return'
-    return rpStream.pipe(res);
+    res.attachment(`${title}.txt`).type('.txt');
+    generateTextFile({ title, desc, msgs, charas, includeOOC }, str => res.write(str));
+    res.end();
 }));
 
 router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {

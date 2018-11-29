@@ -128,9 +128,6 @@ const Docs = {
                 const [{ count }] = await q.count('* as count');
                 return count;
             },
-            async asStream() {
-                // TODO
-            }
         };
     },
 
