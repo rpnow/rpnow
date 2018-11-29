@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    <div id="app">
+        <v-app id="inspire">
+            <v-toolbar app flat>
+                <v-toolbar-side-icon @click.stop="mainMenuOpen = !mainMenuOpen"></v-toolbar-side-icon>
+                <v-spacer></v-spacer>
+                <v-toolbar-title>My Story</v-toolbar-title>
+                <v-spacer></v-spacer>
+            </v-toolbar>
+            <v-navigation-drawer app floating temporary v-model="mainMenuOpen">
+                <v-toolbar flat>
+                    <v-toolbar-title>RPNow</v-toolbar-title>
+                </v-toolbar>
+                <v-divider></v-divider>
+            </v-navigation-drawer>
+            <v-content>
+                <v-container fluid>
+                    <ul id="example-1">
+                        <li v-for="x in content">
+                            {{ x }}
+                        </li>
+                    </ul>
+                </v-container>
+            </v-content>
+            <v-footer app fixed>
+                <v-text-field label="Type message here"></v-text-field>
+            </v-footer>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                mainMenuOpen: false,
+                content: Array(100).fill('Lorem Ipsum')
+            }
+        })
+    </script>
+</body>
+
+</html>

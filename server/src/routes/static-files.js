@@ -4,7 +4,7 @@ const xRobotsTag = require('../services/x-robots-tag');
 
 // static file serving + SPA routes
 const staticRoutes = new express.Router();
-const clientFiles = path.join(__dirname, '../../../client/dist/rpnow');
+const clientFiles = path.join(__dirname, '../web');
 // bundle
 staticRoutes.use('/client-files/', express.static(clientFiles));
 // valid routes
