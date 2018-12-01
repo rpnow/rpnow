@@ -13,6 +13,6 @@ staticRoutes.get('/terms', (req, res) => res.sendFile(`${clientFiles}/index.html
 staticRoutes.get('/rp/demo', (req, res) => res.sendFile(`${clientFiles}/index.html`)); // separate, because no xRobotsTag
 staticRoutes.get('/rp/*', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/index.html`));
 // 404
-staticRoutes.get('*', (req, res) => res.status(404).sendFile(`${clientFiles}/index.html`));
+staticRoutes.get('*', (req, res) => res.status(404).sendFile(`${clientFiles}/404.html`));
 
 module.exports = staticRoutes;

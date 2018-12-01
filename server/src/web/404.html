@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Page Not Found | RPNow</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#fafafa">
+
+  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-16x16.png" sizes="16x16">
+  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="/client-files/assets/favicon/favicon-128x128.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alice|Playfair+Display">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="manifest" href="/client-files/manifest.json">
+
+  <style>
+    #not-found {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      align-items: center center;
+      justify-content: center;
+      margin: auto;
+      max-width: 400px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="not-found">
+    <h1>Page not found: <code id="route-text"></code></h1>
+
+    <p>Sorry, there's no page at this address. Make sure you've spelled the URL correctly, or <a href="/">return to the RPNow homepage.</a></p>
+
+    <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
+  </div>
+  <script>
+    document.getElementById('route-text').appendChild(document.createTextNode(location.pathname));
+  </script>
+</body>
+</html>
+
