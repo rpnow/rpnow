@@ -8,7 +8,7 @@ const clientFiles = path.join(__dirname, '../web');
 // bundle
 staticRoutes.use('/client-files/', express.static(clientFiles));
 // valid routes
-staticRoutes.get('/', (req, res) => res.sendFile(`${clientFiles}/index.html`));
+staticRoutes.get('/', (req, res) => res.sendFile(`${clientFiles}/home.html`));
 staticRoutes.get('/terms', (req, res) => res.sendFile(`${clientFiles}/index.html`));
 staticRoutes.get('/rp/demo', (req, res) => res.sendFile(`${clientFiles}/index.html`)); // separate, because no xRobotsTag
 staticRoutes.get('/rp/*', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/index.html`));
