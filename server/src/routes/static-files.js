@@ -11,7 +11,7 @@ staticRoutes.use('/client-files/', express.static(clientFiles));
 staticRoutes.get('/', (req, res) => res.sendFile(`${clientFiles}/home.html`));
 staticRoutes.get('/terms', (req, res) => res.sendFile(`${clientFiles}/index.html`));
 staticRoutes.get('/rp/demo', (req, res) => res.sendFile(`${clientFiles}/index.html`)); // separate, because no xRobotsTag
-staticRoutes.get('/rp/*', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/index.html`));
+staticRoutes.get('/rp/*', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/rp.html`));
 // 404
 staticRoutes.get('*', (req, res) => res.status(404).sendFile(`${clientFiles}/404.html`));
 
