@@ -1,5 +1,5 @@
 const got = require('got');
-const Docs = require('../services/docs');
+const DB = require('./database');
 
 const isString = str => typeof str === 'string';
 const isStringMaxLength = length => str => isString(str) && str.length <= length;
@@ -42,7 +42,7 @@ const validators = {
             content: isStringMaxLength(10000),
             charaId: async (charaId, { namespace }) => {
                 if (typeof charaId !== 'string') return false;
-                return Docs.exists(namespace, 'charas', charaId)
+                return DB.hasDoc(namespace, 'charas', charaId)
             },
         },
         {

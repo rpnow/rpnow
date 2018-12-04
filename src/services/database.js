@@ -36,7 +36,7 @@ const formatQueryResult = (x) => {
 };
 
 module.exports = {
-    async create(namespace, collection, _id, body, ip) {
+    async addDoc(namespace, collection, _id, body, ip) {
         await connected;
         const timestamp = new Date().toISOString();
         const revision = 0;
@@ -45,9 +45,9 @@ module.exports = {
         return { eventId, doc: formatQueryResult(doc) };
     },
 
-    async update(namespace, collection, _id, body, ip) {
+    async updateDoc(namespace, collection, _id, body, ip) {
         await connected;
-        if(!(await this.exists(namespace, collection, _id))) {
+        if(!(await this.hasDoc(namespace, collection, _id))) {
             throw new Error(`Document ${collection}:${_id} does not exist`);
         }
         // TODO just get lastRevision inside of the query
@@ -59,7 +59,7 @@ module.exports = {
         return { eventId, doc: formatQueryResult(doc) };
     },
 
-    docs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse } = {}) {
+    getDocs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse } = {}) {
         let q = knex('docs').where('docs.namespace', namespace)
 
         if (collection != null) {
@@ -126,12 +126,12 @@ module.exports = {
         };
     },
 
-    async doc(namespace, collection, _id, { ...filters } = {}) {
-        return this.docs(namespace, collection, { _id, ...filters }).single();
+    async getDoc(namespace, collection, _id, { ...filters } = {}) {
+        return this.getDocs(namespace, collection, { _id, ...filters }).single();
     },
 
-    async exists(namespace, collection, _id) {
-        return this.doc(namespace, collection, _id).then(_ => true, _ => false);
+    async hasDoc(namespace, collection, _id) {
+        return this.getDoc(namespace, collection, _id).then(_ => true, _ => false);
     },
 
     async lastEventId() {

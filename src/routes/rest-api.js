@@ -6,7 +6,7 @@ const { getIpid } = require('../services/ipid');
 const { xRobotsTag } = require('../services/x-robots-tag');
 const logger = require('../services/logger');
 const cuid = require('cuid');
-const Docs = require('../services/docs');
+const DB = require('../services/database');
 const { validate } = require('../services/validate');
 const { generateRpCode } = require('../services/rpcode.js');
 const { generateChallenge, verifyChallenge } = require('../services/challenge');
@@ -28,8 +28,8 @@ router.post('/rp.json', awrap(async (req, res, next) => {
     await validate(namespace, 'meta', fields); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    await Docs.create(namespace, 'meta', 'meta', fields, ipid);
-    await Docs.create('system', 'urls', rpCode, { rpNamespace: namespace }, ipid);
+    await DB.addDoc(namespace, 'meta', 'meta', fields, ipid);
+    await DB.addDoc('system', 'urls', rpCode, { rpNamespace: namespace }, ipid);
 
     res.status(201).json({ rpCode });
 }));
@@ -42,19 +42,19 @@ router.get('/challenge.json', awrap(async (req, res, next) => {
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 
 router.get(`${rpGroup}`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
-    const lastEventId = await Docs.lastEventId();
-    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta', { snapshot: lastEventId });
-    const msgs = await Docs.docs(rpNamespace, 'msgs', { reverse: true, limit: 60, snapshot: lastEventId }).asArray();
+    const lastEventId = await DB.lastEventId();
+    const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta', { snapshot: lastEventId });
+    const msgs = await DB.getDocs(rpNamespace, 'msgs', { reverse: true, limit: 60, snapshot: lastEventId }).asArray();
     msgs.reverse();
-    const charas = await Docs.docs(rpNamespace, 'charas', { snapshot: lastEventId }).asArray();
+    const charas = await DB.getDocs(rpNamespace, 'charas', { snapshot: lastEventId }).asArray();
 
     res.status(200).json({ title, desc, msgs, charas, lastEventId })
 }));
 
 router.get(`${rpGroup}/stream`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     // Server-sent event headers
     res.writeHead(200, {
@@ -86,28 +86,28 @@ router.get(`${rpGroup}/stream`, awrap(async (req, res, next) => {
 }));
 
 router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const skip = (req.params.pageNum - 1) * 20;
     const limit = 20;
 
-    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
-    const msgs = await Docs.docs(rpNamespace, 'msgs', { skip, limit }).asArray();
-    const charas = await Docs.docs(rpNamespace, 'charas').asArray();
+    const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta');
+    const msgs = await DB.getDocs(rpNamespace, 'msgs', { skip, limit }).asArray();
+    const charas = await DB.getDocs(rpNamespace, 'charas').asArray();
 
-    const msgCount = await Docs.docs(rpNamespace, 'msgs').count();
+    const msgCount = await DB.getDocs(rpNamespace, 'msgs').count();
     const pageCount = Math.ceil(msgCount / 20);
 
     res.status(200).json({ title, desc, msgs, charas, pageCount })
 }));
 
 router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
-    const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
+    const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta');
     // TODO getting all msgs at once is potentially problematic for huge RP's; consider using streams if possible
-    const msgs = await Docs.docs(rpNamespace, 'msgs').asArray(); 
-    const charas = await Docs.docs(rpNamespace, 'charas').asMap();
+    const msgs = await DB.getDocs(rpNamespace, 'msgs').asArray(); 
+    const charas = await DB.getDocs(rpNamespace, 'charas').asMap();
     const { includeOOC = false } = req.query;
 
     res.attachment(`${title}.txt`).type('.txt');
@@ -116,14 +116,14 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
 }));
 
 router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = cuid();
     const fields = req.body;
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    const { eventId, doc } = await Docs.create(rpNamespace, collection, _id, fields, ipid);
+    const { eventId, doc } = await DB.addDoc(rpNamespace, collection, _id, fields, ipid);
 
     publish(rpNamespace, { eventId, collection, doc });
 
@@ -131,14 +131,14 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
 }));
 
 router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await Docs.doc('system', 'urls', req.params.rpCode);
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
     const fields = req.body;
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
     const ipid = getIpid(req.ip);
 
-    const { eventId, doc } = await Docs.update(rpNamespace, collection, _id, fields, ipid);
+    const { eventId, doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
 
     // TODO verify auth
     // TODO secrets were 64 chars long, challenges were 128
