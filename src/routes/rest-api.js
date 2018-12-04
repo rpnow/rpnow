@@ -10,7 +10,6 @@ const DB = require('../services/database');
 const { validate } = require('../services/validate');
 const { generateRpCode } = require('../services/rpcode.js');
 const { generateChallenge, verifyChallenge } = require('../services/challenge');
-const errors = require('../services/errors');
 const { publish, subscribe } = require('../services/event-bus');
 const config = require('../services/config');
 const { awrap } = require('../services/express-async-handler');
