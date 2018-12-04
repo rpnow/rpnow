@@ -2,13 +2,13 @@ const express = require('express');
 const logger = require('./services/logger');
 const config = require('./services/config');
 const { getMyIpAddresses } = require('./services/get-my-ip-addresses');
-const restApi = require('./routes/rest-api');
-const staticFiles = require('./routes/static-files');
+const apiRoutes = require('./routes/api');
+const clientRoutes = require('./routes/serve-client');
 
 const app = express();
 
-app.use('/api', restApi);
-app.use('/', staticFiles);
+app.use('/api', apiRoutes);
+app.use('/', clientRoutes);
 
 if (config.trustProxy) {
     app.enable('trust proxy');
