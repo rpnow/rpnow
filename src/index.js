@@ -1,7 +1,7 @@
 const express = require('express');
 const logger = require('./services/logger');
 const config = require('./services/config');
-const { getMyIpAddresses } = require('./services/whats-my-ip');
+const { getMyIpAddresses } = require('./services/get-my-ip-addresses');
 const restApi = require('./routes/rest-api');
 const staticFiles = require('./routes/static-files');
 

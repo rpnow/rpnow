@@ -1,15 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const { Router } = require('express');
-const { generateTextFile } = require('../services/download.txt');
-const { getIpid } = require('../services/ipid');
-const { xRobotsTag } = require('../services/x-robots-tag');
+const { generateTextFile } = require('../services/txt-file');
+const { getColorsForIp } = require('../services/get-colors-for-ip');
+const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
 const logger = require('../services/logger');
 const cuid = require('cuid');
 const DB = require('../services/database');
-const { validate } = require('../services/validate');
-const { generateRpCode } = require('../services/rpcode.js');
-const { generateChallenge, verifyChallenge } = require('../services/challenge');
+const { validate } = require('../services/validate-user-documents');
+const { generateRpCode } = require('../services/generate-rp-code');
+const { generateAnonCredentials, verifyAnonCredentials } = require('../services/anon-credentials');
 const { publish, subscribe } = require('../services/event-bus');
 const config = require('../services/config');
 const { awrap } = require('../services/express-async-handler');
@@ -25,7 +25,7 @@ router.post('/rp.json', awrap(async (req, res, next) => {
     const namespace = 'rp_' + cuid();
     const fields = req.body;
     await validate(namespace, 'meta', fields); // TODO or throw BAD_RP
-    const ipid = getIpid(req.ip);
+    const ipid = getColorsForIp(req.ip);
 
     await DB.addDoc(namespace, 'meta', 'meta', fields, ipid);
     await DB.addDoc('system', 'urls', rpCode, { rpNamespace: namespace }, ipid);
@@ -34,7 +34,7 @@ router.post('/rp.json', awrap(async (req, res, next) => {
 }));
 
 router.get('/challenge.json', awrap(async (req, res, next) => {
-    const challenge = await generateChallenge();
+    const challenge = await generateAnonCredentials();
     res.status(200).json(challenge);
 }));
 
@@ -120,7 +120,7 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     const _id = cuid();
     const fields = req.body;
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
-    const ipid = getIpid(req.ip);
+    const ipid = getColorsForIp(req.ip);
 
     const { eventId, doc } = await DB.addDoc(rpNamespace, collection, _id, fields, ipid);
 
@@ -135,7 +135,7 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
     const _id = req.params.doc_id;
     const fields = req.body;
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
-    const ipid = getIpid(req.ip);
+    const ipid = getColorsForIp(req.ip);
 
     const { eventId, doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
 

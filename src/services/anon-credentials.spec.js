@@ -1,4 +1,4 @@
-const { generateAnonCredentials, verifyAnonCredentials } = require('./challenge');
+const { generateAnonCredentials, verifyAnonCredentials } = require('./anon-credentials');
 
 describe('challenges', () => {
     it('will verify', async (done) => {

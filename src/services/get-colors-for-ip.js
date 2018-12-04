@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 module.exports = {
-    getIpid(ip) {
+    getColorsForIp(ip) {
         return crypto.createHash('md5')
             .update(ip)
             .digest('hex')
