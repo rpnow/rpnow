@@ -1,20 +1,28 @@
 const express = require('express');
 const logger = require('./services/logger');
 const config = require('./services/config');
+const whatsMyIp = require('./services/whats-my-ip');
 const restApi = require('./routes/rest-api');
 const staticFiles = require('./routes/static-files');
 
-logger.debug('Starting RPNow API...');
-
 const app = express();
-if (config.trustProxy) app.enable('trust proxy');
 
-// express routers
 app.use('/api', restApi);
-app.use(staticFiles);
+app.use('/', staticFiles);
 
-// listen
+if (config.trustProxy) {
+    app.enable('trust proxy');
+}
+
 app.listen(config.port, (err) => {
-    if (err) logger.error(err);
-    else logger.info('RPNow API: ready.');
+    if (err) {
+        logger.error(`RPNow failed to start: ${err}`);
+    } else {
+        logger.info('RPNow is running!');
+        logger.info(`You may access it in your browser at http://localhost:${config.port}`);
+        logger.info("Other devices should navigate to this computer's network IP, which is probably one of the following:")
+        const addresses = whatsMyIp().map(ip => `http://${ip}:${config.port}`);
+        logger.info(...addresses);
+        logger.info('Have fun!');
+    }
 });
