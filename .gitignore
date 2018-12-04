@@ -1,6 +1,5 @@
-**/node_modules
+node_modules
 **/npm-debug.log
-client/dist*
+data.sqlite3
 rpnow-server-contents.zip
 rpnow-server-contents/*
-**/*.sqlite3
