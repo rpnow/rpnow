@@ -1,23 +1,23 @@
 const { promisify } = require('util');
 const crypto = require('crypto');
 
-function createHash(secret) {
+const randomBytes = promisify(crypto.randomBytes);
+
+function hashString(str) {
     return crypto.createHash('sha512')
-        .update(secret)
+        .update(str)
         .digest('hex');
 }
 
 module.exports = {
-    async generateChallenge() {
-        const buf = await promisify(crypto.randomBytes)(32);
+    async generateAnonCredentials() {
+        const secret = (await randomBytes(32)).toString('hex');
+        const secretHash = hashString(secret);
 
-        const secret = buf.toString('hex');
-        const hash = createHash(secret);
-
-        return { secret, hash };
+        return { secret, secretHash };
     },
 
-    verifyChallenge(secret, hash) {
-        return createHash(secret) === hash;
+    verifyAnonCredentials(secret, secretHash) {
+        return hashString(secret) === secretHash;
     },
 };
