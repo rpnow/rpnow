@@ -64,46 +64,46 @@ const validators = {
     ]
 };
 
-async function validate(namespace, collection, body) {
-    // Only JS objects can be validated here
-    if (typeof body !== 'object') throw new Error("Tried to validate a non-object")
+module.exports = {
+    async validate(namespace, collection, body) {
+        // Only JS objects can be validated here
+        if (typeof body !== 'object') throw new Error("Tried to validate a non-object")
 
-    // Get the validator(s) for the specified collection
-    const validatorGroup = validators[collection];
-    if (!validatorGroup) throw new Error('Invalid collection');
+        // Get the validator(s) for the specified collection
+        const validatorGroup = validators[collection];
+        if (!validatorGroup) throw new Error('Invalid collection');
 
-    // Iterate through the array of possible validators for this collection
-    // Only one of them has to succeed
-    for (const possibleValidator of validatorGroup) {
-        let failed = false;
-        // Make sure every property passes its test
-        for (const prop of Object.keys(possibleValidator)) {
-            const propTester = possibleValidator[prop]
-            const isPropValid = await propTester(body[prop], { namespace });
-            if (isPropValid === true) {
+        // Iterate through the array of possible validators for this collection
+        // Only one of them has to succeed
+        for (const possibleValidator of validatorGroup) {
+            let failed = false;
+            // Make sure every property passes its test
+            for (const prop of Object.keys(possibleValidator)) {
+                const propTester = possibleValidator[prop]
+                const isPropValid = await propTester(body[prop], { namespace });
+                if (isPropValid === true) {
+                    continue;
+                }
+                else if (isPropValid === false) {
+                    failed = true;
+                    break;
+                }
+                else {
+                    throw new Error("Validator working incorrectly");
+                }
+            }
+            // If any property failed, try the next validator option
+            if (failed) {
                 continue;
             }
-            else if (isPropValid === false) {
-                failed = true;
-                break;
+            // Make sure there's no extra properties
+            if (!Object.keys(body).every(prop => possibleValidator[prop] != null)) {
+                continue;
             }
-            else {
-                throw new Error("Validator working incorrectly");
-            }
+            // This validator worked. Success
+            return true;
         }
-        // If any property failed, try the next validator option
-        if (failed) {
-            continue;
-        }
-        // Make sure there's no extra properties
-        if (!Object.keys(body).every(prop => possibleValidator[prop] != null)) {
-            continue;
-        }
-        // This validator worked. Success
-        return true;
+        // No validators in this group worked. Fail
+        throw new Error('Invalid object');
     }
-    // No validators in this group worked. Fail
-    throw new Error('Invalid object');
-}
-
-module.exports = validate;
+};

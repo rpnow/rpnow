@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const xRobotsTag = require('../services/x-robots-tag');
+const { xRobotsTag } = require('../services/x-robots-tag');
 
 // static file serving + SPA routes
 const staticRoutes = new express.Router();

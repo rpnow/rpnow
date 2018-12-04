@@ -7,8 +7,7 @@ function createHash(secret) {
         .digest('hex');
 }
 
-module.exports = ({
-
+module.exports = {
     async generateChallenge() {
         const buf = await promisify(crypto.randomBytes)(32);
 
@@ -21,5 +20,4 @@ module.exports = ({
     verifyChallenge(secret, hash) {
         return createHash(secret) === hash;
     },
-
-});
+};

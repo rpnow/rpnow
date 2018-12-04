@@ -17,7 +17,6 @@ function msgText(msg, charas) {
 }
 
 module.exports = ({
-
     generateTextFile({ title, desc = null, msgs, charas, includeOOC }, writeRaw) {
         // Make sure to only write windows-compatible newlines
         const write = str => writeRaw(str.replace(/\n/g, '\r\n'));
@@ -34,5 +33,4 @@ module.exports = ({
             }
         })
     },
-
 });

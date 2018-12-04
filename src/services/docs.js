@@ -35,7 +35,7 @@ const formatQueryResult = (x) => {
     return { ...JSON.parse(body), ...meta, deleted };
 };
 
-const Docs = {
+module.exports = {
     async create(namespace, collection, _id, body, ip) {
         await connected;
         const timestamp = new Date().toISOString();
@@ -145,5 +145,3 @@ const Docs = {
         return value;
     },
 };
-
-module.exports = Docs;
