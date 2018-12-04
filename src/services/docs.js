@@ -59,41 +59,35 @@ module.exports = {
         return { eventId, doc: formatQueryResult(doc) };
     },
 
-    docs(namespace, collection, filters) {
-        // shortcut for getting just _id
-        if (typeof filters === 'string') {
-            const _id = filters;
-            return this.docs(namespace, collection, { _id });
-        }
-
+    docs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse } = {}) {
         let q = knex('docs').where('docs.namespace', namespace)
 
         if (collection != null) {
             q = q.where('docs.collection', collection);
         }
-        if (filters._id != null) {
-            q = q.where('docs._id', filters._id);
+        if (_id != null) {
+            q = q.where('docs._id', _id);
         }
-        if (filters.since != null) {
-            q = q.where('docs.event_id', '>', filters.since);
+        if (since != null) {
+            q = q.where('docs.event_id', '>', since);
         }
-        if (filters.snapshot != null) {
-            q = q.where('docs.event_id', '<=', filters.snapshot);
+        if (snapshot != null) {
+            q = q.where('docs.event_id', '<=', snapshot);
         }
-        if (filters.skip >= 0) {
-            q = q.offset(filters.skip)
+        if (skip >= 0) {
+            q = q.offset(skip)
         }
-        if (filters.limit >= 0) {
-            q = q.limit(filters.limit);
+        if (limit >= 0) {
+            q = q.limit(limit);
         }
-        if (!filters.includeHistory) {
+        if (!includeHistory) {
             q = q.leftJoin('docs as newerDocs', function() {
                     this.on('docs.namespace', 'newerDocs.namespace');
                     this.andOn('docs.collection', 'newerDocs.collection');
                     this.andOn('docs._id', 'newerDocs._id');
                     this.andOn('docs.event_id', '<', 'newerDocs.event_id');
-                    if (filters.snapshot != null) {
-                        this.andOn('newerDocs.event_id', '<=', knex.raw('?', [filters.snapshot]));
+                    if (snapshot != null) {
+                        this.andOn('newerDocs.event_id', '<=', knex.raw('?', [snapshot]));
                     }
                 })
                 .whereNull('newerDocs._id')
@@ -103,13 +97,14 @@ module.exports = {
         q = q
             .orderBy('docs.namespace', 'asc')
             .orderBy('docs.collection', 'asc')
-            .orderBy('docs._id', filters.reverse ? 'desc' : 'asc')
+            .orderBy('docs._id', reverse ? 'desc' : 'asc')
             .orderBy('docs.revision', 'asc')
         
         return {
             async single() {
                 await connected;
                 const result = await q.first();
+                if (!result) throw new Error(`Unable to find document. (collection:${collection}, _id:${_id})`)
                 return formatQueryResult(result);
             },
             async asArray() {
@@ -131,12 +126,12 @@ module.exports = {
         };
     },
 
-    async doc(...args) {
-        return this.docs(...args).single();
+    async doc(namespace, collection, _id, { ...filters } = {}) {
+        return this.docs(namespace, collection, { _id, ...filters }).single();
     },
 
     async exists(namespace, collection, _id) {
-        return (await this.doc(namespace, collection, _id)) != null;
+        return this.doc(namespace, collection, _id).then(_ => true, _ => false);
     },
 
     async lastEventId() {

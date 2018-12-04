@@ -93,9 +93,9 @@ router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, ne
 
     const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
     const msgs = await Docs.docs(rpNamespace, 'msgs', { skip, limit }).asArray();
-    const charas = await Docs.docs(rpNamespace, 'charas', {}).asArray();
+    const charas = await Docs.docs(rpNamespace, 'charas').asArray();
 
-    const msgCount = await Docs.docs(rpNamespace, 'msgs', {}).count();
+    const msgCount = await Docs.docs(rpNamespace, 'msgs').count();
     const pageCount = Math.ceil(msgCount / 20);
 
     res.status(200).json({ title, desc, msgs, charas, pageCount })
@@ -106,8 +106,8 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
 
     const { title, desc } = await Docs.doc(rpNamespace, 'meta', 'meta');
     // TODO getting all msgs at once is potentially problematic for huge RP's; consider using streams if possible
-    const msgs = await Docs.docs(rpNamespace, 'msgs', {}).asArray(); 
-    const charas = await Docs.docs(rpNamespace, 'charas', {}).asMap();
+    const msgs = await Docs.docs(rpNamespace, 'msgs').asArray(); 
+    const charas = await Docs.docs(rpNamespace, 'charas').asMap();
     const { includeOOC = false } = req.query;
 
     res.attachment(`${title}.txt`).type('.txt');
