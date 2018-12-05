@@ -1,0 +1,700 @@
+
+/**********************************************************
+ * BASIC ELEMENT STYLING
+ *
+ **********************************************************/
+@media (orientation: landscape) {
+  html {
+    -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape while allowing user zoom */
+  }
+}
+body {
+  background-color: #fafafa;
+  color: #3c3c3c;
+  font-size: 18px;
+  text-align: center;
+}
+body .app-container {
+  background: inherit;
+}
+body.article {
+  margin: 40px auto;
+  padding: 0 10px;
+  max-width: 650px;
+  text-align: left;
+}
+h1 {
+  margin: 25px auto 10px;
+  letter-spacing: 3px;
+  word-spacing: 2px;
+}
+body > p,
+body > ul,
+body > ol {
+  margin: 18px auto;
+  max-width: 650px;
+  line-height: 1.6;
+}
+li {
+  text-align: left;
+}
+input, textarea, button {
+  font-family: serif;
+  vertical-align: middle;
+}
+input[type=text],
+textarea {
+  background-color: white;
+  border: solid 1px #555;
+  box-shadow: 0 1px 1px #555 inset;
+  font-size: 16px;
+  padding: 3px;
+}
+input[type=submit], button {
+  font-size:18px;
+  color: #222;
+  font-weight: bold;
+}
+input[type=submit]:not(.btn-margin), button:not(.btn-margin),
+.btn-margin > span {
+  background-color: #fff;
+  border: solid 1px #3c3c3c;
+  box-shadow: 0 1px 2px #888;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+.btn-margin {
+  margin: -15px -15px;
+  padding: 15px 15px;
+  background: none;
+  border: none;
+}
+a.btn-margin {
+  text-decoration: none;
+  color: #222;
+}
+input[type=submit]:hover, button:hover {
+  cursor: pointer;
+}
+input[type=submit]:not(.btn-margin):hover, button:not(.btn-margin):hover,
+.btn-margin:hover > span {
+  background-color: #3c3c3c;
+  box-shadow: 0 1px 10px #555;
+  color: #fafafa;
+}
+table, th, td {
+  border: 1px solid;
+}
+td {
+  padding: 4px;
+}
+.overlay {
+  position: fixed;
+  background-color: rgba(0,0,0, 0.5);
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 599;
+}
+
+
+
+
+/**********************************************************
+ * NEAT FORMS
+ *
+ **********************************************************/
+form.form-box {
+  margin: 18px auto;
+  border: solid 1px #555;
+  padding: 30px;
+  box-shadow: 0 1px 3px #aaa;
+}
+form.form-box .input-container input,
+form.form-box .input-container textarea {
+  width: 100%;
+  padding: 3px;
+  margin: -3px;
+}
+form.form-box .input-name,
+form.form-box .input-container {
+  padding: 6px;
+}
+form.form-box .input-name {
+  font-weight: bold;
+}
+form.form-box .input-name::after {
+  content: ":";
+}
+form.form-box input[type=submit] {
+  font-size: 18px;
+  margin-top: 20px;
+  background-color: #fff;
+  color: #222;
+  border: solid 1px #3c3c3c;
+  font-weight: bold;
+}
+form.form-box .input-button button {
+  border-radius: 0;
+  padding: 2px 2px;
+  font-size: 80%;
+}
+@media all and (max-width: 550px) {
+  form.form-box .input-name {
+    text-align: left;
+    padding: 5px 20px 0;
+  }
+  form.form-box .input-button {
+    text-align: right;
+    margin-right: 20px;
+  }
+}
+@media not all and (max-width: 550px) {
+  form.form-box {
+    width: 400px;
+  }
+  form.form-box .input-section {
+    display: table-row;
+  }
+  form.form-box .input-name,
+  form.form-box .input-container {
+    display: table-cell;
+  }
+  form.form-box .input-name {
+    padding-top: 6px;
+    padding-right: 10px;
+    vertical-align: top;
+    text-align: right;
+  }
+  form.form-box .input-container {
+    width: 100%;
+  }
+  form.form-box .input-button button {
+    letter-spacing: -1px;
+  }
+}
+
+
+
+
+/**********************************************************
+ * MOTD ALERT BOXES
+ *
+ **********************************************************/
+#motd {
+  position: fixed;
+  left: 4vw;
+  right: 4vw;
+  top: 2vh;
+  max-width: 600px;
+  margin: auto;
+  background-color: #E8EFFF;
+  box-shadow: 0 6px 10px #8899CC;
+  padding: 20px 10px 10px;
+  border: 2px solid #9AB3DC;
+  animation: fadein 0.2s;
+  z-index: 900;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#motd #motd-content {
+  padding-bottom: 20px;
+}
+#motd #motd-close {
+  background-color: inherit;
+  box-shadow: none;
+  border: 2px solid #9AB3DC;
+  color: #9AB3DC;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 80%;
+  border-radius: 80px;
+  padding: 8px 20px;
+}
+#motd #motd-close:hover {
+  background-color: #9AB3DC;
+  color: white;
+}
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   HEADER
+ *
+ **********************************************************/
+header{
+  border-bottom: ridge;
+  margin-bottom: 20px;
+  font-size:20px;
+}
+header h2{
+  line-height:1;
+}
+header p {
+  margin: 0 auto 15px;
+}
+header #title-links a {
+  display: inline-block;
+}
+@media all and (max-width: 750px) {
+  header h2{
+    margin: 25px auto 5px;
+  }
+  header #title-links {
+    padding-bottom: 5px;
+  }
+}
+@media not all and (max-width: 750px) {
+  header {
+    display: table;
+    width: 100%;
+    padding-bottom: 5px;
+  }
+  header h2 {
+    margin: 10px auto;
+  }
+  header #title-links {
+    display: table-header-group;
+    text-align: right;
+  }
+}
+@media not all and (max-width: 1000px) {
+  header h2 {
+    margin-top: 0;
+  }
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MESSAGES
+ *
+ **********************************************************/
+#messages {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 650px;
+  display: inline-block;
+  text-align: left;
+}
+#messages.room-feed {
+  margin-bottom: 135px;
+}
+#messages > .message{
+  word-wrap: break-word;
+}
+#messages > .message > .content {
+  line-height: 1.6;
+}
+#messages > .message .color-ip-box {
+  display: inline-block;
+  vertical-align: middle;
+  height: 10px;
+  border: solid 1px white;
+  margin-right: 5px;
+  margin-top: -2px;
+}
+#messages > .message .color-ip-box > span {
+  display: inline-block;
+  vertical-align: top;
+  width: 7px;
+  height: 10px;
+}
+#messages > .message .timestamp {
+  font-size: 90%;
+  opacity: 0.5;
+}
+#messages > .message-narrator {
+  background-color: #fff;
+  box-shadow: 0 1px 1px #bbb;
+  padding: 5px;
+  text-align: right;
+}
+#messages > .message-narrator > .content {
+  border: dotted 1px #bbb;
+  padding: 5px;
+  text-align: left;
+}
+#messages > .message-narrator > .content::first-letter {
+  font-size: 125%;
+}
+#messages > .message-narrator > .message-details {
+  margin: -5px 28px -2px;
+}
+#messages > .message-narrator .color-ip-box {
+  border-color: #555;
+}
+#messages > .message-ooc {
+  background-color: #707070;
+  box-shadow: 0 0 2px #555;
+  color: #eee;
+  margin: 0 15px;
+  padding: 0 5px;
+}
+#messages > .message-ooc:nth-of-type(2n+1) {
+  background-color: #7a7a7a;
+}
+#messages > .message-ooc + .message-narrator,
+#messages > .message-narrator + .message-ooc {
+  margin-top: 8px;
+}
+#messages > .message-ooc > .message-details {
+  display: inline;
+}
+#messages > .message-ooc .timestamp {
+  opacity: 0.66;
+  font-size: 80%;
+}
+#messages > .message-ooc .timestamp::before { content: '[ '; }
+#messages > .message-ooc .timestamp::after { content: ' ] '; }
+#messages > .message-ooc > .content {
+  display: inline;
+}
+#messages > .message-chara {
+  margin: 10px;
+  margin-top: 22px;
+  padding: 6px 8px 10px;
+  border-radius: 16px;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 2px 3px #555;
+  position: relative;
+  max-width: 100%;
+  text-align: right;
+}
+#messages > .message-chara > .name{
+  display: inline-block;
+  position: absolute;
+  left: 25px;
+  top: -13px;
+  background-color: inherit;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  word-spacing: 1px;
+  z-index: 100;
+  box-shadow: 0 1px 2px #555;
+}
+#messages > .message-chara > .content {
+  background-color: white;
+  color: black;
+  opacity: 0.9;
+  padding: 8px;
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 1px 2px #888 inset;
+  text-align: left;
+}
+#messages > .message-chara > .content span.action {
+  font-size: 80%;
+  padding: 0.3em;
+  border-radius: 4px;
+  opacity: 0.8;
+  box-shadow: 0 1px 1px #3c3c3c;
+}
+#messages > .message-chara > .message-details {
+  margin: -5px 15px -2px 5px;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MESSAGE STREAM INFO BOXES
+ *
+ **********************************************************/
+#messages > .info {
+  font-size: 16px;
+  text-align: center;
+  background-color: #E8EFFF;
+  margin: 20px;
+  padding: 5px 10px;
+  border: ridge 3px #003380;
+}
+#messages > .info ol {
+  display: inline-block;
+  text-align: left;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MESSAGE BOX
+ *
+ **********************************************************/
+#message-box {
+  position: fixed;
+  z-index: 200;
+  bottom: 0;
+  background-color: inherit;
+  border-spacing: 10px;
+  box-shadow: 0 0 20px #222;
+}
+#message-box.message-box-narrator {
+  background-color: #fff;
+  outline: dotted 1px #999;
+  outline-offset: -6px;
+  padding: 8px;
+  bottom: -6px;
+}
+#message-box.message-box-ooc {
+  background-color: #707070;
+  border: dotted 1px #eee;
+  border-bottom: none;
+}
+#message-box.message-box-ooc #message-text textarea {
+  background-color: #bbb;
+}
+#message-box.message-box-chara {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+#message-box.message-box-chara #message-text textarea {
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+}
+@media all and (max-width: 750px) {
+  #message-box {
+    left: 2px;
+    right: 2px;
+  }
+}
+@media not all and (max-width: 750px) {
+  #message-box {
+    left: 0;
+    right: 0;
+    width: 700px;
+    margin: auto;
+  }
+}
+#format-bar {
+  text-align: left;
+  padding-top: 5px;
+  margin-left: 6%;
+  margin-right: 16px;
+  background-color: inherit;
+}
+#format-bar #message-voice {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 2px 4%;
+}
+.message-box-narrator #message-voice {
+  color: #777;
+  border-bottom: solid 1px #ddd;
+  border-left: solid 1px #eee;
+  padding-top: 0;
+  letter-spacing: 2px;
+}
+.message-box-narrator #message-voice::first-letter {
+  font-size: 125%;
+}
+.message-box-ooc #message-voice {
+  font-size: 90%;
+  color: #ccc;
+}
+.message-box-ooc #message-voice::before { content: '[ '; font-size: 125%; }
+.message-box-ooc #message-voice::after { content: ' ]'; font-size: 125%; }
+.message-box-chara #message-voice {
+  box-shadow: 0 1px 4px #555;
+  border-radius: 4px;
+  margin-top: -15px;
+  margin-right: 2%;
+  background-color: inherit;
+  font-size: 115%;
+}
+#format-bar #change-character span {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 0;
+  padding: 2px 4px;
+  font-size: 80%;
+  letter-spacing: -1px;
+  margin-left: 0;
+}
+#format-bar #show-format-guide {
+  vertical-align: middle;
+  float: right;
+}
+#format-bar #show-format-guide span {
+  padding: 2px 8px;
+  border-radius: 100%;
+}
+#message-bar {
+  display: table;
+  border-spacing: 0;
+  border-collapse: separate;
+}
+#message-bar #message-text,
+#message-bar #message-button-container {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 5px;
+  margin: 0;
+}
+#message-box #message-text {
+  width: 100%;
+}
+#message-text textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 60px;
+}
+#message-box #send-button {
+  min-width: 80px;
+  height: 68px;
+  margin-left: 5px;
+  border-radius: 5px;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   CHARACTER SELECT MENU
+ *
+ **********************************************************/
+#character-menu {
+  position: fixed;
+  bottom: 0;
+  z-index: 300;
+  background: inherit;
+  border: dotted 1px #555;
+  margin: 20px auto 0;
+  padding: 15px 10px;
+  box-shadow: 0 0 20px #222;
+}
+@media all and (max-width: 750px) {
+  #character-menu {
+    left: 2px;
+    right: 2px;
+  }
+}
+@media not all and (max-width: 750px) {
+  #character-menu {
+    left: 0;
+    right: 0;
+    width: 700px;
+    margin: auto;
+  }
+}
+#character-menu > h3 {
+  margin: 0 auto;
+}
+#character-menu > ul {
+  display: block;
+  margin: 0 auto 20px;
+  padding-left: 5px;
+  max-width: 600px;
+}
+#character-menu > ul#normal-characters {
+  border: dotted 1px #bbb;
+  background-color: #eee;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+#character-menu > ul > li {
+  display: inline-block;
+  word-wrap: break-word;
+  width: 135px;
+  max-width: 32vw;
+  margin: 5px;
+  padding: 0;
+}
+#character-menu > ul > li > a {
+  display: block;
+  padding: 2px;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px #888;
+}
+#character-menu > ul > li > a:hover {
+  opacity: 0.5;
+}
+#character-menu > ul#special-characters > li {
+  width: 155px;
+  box-shadow: 0 1px 2px #888;
+}
+#character-menu > ul#special-characters > li > a {
+  border-radius: 0;
+  box-shadow: none;
+}
+#character-menu > ul > li#narrator-button {
+  background-color: #fff;
+  padding: 5px;
+}
+#character-menu > ul > li#narrator-button > a {
+  color: #555;
+  border: dotted 1px #bbb;
+  border-radius: 0;
+  box-shadow: none;
+}
+#character-menu > ul > li#ooc-button {
+  background-color: #3c3c3c;
+}
+#character-menu > ul > li#ooc-button > a {
+  font-size: 75%;
+  line-height: 1.5;
+  padding: 10px;
+  color: #bbb;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   NEW CHARACTER POP-UP
+ *
+ **********************************************************/
+#new-character {
+  border: dotted 1px #3c3c3c;
+  z-index: 600;
+  background-color: inherit;
+  position: fixed;
+  top: 25px;
+  left: 5px;
+  right: 5px;
+  margin: auto;
+  max-width: 350px;
+  padding: 0 25px;
+}
+#new-character input[type=submit] {
+  margin: 20px;
+  padding: 10px 20px;
+}
+#new-character h3 {
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+
+
+
+/**********************************************************
+ * roleplay chat page:
+ *   MISC PAGE ELEMENTS
+ *
+ **********************************************************/
+.pages {
+  margin: 20px;
+}
+ul#stats {
+  display: inline-block;
+  border: dotted 1px #555;
+  margin: 0;
+  padding: 20px;
+  padding-left: 40px;
+  max-width: 650px;
+}

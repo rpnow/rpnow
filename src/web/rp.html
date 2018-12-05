@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>RPNow</title>
+  <title>Loading RP | RPNow</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,28 +17,104 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="manifest" href="/client-files/manifest.json">
 
+  <link rel="stylesheet" href="/client-files/room.css">
   <style>
   </style>
 </head>
 <body>
-  <div id="rp-chat">
+  <div id="rp-chat" class="app-container">
     <div id="loading" v-if="rp == null">
       <i class="material-icons">hourglass_full</i>
       Loading...
     </div>
 
     <template v-if="rp != null">
-      <h1>{{ rp.title }}</h1>
-
-      <template v-for="msg of rp.msgs">
-        <div>
-          {{ msg.content }}
+      <header>
+        <h2>{{ rp.title }}</h2>
+        <p>{{ rp.desc }}</p>
+        <div id="title-links" v-if="!demo">
+          <a :href="'/rp/'+rpCode">Home</a> |
+          <a :href="'/rp/'+rpCode+'/1'">Archive</a> |
+          <a href="/">New RP</a>
         </div>
-      </template>
+      </header>
 
-      <textarea v-model="msgBoxText" @keyup.enter="sendMessage"></textarea>
+      <div id="messages" class="room-feed">
+        <div class="info" v-if="rp.msgs.length >= 60">
+          <p>These are the latest 60 posts.
+          To view earlier messages, check the <a href="./1">archive</a>.</p>
+        </div>
 
-      <button @click="sendMessage">Send</button>
+        <div class="info" v-if="isNewRp">
+          <p><b>Success!</b></p>
+          <p>The RP {{ rp.title }} has been created. Just share this link with some friends, and you can all start roleplaying together, in real time!</p>
+          <a :href="linkToHere">{{ linkToHere }}</a>
+          <p>Please keep the following things in mind, however:</p>
+          <ol>
+            <li><b>Don't lose the link to this room!</b> If you can't find it, you won't be able to find this room again!</li>
+            <li>Anyone with a link to this room can play here. <b>Be careful who you share it with!</b></li>
+            <li><b>Don't post any sensitive information here!</b> In the event of a database breach, we would not want anything confidential to be lost.</li>
+            <li>RPNow is currently under development, so there's a small chance your stories could be unexpectedly lost &mdash; so, just in case, you can download a copy of the entire RP by clicking the <b>Export</b> link up top.</li>
+          </ol>
+          <p>Have fun!</p>
+        </div>
+
+        <template v-for="msg of rp.msgs">
+          <div>
+            {{ msg.content }}
+          </div>
+        </template>
+      </div>
+    
+      <div id="character-menu" v-show="showCharacterMenu">
+        <h3>Characters</h3>
+        <ul id="special-characters">
+          <li id="narrator-button">
+            <a href="#" @click.prevent="selectCharacter('narrator')">Narrator</a>
+          </li>
+          <li id="ooc-button">
+            <a href="#" @click.prevent="selectCharacter('ooc')">Out of Character</a>
+          </li>
+        </ul>
+        <ul id="normal-characters">
+          <li v-for="chara of rp.charas" key="chara._id">
+            <a href="#" @click.prevent="selectCharacter('chara', chara._id)" :style="{'background-color':chara.color}">{{ chara.name }}</a>
+          </li>
+        </ul>
+        <button type="button" id="new-character-button" @click="openCharacterDialog">New Character...</button>
+      </div>
+    
+      <form id="new-character" class="form-box" autocomplete="off" v-show="showCharacterDialog">
+        <h3>New Character</h3>
+        <div class="input-section">
+          <div class="input-name">Name</div>
+          <div class="input-container"><input type="text" name="name" maxlength="30" v-model="charaDialogName"></div>
+        </div>
+        <div class="input-section">
+          <div class="input-name">Color</div>
+          <div class="input-container"><input type="color" name="color" v-model="charaDialogColor"></div>
+        </div>
+        <button type="button" @click="sendChara">Add</button>
+        <button type="button" @click="closeCharacterDialog">Cancel</button>
+      </form>
+    
+      <div id="message-box" :class="messageBoxClass" :style="messageBoxStyle" autocomplete="off" v-show="!showCharacterMenu">
+        <div id="format-bar">
+          <div id="message-voice">{{ currentVoiceName }}</div>
+          <button type="button" id="change-character" class="btn-margin" @click="openCharacterMenu"><span>Change...</span></button>
+          <a type="button" id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
+        </div>
+        <div id="message-bar">
+          <div id="message-text">
+            <textarea v-model="msgBoxText" @keydown.enter.prevent="sendMessage"></textarea>
+          </div>
+          <div id="message-button-container">
+            <button type="button" id="send-button" @click="sendMessage">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" v-show="showOverlay"></div>
     </template>
   </div>
 
@@ -48,9 +124,44 @@
     new Vue({
       el: '#rp-chat',
       data: {
+        demo: false,
+        linkToHere: location.href,
         rpCode: location.pathname.match(/\/rp\/([^\/]+)/)[1],
         rp: null,
+        isNewRp: false,
         msgBoxText: '',
+        currentMsgType: 'narrator',
+        currentCharaId: null,
+        charaDialogName: '',
+        charaDialogColor: '#dddddd',
+        showCharacterMenu: false,
+        showCharacterDialog: false,
+      },
+      computed: {
+        currentChara: function() {
+          if (this.currentMsgType !== 'chara') return undefined;
+          var currentCharaId = this.currentCharaId;
+          return this.rp.charas.filter(function(chara) { return chara._id === currentCharaId })[0];
+        },
+        currentVoiceName: function() {
+          if (this.currentMsgType === 'narrator') return 'Narrator';
+          if (this.currentMsgType === 'ooc') return 'Out of Character';
+          return this.currentChara.name;
+        },
+        currentCharaColor: function() {
+          if (this.currentMsgType !== 'chara') return undefined;
+          return this.currentChara.color;
+        },
+        messageBoxClass: function() {
+          return 'message-box-' + this.currentMsgType;
+        },
+        messageBoxStyle: function() {
+          if (this.currentMsgType !== 'chara') return {};
+          else return { 'background-color': this.currentCharaColor };
+        },
+        showOverlay: function() {
+          return this.showCharacterDialog;
+        },
       },
       methods: {
         updateState: function(update) {
@@ -60,19 +171,58 @@
           arr.push(update.data);
           arr.sort(function(a, b) { return a._id < b._id ? -1 : 1 });
 
+          // keep no more than 60 messages
+          if (update.type === 'msgs') {
+            arr = arr.slice(-60);
+          }
+
           this.rp[update.type] = arr;
         },
         sendMessage: function() {
-          axios.post('/api/rp/' + this.rpCode + '/msgs', { type: 'narrator', content: this.msgBoxText })
+          var data = {
+            content: this.msgBoxText,
+            type: this.currentMsgType,
+            charaId: this.currentCharaId || undefined,
+          };
+          axios.post('/api/rp/' + this.rpCode + '/msgs', data)
             .then((function() {
               this.msgBoxText = '';
             }).bind(this));
+        },
+        sendChara: function() {
+          var data = {
+            name: this.charaDialogName,
+            color: this.charaDialogColor,
+          };
+          axios.post('/api/rp/' + this.rpCode + '/charas', data)
+            .then((function(res) {
+              this.charaDialogName = '';
+              this.showCharacterDialog = false;
+              this.selectCharacter('chara', res.data._id);
+            }).bind(this));
+        },
+        openCharacterMenu: function() {
+          this.showCharacterMenu = true;
+        },
+        openCharacterDialog: function() {
+          this.showCharacterDialog = true;
+        },
+        closeCharacterDialog: function() {
+          this.showCharacterDialog = false;
+        },
+        selectCharacter: function(type, charaId) {
+          this.currentMsgType = type;
+          this.currentCharaId = (type === 'chara') ? charaId : null;
+          this.showCharacterMenu = false;
         }
       },
       created: function() {
         axios.get('/api/rp/' + this.rpCode)
           .then((function(res) {
             this.rp = res.data;
+
+            document.title = this.rp.title + ' | RPNow';
+            this.isNewRp = this.rp.msgs.length === 0;
 
             var es = new EventSource('/api/rp/'+this.rpCode+'/stream?lastEventId='+res.lastEventId);
 
