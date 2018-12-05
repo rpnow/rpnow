@@ -1,18 +1,7 @@
-const express = require('express');
 const logger = require('./services/logger');
 const config = require('./services/config');
 const { getMyIpAddresses } = require('./services/get-my-ip-addresses');
-const apiRoutes = require('./routes/api');
-const clientRoutes = require('./routes/serve-client');
-
-const app = express();
-
-app.use('/api', apiRoutes);
-app.use('/', clientRoutes);
-
-if (config.trustProxy) {
-    app.enable('trust proxy');
-}
+const app = require('./app');
 
 app.listen(config.port, (err) => {
     if (err) {

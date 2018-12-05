@@ -1,18 +1,15 @@
+const test = require('ava');
 const { generateAnonCredentials, verifyAnonCredentials } = require('./anon-credentials');
 
-describe('challenges', () => {
-    it('will verify', async (done) => {
-        const { secret, hash } = await generateAnonCredentials();
-        const result = verifyAnonCredentials(secret, hash);
-        expect(result).toBe(true);
-        done();
-    });
+test('will verify', async t => {
+    const { secret, secretHash } = await generateAnonCredentials();
+    const result = verifyAnonCredentials(secret, secretHash);
+    t.is(result, true);
+});
 
-    it('will reject invalid', async (done) => {
-        const { secret } = await generateAnonCredentials(); // separate
-        const { hash } = await generateAnonCredentials(); // separate
-        const result = verifyAnonCredentials(secret, hash);
-        expect(result).toBe(false);
-        done();
-    });
+test('will reject invalid', async t => {
+    const { secret } = await generateAnonCredentials(); // separate
+    const { secretHash } = await generateAnonCredentials() // separate
+    const result = verifyAnonCredentials(secret, secretHash);
+    t.is(result, false);
 });
