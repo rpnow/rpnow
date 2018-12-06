@@ -95,7 +95,7 @@ td {
   bottom: 0;
   right: 0;
   left: 0;
-  z-index: 599;
+  z-index: 4;
 }
 
 
@@ -377,7 +377,7 @@ header #title-links a {
   font-size: 12px;
   letter-spacing: 1px;
   word-spacing: 1px;
-  z-index: 100;
+  z-index: 1;
   box-shadow: 0 1px 2px #555;
 }
 #messages > .message-chara > .content {
@@ -409,7 +409,7 @@ header #title-links a {
  *   MESSAGE STREAM INFO BOXES
  *
  **********************************************************/
-#messages > .info {
+#messages > .info-box {
   font-size: 16px;
   text-align: center;
   background-color: #E8EFFF;
@@ -417,7 +417,7 @@ header #title-links a {
   padding: 5px 10px;
   border: ridge 3px #003380;
 }
-#messages > .info ol {
+#messages > .info-box ol {
   display: inline-block;
   text-align: left;
 }
@@ -432,7 +432,7 @@ header #title-links a {
  **********************************************************/
 #message-box {
   position: fixed;
-  z-index: 200;
+  z-index: 2;
   bottom: 0;
   background-color: inherit;
   border-spacing: 10px;
@@ -566,7 +566,7 @@ header #title-links a {
 #character-menu {
   position: fixed;
   bottom: 0;
-  z-index: 300;
+  z-index: 3;
   background: inherit;
   border: dotted 1px #555;
   margin: 20px auto 0;
@@ -660,7 +660,7 @@ header #title-links a {
  **********************************************************/
 #new-character {
   border: dotted 1px #3c3c3c;
-  z-index: 600;
+  z-index: 5;
   background-color: inherit;
   position: fixed;
   top: 25px;

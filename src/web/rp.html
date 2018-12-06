@@ -17,109 +17,128 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="manifest" href="/client-files/manifest.json">
 
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/client-files/room.css">
-  <style>
-  </style>
 </head>
 <body>
   <div id="rp-chat" class="app-container">
-    <div id="loading" v-if="rp == null">
-      <i class="material-icons">hourglass_full</i>
-      Loading...
-    </div>
-
-    <template v-if="rp != null">
-      <header>
-        <h2>{{ rp.title }}</h2>
-        <p>{{ rp.desc }}</p>
-        <div id="title-links" v-if="!demo">
-          <a :href="'/rp/'+rpCode">Home</a> |
-          <a :href="'/rp/'+rpCode+'/1'">Archive</a> |
-          <a href="/">New RP</a>
-        </div>
-      </header>
-
-      <div id="messages" class="room-feed">
-        <div class="info" v-if="rp.msgs.length >= 60">
-          <p>These are the latest 60 posts.
-          To view earlier messages, check the <a href="./1">archive</a>.</p>
-        </div>
-
-        <div class="info" v-if="isNewRp">
-          <p><b>Success!</b></p>
-          <p>The RP {{ rp.title }} has been created. Just share this link with some friends, and you can all start roleplaying together, in real time!</p>
-          <a :href="linkToHere">{{ linkToHere }}</a>
-          <p>Please keep the following things in mind, however:</p>
-          <ol>
-            <li><b>Don't lose the link to this room!</b> If you can't find it, you won't be able to find this room again!</li>
-            <li>Anyone with a link to this room can play here. <b>Be careful who you share it with!</b></li>
-            <li><b>Don't post any sensitive information here!</b> In the event of a database breach, we would not want anything confidential to be lost.</li>
-            <li>RPNow is currently under development, so there's a small chance your stories could be unexpectedly lost &mdash; so, just in case, you can download a copy of the entire RP by clicking the <b>Export</b> link up top.</li>
-          </ol>
-          <p>Have fun!</p>
-        </div>
-
-        <template v-for="msg of rp.msgs">
-          <rp-message v-bind="msg"></rp-message>
-        </template>
+    <v-app>
+      <div id="loading" v-if="rp == null">
+        <i class="material-icons">hourglass_full</i>
+        Loading...
       </div>
-    
-      <div id="character-menu" v-show="showCharacterMenu">
-        <h3>Characters</h3>
-        <ul id="special-characters">
-          <li id="narrator-button">
-            <a href="#" @click.prevent="selectCharacter('narrator')">Narrator</a>
-          </li>
-          <li id="ooc-button">
-            <a href="#" @click.prevent="selectCharacter('ooc')">Out of Character</a>
-          </li>
-        </ul>
-        <ul id="normal-characters">
-          <li v-for="chara of rp.charas" key="chara._id">
-            <a href="#" @click.prevent="selectCharacter('chara', chara._id)" :style="{'background-color':chara.color}">{{ chara.name }}</a>
-          </li>
-        </ul>
-        <button type="button" id="new-character-button" @click="openCharacterDialog">New Character...</button>
-      </div>
-    
-      <form id="new-character" class="form-box" autocomplete="off" v-show="showCharacterDialog">
-        <h3>New Character</h3>
-        <div class="input-section">
-          <div class="input-name">Name</div>
-          <div class="input-container"><input type="text" name="name" maxlength="30" v-model="charaDialogName"></div>
-        </div>
-        <div class="input-section">
-          <div class="input-name">Color</div>
-          <div class="input-container"><input type="color" name="color" v-model="charaDialogColor"></div>
-        </div>
-        <button type="button" @click="sendChara">Add</button>
-        <button type="button" @click="closeCharacterDialog">Cancel</button>
-      </form>
-    
-      <div id="message-box" :class="messageBoxClass" :style="messageBoxStyle" autocomplete="off" v-show="!showCharacterMenu">
-        <div id="format-bar">
-          <div id="message-voice">{{ currentVoiceName }}</div>
-          <button type="button" id="change-character" class="btn-margin" @click="openCharacterMenu"><span>Change...</span></button>
-          <a type="button" id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
-        </div>
-        <div id="message-bar">
-          <div id="message-text">
-            <textarea v-model="msgBoxText" @keydown.enter.prevent="sendMessage"></textarea>
+
+      <template v-if="rp != null">
+        <v-toolbar app flat>
+          <v-toolbar-side-icon @click.stop="mainMenuOpen = !mainMenuOpen"></v-toolbar-side-icon>
+          <v-spacer></v-spacer>
+          <v-toolbar-title>{{ rp.title }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+
+        <v-navigation-drawer app floating temporary v-model="mainMenuOpen">
+          <v-toolbar flat>
+            <v-toolbar-title>RPNow</v-toolbar-title>
+          </v-toolbar>
+          <v-divider></v-divider>
+        </v-navigation-drawer>
+
+        <v-content>
+        <!-- <header>
+          <h2>{{ rp.title }}</h2>
+          <p>{{ rp.desc }}</p>
+          <div id="title-links" v-if="!demo">
+            <a :href="'/rp/'+rpCode">Home</a> |
+            <a :href="'/rp/'+rpCode+'/1'">Archive</a> |
+            <a href="/">New RP</a>
           </div>
-          <div id="message-button-container">
-            <button type="button" id="send-button" @click="sendMessage">Send</button>
+        </header> -->
+
+        <div id="messages" class="room-feed">
+          <div class="info-box" v-if="rp.msgs.length >= 60">
+            <p>These are the latest 60 posts.
+            To view earlier messages, check the <a href="./1">archive</a>.</p>
+          </div>
+
+          <div class="info-box" v-if="isNewRp">
+            <p><b>Success!</b></p>
+            <p>The RP {{ rp.title }} has been created. Just share this link with some friends, and you can all start roleplaying together, in real time!</p>
+            <a :href="linkToHere">{{ linkToHere }}</a>
+            <p>Please keep the following things in mind, however:</p>
+            <ol>
+              <li><b>Don't lose the link to this room!</b> If you can't find it, you won't be able to find this room again!</li>
+              <li>Anyone with a link to this room can play here. <b>Be careful who you share it with!</b></li>
+              <li><b>Don't post any sensitive information here!</b> In the event of a database breach, we would not want anything confidential to be lost.</li>
+              <li>RPNow is currently under development, so there's a small chance your stories could be unexpectedly lost &mdash; so, just in case, you can download a copy of the entire RP by clicking the <b>Export</b> link up top.</li>
+            </ol>
+            <p>Have fun!</p>
+          </div>
+
+          <template v-for="msg of rp.msgs">
+            <rp-message v-bind="msg"></rp-message>
+          </template>
+        </div>
+      
+        <div id="character-menu" v-show="showCharacterMenu">
+          <h3>Characters</h3>
+          <ul id="special-characters">
+            <li id="narrator-button">
+              <a href="#" @click.prevent="selectCharacter('narrator')">Narrator</a>
+            </li>
+            <li id="ooc-button">
+              <a href="#" @click.prevent="selectCharacter('ooc')">Out of Character</a>
+            </li>
+          </ul>
+          <ul id="normal-characters">
+            <li v-for="chara of rp.charas" key="chara._id">
+              <a href="#" @click.prevent="selectCharacter('chara', chara._id)" :style="{'background-color':chara.color}">{{ chara.name }}</a>
+            </li>
+          </ul>
+          <button type="button" id="new-character-button" @click="openCharacterDialog">New Character...</button>
+        </div>
+      
+        <form id="new-character" class="form-box" autocomplete="off" v-show="showCharacterDialog">
+          <h3>New Character</h3>
+          <div class="input-section">
+            <div class="input-name">Name</div>
+            <div class="input-container"><input type="text" name="name" maxlength="30" v-model="charaDialogName"></div>
+          </div>
+          <div class="input-section">
+            <div class="input-name">Color</div>
+            <div class="input-container"><input type="color" name="color" v-model="charaDialogColor"></div>
+          </div>
+          <button type="button" @click="sendChara">Add</button>
+          <button type="button" @click="closeCharacterDialog">Cancel</button>
+        </form>
+      
+        <div id="message-box" :class="messageBoxClass" :style="messageBoxStyle" autocomplete="off" v-show="!showCharacterMenu">
+          <div id="format-bar">
+            <div id="message-voice">{{ currentVoiceName }}</div>
+            <button type="button" id="change-character" class="btn-margin" @click="openCharacterMenu"><span>Change...</span></button>
+            <a id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
+          </div>
+          <div id="message-bar">
+            <div id="message-text">
+              <textarea v-model="msgBoxText" @keydown.enter.prevent="sendMessage"></textarea>
+            </div>
+            <div id="message-button-container">
+              <button type="button" id="send-button" @click="sendMessage">Send</button>
+            </div>
           </div>
         </div>
-      </div>
+        </v-content>
+      </v-app>
 
       <div class="overlay" v-show="showOverlay"></div>
     </template>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/babel-polyfill@6.26.0/dist/polyfill.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 
-  <script src="https://unpkg.com/http-vue-loader"></script>
+  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js"></script>
   <script>
     new Vue({
       el: '#rp-chat',
@@ -139,6 +158,7 @@
         charaDialogColor: '#dddddd',
         showCharacterMenu: false,
         showCharacterDialog: false,
+        mainMenuOpen: false,
       },
       computed: {
         currentChara: function() {
