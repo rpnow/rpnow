@@ -10,7 +10,6 @@ const DB = require('../services/database');
 const { validate } = require('../services/validate-user-documents');
 const { generateRpCode } = require('../services/generate-rp-code');
 const { generateAnonCredentials, verifyAnonCredentials } = require('../services/anon-credentials');
-const { publish, subscribe } = require('../services/event-bus');
 const config = require('../services/config');
 const { awrap } = require('../services/express-async-handler');
 
@@ -66,38 +65,6 @@ router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
     res.status(200).json({ lastEventId, updates });
 }));
 
-router.get(`${rpGroup}/stream`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
-
-    // Server-sent event headers
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-    });
-
-    // Server-sent event keep alive
-    res.write(':\n\n');
-    let keepAliveTimer = setInterval(() => {
-        res.write(':\n\n');
-    }, 10000);
-
-    const send = ({ eventId, collection, doc }) => {
-        res.write(`id: ${eventId}\ndata: ${JSON.stringify({ type: collection, data: doc })}\n\n`);
-    };
-
-    // TODO get updates since ?lastMessageId=x, and send init message
-
-    const unsub = subscribe(rpNamespace, send);
-
-    // Stop streaming upon closing the connection
-    req.once('close', () => {
-        unsub();
-        clearInterval(keepAliveTimer);
-        res.end();
-    });
-}));
-
 router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
@@ -136,9 +103,7 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
     const ipid = getColorsForIp(req.ip);
 
-    const { eventId, doc } = await DB.addDoc(rpNamespace, collection, _id, fields, ipid);
-
-    publish(rpNamespace, { eventId, collection, doc });
+    await DB.addDoc(rpNamespace, collection, _id, fields, ipid);
 
     res.status(201).json({ _id });
 }));
@@ -151,13 +116,11 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
     const ipid = getColorsForIp(req.ip);
 
-    const { eventId, doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
-
     // TODO verify auth
     // TODO secrets were 64 chars long, challenges were 128
     // if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
 
-    publish(rpNamespace, { eventId, collection, doc });
+    await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
 
     res.sendStatus(204);
 }));
