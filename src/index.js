@@ -9,9 +9,15 @@ app.listen(config.port, (err) => {
     } else {
         logger.info('RPNow is running!');
         logger.info(`You may access it in your browser at http://localhost:${config.port}`);
-        logger.info("Other devices should navigate to this computer's network IP, which is probably one of the following:")
         const addresses = getMyIpAddresses().map(ip => `http://${ip}:${config.port}`);
-        logger.info(...addresses);
+        if (addresses.length === 0) {
+            logger.info("(We could not determine what address it is available at for other computers.)");
+        } else if(addresses.length === 1) {
+            logger.info(`Other devices should navigate to this computer's local network IP, which is probably: ${addresses[0]}`);
+        } else {
+            logger.info("Other devices should navigate to this computer's local network IP, which is probably one of the following:")
+            addresses.forEach(address => logger.info(address));
+        }
         logger.info('Have fun!');
     }
 });
