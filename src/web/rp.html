@@ -187,6 +187,26 @@
         },
       },
       methods: {
+        fetchUpdates: function() {
+          var scheduleNextUpdate = (function() {
+            setTimeout(this.fetchUpdates.bind(this), 5000);
+          }).bind(this);
+
+          axios.get('/api/rp/' + this.rpCode + '/updates?since=' + this.rp.lastEventId)
+            .then((function(res) {
+              this.rp.lastEventId = res.data.lastEventId;
+
+              res.data.updates.forEach((function(update) {
+                this.updateState(update);
+              }).bind(this));
+
+              scheduleNextUpdate();
+            }).bind(this))
+            .catch((function(err) {
+              console.error(err);
+              scheduleNextUpdate();
+            }).bind(this))
+        },
         updateState: function(update) {
           var arr = this.rp[update.type];
 
@@ -247,13 +267,7 @@
             document.title = this.rp.title + ' | RPNow';
             this.isNewRp = this.rp.msgs.length === 0;
 
-            var es = new EventSource('/api/rp/'+this.rpCode+'/stream?lastEventId='+res.lastEventId);
-
-            es.addEventListener('open', function () { console.log('open'); });
-            es.addEventListener('error', function () { console.log('error'); });
-            es.addEventListener('message', (function(event) {
-              this.updateState(JSON.parse(event.data));
-            }).bind(this));
+            this.fetchUpdates();
           }).bind(this));
       },
     })

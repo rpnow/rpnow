@@ -29,11 +29,16 @@ const connected = (async function connect() {
     }
 }());
 
-const formatQueryResult = (x) => {
-    const { event_id, namespace, collection, body, auth_hash, ...meta } = x;
+function formatQueryResult (x, options = {}) {
+    const { event_id, namespace, collection, auth_hash, body, ...docInfo } = x;
     const deleted = (body == null);
-    return { ...JSON.parse(body), ...meta, deleted };
-};
+    const doc = { ...JSON.parse(body), ...docInfo, deleted };
+    if (options.includeMeta) {
+        const _meta = { event_id, namespace, collection, auth_hash };
+        return { ...doc, _meta };
+    }
+    else return doc;
+}
 
 module.exports = {
     async addDoc(namespace, collection, _id, body, ip) {
@@ -59,7 +64,7 @@ module.exports = {
         return { eventId, doc: formatQueryResult(doc) };
     },
 
-    getDocs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse } = {}) {
+    getDocs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse, includeMeta } = {}) {
         let q = knex('docs').where('docs.namespace', namespace)
 
         if (collection != null) {
@@ -105,17 +110,17 @@ module.exports = {
                 await connected;
                 const result = await q.first();
                 if (!result) throw new Error(`Unable to find document. (collection:${collection}, _id:${_id})`)
-                return formatQueryResult(result);
+                return formatQueryResult(result, { includeMeta });
             },
             async asArray() {
                 await connected;
                 const res = await q;
-                return res.map(formatQueryResult);
+                return res.map(row => formatQueryResult(row, { includeMeta }));
             },
             async asMap() {
                 await connected;
                 const res = await q;
-                return res.map(formatQueryResult)
+                return res.map(row => formatQueryResult(row, { includeMeta }))
                     .reduce((map, x) => map.set(x._id, x), new Map());
             },
             async count() {

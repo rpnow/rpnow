@@ -52,6 +52,20 @@ router.get(`${rpGroup}`, awrap(async (req, res, next) => {
     res.status(200).json({ title, desc, msgs, charas, lastEventId })
 }));
 
+router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
+
+    const { since } = req.query;
+    if (!since) throw new Error('Missing since');
+
+    const docs = await DB.getDocs(rpNamespace, null, { since, includeMeta: true }).asArray();
+
+    const updates = docs.map(({ _meta, ...doc }) => ({ data: doc, type: _meta.collection }));
+    const lastEventId = Math.max(since, ...docs.map(({ _meta }) => _meta.event_id));
+
+    res.status(200).json({ lastEventId, updates });
+}));
+
 router.get(`${rpGroup}/stream`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
