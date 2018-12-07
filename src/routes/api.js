@@ -103,9 +103,9 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
     const ipid = getColorsForIp(req.ip);
 
-    await DB.addDoc(rpNamespace, collection, _id, fields, ipid);
+    const { doc } = await DB.addDoc(rpNamespace, collection, _id, fields, ipid);
 
-    res.status(201).json({ _id });
+    res.status(201).json(doc);
 }));
 
 router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req, res, next) => {
@@ -120,9 +120,9 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
     // TODO secrets were 64 chars long, challenges were 128
     // if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
 
-    await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
+    const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
 
-    res.sendStatus(204);
+    res.sendStatus(200).json(doc);
 }));
 
 router.all('*', (req, res, next) => {
