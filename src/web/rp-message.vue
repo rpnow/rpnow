@@ -15,16 +15,16 @@
 
     <div v-if="canEdit && !sending" class="action-buttons">
       <template v-if="!editing">
-        <button mat-icon-button @click="beginEdit">
-          <mat-icon aria-label="Edit post" matTooltip="Edit post">edit</mat-icon>
+        <button class="icon-button" @click="beginEdit">
+          <i class="material-icons" title="Edit">edit</i>
         </button>
       </template>
       <template v-if="editing">
-        <button mat-icon-button :disabled="!validEdit" @click="confirmEdit">
-          <mat-icon aria-label="Save edits" matTooltip="Save edits">save</mat-icon>
+        <button class="icon-button" :disabled="!validEdit" @click="confirmEdit">
+          <i class="material-icons" title="Save edits">save</i>
         </button>
-        <button mat-icon-button @click="cancelEdit">
-          <mat-icon aria-label="Discard edits" matTooltip="Discard edits">cancel</mat-icon>
+        <button class="icon-button" @click="cancelEdit">
+          <i class="material-icons" title="Discard edits">cancel</i>
         </button>
       </template>
     </div>
@@ -59,29 +59,19 @@
       'url',
       'timestamp',
       'revision',
-      // 'ipid',
+      'ipid',
 
-      // 'charaName',
-      // 'charaColor',
+      'chara',
 
-      // 'canEdit',
-      // 'pressEnterToSend',
-      // 'showMessageDetails'
+      'canEdit',
+      'pressEnterToSend',
+      'showMessageDetails'
     ],
     data: function() {
       return {
         editing: false,
         newContent: '',
         sending: false,
-
-        ipid: '',
-
-        charaName: 'Bro',
-        charaColor: '#aceb0b',
-
-        canEdit: true,
-        pressEnterToSend: true,
-        showMessageDetails: true
       }
     },
     computed: {
@@ -89,6 +79,8 @@
       isOOC: function() { return this.type === 'ooc' },
       isChara: function() { return this.type === 'chara' },
       isImage: function() { return this.type === 'image' },
+      charaColor: function() { return this.isChara ? this.chara.color : null },
+      charaName: function() { return this.isChara ? this.chara.name : null },
       elementClasses: function() {
         return [
           'message',
@@ -157,6 +149,7 @@
     width: 100%;
     box-sizing: border-box;
     resize: vertical;
+    border: solid 1px rgba(0,0,0,0.35);
   }
   .message mat-spinner {
     position: absolute;
@@ -182,10 +175,16 @@
     right: 8px;
     z-index: 1;
   }
-  .message .action-buttons button {
+  .message .icon-button {
+    padding: 0;
     margin: -9px 0 0 -8px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
   }
-  .message mat-icon {
+  .message .icon-button i.material-icons {
+    vertical-align: middle;
     color: inherit !important;
     opacity: 0.66;
   }

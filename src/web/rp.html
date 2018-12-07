@@ -75,7 +75,19 @@
           </div>
 
           <template v-for="msg of rp.msgs">
-            <rp-message v-bind="msg"></rp-message>
+            <rp-message
+              :key="msg._id"
+              :type="msg.type"
+              :content="msg.content"
+              :url="msg.url"
+              :timestamp="msg.timestamp"
+              :revision="msg.revision"
+              :ipid="msg.ip"
+              :chara="charasById[msg.charaId]"
+              :can-edit="true"
+              :press-enter-to-send="true"
+              :show-message-details="true"
+            ></rp-message>
           </template>
         </div>
       
@@ -161,10 +173,15 @@
         mainMenuOpen: false,
       },
       computed: {
+        charasById: function() {
+          return this.rp.charas.reduce(function(map, chara) {
+            map[chara._id] = chara;
+            return map;
+          }, {});
+        },
         currentChara: function() {
           if (this.currentMsgType !== 'chara') return undefined;
-          var currentCharaId = this.currentCharaId;
-          return this.rp.charas.filter(function(chara) { return chara._id === currentCharaId })[0];
+          return this.charasById[this.currentCharaId]
         },
         currentVoiceName: function() {
           if (this.currentMsgType === 'narrator') return 'Narrator';
