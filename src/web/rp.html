@@ -238,13 +238,19 @@
 
           this.rp[update.type] = arr;
         },
+        postUpdate: function(type, body) {
+          return axios.post('/api/rp/' + this.rpCode + '/' + type, body)
+            .then((function(res) {
+              this.updateState({ type: type, data: res.data });
+            }).bind(this));
+        },
         sendMessage: function() {
           var data = {
             content: this.msgBoxText,
             type: this.currentMsgType,
             charaId: this.currentCharaId || undefined,
           };
-          axios.post('/api/rp/' + this.rpCode + '/msgs', data)
+          this.postUpdate('msgs', data)
             .then((function() {
               this.msgBoxText = '';
             }).bind(this));
@@ -254,7 +260,7 @@
             name: this.charaDialogName,
             color: this.charaDialogColor,
           };
-          axios.post('/api/rp/' + this.rpCode + '/charas', data)
+          this.postUpdate('charas', data)
             .then((function(res) {
               this.charaDialogName = '';
               this.showCharacterDialog = false;
