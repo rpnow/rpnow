@@ -197,6 +197,49 @@
       justify-content: center;
       align-content: center;
     }
+    .overlay {
+      position: fixed;
+      background-color: rgba(0,0,0, 0.5);
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      z-index: 4;
+    }
+    #character-menu {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 320px;
+      max-width: 80%;
+      z-index: 5;
+      background-color: #fafafa;
+      transition: width .4s cubic-bezier(.25,.8,.25,1);
+    }
+    #character-menu button {
+      width: 100%;
+      height: 48px;
+      line-height: 48px;
+      padding: 0 16px;
+      font-size: 16px;
+      background: none;
+      text-align: left;
+      border: none;
+      border-bottom: solid 1px rgba(0,0,0,0.25);
+      cursor: pointer;
+    }
+    #new-character {
+      z-index: 5;
+      background-color: #fafafa;
+      position: fixed;
+      top: 25px;
+      left: 5px;
+      right: 5px;
+      margin: auto;
+      max-width: 350px;
+      padding: 0 25px;
+    }
   </style>
 </head>
 <body>
@@ -273,40 +316,6 @@
         </template>
       </div>
     
-      <!--
-      <div id="character-menu" v-show="showCharacterMenu">
-        <h3>Characters</h3>
-        <ul id="special-characters">
-          <li id="narrator-button">
-            <a href="#" @click.prevent="selectCharacter('narrator')">Narrator</a>
-          </li>
-          <li id="ooc-button">
-            <a href="#" @click.prevent="selectCharacter('ooc')">Out of Character</a>
-          </li>
-        </ul>
-        <ul id="normal-characters">
-          <li v-for="chara of rp.charas" key="chara._id">
-            <a href="#" @click.prevent="selectCharacter('chara', chara._id)" :style="{'background-color':chara.color}">{{ chara.name }}</a>
-          </li>
-        </ul>
-        <button type="button" id="new-character-button" @click="openCharacterDialog">New Character...</button>
-      </div>
-    
-      <form id="new-character" class="form-box" autocomplete="off" v-show="showCharacterDialog">
-        <h3>New Character</h3>
-        <div class="input-section">
-          <div class="input-name">Name</div>
-          <div class="input-container"><input type="text" name="name" maxlength="30" v-model="charaDialogName"></div>
-        </div>
-        <div class="input-section">
-          <div class="input-name">Color</div>
-          <div class="input-container"><input type="color" name="color" v-model="charaDialogColor"></div>
-        </div>
-        <button type="button" @click="sendChara">Add</button>
-        <button type="button" @click="closeCharacterDialog">Cancel</button>
-      </form>
--->
-    
       <div id="send-box" :class="messageBoxClass" :style="messageBoxStyle">
 
         <div id="voice-bar">
@@ -347,9 +356,37 @@
         </div>
 
       </div>
+
+      <div class="overlay" v-show="showOverlay" @click="clickOverlay"></div>
+
+      <div id="character-menu" v-show="showCharacterMenu">
+        <header>Characters</header>
+        <button @click="selectCharacter('narrator')">
+          Narrator
+        </button>
+        <button @click="selectCharacter('ooc')">
+          Out of Character
+        </button>
+        <button type="button" id="new-character-button" @click="openCharacterDialog">
+          New Character...
+        </button>
+        <template v-for="chara of rp.charas" key="chara._id">
+          <button @click="selectCharacter('chara', chara._id)" :style="{'background-color':chara.color}">
+            {{ chara.name }}
+          </button>
+        </template>
+      </div>
+    
+      <div id="new-character" v-show="showCharacterDialog">
+        <h3>New Character</h3>
+        <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
+        <input type="color" v-model="charaDialogColor">
+        <button type="button" @click="sendChara">Add</button>
+        <button type="button" @click="closeCharacterDialog">Cancel</button>
+      </div>
+    
     </template>
 
-    <div class="overlay" v-show="showOverlay"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
@@ -406,7 +443,7 @@
           else return { 'background-color': this.currentCharaColor };
         },
         showOverlay: function() {
-          return this.showCharacterDialog;
+          return this.showCharacterMenu || this.showCharacterDialog;
         },
         isMsgBoxSending: function() {
           return false;
@@ -498,6 +535,13 @@
         },
         showFormatGuide: function() {
           window.open('/format', '_blank').focus();
+        },
+        clickOverlay: function() {
+          if (this.showCharacterDialog) {
+            this.showCharacterDialog = false;
+          } else if (this.showCharacterMenu) {
+            this.showCharacterMenu = false;
+          }
         }
       },
       created: function() {
