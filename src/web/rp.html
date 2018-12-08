@@ -19,6 +19,158 @@
 
   <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
   <!-- <link rel="stylesheet" href="/client-files/room.css"> -->
+
+  <style>
+    #send-box {
+      display: flex;
+      flex-direction: column;
+      
+      z-index: 3;
+
+      border-color: rgba(0,0,0,0.15);
+    }
+    /* :host-context(.dark-theme) #send-box {
+      border-color: rgba(255,255,255,0.4);
+    } */
+
+    @media (max-width: 719px) {
+      #send-box {
+        border-top-width: 1px;
+        border-top-style: solid;
+      }
+      #send-box > * {
+        padding-left: 8px;
+      }
+    }
+    @media (min-width: 720px) {
+      #send-box {
+        max-width: 700px;
+        margin: auto;
+
+        border-width: 1px;
+        border-style: solid;
+
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+      #send-box > * {
+        padding: 0 50px;
+      }
+    }
+
+    #send-box.send-box-narrator {
+      background-color: #ffffff;
+    }
+    /* :host-context(.dark-theme) &.send-box-narrator {
+      background-color: #444444;
+    } */
+    #send-box.send-box-ooc {
+      background-color: #fafafa;
+    }
+    /* :host-context(.dark-theme) &.send-box-ooc {
+      background-color: #303030;
+    } */
+
+    #send-box #voice-bar { 
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      max-height: 100%;
+
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+
+      border-bottom-color: rgba(0,0,0,0.15);
+
+      height: 48px;
+
+      font-size: 120%;
+    }
+
+    /* #send-box #voice-bar {
+      :host-context(.dark-theme) & {
+        border-bottom-color: rgba(255,255,255,0.4);
+      }
+    } */
+
+    #send-box #click-to-change {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      height: 100%;
+      transition: background-color .4s cubic-bezier(.25,.8,.25,1);
+      cursor: pointer;
+    }
+
+    #send-box #click-to-change:hover {
+      background-color: rgba(128,128,128,.3);
+    }
+
+    #send-box #voice-bar > .mat-mini-fab {
+      background-color: inherit !important;
+      color: inherit !important;
+    }
+
+    #send-box #typing-area {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      max-height: 100%;
+
+      background-color: rgba(255,255,255,0.8);
+      color: black;
+    }
+
+    #send-box #typing-area textarea {
+      flex: 1;
+      margin: 0;
+      padding: 8px 0;
+      border: none;
+      background: transparent;
+      color: inherit;
+      resize: none;
+      max-height: calc(30vh - 50px);
+    }
+
+    /* :host-context(.dark-theme) & #typing-area {
+      background-color: rgba(0,0,0,0.8);
+      color: white;
+    } */
+
+    #send-loader-container {
+      width: 40px;
+      height: 40px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /***** MISC STYLES *****/
+
+    .icon-button {
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      transition: background-color .4s cubic-bezier(.25,.8,.25,1);
+      outline: none;
+    }
+    .icon-button:active {
+      background-color: rgba(128,128,128,.3);
+    }
+    .icon-button i.material-icons {
+      vertical-align: middle;
+      color: inherit !important;
+    }
+    .icon-button:disabled {
+      opacity: 0.26;
+    }
+  </style>
 </head>
 <body>
   <div id="rp-chat" class="app-container">
@@ -85,7 +237,7 @@
               :ipid="msg.ip"
               :chara="charasById[msg.charaId]"
               :can-edit="true"
-              :press-enter-to-send="true"
+              :press-enter-to-send="pressEnterToSend"
               :show-message-details="true"
             ></rp-message>
           </template>
@@ -123,20 +275,53 @@
           <button type="button" @click="closeCharacterDialog">Cancel</button>
         </form>
       
-        <div id="message-box" :class="messageBoxClass" :style="messageBoxStyle" autocomplete="off" v-show="!showCharacterMenu">
-          <div id="format-bar">
-            <div id="message-voice">{{ currentVoiceName }}</div>
-            <button type="button" id="change-character" class="btn-margin" @click="openCharacterMenu"><span>Change...</span></button>
-            <a id="show-format-guide" class="btn-margin" href="/format" target="_blank"><span>?</span></a>
-          </div>
-          <div id="message-bar">
-            <div id="message-text">
-              <textarea v-model="msgBoxText" @keydown.enter.prevent="sendMessage"></textarea>
+        <div id="send-box" :class="messageBoxClass" :style="messageBoxStyle">
+          <div id="voice-bar">
+
+            <div id="click-to-change" title="Change character" @click="openCharacterMenu">
+              {{ currentVoiceName }}
             </div>
-            <div id="message-button-container">
-              <button type="button" id="send-button" @click="sendMessage">Send</button>
-            </div>
+
+            <button class="icon-button" @click="openCharacterMenu">
+              <i class="material-icons" title="Change character">people</i>
+            </button>
+
+            <button class="icon-button" @click="showImageDialog">
+              <i class="material-icons" title="Post image">image</i>
+            </button>
+
+            <button class="icon-button" @click="showFormatGuide">
+              <i class="material-icons" title="Formatting info">text_fields</i>
+            </button>
+
           </div>
+
+          <div id="typing-area">
+
+            <textarea
+              rows="3"
+              placeholder="Type your message."
+              maxlength="10000"
+              :disabled="isMsgBoxSending"
+              v-model="msgBoxText"
+              @keydown.enter.ctrl.exact.prevent="sendMessage"
+              @keydown.enter.exact.prevent="pressEnterToSend && sendMessage()"
+            ></textarea>
+
+            <template v-if="!isMsgBoxSending">
+              <button class="icon-button" :disabled="!msgBoxValid" @click="sendMessage">
+                <i class="material-icons" title="Send">send</i>
+              </button>
+            </template>
+
+            <template v-if="isMsgBoxSending">
+              <div id="send-loader-container">
+                <mat-spinner diameter="24"></mat-spinner>
+              </div>
+            </template>
+
+          </div>
+
         </div>
         </v-content>
       </v-app>
@@ -171,6 +356,7 @@
         showCharacterMenu: false,
         showCharacterDialog: false,
         mainMenuOpen: false,
+        pressEnterToSend: true,
       },
       computed: {
         charasById: function() {
@@ -202,6 +388,12 @@
         showOverlay: function() {
           return this.showCharacterDialog;
         },
+        isMsgBoxSending: function() {
+          return false;
+        },
+        msgBoxValid: function() {
+          return this.msgBoxText.trim().length > 0;
+        }
       },
       methods: {
         fetchUpdates: function() {
@@ -280,6 +472,12 @@
           this.currentMsgType = type;
           this.currentCharaId = (type === 'chara') ? charaId : null;
           this.showCharacterMenu = false;
+        },
+        showImageDialog: function() {
+          // TODO
+        },
+        showFormatGuide: function() {
+          window.open('/format', '_blank').focus();
         }
       },
       created: function() {

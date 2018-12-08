@@ -176,16 +176,9 @@
     z-index: 1;
   }
   .message .icon-button {
-    padding: 0;
     margin: -9px 0 0 -8px;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    border-radius: 50%;
   }
   .message .icon-button i.material-icons {
-    vertical-align: middle;
-    color: inherit !important;
     opacity: 0.66;
   }
 
