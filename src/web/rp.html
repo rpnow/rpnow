@@ -272,6 +272,7 @@
           return axios.post('/api/rp/' + this.rpCode + '/' + type, body)
             .then((function(res) {
               this.updateState({ type: type, data: res.data });
+              return res.data;
             }).bind(this));
         },
         sendMessage: function() {
@@ -291,16 +292,17 @@
             color: this.charaDialogColor,
           };
           this.postUpdate('charas', data)
-            .then((function(res) {
+            .then((function(data) {
               this.charaDialogName = '';
               this.showCharacterDialog = false;
-              this.selectCharacter('chara', res.data._id);
+              this.selectCharacter('chara', data._id);
             }).bind(this));
         },
         putUpdate: function(_id, type, body) {
           return axios.put('/api/rp/' + this.rpCode + '/' + type + '/' + _id, body)
             .then((function(res) {
               this.updateState({ type: type, data: res.data });
+              return res.data;
             }).bind(this));
         },
         editMessage: function(_id, body) {
