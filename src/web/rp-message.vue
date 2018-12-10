@@ -8,7 +8,10 @@
         <mat-spinner diameter="16"></mat-spinner>
       </template>
       <template v-if="!sending">
-        <rpn-timestamp class="timestamp" :timestamp="timestamp" :revision="revision"></rpn-timestamp>
+        <div class="timestamp" :title="timeAgoTitleText">
+          <template v-if="wasEdited">Edited:</template>
+          {{ timeAgoText }}
+        </div>
         <rpn-ipid :style="{visibility:ipidVisibility}" :ipid="ipid"></rpn-ipid>
       </template>
     </div>
@@ -72,6 +75,8 @@
         editing: false,
         newContent: '',
         sending: false,
+        currentTime: Date.now(),
+        intervalHandle: null,
       }
     },
     computed: {
@@ -103,6 +108,35 @@
       },
       charaColorBw: function() {
         return 'black';
+      },
+      wasEdited: function() {
+        return this.revision > 0;
+      },
+      timeAgoText: function() {
+        // close enough
+        var periods = [
+          {label: 's', div: 60},
+          {label: 'm', div: 60},
+          {label: 'h', div: 24},
+          {label: 'd', div: 30},
+          {label: 'mo', div: 12},
+          {label: 'y', div: Infinity},
+        ];
+
+        var t = (this.currentTime - new Date(this.timestamp).getTime()) / 1000;
+
+        while (Math.round(t) >= periods[0].div) t /= periods.shift().div;
+
+        var label = periods[0].label;
+
+        if (Math.round(t) <= 0) return 'now';
+        else return Math.round(t) + label + ' ago';
+      },
+      timeAgoTitleText: function() {
+        if (!this.timestamp) return '';
+        else return (this.wasEdited) ?
+          'Edited ' + new Date(this.timestamp).toLocaleString() :
+          'Posted ' + new Date(this.timestamp).toLocaleString();
       }
     },
     methods: {
@@ -129,6 +163,14 @@
       onImageLoaded: function() {
         this.$emit('imageLoaded');
       }
+    },
+    created: function() {
+      this.intervalHandle = setInterval((function() {
+        this.currentTime = Date.now();
+      }).bind(this), 15*1000);
+    },
+    beforeDestroy: function() {
+      clearInterval(this.intervalHandle);
     }
   }
 </script>
