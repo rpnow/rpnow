@@ -69,6 +69,7 @@
             :can-edit="true"
             :press-enter-to-send="pressEnterToSend"
             :show-message-details="true"
+            @edit="editMessage(msg._id, $event)"
           ></rp-message>
         </template>
       </div>
@@ -295,6 +296,15 @@
               this.showCharacterDialog = false;
               this.selectCharacter('chara', res.data._id);
             }).bind(this));
+        },
+        putUpdate: function(_id, type, body) {
+          return axios.put('/api/rp/' + this.rpCode + '/' + type + '/' + _id, body)
+            .then((function(res) {
+              this.updateState({ type: type, data: res.data });
+            }).bind(this));
+        },
+        editMessage: function(_id, body) {
+          this.putUpdate(_id, 'msgs', body);
         },
         openCharacterMenu: function() {
           this.showCharacterMenu = true;

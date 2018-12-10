@@ -122,7 +122,7 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
 
     const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
 
-    res.sendStatus(200).json(doc);
+    res.status(200).json(doc);
 }));
 
 router.all('*', (req, res, next) => {

@@ -119,7 +119,12 @@
       },
       confirmEdit: function() {
         this.editing = false;
-        this.$emit('editContent', this.newContent);
+        var messageData = {
+          type: this.type,
+          charaId: this.chara && this.chara._id || undefined,
+          content: this.newContent,
+        }
+        this.$emit('edit', messageData);
       },
       onImageLoaded: function() {
         this.$emit('imageLoaded');
