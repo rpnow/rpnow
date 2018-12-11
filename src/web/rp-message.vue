@@ -12,7 +12,9 @@
           <template v-if="wasEdited">Edited:</template>
           {{ timeAgoText }}
         </div>
-        <rpn-ipid :style="{visibility:ipidVisibility}" :ipid="ipid"></rpn-ipid>
+        <span class="color-ip-box" title="Anonymous user ID" :style="{visibility:ipidVisibility}">
+          <span class="color-ip-box-section" v-for="color of ipidColors" :style="{backgroundColor:color}" :key="color"></span>
+        </span>
       </template>
     </div>
 
@@ -94,11 +96,12 @@
         ];
       },
       ipidVisibility: function() {
-        if (this.ipid && !this.canEdit) {
-          return 'visible';
-        } else {
-          return 'hidden';
-        }
+        return (this.ipid && !this.editing) ? 'visible' : 'hidden';
+      },
+      ipidColors: function() {
+        if (!this.ipid) return ['#000','#000','#000'];
+        return this.ipid.match(/[0-9a-f]{6}/gi)
+          .map(function(hex) { return '#' + hex });
       },
       validEdit: function() {
         return this.newContent.trim() && this.newContent !== this.content;
@@ -130,7 +133,7 @@
         var label = periods[0].label;
 
         if (Math.round(t) <= 0) return 'now';
-        else return Math.round(t) + label + ' ago';
+        else return Math.round(t) + label;
       },
       timeAgoTitleText: function() {
         if (!this.timestamp) return '';
@@ -207,7 +210,9 @@
   .message .message-details {
     position: absolute;
     top: 1px;
-    right: 14px;
+    right: 48px;
+    display: flex;
+    align-items: center;
   }
   .message .message-details * {
     z-index: 1;
@@ -218,6 +223,7 @@
   }
   .message .action-buttons {
     position: absolute;
+    display: flex;
     top: 0;
     right: 8px;
     z-index: 1;
@@ -250,6 +256,7 @@
     float: right;
     border-bottom: 1px dotted rgba(128,128,128,0.3);
     padding-bottom: 3px;
+    padding-right: 36px;
     margin: 0 7px 12px 20px;
   }
   .message-ooc .content {
@@ -318,4 +325,23 @@
     max-width: 100%;
     max-height: 50vh;
   }
+  .color-ip-box {
+    display: inline-block;
+    vertical-align: middle;
+    height: 8px;
+    width: 18px;
+    border: solid 1px rgba(0,0,0,0.7);
+    position: relative;
+  }
+  .color-ip-box-section {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0;
+    margin: 0;
+    width: 6px;
+    height: 100%;
+  }
+  /* :host-context(.dark-theme) .color-ip-box {
+    border-color: rgba(255,255,255,0.7);
+  } */
 </style>
