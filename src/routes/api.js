@@ -71,14 +71,15 @@ router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, ne
     const skip = (req.params.pageNum - 1) * 20;
     const limit = 20;
 
-    const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta');
-    const msgs = await DB.getDocs(rpNamespace, 'msgs', { skip, limit }).asArray();
-    const charas = await DB.getDocs(rpNamespace, 'charas').asArray();
+    const lastEventId = await DB.lastEventId();
+    const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta', { snapshot: lastEventId });
+    const msgs = await DB.getDocs(rpNamespace, 'msgs', { skip, limit, snapshot: lastEventId }).asArray();
+    const charas = await DB.getDocs(rpNamespace, 'charas', { snapshot: lastEventId }).asArray();
 
     const msgCount = await DB.getDocs(rpNamespace, 'msgs').count();
     const pageCount = Math.ceil(msgCount / 20);
 
-    res.status(200).json({ title, desc, msgs, charas, pageCount })
+    res.status(200).json({ title, desc, msgs, charas, pageCount, lastEventId })
 }));
 
 router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {

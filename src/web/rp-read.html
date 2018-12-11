@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Loading RP | RPNow</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#fafafa">
+
+  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-16x16.png" sizes="16x16">
+  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="/client-files/assets/favicon/favicon-128x128.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alice|Playfair+Display">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="manifest" href="/client-files/manifest.json">
+
+  <link rel="stylesheet" href="/client-files/rp.css">
+</head>
+<body>
+  <div id="rp-chat">
+    <div id="loading" v-if="rp == null">
+      <i class="material-icons">hourglass_full</i>
+      <span>Loading...</span>
+    </div>
+
+    <template v-if="rp != null">
+
+      <div id="chat-header">
+        <button class="icon-button" @click="openMainMenu">
+          <i class="material-icons" title="RPNow menu">menu</i>
+        </button>
+        <span>
+          {{ rp.title }}
+        </span>
+      </div>
+
+      <div id="messages" class="room-feed">
+        <template v-for="msg of rp.msgs">
+          <rp-message
+            :key="msg._id"
+            :type="msg.type"
+            :content="msg.content"
+            :url="msg.url"
+            :timestamp="msg.timestamp"
+            :revision="msg.revision"
+            :ipid="msg.ip"
+            :chara="charasById[msg.charaId]"
+            :can-edit="false"
+            :press-enter-to-send="pressEnterToSend"
+            :show-message-details="false"
+          ></rp-message>
+        </template>
+      </div>
+
+      <div class="overlay" v-show="showOverlay" @click="clickOverlay"></div>
+
+      <div id="main-menu" class="drawer" v-show="showMainMenu">
+        <div class="drawer-header">
+          <span>RPNow</span>
+          <button class="icon-button" @click="showMainMenu=false">
+            <i class="material-icons" title="Close">close</i>
+          </button>
+        </div>
+        <div id="title-links" v-if="!demo">
+          <a :href="'/rp/'+rpCode">Home</a> |
+          <a :href="'/rp/'+rpCode+'/1'">Archive</a> |
+          <a href="/">New RP</a>
+        </div>
+      </div>
+
+    </template>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>  -->
+  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js"></script>
+  <script>
+    new Vue({
+      el: '#rp-chat',
+      components: {
+        'rp-message': httpVueLoader('/client-files/rp-message.vue'),
+      },
+      data: {
+        demo: false,
+        pageNumber: +(location.search.match(/page=(\d+)/)||[,'1'])[1],
+        rpCode: location.pathname.match(/\/read\/([^\/]+)/)[1],
+        rp: null,
+        pressEnterToSend: true,
+        showMainMenu: false,
+        isPageEmpty: false
+      },
+      computed: {
+        charasById: function() {
+          return this.rp.charas.reduce(function(map, chara) {
+            map[chara._id] = chara;
+            return map;
+          }, {});
+        },
+        showOverlay: function() {
+          return this.showMainMenu;
+        },
+      },
+      methods: {
+        fetchUpdates: function() {
+          var scheduleNextUpdate = (function() {
+            setTimeout(this.fetchUpdates.bind(this), 5000);
+          }).bind(this);
+
+          axios.get('/api/rp/' + this.rpCode + '/updates?since=' + this.rp.lastEventId)
+            .then((function(res) {
+              this.rp.lastEventId = res.data.lastEventId;
+
+              res.data.updates.forEach((function(update) {
+                this.updateState(update);
+              }).bind(this));
+
+              scheduleNextUpdate();
+            }).bind(this))
+            .catch((function(err) {
+              console.error(err);
+              scheduleNextUpdate();
+            }).bind(this))
+        },
+        updateState: function(update) {
+          if (update.type === 'msgs') {
+            var index = this.rp.msgs.map(function(msg) { return msg._id }).indexOf(update.data._id);
+
+            if (index !== -1) {
+              this.rp.msgs.splice(index, 1, update.data);
+            }
+            
+            else if (this.rp.msgs.length < 20 && update.data._id > this.rp.msgs[this.rp.msgs.length - 1]._id) {
+              this.rp.msgs.push(updata.data);
+            }
+          } else {
+            var arr = this.rp[update.type];
+
+            arr = arr.filter(function(item) { return item._id !== update.data._id });
+            arr.push(update.data);
+            arr.sort(function(a, b) { return a._id < b._id ? -1 : 1 });
+
+            this.rp[update.type] = arr;
+          }
+        },
+        clickOverlay: function() {
+          if (this.showMainMenu) {
+            this.showMainMenu = false;
+          }
+        },
+        openMainMenu: function() {
+          this.showMainMenu = true;
+        }
+      },
+      created: function() {
+        axios.get('/api/rp/' + this.rpCode + '/page/' + this.pageNumber)
+          .then((function(res) {
+            this.rp = res.data;
+
+            document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';
+            this.isPageEmpty = this.rp.msgs.length === -1;
+
+            this.fetchUpdates();
+          }).bind(this));
+      },
+    })
+  </script>
+</body>
+</html>

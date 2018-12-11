@@ -39,7 +39,7 @@
       <div id="messages" class="room-feed">
         <div class="info-box" v-if="rp.msgs.length >= 60">
           <p>These are the latest 60 posts.
-          To view earlier messages, check the <a href="./1">archive</a>.</p>
+          To view earlier messages, check the <a :href="'/read/'+rpCode+'/archive?page=1'">archive</a>.</p>
         </div>
 
         <div class="info-box" v-if="isNewRp">
@@ -126,7 +126,7 @@
         </div>
         <div id="title-links" v-if="!demo">
           <a :href="'/rp/'+rpCode">Home</a> |
-          <a :href="'/rp/'+rpCode+'/1'">Archive</a> |
+          <a :href="'/read/'+rpCode+'/page/1'">Archive</a> |
           <a href="/">New RP</a>
         </div>
       </div>
