@@ -205,6 +205,8 @@ html, body {
   z-index: 4;
 }
 .drawer {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -224,23 +226,30 @@ html, body {
 .drawer .drawer-header {
   padding: 0 16px;
   height: 64px;
+  min-height: 64px;
   line-height: 64px;
   font-size: 24px;
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
 }
 .drawer .drawer-header span:first-child {
   flex-grow: 1;
 }
+.drawer .drawer-body {
+  display: flex;
+  padding-top: 8px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  flex-direction: column;
+}
 .drawer button.drawer-item {
   width: 100%;
   height: 48px;
+  min-height: 48px;
   padding: 0 16px;
   font-size: 16px;
   background: none;
   border: none;
-  border-bottom: solid 1px rgba(0,0,0,0.25);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -250,6 +259,12 @@ html, body {
 }
 .drawer button.drawer-item i.material-icons:first-child {
   padding-right: 16px;
+}
+.drawer .drawer-divider {
+  border-top: solid 1px;
+  border-top-color: rgba(0,0,0,.12);
+  display: block;
+  margin: 0;
 }
 #new-character {
   z-index: 5;
