@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const { Router } = require('express');
 const { generateTextFile } = require('../services/txt-file');
 const { getColorsForIp } = require('../services/get-colors-for-ip');
 const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
@@ -13,13 +12,14 @@ const { generateAnonCredentials, verifyAnonCredentials } = require('../services/
 const config = require('../services/config');
 const { awrap } = require('../services/express-async-handler');
 
-const router = Router();
-router.use(express.json());
-router.use(express.urlencoded({ extended: true }));
-if (config.cors) router.use(cors());
-router.use(xRobotsTag);
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(xRobotsTag);
+if (config.cors) app.use(cors());
+if (config.trustProxy) app.enable('trust proxy');
 
-router.post('/rp.json', awrap(async (req, res, next) => {
+app.post('/rp.json', awrap(async (req, res, next) => {
     const rpCode = generateRpCode();
     const namespace = 'rp_' + cuid();
     const fields = req.body;
@@ -32,14 +32,14 @@ router.post('/rp.json', awrap(async (req, res, next) => {
     res.status(201).json({ rpCode });
 }));
 
-router.get('/challenge.json', awrap(async (req, res, next) => {
+app.get('/challenge.json', awrap(async (req, res, next) => {
     const challenge = await generateAnonCredentials();
     res.status(200).json(challenge);
 }));
 
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 
-router.get(`${rpGroup}`, awrap(async (req, res, next) => {
+app.get(`${rpGroup}`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const lastEventId = await DB.lastEventId();
@@ -51,7 +51,7 @@ router.get(`${rpGroup}`, awrap(async (req, res, next) => {
     res.status(200).json({ title, desc, msgs, charas, lastEventId })
 }));
 
-router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
+app.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const { since } = req.query;
@@ -65,7 +65,7 @@ router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
     res.status(200).json({ lastEventId, updates });
 }));
 
-router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
+app.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const skip = (req.params.pageNum - 1) * 20;
@@ -82,7 +82,7 @@ router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, ne
     res.status(200).json({ title, desc, msgs, charas, pageCount, lastEventId })
 }));
 
-router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
+app.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta');
@@ -96,7 +96,7 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
     res.end();
 }));
 
-router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
+app.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = cuid();
@@ -109,7 +109,7 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     res.status(201).json(doc);
 }));
 
-router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req, res, next) => {
+app.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
@@ -126,13 +126,13 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
     res.status(200).json(doc);
 }));
 
-router.all('*', (req, res, next) => {
+app.all('*', (req, res, next) => {
     next({ code: 'UNKNOWN_REQUEST' });
 });
 
-router.use((err, req, res, next) => {
+app.use((err, req, res, next) => {
     logger.info(err);
     res.status(500).json({ error: err.toString() });
 });
 
-module.exports = router;
+module.exports = app;

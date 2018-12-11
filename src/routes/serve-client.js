@@ -3,7 +3,7 @@ const path = require('path');
 const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
 
 // static file serving + SPA routes
-const staticRoutes = new express.Router();
+const staticRoutes = express();
 const clientFiles = path.join(__dirname, '../web');
 // bundle
 staticRoutes.use('/client-files/', express.static(clientFiles));
