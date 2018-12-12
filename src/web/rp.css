@@ -6,9 +6,9 @@
 
   border-color: rgba(0,0,0,0.15);
 }
-/* :host-context(.dark-theme) #send-box {
+.dark-theme #send-box {
   border-color: rgba(255,255,255,0.4);
-} */
+}
 
 @media (max-width: 719px) {
   #send-box {
@@ -38,15 +38,15 @@
 #send-box.send-box-narrator {
   background-color: #ffffff;
 }
-/* :host-context(.dark-theme) &.send-box-narrator {
+.dark-theme #send-box.send-box-narrator {
   background-color: #444444;
-} */
+}
 #send-box.send-box-ooc {
   background-color: #fafafa;
 }
-/* :host-context(.dark-theme) &.send-box-ooc {
+.dark-theme #send-box.send-box-ooc {
   background-color: #303030;
-} */
+}
 
 #send-box #voice-bar { 
   display: flex;
@@ -65,11 +65,9 @@
   font-size: 120%;
 }
 
-/* #send-box #voice-bar {
-  :host-context(.dark-theme) & {
-    border-bottom-color: rgba(255,255,255,0.4);
-  }
-} */
+.dark-theme #send-box #voice-bar {
+  border-bottom-color: rgba(255,255,255,0.4);
+}
 
 #send-box #click-to-change {
   flex: 1 1 auto;
@@ -115,10 +113,10 @@
   max-height: calc(30vh - 50px);
 }
 
-/* :host-context(.dark-theme) & #typing-area {
+.dark-theme #send-box #typing-area {
   background-color: rgba(0,0,0,0.8);
   color: white;
-} */
+}
 
 #send-loader-container {
   width: 40px;

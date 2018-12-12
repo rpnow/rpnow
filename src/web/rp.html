@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="/client-files/rp.css">
 </head>
 <body>
-  <div id="rp-chat">
+  <div id="rp-chat" :class="{'dark-theme':nightMode}">
     <div id="loading" v-if="rp == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
@@ -134,6 +134,36 @@
             <i class="material-icons">cloud_download</i>
             <span>Download</span>
           </a>
+          <div class="drawer-divider"></div>
+          <button class="drawer-item" @click="nightMode = !nightMode">
+            <i class="material-icons">brightness_4</i>
+            <span>Night mode</span>
+          </button>
+          <button class="drawer-item" @click="nightMode = !nightMode">
+            <i class="material-icons">notifications</i>
+            <span>Alerts</span>
+          </button>
+          <button class="drawer-item" @click="nightMode = !nightMode">
+            <i class="material-icons">send</i>
+            <span>Quick send<pan></pan>
+          </button>
+          <button class="drawer-item" @click="nightMode = !nightMode">
+            <i class="material-icons">account_box</i>
+            <span>Message details</span>
+          </button>
+          <div class="drawer-divider"></div>
+          <a class="drawer-item" href="/" target="_blank">
+            <i class="material-icons">meeting_room</i>
+            <span>Return home</span>
+          </a>
+          <a class="drawer-item" href="/about" target="_blank">
+            <i class="material-icons">help</i>
+            <span>About this server</span>
+          </a>
+          <a class="drawer-item" href="/terms" target="_blank">
+            <i class="material-icons">account_balance</i>
+            <span>Terms of use</span>
+          </a>
         </div>
       </div>
 
@@ -205,6 +235,7 @@
         showCharacterDialog: false,
         pressEnterToSend: true,
         showMainMenu: false,
+        nightMode: false,
       },
       computed: {
         charasById: function() {
@@ -227,7 +258,7 @@
           return this.currentChara.color;
         },
         messageBoxClass: function() {
-          return 'message-box-' + this.currentMsgType;
+          return 'send-box-' + this.currentMsgType;
         },
         messageBoxStyle: function() {
           if (this.currentMsgType !== 'chara') return {};
