@@ -80,6 +80,9 @@
   height: 100%;
   transition: background-color .4s cubic-bezier(.25,.8,.25,1);
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #send-box #click-to-change:hover {
@@ -194,6 +197,9 @@ html, body {
   flex-grow: 1;
   text-align: center;
   padding-right: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .overlay {
   position: fixed;
@@ -259,6 +265,12 @@ html, body {
 }
 .drawer button.drawer-item i.material-icons:first-child {
   padding-right: 16px;
+}
+.drawer button.drawer-item span {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .drawer .drawer-divider {
   border-top: solid 1px;

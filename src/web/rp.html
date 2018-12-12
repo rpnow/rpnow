@@ -141,22 +141,22 @@
         <div class="drawer-body">
           <button :class="['drawer-item', {'drawer-item-selected': currentMsgType==='narrator'}]" @click="selectCharacter('narrator')">
             <i class="material-icons">local_library</i>
-            Narrator
+            <span>Narrator</span>
           </button>
           <button :class="['drawer-item', {'drawer-item-selected': currentMsgType==='ooc'}]" @click="selectCharacter('ooc')">
             <i class="material-icons">chat</i>
-            Out of Character
+            <span>Out of Character</span>
           </button>
           <div class="drawer-divider"></div>
           <button class="drawer-item" @click="openCharacterDialog">
             <i class="material-icons">person_add</i>
-            New Character...
+            <span>New Character...</span>
           </button>
           <div class="drawer-divider"></div>
           <template v-for="chara of rp.charas" key="chara._id">
             <button :class="['drawer-item', {'drawer-item-selected': currentChara===chara}]" @click="selectCharacter('chara', chara._id)">
               <i class="material-icons" :style="{'color':chara.color}">person</i>
-              {{ chara.name }}
+              <span>{{ chara.name }}</span>
             </button>
           </template>
         </div>
