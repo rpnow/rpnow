@@ -100,6 +100,7 @@
             v-model="msgBoxText"
             @keydown.enter.ctrl.exact.prevent="sendMessage"
             @keydown.enter.exact.prevent="pressEnterToSend && sendMessage()"
+            @input="resizeTextareaOnInput($event, 3, 6)"
           ></textarea>
           <template v-if="!isMsgBoxSending">
             <button class="icon-button" :disabled="!msgBoxValid" @click="sendMessage">
@@ -348,6 +349,15 @@
         },
         openMainMenu: function() {
           this.showMainMenu = true;
+        },
+        resizeTextareaOnInput: function($event, minRows, maxRows) {
+          var el = $event.target;
+          while (el.rows > minRows && el.scrollHeight <= el.offsetHeight) {
+            el.rows = el.rows - 1;
+          }
+          while (el.rows < maxRows && el.scrollHeight > el.offsetHeight) {
+            el.rows = el.rows + 1;
+          }
         }
       },
       created: function() {
