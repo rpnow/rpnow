@@ -88,11 +88,11 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
     const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta');
     // TODO getting all msgs at once is potentially problematic for huge RP's; consider using streams if possible
     const msgs = await DB.getDocs(rpNamespace, 'msgs').asArray(); 
-    const charas = await DB.getDocs(rpNamespace, 'charas').asMap();
+    const charasMap = await DB.getDocs(rpNamespace, 'charas').asMap();
     const { includeOOC = false } = req.query;
 
     res.attachment(`${title}.txt`).type('.txt');
-    generateTextFile({ title, desc, msgs, charas, includeOOC }, str => res.write(str));
+    generateTextFile({ title, desc, msgs, charasMap, includeOOC }, str => res.write(str));
     res.end();
 }));
 
