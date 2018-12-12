@@ -245,10 +245,11 @@ html, body {
   display: flex;
   padding-top: 8px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   flex-direction: column;
+  flex-grow: 1;
 }
-.drawer button.drawer-item {
+.drawer .drawer-item {
   width: 100%;
   height: 48px;
   min-height: 48px;
@@ -259,14 +260,16 @@ html, body {
   cursor: pointer;
   display: flex;
   align-items: center;
+  color: inherit;
+  text-decoration: none;
 }
-.drawer button.drawer-item.drawer-item-selected {
+.drawer .drawer-item.drawer-item-selected {
   border-left: solid 3px black;
 }
-.drawer button.drawer-item i.material-icons:first-child {
+.drawer .drawer-item i.material-icons:first-child {
   padding-right: 16px;
 }
-.drawer button.drawer-item span {
+.drawer .drawer-item span {
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
