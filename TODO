@@ -8,7 +8,6 @@ Archive updates test
 Read-only URLs
 Message formatting
 OOC shortcuts
-IPID
 Backend metadata handling
 Challenge/secret
 Cache invalidation
@@ -34,3 +33,5 @@ API unit tests
 Dock character drawer
 Shadows on character drawer icons
 Demo page
+Chara drawer organization
+Recent charas
