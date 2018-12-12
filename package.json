@@ -9,10 +9,12 @@
     "build": "./build.sh"
   },
   "dependencies": {
+    "apollo-server-express": "^2.2.6",
     "cors": "^2.8.5",
     "cuid": "^2.1.4",
     "express": "^4.16.4",
     "got": "^9.3.2",
+    "graphql": "^14.0.2",
     "knex": "^0.15.2",
     "nanoid": "^1.3.4",
     "sqlite3": "^4.0.4",
