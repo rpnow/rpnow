@@ -26,7 +26,6 @@ module.exports = ({
 
         // Write each message
         msgs.forEach(msg => {
-            console.log(msg)
             if (msg.type !== 'ooc' || includeOOC) {
                 const msgBlock = msgText(msg, charasMap);
                 write(msgBlock+'\n\n');
