@@ -9,7 +9,7 @@ const clientFiles = path.join(__dirname, '../web');
 staticRoutes.use('/client-files/', express.static(clientFiles));
 // valid routes
 staticRoutes.get('/', (req, res) => res.sendFile(`${clientFiles}/home.html`));
-staticRoutes.get('/terms', (req, res) => res.sendFile(`${clientFiles}/index.html`));
+staticRoutes.get('/terms', (req, res) => res.sendFile(`${clientFiles}/terms.txt`));
 staticRoutes.get('/rp/demo', (req, res) => res.sendFile(`${clientFiles}/index.html`)); // separate, because no xRobotsTag
 staticRoutes.get('/rp/[^/]+', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/rp.html`));
 staticRoutes.get('/read/[^/]+/page/[0-9]+', (req, res) => res.sendFile(`${clientFiles}/rp-read.html`));
