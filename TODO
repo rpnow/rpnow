@@ -16,6 +16,7 @@ Notification browser
 Options: note noise
 Options: show details
 Options: quick send
+Options/msgBox/other persistence
 Description handling
 Archive index
 Drawer animation
@@ -27,7 +28,10 @@ Connection state description
 API unit tests
 Dock character drawer
 Shadows on character drawer icons
-Demo page
 Chara drawer organization
 Recent charas
 Scroll-glue
+Contrast colors
+Welcome/showing-recent messages
+Remove RPNow branding from some places
+Block messageBox while sending
