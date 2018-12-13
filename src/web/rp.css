@@ -143,6 +143,9 @@
   display: flex;
   justify-content: center;
 }
+.dark-theme .icon-button {
+  color: white;
+}
 .icon-button:active {
   background-color: rgba(128,128,128,.3);
 }
@@ -157,6 +160,11 @@
 
 #rp-chat {
   font-family: 'Alice';
+  background-color: #fafafa;
+}
+#rp-chat.dark-theme {
+  background-color: #303030;
+  color: white;
 }
 #rp-chat textarea, #rp-chat button {
   font-size: inherit;
@@ -191,6 +199,9 @@ html, body {
   display: flex;
   align-items: center;
 }
+.dark-theme #chat-header {
+  box-shadow: 0 0 10px rgba(0,0,0,.4);
+}
 #chat-header span {
   flex-grow: 1;
   text-align: center;
@@ -208,6 +219,9 @@ html, body {
   left: 0;
   z-index: 4;
 }
+.dark-theme .overlay {
+  background-color: rgba(189,189,189,.6);
+}
 .drawer {
   display: flex;
   flex-direction: column;
@@ -220,6 +234,9 @@ html, body {
   background-color: #fafafa;
   transition: width .4s cubic-bezier(.25,.8,.25,1);
   box-shadow: 0 8px 10px -5px rgba(0,0,0,.2), 0 16px 24px 2px rgba(0,0,0,.14), 0 6px 30px 5px rgba(0,0,0,.12)
+}
+.dark-theme .drawer {
+  background-color: #444444;
 }
 #character-menu {
   right: 0;
@@ -264,6 +281,9 @@ html, body {
 .drawer .drawer-item.drawer-item-selected {
   border-left: solid 3px black;
 }
+.dark-theme .drawer .drawer-item.drawer-item-selected {
+  border-left: solid 3px white;
+}
 .drawer .drawer-item i.material-icons:first-child {
   padding-right: 16px;
 }
@@ -278,6 +298,9 @@ html, body {
   border-top-color: rgba(0,0,0,.12);
   display: block;
   margin: 0;
+}
+.dark-theme .drawer .drawer-divider {
+  border-top-color: rgba(255,255,255,.12);
 }
 #new-character {
   z-index: 5;

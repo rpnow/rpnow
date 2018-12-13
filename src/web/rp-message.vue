@@ -113,7 +113,7 @@
         return this.content;
       },
       charaColorBw: function() {
-        return 'black';
+        return this.isChara ? 'black' : null;
       },
       wasEdited: function() {
         return this.revision > 0;
