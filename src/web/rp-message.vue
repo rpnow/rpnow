@@ -70,7 +70,9 @@
 
       'canEdit',
       'pressEnterToSend',
-      'showMessageDetails'
+      'showMessageDetails',
+      
+      'darkTheme',
     ],
     data: function() {
       return {
@@ -92,7 +94,8 @@
         return [
           'message',
           'message-'+this.type,
-          {'message-sending':this.sending}
+          {'message-sending':this.sending},
+          {'dark-theme':this.darkTheme},
         ];
       },
       ipidVisibility: function() {
@@ -241,9 +244,9 @@
     border: 1px solid #999;
     border-radius: 8px;
   }
-  /* :host-context(.dark-theme) .message-narrator {
+  .dark-theme.message-narrator {
     background-color:#444;
-  } */
+  }
   .message-ooc {
     border-left: 3px solid rgba(128,128,128,0.3);
     padding: 0 8px 0 14px;
@@ -290,20 +293,20 @@
     word-spacing: 1px;
     box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
   }
-  /* :host-context(.dark-theme) .message-chara {
+  .dark-theme.message-chara {
     border-color: rgba(255,255,255,0.3);
-  } */
+  }
   .message-chara .content {
     background-color: white;
     color: black;
     opacity: 0.8;
     border-radius: 12px 12px 12px 0;
   }
-  /* :host-context(.dark-theme) .message-chara .content {
+  .dark-theme.message-chara .content {
     background-color: black;
     color: white;
     opacity: 0.6;
-  } */
+  }
   .message-image {
     padding-bottom: 10px;
   }
@@ -341,7 +344,7 @@
     width: 6px;
     height: 100%;
   }
-  /* :host-context(.dark-theme) .color-ip-box {
+  .dark-theme .color-ip-box {
     border-color: rgba(255,255,255,0.7);
-  } */
+  }
 </style>
