@@ -36,7 +36,7 @@
         </span>
       </div>
 
-      <div id="messages" class="room-feed">
+      <div id="messages" class="room-feed" @scroll="onScroll">
         <div class="info-box" v-if="rp.msgs.length >= 60">
           <p>These are the latest 60 posts.
           To view earlier messages, check the <a :href="'/read/'+rpCode+'/archive?page=1'">archive</a>.</p>
@@ -71,6 +71,7 @@
             :show-message-details="true"
             :dark-theme="nightMode"
             @edit="editMessage(msg._id, $event)"
+            @resize="rescrollToBottom"
           ></rp-message>
         </template>
       </div>
@@ -237,6 +238,7 @@
         pressEnterToSend: true,
         showMainMenu: false,
         nightMode: true,
+        isScrolledToBottom: true,
       },
       computed: {
         charasById: function() {
@@ -390,6 +392,19 @@
           while (el.rows < maxRows && el.scrollHeight > el.offsetHeight) {
             el.rows = el.rows + 1;
           }
+        },
+        onScroll: function() {
+          var el = document.querySelector('#messages');
+          var bottomDistance = el.scrollHeight - el.scrollTop - el.offsetHeight;
+          this.isScrolledToBottom = bottomDistance < 31;
+        },
+        rescrollToBottom: function() {
+          if (!this.isScrolledToBottom) return;
+
+          this.$nextTick((function() {
+            var el = document.querySelector('#messages');
+            el.scrollTop = el.scrollHeight - el.offsetHeight;
+          }).bind(this));
         }
       },
       created: function() {

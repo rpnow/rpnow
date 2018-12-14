@@ -48,7 +48,7 @@
     <template v-if="isImage">
       <div class="content">
         <a :href="url" target="_blank">
-          <img :src="url" @load="onImageLoaded"/>
+          <img :src="url" @load="notifySizeChange"/>
         </a>
       </div>
     </template>
@@ -166,14 +166,23 @@
         }
         this.$emit('edit', messageData);
       },
-      onImageLoaded: function() {
-        this.$emit('imageLoaded');
+      notifySizeChange: function() {
+        this.$emit('resize');
       }
     },
     created: function() {
       this.intervalHandle = setInterval((function() {
         this.currentTime = Date.now();
       }).bind(this), 15*1000);
+    },
+    mounted: function() {
+      this.notifySizeChange();
+    },
+    watch: {
+      type: 'notifySizeChange',
+      content: 'notifySizeChange',
+      url: 'notifySizeChange',
+      editing: 'notifySizeChange',
     },
     beforeDestroy: function() {
       clearInterval(this.intervalHandle);
