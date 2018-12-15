@@ -1,0 +1,12 @@
+.git
+old-angular-client
+node_modules
+data
+
+.dockerignore
+.gitignore
+.eslintrc
+Dockerfile
+README.md
+TODO
+build.sh

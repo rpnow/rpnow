@@ -1,17 +1,24 @@
-FROM node:8 as builder
+FROM node:8-alpine
 
-WORKDIR /root/
+RUN apk add --no-cache tini
 
-COPY ./old-angular-client/ ./old-angular-client/
+WORKDIR /usr/src/app/
+
+COPY ./package.json ./package-lock.json ./
+RUN npm install --production
+
 COPY ./src/ ./src/
-COPY ./.eslintrc.json .
-COPY ./build.sh .
-COPY ./jasmine.json .
-COPY ./package-lock.json .
-COPY ./package.json .
+
+ENV NODE_ENV 'production'
+ENV RPNOW_PORT ''
+ENV RPNOW_TRUST_PROXY ''
+ENV RPNOW_CORS ''
+ENV RPNOW_LOG_LEVEL ''
+
+RUN mkdir data
+VOLUME ./data
 
 EXPOSE 13000
 
-RUN npm install
-
+ENTRYPOINT ["tini", "--"]
 CMD ["node", "src/index.js"]
