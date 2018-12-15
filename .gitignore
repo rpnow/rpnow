@@ -3,3 +3,5 @@ node_modules
 data/*
 rpnow-server-contents.zip
 rpnow-server-contents/*
+
+!**/.gitkeep
