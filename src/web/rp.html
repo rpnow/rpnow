@@ -200,7 +200,7 @@
         </div>
       </div>
     
-      <div id="new-character" class="dialog" v-show="showCharacterDialog">
+      <div id="character-dialog" class="dialog" v-show="showCharacterDialog">
         <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
         <input type="color" v-model="charaDialogColor">
         <button type="button" @click="sendChara">Add</button>

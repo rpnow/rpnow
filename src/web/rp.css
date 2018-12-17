@@ -318,3 +318,6 @@ html, body {
 .dark-theme .dialog {
   background-color: #444444;
 }
+#character-dialog input {
+  display: block;
+}
