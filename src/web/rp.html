@@ -200,8 +200,7 @@
         </div>
       </div>
     
-      <div id="new-character" v-show="showCharacterDialog">
-        <h3>New Character</h3>
+      <div id="new-character" class="dialog" v-show="showCharacterDialog">
         <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
         <input type="color" v-model="charaDialogColor">
         <button type="button" @click="sendChara">Add</button>
@@ -217,7 +216,6 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js"></script>
   <script src="/client-files/rp.js"></script>
-  </script>
 </body>
 </html>
 
