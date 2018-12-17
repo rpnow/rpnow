@@ -1,3 +1,5 @@
+var rpCode = location.pathname.match(/\/rp\/([^\/]+)/)[1];
+
 var jsonStorage = (function() {
   var fakeStorage = {};
 
@@ -42,12 +44,12 @@ new Vue({
   data: {
     demo: false,
     linkToHere: location.href,
-    rpCode: location.pathname.match(/\/rp\/([^\/]+)/)[1],
+    rpCode: rpCode,
     rp: null,
     isNewRp: false,
-    msgBoxText: '',
-    currentMsgType: 'narrator',
-    currentCharaId: null,
+    msgBoxText: jsonStorage.get('rpnow.'+rpCode+'.msgBoxContent', ''),
+    currentMsgType: jsonStorage.get('rpnow.'+rpCode+'.msgBoxType', 'narrator'),
+    currentCharaId: jsonStorage.get('rpnow.'+rpCode+'.msgBoxCharaId', null),
     charaDialogName: '',
     charaDialogColor: '#dddddd',
     showCharacterMenu: false,
@@ -290,6 +292,9 @@ new Vue({
     'pressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
     'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
     'notificationNoise': jsonStorage.set.bind(null, 'rpnow.global.notificationNoise'),
+    'msgBoxText': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxContent'),
+    'currentMsgType': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxType'),
+    'currentCharaId': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxCharaId'),
     'rp.msgs': function(msgs, oldMsgs) {
       if (msgs == null || oldMsgs == null) return;
 
