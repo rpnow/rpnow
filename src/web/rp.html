@@ -37,23 +37,18 @@
       </div>
 
       <div id="messages" class="room-feed" @scroll="onScroll">
-        <div class="info-box" v-if="rp.msgs.length >= 60">
-          <p>These are the latest 60 posts.
-          To view earlier messages, check the <a :href="'/read/'+rpCode+'/archive?page=1'">archive</a>.</p>
-        </div>
+        <p id="archive-advice" v-if="rp.msgs.length >= 60">
+          To view older messages, <a :href="'/read/'+rpCode+'/page/1'">visit the archive.</a>
+        </p>
 
-        <div class="info-box" v-if="isNewRp">
-          <p><b>Success!</b></p>
-          <p>The RP {{ rp.title }} has been created. Just share this link with some friends, and you can all start roleplaying together, in real time!</p>
-          <a :href="linkToHere">{{ linkToHere }}</a>
-          <p>Please keep the following things in mind, however:</p>
-          <ol>
-            <li><b>Don't lose the link to this room!</b> If you can't find it, you won't be able to find this room again!</li>
-            <li>Anyone with a link to this room can play here. <b>Be careful who you share it with!</b></li>
-            <li><b>Don't post any sensitive information here!</b> In the event of a database breach, we would not want anything confidential to be lost.</li>
-            <li>RPNow is currently under development, so there's a small chance your stories could be unexpectedly lost &mdash; so, just in case, you can download a copy of the entire RP by clicking the <b>Export</b> link up top.</li>
-          </ol>
-          <p>Have fun!</p>
+        <div id="welcome" v-if="isNewRp">
+          <h3>Welcome to your new RP!</h3>
+          <p>
+            Use this link to invite other participants, or to return to this room later. <strong>Don't lose it!</strong>
+          </p>
+          <p>
+            <code><a :href="linkToHere">{{ linkToHere }}</a></code>
+          </p>
         </div>
 
         <template v-for="msg of rp.msgs">

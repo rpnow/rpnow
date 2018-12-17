@@ -326,3 +326,39 @@ html, body {
 #character-dialog input {
   display: block;
 }
+
+#welcome {
+  margin: 3vh auto 0;
+  padding: 20px;
+  width: 96vw;
+  max-width: 400px;
+}
+#welcome a {
+  word-break: break-word;
+  font-size: 115%;
+  text-decoration: none;
+  border-bottom: 1px dotted rgb(124, 77, 255);
+  color: rgb(124, 77, 255);
+  opacity: 0.87;
+}
+.dark-theme #welcome a {
+  color: rgb(255,193,7);
+  border-bottom-color: rgb(255,193,7);
+}
+
+#archive-advice {
+  font-style: italic;
+  margin: 3vh auto 0;
+  padding: 10px;
+  text-align: center;
+}
+#archive-advice a {
+  text-decoration: none;
+  border-bottom: 1px dotted rgb(124, 77, 255);
+  color: rgb(124, 77, 255);
+  opacity: 0.87;
+}
+.dark-theme #archive-advice a {
+  color: rgb(255,193,7);
+  border-bottom-color: rgb(255,193,7);
+}
