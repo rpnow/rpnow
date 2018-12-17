@@ -159,6 +159,12 @@ new Vue({
     editMessage: function(_id, body) {
       this.putUpdate(_id, 'msgs', body);
     },
+    editChara: function(chara) {
+      // TODO use actual chara dialog
+      var name = prompt('Rename this character (actual dialog with color input coming later)', chara.name);
+      if (name == null) return;
+      this.putUpdate(chara._id, 'charas', { name: name, color: chara.color });
+    },
     openCharacterMenu: function() {
       this.showCharacterMenu = true;
     },
