@@ -137,11 +137,11 @@
   padding: 0;
   width: 40px;
   height: 40px;
-  line-height: 40px;
   border-radius: 50%;
   transition: background-color .4s cubic-bezier(.25,.8,.25,1);
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 .dark-theme .icon-button {
   color: white;
@@ -150,7 +150,6 @@
   background-color: rgba(128,128,128,.3);
 }
 .icon-button i.material-icons {
-  vertical-align: middle;
   color: inherit !important;
 }
 .icon-button:disabled {

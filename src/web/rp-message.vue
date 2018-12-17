@@ -338,20 +338,14 @@
     max-height: 50vh;
   }
   .color-ip-box {
-    display: inline-block;
-    vertical-align: middle;
+    display: inline-flex;
     height: 8px;
     width: 18px;
     border: solid 1px rgba(0,0,0,0.7);
     position: relative;
   }
   .color-ip-box-section {
-    display: inline-block;
-    vertical-align: top;
-    padding: 0;
-    margin: 0;
-    width: 6px;
-    height: 100%;
+    flex: 1;
   }
   .dark-theme .color-ip-box {
     border-color: rgba(255,255,255,0.7);
