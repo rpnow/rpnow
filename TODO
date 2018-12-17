@@ -7,14 +7,10 @@ Read-only URLs
 Message formatting
 OOC shortcuts
 Backend metadata handling
-Challenge/secret
+Challenge/secret (+persistence)
 Cache invalidation
 Download OOC toggle
-Notification sound
-Notification banner
-Notification browser
-Options: note noise
-msgBox/other persistence
+Options: note noise (+persistence)
 Description handling
 Archive index
 Drawer animation
@@ -27,8 +23,7 @@ API unit tests
 Dock character drawer
 Shadows on character drawer icons
 Chara drawer organization
-Recent charas
+Recent charas (+persistence)
 Contrast colors
-Welcome/showing-recent messages
 Remove RPNow branding from some places
 Block messageBox while sending
