@@ -1,3 +1,28 @@
+var jsonStorage = (function() {
+  var fakeStorage = {};
+
+  return {
+    get: function(key, defaultValue) {
+      var str;
+      try {
+        str = localStorage.getItem(key);
+      } catch (ex) {
+        str = fakeStorage[key];
+      }
+      if (str == null) return defaultValue;
+      return JSON.parse(str);
+    },
+    set: function(key, obj) {
+      var str = JSON.stringify(obj);
+      try {
+        localStorage.setItem(key, str);
+      } catch (ex) {
+        fakeStorage[key] = str;
+      }
+    }
+  }
+})();
+
 new Vue({
   el: '#rp-chat',
   components: {
@@ -16,9 +41,10 @@ new Vue({
     charaDialogColor: '#dddddd',
     showCharacterMenu: false,
     showCharacterDialog: false,
-    pressEnterToSend: true,
+    pressEnterToSend: jsonStorage.get('rpnow.global.pressEnterToSend', false),
     showMainMenu: false,
-    nightMode: true,
+    nightMode: jsonStorage.get('rpnow.global.nightMode', true),
+    showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
     isScrolledToBottom: true,
   },
   computed: {
@@ -199,4 +225,9 @@ new Vue({
         this.fetchUpdates();
       }).bind(this));
   },
+  watch: {
+    'nightMode': jsonStorage.set.bind(null, 'rpnow.global.nightMode'),
+    'pressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
+    'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
+  }
 });

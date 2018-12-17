@@ -68,7 +68,7 @@
             :chara="charasById[msg.charaId]"
             :can-edit="true"
             :press-enter-to-send="pressEnterToSend"
-            :show-message-details="true"
+            :show-message-details="showMessageDetails"
             :dark-theme="nightMode"
             @edit="editMessage(msg._id, $event)"
             @resize="rescrollToBottom"
@@ -100,8 +100,8 @@
             maxlength="10000"
             :disabled="isMsgBoxSending"
             v-model="msgBoxText"
-            @keydown.enter.ctrl.exact.prevent="sendMessage"
-            @keydown.enter.exact.prevent="pressEnterToSend && sendMessage()"
+            @keydown.enter.ctrl.exact="($event.preventDefault(), sendMessage())"
+            @keydown.enter.exact="pressEnterToSend ? ($event.preventDefault(), sendMessage()) : null"
             @input="resizeTextareaOnInput($event, 3, 6)"
           ></textarea>
           <template v-if="!isMsgBoxSending">
@@ -140,18 +140,22 @@
           <button class="drawer-item" @click="nightMode = !nightMode">
             <i class="material-icons">brightness_4</i>
             <span>Night mode</span>
+            <i class="material-icons" v-html="nightMode?'check_box':'check_box_outline_blank'"></i>
           </button>
-          <button class="drawer-item" @click="nightMode = !nightMode">
+          <button class="drawer-item" @click="1">
             <i class="material-icons">notifications</i>
             <span>Alerts</span>
+            <i class="material-icons">chevron_right</i>
           </button>
-          <button class="drawer-item" @click="nightMode = !nightMode">
+          <button class="drawer-item" @click="pressEnterToSend = !pressEnterToSend">
             <i class="material-icons">send</i>
-            <span>Quick send<pan></pan>
+            <span>Quick send</span>
+            <i class="material-icons" v-html="pressEnterToSend?'check_box':'check_box_outline_blank'"></i>
           </button>
-          <button class="drawer-item" @click="nightMode = !nightMode">
+          <button class="drawer-item" @click="showMessageDetails = !showMessageDetails">
             <i class="material-icons">account_box</i>
             <span>Message details</span>
+            <i class="material-icons" v-html="showMessageDetails?'check_box':'check_box_outline_blank'"></i>
           </button>
           <div class="drawer-divider"></div>
           <a class="drawer-item" href="/" target="_blank">

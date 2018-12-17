@@ -286,7 +286,11 @@ html, body {
 .drawer .drawer-item i.material-icons:first-child {
   padding-right: 16px;
 }
+.drawer .drawer-item i.material-icons:last-child {
+  padding-right: 8px;
+}
 .drawer .drawer-item span {
+  flex: 1;
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
