@@ -23,6 +23,17 @@ var jsonStorage = (function() {
   }
 })();
 
+var audioDir = '/client-files/assets/sounds/';
+var noises = [
+  {'name': 'Off', 'audio': null},
+  {'name': 'Typewriter', 'audio': new Audio(audioDir + 'typewriter.mp3')},
+  {'name': 'Page turn', 'audio': new Audio(audioDir + 'pageturn.mp3')},
+  {'name': 'Chimes', 'audio': new Audio(audioDir + 'chimes.mp3')},
+  {'name': 'Woosh', 'audio': new Audio(audioDir + 'woosh.mp3')},
+  {'name': 'Frog block', 'audio': new Audio(audioDir + 'frogblock.mp3')},
+  {'name': 'Classic alert', 'audio': new Audio(audioDir + 'alert.mp3')},
+];
+
 new Vue({
   el: '#rp-chat',
   components: {
@@ -46,6 +57,7 @@ new Vue({
     nightMode: jsonStorage.get('rpnow.global.nightMode', true),
     showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
     isScrolledToBottom: true,
+    notificationNoise: jsonStorage.get('rpnow.global.notificationNoise', 1),
   },
   computed: {
     charasById: function() {
@@ -210,6 +222,9 @@ new Vue({
       var el = document.querySelector('#messages');
       var bottomDistance = el.scrollHeight - el.scrollTop - el.offsetHeight;
       this.isScrolledToBottom = bottomDistance < 31;
+      if (this.isScrolledToBottom && this.unreadMessagesIndicator) {
+        this.unreadMessagesIndicator = false;
+      }
     },
     rescrollToBottom: function() {
       if (!this.isScrolledToBottom) return;
@@ -218,7 +233,46 @@ new Vue({
         var el = document.querySelector('#messages');
         el.scrollTop = el.scrollHeight - el.offsetHeight;
       }).bind(this));
-    }
+    },
+    doMessageAlert: (function() {
+      var oldTitle = null;
+      return function(msg) {
+        // desktop notifications
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification('New post from "' + this.rp.title + '"', {
+              body: msg.content || undefined,
+              icon: msg.url || undefined,
+              tag: msg._id,
+            });
+          } catch (ex) {
+            // Chrome on Android (at least Android 4-7) throws an error
+            // "Failed to construct 'Notification': Illegal constructor. Use ServiceWorkerRegistration.showNotification() instead."
+            // No action needed
+          }
+        }
+
+        // attempt to play noise
+        var audio = noises[this.notificationNoise].audio;
+        if (audio) {
+          var audioPromise = audio.play();
+          if (audioPromise !== undefined) {
+            audioPromise.catch(function(error) {
+              // TODO handle audio play failure
+              console.log('Could not play an audio alert')
+            });
+          }
+        }
+
+        // page title
+        if (!oldTitle) oldTitle = document.title;
+        document.title = '* New post...';
+        document.addEventListener('visibilitychange', function resetTitle() {
+          document.title = oldTitle;
+          document.removeEventListener('visibilitychange', resetTitle);
+        });
+      }
+    })()
   },
   created: function() {
     axios.get('/api/rp/' + this.rpCode)
@@ -235,5 +289,18 @@ new Vue({
     'nightMode': jsonStorage.set.bind(null, 'rpnow.global.nightMode'),
     'pressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
     'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
+    'notificationNoise': jsonStorage.set.bind(null, 'rpnow.global.notificationNoise'),
+    'rp.msgs': function(msgs, oldMsgs) {
+      if (msgs == null || oldMsgs == null) return;
+
+      if (msgs.length > oldMsgs.length) {
+        if (!this.isScrolledToBottom) {
+          this.unreadMessagesIndicator = true;
+        }
+        if (document.visibilityState !== 'visible') {
+          this.doMessageAlert(msgs[msgs.length - 1]);
+        }
+      }
+    }
   }
 });
