@@ -2,28 +2,33 @@ Edit characters
 Post images
 Format guide
 Archive paginator
-Archive updates test
-Read-only URLs
 Message formatting
 OOC shortcuts
-Backend metadata handling
-Challenge/secret (+persistence)
-Cache invalidation
 Download OOC toggle
-Options: note noise (+persistence)
-Description handling
-Archive index
-Drawer animation
-Character dialog format
 Export RP
 Import RP
 Error messages
-Connection state description
-API unit tests
+
+Character dialog format
 Dock character drawer
 Shadows on character drawer icons
+Contrast colors
+
+Backend metadata handling
+Cache invalidation
+
+---
+
+Archive updates test
+Archive index
+Drawer animation
+Read-only URLs
+Challenge/secret (+persistence)
+Options: note noise (+persistence)
+Description handling
+Connection state description
+API unit tests
 Chara drawer organization
 Recent charas (+persistence)
-Contrast colors
 Remove RPNow branding from some places
 Block messageBox while sending
