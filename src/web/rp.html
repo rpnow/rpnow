@@ -192,7 +192,7 @@
           <div class="drawer-divider"></div>
           <template v-for="chara of rp.charas" key="chara._id">
             <div :class="['drawer-item', {'drawer-item-selected': currentChara===chara}]" @click="selectCharacter('chara', chara._id)">
-              <i class="material-icons" :style="{'color':chara.color}">person</i>
+              <i class="material-icons chara-icon-shadow" :style="{'color':chara.color}">person</i>
               <span>{{ chara.name }}</span>
               <button class="icon-button" @click.prevent.stop="editChara(chara)">
                 <i class="material-icons" title="Edit character">edit</i>

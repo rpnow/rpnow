@@ -240,6 +240,12 @@ html, body {
 #character-menu {
   right: 0;
 }
+i.chara-icon-shadow {
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+.dark-theme i.chara-icon-shadow {
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+}
 #main-menu {
   left: 0;
 }
