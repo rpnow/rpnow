@@ -40,6 +40,30 @@ new Vue({
   el: '#rp-chat',
   components: {
     'rp-message': httpVueLoader('/client-files/rp-message.vue'),
+    'spectrum-colorpicker': {
+      props: ['value'],
+      template: '<input ref="el">',
+      mounted: function() {
+        var vm = this;
+        jQuery(this.$refs.el).spectrum({
+          color: this.value,
+          showInput: true,
+          preferredFormat: "hex",
+          showButtons: false,
+          move: function(color) {
+            vm.$emit('input', color.toHexString());
+          },
+          change: function(color) {
+            vm.$emit('input', color.toHexString());
+          },
+        });
+      },
+      watch: {
+        value: function(value) {
+          jQuery(this.$refs.el).spectrum('set', value);
+        }
+      }
+    }
   },
   data: {
     demo: false,

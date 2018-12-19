@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alice|Playfair+Display">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="manifest" href="/client-files/manifest.json">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.css" integrity="sha256-0gNW6jKGMP+oFR22hK5tl1qsZf21rWKR5cqmkyaLyjI=" crossorigin="anonymous">
 
   <link rel="stylesheet" href="/client-files/rp.css">
 </head>
@@ -204,7 +205,7 @@
     
       <div id="character-dialog" class="dialog" v-show="showCharacterDialog">
         <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
-        <input type="color" v-model="charaDialogColor">
+        <spectrum-colorpicker v-model="charaDialogColor"></spectrum-colorpicker>
         <button type="button" @click="sendChara">Add</button>
         <button type="button" @click="closeCharacterDialog">Cancel</button>
       </div>
@@ -213,10 +214,20 @@
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js"></script>
+  <!-- Promise polyfill for older browsers, needed for axios -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4.2.5/dist/es6-promise.min.js" integrity="sha256-wrMwufXWH6CASTr4Tgj/NzNAG57wFeknGdKbWhe7sXs=" crossorigin="anonymous"></script>
+  <!-- Axios, our http library -->
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
+  <!-- Vue, our frontend framework -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js" integrity="sha256-ui3vFTgbIIvd9ePh+wF+ju05O3jympV4FyFlpNMV2cw=" crossorigin="anonymous"></script>
+  <!-- Library to load .vue single-file-components without a build tool -->
+  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js" integrity="sha256-f897uAVsdigDKLGjTcl8PwseSHi6KrsgpGqsOQKPW9w=" crossorigin="anonymous"></script>
+  <!-- jQuery is required for Spectrum, but please do not use it for other things -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <!-- Spectrum is a color picker. Also includes the tinycolor library -->
+  <script src="https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.js" integrity="sha256-3wWiHra+MxkTwcZwUQkkowAjnu5uqAF+6hE676OitiE=" crossorigin="anonymous"></script>
+
+  <!-- App code -->
   <script src="/client-files/rp.js"></script>
 </body>
 </html>
