@@ -87,11 +87,6 @@
   background-color: rgba(128,128,128,.3);
 }
 
-#send-box #voice-bar > .mat-mini-fab {
-  background-color: inherit !important;
-  color: inherit !important;
-}
-
 #send-box #typing-area {
   display: flex;
   flex-direction: row;
