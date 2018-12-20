@@ -1,3 +1,71 @@
+/***** ROOT CONTAINER STUFF *****/
+html, body {
+  height: 100%;
+  margin: 0;
+}
+#rp-chat {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  font-family: 'Alice';
+  background-color: #fafafa;
+  color: black;
+}
+#rp-chat.dark-theme {
+  background-color: #303030;
+  color: white;
+}
+#rp-chat textarea, #rp-chat button, #rp-chat input {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+/***** Loading widget *****/
+#loading {
+  margin: auto;
+  display: flex;
+  align-items: center;
+}
+
+/***** WRAPPER for the main content of the chat page. Like, not drawers and dialogs and stuff *****/
+#main-column {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  order: 0;
+}
+
+/***** CHAT HEADER is the title app bar above the chat *****/
+#chat-header {
+  padding: 0 16px;
+  height: 64px;
+  line-height: 64px;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  z-index: 3;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+}
+.dark-theme #chat-header {
+  box-shadow: 0 0 10px rgba(0,0,0,.4);
+}
+#chat-header span {
+  flex-grow: 1;
+  text-align: center;
+  padding-right: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/***** Scrollable center box which occupies most of the page. containing messages, etc *****/
+#messages {
+  flex: 1 1;
+  overflow-y: scroll;
+  padding: 10px 10px 20px;
+}
+
+/***** SEND BOX: the box where you type stuff in to send as a message *****/
 #send-box {
   display: flex;
   flex-direction: column;
@@ -122,109 +190,7 @@
   align-items: center;
 }
 
-/***** MISC STYLES *****/
-
-.icon-button {
-  color: inherit;
-  background: none;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  transition: background-color .4s cubic-bezier(.25,.8,.25,1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.icon-button:active {
-  background-color: rgba(128,128,128,.3);
-}
-.icon-button i.material-icons {
-  color: inherit;
-}
-.icon-button:disabled {
-  cursor: auto;
-  opacity: 0.26;
-}
-
-#rp-chat {
-  font-family: 'Alice';
-  background-color: #fafafa;
-}
-#rp-chat.dark-theme {
-  background-color: #303030;
-  color: white;
-}
-#rp-chat textarea, #rp-chat button, #rp-chat input {
-  font-size: inherit;
-  font-family: inherit;
-}
-html, body {
-  height: 100%;
-  margin: 0;
-}
-#rp-chat {
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-}
-#main-column {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  order: 0;
-}
-#loading {
-  margin: auto;
-  display: flex;
-  align-items: center;
-}
-#messages {
-  flex: 1 1;
-  overflow-y: scroll;
-  padding: 10px 10px 20px;
-}
-#chat-header {
-  padding: 0 16px;
-  height: 64px;
-  line-height: 64px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
-  z-index: 3;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-}
-.dark-theme #chat-header {
-  box-shadow: 0 0 10px rgba(0,0,0,.4);
-}
-#chat-header span {
-  flex-grow: 1;
-  text-align: center;
-  padding-right: 40px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.overlay {
-  position: fixed;
-  background-color: rgba(0,0,0, 0.6);
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-}
-.dark-theme .overlay {
-  background-color: rgba(189,189,189,.6);
-}
-@media (min-width: 1024px) {
-  .overlay.overlay-lt-1024 {
-    display: none;
-  }
-}
-
+/***** DRAWERS, which are panels that pop in from the side of the page. For example, the character-selector drawer *****/
 .drawer {
   display: flex;
   flex-direction: column;
@@ -233,9 +199,6 @@ html, body {
 }
 .dark-theme .drawer {
   background-color: #444444;
-}
-.overlay.overlay-drawer {
-  z-index: 4;
 }
 @media (max-width: 1023px) {
   .drawer {
@@ -344,13 +307,7 @@ html, body {
   border-top-color: rgba(255,255,255,.12);
 }
 
-i.chara-icon-shadow {
-  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-}
-.dark-theme i.chara-icon-shadow {
-  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
-}
-
+/***** DIALOG BOXES *****/
 .dialog {
   z-index: 7;
   background-color: #fafafa;
@@ -364,16 +321,74 @@ i.chara-icon-shadow {
   box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12);
   border-radius: 2px;
 }
-.overlay.overlay-dialog {
-  z-index: 6;
-}
 .dark-theme .dialog {
   background-color: #444444;
 }
+
+/***** OVERLAYS, which cover and darkens the rest of the UI when a dialog/drawer is open *****/
+.overlay {
+  position: fixed;
+  background-color: rgba(0,0,0, 0.6);
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+.dark-theme .overlay {
+  background-color: rgba(189,189,189,.6);
+}
+@media (min-width: 1024px) {
+  .overlay.overlay-lt-1024 {
+    display: none;
+  }
+}
+.overlay.overlay-drawer {
+  z-index: 4;
+}
+.overlay.overlay-dialog {
+  z-index: 6;
+}
+
+/***** ICON BUTTONS: icons you can click on, used throughout the page *****/
+.icon-button {
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color .4s cubic-bezier(.25,.8,.25,1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.icon-button:active {
+  background-color: rgba(128,128,128,.3);
+}
+.icon-button i.material-icons {
+  color: inherit;
+}
+.icon-button:disabled {
+  cursor: auto;
+  opacity: 0.26;
+}
+
+/***** CHARA ICONS, the subtle shadows so the colored icons for charas don't blend into the background *****/
+i.chara-icon-shadow {
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+.dark-theme i.chara-icon-shadow {
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+}
+
 #character-dialog input {
   display: block;
 }
 
+/***** NOTICE THAT SHOWS WHEN YOU START A NEW RP *****/
 #welcome {
   margin: 3vh auto 0;
   padding: 20px;
@@ -392,6 +407,7 @@ i.chara-icon-shadow {
   border-bottom-color: rgb(255,193,7);
 }
 
+/***** NOTICE THAT SHOWS WHEN YOU HAVE A LONG RP, and you can't see it all on the chat page *****/
 #archive-advice {
   font-style: italic;
   margin: 3vh auto 0;
