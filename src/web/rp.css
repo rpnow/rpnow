@@ -130,6 +130,7 @@
 /***** MISC STYLES *****/
 
 .icon-button {
+  color: inherit;
   background: none;
   border: none;
   outline: none;
@@ -143,14 +144,11 @@
   justify-content: center;
   align-items: center;
 }
-.dark-theme .icon-button {
-  color: white;
-}
 .icon-button:active {
   background-color: rgba(128,128,128,.3);
 }
 .icon-button i.material-icons {
-  color: inherit !important;
+  color: inherit;
 }
 .icon-button:disabled {
   cursor: auto;

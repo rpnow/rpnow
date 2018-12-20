@@ -113,7 +113,8 @@
         return this.content;
       },
       charaColorBw: function() {
-        return this.isChara ? 'black' : null;
+        if (!this.isChara) return null;
+        return tinycolor(this.charaColor).isLight() ? 'black' : 'white';
       },
       wasEdited: function() {
         return this.revision > 0;

@@ -110,7 +110,10 @@ new Vue({
     },
     messageBoxStyle: function() {
       if (this.currentMsgType !== 'chara') return {};
-      else return { 'background-color': this.currentCharaColor };
+      else return {
+        'background-color': this.currentCharaColor,
+        'color': tinycolor(this.currentCharaColor).isLight() ? 'black' : 'white',
+      };
     },
     isMsgBoxSending: function() {
       return false;
