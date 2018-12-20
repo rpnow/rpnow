@@ -28,95 +28,97 @@
     </div>
 
     <template v-if="rp != null">
-      <div id="chat-header">
-        <button class="icon-button" @click="openMainMenu">
-          <i class="material-icons" title="RPNow menu">menu</i>
-        </button>
-        <span>
-        {{ rp.title }}
-        </span>
-      </div>
-
-      <div id="messages" class="room-feed" @scroll="onScroll">
-        <p id="archive-advice" v-if="rp.msgs.length >= 60">
-          To view older messages, <a :href="'/read/'+rpCode+'/page/1'">visit the archive.</a>
-        </p>
-
-        <div id="welcome" v-if="isNewRp">
-          <h3>Welcome to your new RP!</h3>
-          <p>
-            Use this link to invite other participants, or to return to this room later. <strong>Don't lose it!</strong>
-          </p>
-          <p>
-            <code><a :href="linkToHere">{{ linkToHere }}</a></code>
-          </p>
+      <div id="main-column">
+        <div id="chat-header">
+          <button class="icon-button" @click="openMainMenu">
+            <i class="material-icons" title="RPNow menu">menu</i>
+          </button>
+          <span>
+          {{ rp.title }}
+          </span>
         </div>
 
-        <template v-for="msg of rp.msgs">
-          <rp-message
-            :key="msg._id"
-            :type="msg.type"
-            :content="msg.content"
-            :url="msg.url"
-            :timestamp="msg.timestamp"
-            :revision="msg.revision"
-            :ipid="msg.ip"
-            :chara="charasById[msg.charaId]"
-            :can-edit="true"
-            :press-enter-to-send="pressEnterToSend"
-            :show-message-details="showMessageDetails"
-            :dark-theme="nightMode"
-            @edit="editMessage(msg._id, $event)"
-            @resize="rescrollToBottom"
-          ></rp-message>
-        </template>
-      </div>
-    
-      <div id="send-box" :class="messageBoxClass" :style="messageBoxStyle">
+        <div id="messages" class="room-feed" @scroll="onScroll">
+          <p id="archive-advice" v-if="rp.msgs.length >= 60">
+            To view older messages, <a :href="'/read/'+rpCode+'/page/1'">visit the archive.</a>
+          </p>
 
-        <div id="voice-bar">
-          <div id="click-to-change" title="Change character" @click="openCharacterMenu">
-            {{ currentVoiceName }}
+          <div id="welcome" v-if="isNewRp">
+            <h3>Welcome to your new RP!</h3>
+            <p>
+              Use this link to invite other participants, or to return to this room later. <strong>Don't lose it!</strong>
+            </p>
+            <p>
+              <code><a :href="linkToHere">{{ linkToHere }}</a></code>
+            </p>
           </div>
-          <button class="icon-button" @click="openCharacterMenu">
-            <i class="material-icons" title="Change character">people</i>
-          </button>
-          <button class="icon-button" @click="showImageDialog">
-            <i class="material-icons" title="Post image">image</i>
-          </button>
-          <button class="icon-button" @click="showFormatGuide">
-            <i class="material-icons" title="Formatting info">text_fields</i>
-          </button>
+
+          <template v-for="msg of rp.msgs">
+            <rp-message
+              :key="msg._id"
+              :type="msg.type"
+              :content="msg.content"
+              :url="msg.url"
+              :timestamp="msg.timestamp"
+              :revision="msg.revision"
+              :ipid="msg.ip"
+              :chara="charasById[msg.charaId]"
+              :can-edit="true"
+              :press-enter-to-send="pressEnterToSend"
+              :show-message-details="showMessageDetails"
+              :dark-theme="nightMode"
+              @edit="editMessage(msg._id, $event)"
+              @resize="rescrollToBottom"
+            ></rp-message>
+          </template>
         </div>
 
-        <div id="typing-area">
-          <textarea
-            rows="3"
-            placeholder="Type your message."
-            maxlength="10000"
-            :disabled="isMsgBoxSending"
-            v-model="msgBoxText"
-            @keydown.enter.ctrl.exact="($event.preventDefault(), sendMessage())"
-            @keydown.enter.exact="pressEnterToSend ? ($event.preventDefault(), sendMessage()) : null"
-            @input="resizeTextareaOnInput($event, 3, 6)"
-          ></textarea>
-          <template v-if="!isMsgBoxSending">
-            <button class="icon-button" :disabled="!msgBoxValid" @click="sendMessage">
-              <i class="material-icons" title="Send">send</i>
-            </button>
-          </template>
-          <template v-if="isMsgBoxSending">
-            <div id="send-loader-container">
-              <mat-spinner diameter="24"></mat-spinner>
+        <div id="send-box" :class="messageBoxClass" :style="messageBoxStyle">
+
+          <div id="voice-bar">
+            <div id="click-to-change" title="Change character" @click="openCharacterMenu">
+              {{ currentVoiceName }}
             </div>
-          </template>
-        </div>
+            <button class="icon-button" @click="openCharacterMenu">
+              <i class="material-icons" title="Change character">people</i>
+            </button>
+            <button class="icon-button" @click="showImageDialog">
+              <i class="material-icons" title="Post image">image</i>
+            </button>
+            <button class="icon-button" @click="showFormatGuide">
+              <i class="material-icons" title="Formatting info">text_fields</i>
+            </button>
+          </div>
 
+          <div id="typing-area">
+            <textarea
+              rows="3"
+              placeholder="Type your message."
+              maxlength="10000"
+              :disabled="isMsgBoxSending"
+              v-model="msgBoxText"
+              @keydown.enter.ctrl.exact="($event.preventDefault(), sendMessage())"
+              @keydown.enter.exact="pressEnterToSend ? ($event.preventDefault(), sendMessage()) : null"
+              @input="resizeTextareaOnInput($event, 3, 6)"
+            ></textarea>
+            <template v-if="!isMsgBoxSending">
+              <button class="icon-button" :disabled="!msgBoxValid" @click="sendMessage">
+                <i class="material-icons" title="Send">send</i>
+              </button>
+            </template>
+            <template v-if="isMsgBoxSending">
+              <div id="send-loader-container">
+                <mat-spinner diameter="24"></mat-spinner>
+              </div>
+            </template>
+          </div>
+
+        </div>
       </div>
 
-      <div class="overlay" v-show="showOverlay" @click="clickOverlay"></div>
+      <div class="overlay overlay-drawer" @click="showMainMenu=false" v-show="showMainMenu"></div>
 
-      <div id="main-menu" class="drawer" v-show="showMainMenu">
+      <div id="main-menu" class="drawer drawer-left" v-show="showMainMenu">
         <div class="drawer-header">
           <span>RPNow</span>
           <button class="icon-button" @click="showMainMenu=false">
@@ -169,7 +171,9 @@
         </div>
       </div>
 
-      <div id="character-menu" class="drawer" v-show="showCharacterMenu">
+      <div class="overlay overlay-lt-1024 overlay-drawer" @click="showCharacterMenu=false" v-show="showCharacterMenu"></div>
+
+      <div id="character-menu" class="drawer drawer-right drawer-dock-1024" v-show="showCharacterMenu">
         <div class="drawer-header">
           <span>Characters</span>
           <button class="icon-button" @click="showCharacterMenu=false">
@@ -203,6 +207,8 @@
         </div>
       </div>
     
+      <div class="overlay overlay-dialog" @click="showCharacterDialog=false" v-show="showCharacterDialog"></div>
+
       <div id="character-dialog" class="dialog" v-show="showCharacterDialog">
         <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
         <spectrum-colorpicker v-model="charaDialogColor"></spectrum-colorpicker>

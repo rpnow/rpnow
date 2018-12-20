@@ -112,9 +112,6 @@ new Vue({
       if (this.currentMsgType !== 'chara') return {};
       else return { 'background-color': this.currentCharaColor };
     },
-    showOverlay: function() {
-      return this.showCharacterMenu || this.showCharacterDialog || this.showMainMenu;
-    },
     isMsgBoxSending: function() {
       return false;
     },
@@ -222,15 +219,6 @@ new Vue({
     },
     showFormatGuide: function() {
       window.open('/format', '_blank').focus();
-    },
-    clickOverlay: function() {
-      if (this.showCharacterDialog) {
-        this.showCharacterDialog = false;
-      } else if (this.showCharacterMenu) {
-        this.showCharacterMenu = false;
-      } else if (this.showMainMenu) {
-        this.showMainMenu = false;
-      }
     },
     openMainMenu: function() {
       this.showMainMenu = true;
