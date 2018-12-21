@@ -98,7 +98,7 @@
               :disabled="isMsgBoxSending"
               v-model="msgBoxText"
               @keydown.enter.ctrl.exact="($event.preventDefault(), sendMessage())"
-              @keydown.enter.exact="pressEnterToSend ? ($event.preventDefault(), sendMessage()) : null"
+              @keydown.enter.exact="pressEnterToSend() ? ($event.preventDefault(), sendMessage()) : null"
               @input="resizeTextareaOnInput($event, 3, 6)"
             ></textarea>
             <template v-if="!isMsgBoxSending">
@@ -145,10 +145,12 @@
             <span>Alerts</span>
             <i class="material-icons">chevron_right</i>
           </button>
-          <button class="drawer-item" @click="pressEnterToSend = !pressEnterToSend">
+          <button class="drawer-item" @click="overridePressEnterToSend = !pressEnterToSend()">
             <i class="material-icons">send</i>
             <span>Quick send</span>
-            <i class="material-icons" v-html="pressEnterToSend?'check_box':'check_box_outline_blank'"></i>
+            <i class="material-icons" v-if="overridePressEnterToSend===true">check_box</i>
+            <i class="material-icons" v-if="overridePressEnterToSend===false">check_box_outline_blank</i>
+            <i class="material-icons" v-if="overridePressEnterToSend===null">indeterminate_check_box</i>
           </button>
           <button class="drawer-item" @click="showMessageDetails = !showMessageDetails">
             <i class="material-icons">account_box</i>

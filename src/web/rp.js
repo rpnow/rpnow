@@ -36,6 +36,42 @@ var noises = [
   {'name': 'Classic alert', 'audio': new Audio(audioDir + 'alert.mp3')},
 ];
 
+/**
+ * Tries to determine if this is a desktop keyboard by measuring
+ * the average length of time between keydown and keyup events on
+ * the page. If it's greater than 25 ms, it's probably desktop.
+ */
+isProbablyDesktopKeyboard = (function() {
+  var averageKeypressDuration = 25;
+
+  window.addEventListener('keydown', function() {
+    var start = Date.now();
+
+    function removeListenersForThisKey() {
+      window.removeEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
+      window.removeEventListener('keyup', keyup);
+    }
+
+    function pressedAnotherKeyBeforeReleasingThisOne() {
+      removeListenersForThisKey();
+    }
+    
+    function keyup() {
+      removeListenersForThisKey();
+
+      var myDuration = Date.now() - start;
+      averageKeypressDuration = averageKeypressDuration*0.9 + myDuration*0.1
+    }
+
+    window.addEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
+    window.addEventListener('keyup', keyup);
+  });
+
+  return function isProbablyDesktopKeyboard() {
+    return averageKeypressDuration >= 25;
+  };
+})(),
+
 new Vue({
   el: '#rp-chat',
   components: {
@@ -81,7 +117,7 @@ new Vue({
     charaDialogColor: '#dddddd',
     showCharacterMenu: false,
     showCharacterDialog: false,
-    pressEnterToSend: jsonStorage.get('rpnow.global.pressEnterToSend', false),
+    overridePressEnterToSend: jsonStorage.get('rpnow.global.pressEnterToSend', null),
     showMainMenu: false,
     nightMode: jsonStorage.get('rpnow.global.nightMode', true),
     showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
@@ -301,7 +337,11 @@ new Vue({
           document.removeEventListener('visibilitychange', resetTitle);
         });
       }
-    })()
+    })(),
+    pressEnterToSend: function() {
+      if (this.overridePressEnterToSend != null) return this.overridePressEnterToSend;
+      return isProbablyDesktopKeyboard();
+    },
   },
   created: function() {
     axios.get('/api/rp/' + this.rpCode)
@@ -316,7 +356,7 @@ new Vue({
   },
   watch: {
     'nightMode': jsonStorage.set.bind(null, 'rpnow.global.nightMode'),
-    'pressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
+    'overridePressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
     'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
     'notificationNoise': jsonStorage.set.bind(null, 'rpnow.global.notificationNoise'),
     'msgBoxText': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxContent'),
