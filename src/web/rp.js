@@ -119,7 +119,7 @@ new Vue({
     showCharacterDialog: false,
     overridePressEnterToSend: jsonStorage.get('rpnow.global.pressEnterToSend', null),
     showMainMenu: false,
-    nightMode: jsonStorage.get('rpnow.global.nightMode', true),
+    nightMode: jsonStorage.get('rpnow.global.nightMode', false),
     showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
     isScrolledToBottom: true,
     notificationNoise: jsonStorage.get('rpnow.global.notificationNoise', 1),
