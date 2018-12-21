@@ -316,7 +316,6 @@ html, body {
   left: 5px;
   right: 5px;
   margin: auto;
-  max-width: 350px;
   padding: 10px;
   box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12);
   border-radius: 2px;
@@ -384,8 +383,37 @@ i.chara-icon-shadow {
   text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
 }
 
-#character-dialog input {
-  display: block;
+/***** Character dialog *****/
+#character-dialog {
+  max-width: 200px;
+}
+#character-dialog > div {
+  display: flex;
+  justify-content: space-between;
+}
+#character-dialog > div:not(:first-child) {
+  margin-top: 5px;
+}
+#character-dialog input[type="text"] {
+  flex: 1 1 0;
+}
+#character-dialog button {
+  margin-top: 20px;
+  width: 90px;
+  background-color: inherit;
+  border: solid 1px black;
+  border-radius: 2px;
+  padding: 5px;
+  color: black;
+  cursor: pointer;
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1), color 1ms
+}
+.dark-theme #character-dialog button {
+  border-color: white;
+  color: white;
+}
+#character-dialog button:hover {
+  background-color: rgba(128,128,128,0.3);
 }
 
 /***** NOTICE THAT SHOWS WHEN YOU START A NEW RP *****/

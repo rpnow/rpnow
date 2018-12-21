@@ -210,10 +210,16 @@
       <div class="overlay overlay-dialog" @click="showCharacterDialog=false" v-show="showCharacterDialog"></div>
 
       <div id="character-dialog" class="dialog" v-show="showCharacterDialog">
-        <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
-        <spectrum-colorpicker v-model="charaDialogColor"></spectrum-colorpicker>
-        <button type="button" @click="sendChara">Add</button>
-        <button type="button" @click="closeCharacterDialog">Cancel</button>
+        <div>
+          <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
+        </div>
+        <div>
+          <spectrum-colorpicker v-model="charaDialogColor"></spectrum-colorpicker>
+        </div>
+        <div>
+          <button type="button" @click="sendChara">Save</button>
+          <button type="button" @click="closeCharacterDialog">Cancel</button>
+        </div>
       </div>
     
     </template>
