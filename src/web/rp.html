@@ -190,7 +190,7 @@
             <span>Out of Character</span>
           </button>
           <div class="drawer-divider"></div>
-          <button class="drawer-item" @click="openCharacterDialog">
+          <button class="drawer-item" @click="openCharacterDialog(null)">
             <i class="material-icons">person_add</i>
             <span>New Character...</span>
           </button>
@@ -199,7 +199,7 @@
             <div :class="['drawer-item', {'drawer-item-selected': currentChara===chara}]" @click="selectCharacter('chara', chara._id)">
               <i class="material-icons chara-icon-shadow" :style="{'color':chara.color}">person</i>
               <span>{{ chara.name }}</span>
-              <button class="icon-button" @click.prevent.stop="editChara(chara)">
+              <button class="icon-button" @click.prevent.stop="openCharacterDialog(chara)">
                 <i class="material-icons" title="Edit character">edit</i>
               </button>
             </div>

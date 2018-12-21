@@ -74,6 +74,7 @@ new Vue({
     msgBoxText: jsonStorage.get('rpnow.'+rpCode+'.msgBoxContent', ''),
     currentMsgType: jsonStorage.get('rpnow.'+rpCode+'.msgBoxType', 'narrator'),
     currentCharaId: jsonStorage.get('rpnow.'+rpCode+'.msgBoxCharaId', null),
+    charaDialogId: null,
     charaDialogName: '',
     charaDialogColor: '#dddddd',
     showCharacterMenu: false,
@@ -164,6 +165,13 @@ new Vue({
           return res.data;
         }).bind(this));
     },
+    putUpdate: function(_id, type, body) {
+      return axios.put('/api/rp/' + this.rpCode + '/' + type + '/' + _id, body)
+        .then((function(res) {
+          this.updateState({ type: type, data: res.data });
+          return res.data;
+        }).bind(this));
+    },
     sendMessage: function() {
       var data = {
         content: this.msgBoxText,
@@ -175,38 +183,40 @@ new Vue({
           this.msgBoxText = '';
         }).bind(this));
     },
+    editMessage: function(_id, body) {
+      this.putUpdate(_id, 'msgs', body);
+    },
     sendChara: function() {
       var data = {
         name: this.charaDialogName,
         color: this.charaDialogColor,
       };
-      this.postUpdate('charas', data)
-        .then((function(data) {
-          this.charaDialogName = '';
-          this.showCharacterDialog = false;
-          this.selectCharacter('chara', data._id);
-        }).bind(this));
-    },
-    putUpdate: function(_id, type, body) {
-      return axios.put('/api/rp/' + this.rpCode + '/' + type + '/' + _id, body)
-        .then((function(res) {
-          this.updateState({ type: type, data: res.data });
-          return res.data;
-        }).bind(this));
-    },
-    editMessage: function(_id, body) {
-      this.putUpdate(_id, 'msgs', body);
-    },
-    editChara: function(chara) {
-      // TODO use actual chara dialog
-      var name = prompt('Rename this character (actual dialog with color input coming later)', chara.name);
-      if (name == null) return;
-      this.putUpdate(chara._id, 'charas', { name: name, color: chara.color });
+      if (this.charaDialogId == null) {
+        this.postUpdate('charas', data)
+          .then((function(data) {
+            this.showCharacterDialog = false;
+            this.selectCharacter('chara', data._id);
+          }).bind(this));
+      } else {
+        this.putUpdate(this.charaDialogId, 'charas', data)
+          .then((function(data) {
+            this.showCharacterDialog = false;
+          }).bind(this));
+      }
     },
     openCharacterMenu: function() {
       this.showCharacterMenu = true;
     },
-    openCharacterDialog: function() {
+    openCharacterDialog: function(chara) {
+      if (chara != null) {
+        this.charaDialogId = chara._id;
+        this.charaDialogName = chara.name;
+        this.charaDialogColor = chara.color;
+      } else {
+        this.charaDialogId = null;
+        this.charaDialogName = '';
+        // leave charaDialogColor as it was
+      }
       this.showCharacterDialog = true;
     },
     closeCharacterDialog: function() {
