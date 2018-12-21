@@ -49,11 +49,13 @@ new Vue({
           color: this.value,
           showInput: true,
           preferredFormat: "hex",
-          showButtons: false,
           move: function(color) {
             vm.$emit('input', color.toHexString());
           },
           change: function(color) {
+            vm.$emit('input', color.toHexString());
+          },
+          hide: function(color) {
             vm.$emit('input', color.toHexString());
           },
         });
