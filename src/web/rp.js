@@ -123,6 +123,8 @@ new Vue({
     showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
     isScrolledToBottom: true,
     notificationNoise: jsonStorage.get('rpnow.global.notificationNoise', 1),
+    showDownloadDialog: false,
+    downloadOOC: jsonStorage.get('rpnow.global.downloadOOC', false),
   },
   computed: {
     charasById: function() {
@@ -260,6 +262,19 @@ new Vue({
     closeCharacterDialog: function() {
       this.showCharacterDialog = false;
     },
+    openDownloadDialog: function() {
+      this.showDownloadDialog = true;
+    },
+    closeDownloadDialog: function() {
+      this.showDownloadDialog = false;
+    },
+    downloadTxt: function() {
+      if (this.downloadOOC) {
+        window.open('/api/rp/'+this.rpCode+'/download.txt?includeOOC=true', '_blank').focus();
+      } else {
+        window.open('/api/rp/'+this.rpCode+'/download.txt', '_blank').focus();
+      }
+    },
     selectCharacter: function(type, charaId) {
       this.currentMsgType = type;
       this.currentCharaId = (type === 'chara') ? charaId : null;
@@ -359,6 +374,7 @@ new Vue({
     'overridePressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
     'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
     'notificationNoise': jsonStorage.set.bind(null, 'rpnow.global.notificationNoise'),
+    'downloadOOC': jsonStorage.set.bind(null, 'rpnow.global.downloadOOC'),
     'msgBoxText': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxContent'),
     'currentMsgType': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxType'),
     'currentCharaId': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxCharaId'),

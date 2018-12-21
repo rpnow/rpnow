@@ -383,6 +383,25 @@ i.chara-icon-shadow {
   text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
 }
 
+/***** PRETTY OUTLINED BUTTONS *****/
+.outline-button {
+  background-color: inherit;
+  border: solid 1px black;
+  border-radius: 2px;
+  padding: 5px;
+  color: black;
+  cursor: pointer;
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1), color 1ms
+}
+.dark-theme .outline-button {
+  border-color: white;
+  color: white;
+}
+.outline-button:hover {
+  background-color: rgba(128,128,128,0.3);
+}
+
+
 /***** Character dialog *****/
 #character-dialog {
   max-width: 200px;
@@ -399,21 +418,12 @@ i.chara-icon-shadow {
 }
 #character-dialog button {
   margin-top: 20px;
-  width: 90px;
-  background-color: inherit;
-  border: solid 1px black;
-  border-radius: 2px;
-  padding: 5px;
-  color: black;
-  cursor: pointer;
-  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1), color 1ms
 }
-.dark-theme #character-dialog button {
-  border-color: white;
-  color: white;
-}
-#character-dialog button:hover {
-  background-color: rgba(128,128,128,0.3);
+
+
+/***** Download dialog *****/
+#download-dialog {
+  max-width: 200px;
 }
 
 /***** NOTICE THAT SHOWS WHEN YOU START A NEW RP *****/

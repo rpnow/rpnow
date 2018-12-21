@@ -130,10 +130,10 @@
             <i class="material-icons">import_contacts</i>
             <span>Browse archive</span>
           </a>
-          <a class="drawer-item" :href="'/api/rp/'+rpCode+'/download.txt'" target="_blank">
+          <button class="drawer-item" @click="openDownloadDialog()">
             <i class="material-icons">cloud_download</i>
             <span>Download</span>
-          </a>
+          </button>
           <div class="drawer-divider"></div>
           <button class="drawer-item" @click="nightMode = !nightMode">
             <i class="material-icons">brightness_4</i>
@@ -219,11 +219,27 @@
           <spectrum-colorpicker v-model="charaDialogColor"></spectrum-colorpicker>
         </div>
         <div>
-          <button type="button" @click="sendChara">Save</button>
-          <button type="button" @click="closeCharacterDialog">Cancel</button>
+          <button type="button" class="outline-button" @click="sendChara">Save</button>
+          <button type="button" class="outline-button" @click="closeCharacterDialog">Cancel</button>
         </div>
       </div>
     
+      <div class="overlay overlay-dialog" @click="showDownloadDialog=false" v-show="showDownloadDialog"></div>
+
+      <div id="download-dialog" class="dialog" v-show="showDownloadDialog">
+        <h4>Download RP</h4>
+        <p>
+          <label>
+            <input type="checkbox" v-model="downloadOOC">
+            Include OOC messages
+          </label>
+        </p>
+        <div>
+          <button type="button" class="outline-button" @click="downloadTxt">Download</button>
+          <button type="button" class="outline-button" @click="closeDownloadDialog">Cancel</button>
+        </div>
+      </div>
+
     </template>
 
   </div>
