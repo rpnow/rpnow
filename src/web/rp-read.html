@@ -27,35 +27,59 @@
     </div>
 
     <template v-if="rp != null">
+      <div id="main-column">
+        <div id="chat-header">
+          <button class="icon-button" @click="showMainMenu=true">
+            <i class="material-icons" title="RPNow menu">menu</i>
+          </button>
+          <span>
+            {{ rp.title }}
+          </span>
+        </div>
 
-      <div id="chat-header">
-        <button class="icon-button" @click="openMainMenu">
-          <i class="material-icons" title="RPNow menu">menu</i>
-        </button>
-        <span>
-          {{ rp.title }}
-        </span>
+        <div id="pager">
+          <button class="icon-button" :disabled="isFirstPage" @click="changePage(1)">
+            <i class="material-icons" title="First page">first_page</i>
+          </button>
+          <button class="icon-button" :disabled="isFirstPage" @click="changePage(pageNumber-1)">
+            <i class="material-icons" title="Previous page">navigate_before</i>
+          </button>
+
+          Page {{ pageNumber }}
+
+          <button class="icon-button" :disabled="isLastPage" @click="changePage(pageNumber+1)">
+            <i class="material-icons" title="Next page">navigate_next</i>
+          </button>
+          <button class="icon-button" :disabled="isLastPage" @click="changePage(pageCount)">
+            <i class="material-icons" title="Last page">last_page</i>
+          </button>
+        </div>
+
+        <div id="messages">
+          <div id="archive-advice" v-if="rp.msgs.length === 0">
+            Nothing on this page yet.
+          </div>
+
+          <template v-for="msg of rp.msgs">
+            <rp-message
+              :key="msg._id"
+              :type="msg.type"
+              :content="msg.content"
+              :url="msg.url"
+              :timestamp="msg.timestamp"
+              :revision="msg.revision"
+              :ipid="msg.ip"
+              :chara="charasById[msg.charaId]"
+              :can-edit="false"
+              :press-enter-to-send="false"
+              :show-message-details="false"
+              :dark-theme="false"
+            ></rp-message>
+          </template>
+        </div>
       </div>
 
-      <div id="messages" class="room-feed">
-        <template v-for="msg of rp.msgs">
-          <rp-message
-            :key="msg._id"
-            :type="msg.type"
-            :content="msg.content"
-            :url="msg.url"
-            :timestamp="msg.timestamp"
-            :revision="msg.revision"
-            :ipid="msg.ip"
-            :chara="charasById[msg.charaId]"
-            :can-edit="false"
-            :press-enter-to-send="pressEnterToSend"
-            :show-message-details="false"
-          ></rp-message>
-        </template>
-      </div>
-
-      <div class="overlay" v-show="showOverlay" @click="clickOverlay"></div>
+      <div class="overlay overlay-drawer" @click="showMainMenu=false" v-show="showMainMenu"></div>
 
       <div id="main-menu" class="drawer" v-show="showMainMenu">
         <div class="drawer-header">
@@ -87,10 +111,9 @@
       },
       data: {
         demo: false,
-        pageNumber: +(location.search.match(/page=(\d+)/)||[,'1'])[1],
+        pageNumber: +(location.pathname.match(/\/page\/(\d+)/))[1],
         rpCode: location.pathname.match(/\/read\/([^\/]+)/)[1],
         rp: null,
-        pressEnterToSend: true,
         showMainMenu: false,
         isPageEmpty: false
       },
@@ -101,9 +124,15 @@
             return map;
           }, {});
         },
-        showOverlay: function() {
-          return this.showMainMenu;
+        pageCount: function() {
+          return this.rp && this.rp.pageCount;
         },
+        isFirstPage: function() {
+          return this.pageNumber === 1;
+        },
+        isLastPage: function() {
+          return this.rp ? this.pageCount <= this.pageNumber : false;
+        }
       },
       methods: {
         fetchUpdates: function() {
@@ -147,13 +176,8 @@
             this.rp[update.type] = arr;
           }
         },
-        clickOverlay: function() {
-          if (this.showMainMenu) {
-            this.showMainMenu = false;
-          }
-        },
-        openMainMenu: function() {
-          this.showMainMenu = true;
+        changePage: function(pageNumber) {
+          location.href = './'+pageNumber;
         }
       },
       created: function() {

@@ -38,7 +38,7 @@
           </span>
         </div>
 
-        <div id="messages" class="room-feed" @scroll="onScroll">
+        <div id="messages" @scroll="onScroll">
           <p id="archive-advice" v-if="rp.msgs.length >= 60">
             To view older messages, <a :href="'/read/'+rpCode+'/page/1'">visit the archive.</a>
           </p>

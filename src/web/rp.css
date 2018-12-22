@@ -462,3 +462,15 @@ i.chara-icon-shadow {
   color: rgb(255,193,7);
   border-bottom-color: rgb(255,193,7);
 }
+
+/***** PAGE NUMBER SUBHEADER on the archive page *****/
+#pager {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #eee;
+}
+.dark-theme #pager {
+  background-color: #555;
+}
