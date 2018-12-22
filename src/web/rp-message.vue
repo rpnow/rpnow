@@ -346,7 +346,7 @@
     position: relative;
   }
   .color-ip-box-section {
-    flex: 1;
+    flex-grow: 1;
   }
   .dark-theme .color-ip-box {
     border-color: rgba(255,255,255,0.7);

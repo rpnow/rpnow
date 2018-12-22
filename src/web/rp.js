@@ -219,8 +219,9 @@ new Vue({
           /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
           /^\/\/\s*(.*[^\s])\s*$/g // //message text
         ];
-        for (var regex of oocShortcuts) {
-          const match = regex.exec(msg.content);
+        for (var i = 0; i < oocShortcuts.length; ++i) {
+          var regex = oocShortcuts[i];
+          var match = regex.exec(msg.content);
           if (match) {
             return { type: 'ooc', content: match[1] };
           }

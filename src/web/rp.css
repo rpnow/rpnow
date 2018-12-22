@@ -29,7 +29,7 @@ html, body {
 
 /***** WRAPPER for the main content of the chat page. Like, not drawers and dialogs and stuff *****/
 #main-column {
-  flex: 1 1 0;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   order: 0;
@@ -166,7 +166,7 @@ html, body {
 }
 
 #send-box #typing-area textarea {
-  flex: 1;
+  flex-grow: 1;
   margin: 0;
   padding: 8px 0;
   border: none;
@@ -291,7 +291,7 @@ html, body {
   padding-right: 8px;
 }
 .drawer .drawer-item span {
-  flex: 1;
+  flex-grow: 1;
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -414,7 +414,7 @@ i.chara-icon-shadow {
   margin-top: 5px;
 }
 #character-dialog input[type="text"] {
-  flex: 1 1 0;
+  flex: 1 1;
 }
 #character-dialog button {
   margin-top: 20px;
