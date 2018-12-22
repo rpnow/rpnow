@@ -212,12 +212,31 @@ new Vue({
           return res.data;
         }).bind(this));
     },
+    applyShortcutsToMessage: function(msg) {
+      if (msg.type !== 'ooc') {
+        var oocShortcuts = [
+          /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( message text ))
+          /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
+          /^\/\/\s*(.*[^\s])\s*$/g // //message text
+        ];
+        for (var regex of oocShortcuts) {
+          const match = regex.exec(msg.content);
+          if (match) {
+            return { type: 'ooc', content: match[1] };
+          }
+        }
+      }
+      return msg;
+    },
     sendMessage: function() {
       var data = {
         content: this.msgBoxText,
         type: this.currentMsgType,
         charaId: this.currentCharaId || undefined,
       };
+
+      data = this.applyShortcutsToMessage(data);
+
       this.postUpdate('msgs', data)
         .then((function() {
           this.msgBoxText = '';
