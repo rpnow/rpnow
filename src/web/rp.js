@@ -125,6 +125,9 @@ new Vue({
     notificationNoise: jsonStorage.get('rpnow.global.notificationNoise', 1),
     showDownloadDialog: false,
     downloadOOC: jsonStorage.get('rpnow.global.downloadOOC', false),
+    showImageDialog: false,
+    imageDialogId: null,
+    imageDialogUrl: '',
   },
   computed: {
     charasById: function() {
@@ -264,6 +267,23 @@ new Vue({
           }).bind(this));
       }
     },
+    sendImage: function() {
+      var data = {
+        type: 'image',
+        url: this.imageDialogUrl,
+      }
+      if (this.imageDialogId == null) {
+        this.postUpdate('msgs', data)
+          .then((function(data) {
+            this.showImageDialog = false;
+          }).bind(this));
+      } else {
+        this.putUpdate(this.imageDialogId, 'msgs', data)
+          .then((function(data) {
+            this.showImageDialog = false;
+          }).bind(this));
+      }
+    },
     openCharacterMenu: function() {
       this.showCharacterMenu = true;
     },
@@ -282,6 +302,16 @@ new Vue({
     closeCharacterDialog: function() {
       this.showCharacterDialog = false;
     },
+    openImageDialog: function(msg) {
+      if (msg != null) {
+        this.imageDialogId = msg._id;
+        this.imageDialogUrl = msg.url;
+      } else {
+        this.imageDialogId = null;
+        this.imageDialogUrl = '';
+      }
+      this.showImageDialog = true;
+    },
     openDownloadDialog: function() {
       this.showDownloadDialog = true;
     },
@@ -299,9 +329,6 @@ new Vue({
       this.currentMsgType = type;
       this.currentCharaId = (type === 'chara') ? charaId : null;
       this.showCharacterMenu = false;
-    },
-    showImageDialog: function() {
-      // TODO
     },
     showFormatGuide: function() {
       window.open('/format', '_blank').focus();

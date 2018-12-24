@@ -68,6 +68,7 @@
               :show-message-details="showMessageDetails"
               :dark-theme="nightMode"
               @edit="editMessage(msg._id, $event)"
+              @prompt-image-edit="openImageDialog(msg)"
               @resize="rescrollToBottom"
             ></rp-message>
           </template>
@@ -82,7 +83,7 @@
             <button class="icon-button" @click="openCharacterMenu">
               <i class="material-icons" title="Change character">people</i>
             </button>
-            <button class="icon-button" @click="showImageDialog">
+            <button class="icon-button" @click="openImageDialog(null)">
               <i class="material-icons" title="Post image">image</i>
             </button>
             <button class="icon-button" @click="showFormatGuide">
@@ -223,7 +224,19 @@
           <button type="button" class="outline-button" @click="closeCharacterDialog">Cancel</button>
         </div>
       </div>
-    
+
+      <div class="overlay overlay-dialog" @click="showImageDialog=false" v-show="showImageDialog"></div>
+
+      <div id="image-dialog" class="dialog" v-show="showImageDialog">
+        <div>
+          <input placeholder="Enter a URL" type="text" v-model="imageDialogUrl" @keydown.enter="sendImage">
+        </div>
+        <div>
+          <button type="button" class="outline-button" @click="sendImage">Save</button>
+          <button type="button" class="outline-button" @click="showImageDialog=false">Cancel</button>
+        </div>
+      </div>
+
       <div class="overlay overlay-dialog" @click="showDownloadDialog=false" v-show="showDownloadDialog"></div>
 
       <div id="download-dialog" class="dialog" v-show="showDownloadDialog">

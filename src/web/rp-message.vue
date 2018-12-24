@@ -268,7 +268,7 @@
     methods: {
       beginEdit: function() {
         if (this.isImage) {
-          // TODO spawn image dialog
+          this.$emit('prompt-image-edit')
         } else {
           this.editing = true;
           this.newContent = this.content;

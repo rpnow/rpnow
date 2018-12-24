@@ -420,6 +420,11 @@ i.chara-icon-shadow {
   margin-top: 20px;
 }
 
+/***** Image dialog *****/
+#image-dialog {
+  max-width: 300px;
+}
+
 
 /***** Download dialog *****/
 #download-dialog {
