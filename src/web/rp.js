@@ -128,6 +128,8 @@ new Vue({
     showImageDialog: false,
     imageDialogId: null,
     imageDialogUrl: '',
+    imageDialogIsChecking: false,
+    imageDialogIsValid: false,
   },
   computed: {
     charasById: function() {
@@ -164,6 +166,10 @@ new Vue({
     },
     msgBoxValid: function() {
       return this.msgBoxText.trim().length > 0;
+    },
+    imageDialogIsWellFormed: function() {
+      var urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
+      return !!this.imageDialogUrl.match(urlRegex);
     }
   },
   methods: {
@@ -268,20 +274,16 @@ new Vue({
       }
     },
     sendImage: function() {
+      this.showImageDialog = false;
+
       var data = {
         type: 'image',
         url: this.imageDialogUrl,
       }
       if (this.imageDialogId == null) {
         this.postUpdate('msgs', data)
-          .then((function(data) {
-            this.showImageDialog = false;
-          }).bind(this));
       } else {
         this.putUpdate(this.imageDialogId, 'msgs', data)
-          .then((function(data) {
-            this.showImageDialog = false;
-          }).bind(this));
       }
     },
     openCharacterMenu: function() {
@@ -436,6 +438,33 @@ new Vue({
           this.doMessageAlert(msgs[msgs.length - 1]);
         }
       }
-    }
+    },
+    'imageDialogUrl': function(url) {
+      if (!this.imageDialogIsWellFormed) {
+        this.imageDialogIsChecking = false;
+        this.imageDialogIsValid = false;
+        return;
+      }
+
+      this.imageDialogIsChecking = true;
+      this.imageDialogIsValid = false;
+
+      new Promise(function(resolve, reject) {
+        var img = document.createElement('img');
+
+        img.addEventListener('load', function() { resolve(true) });
+        img.addEventListener('error', function() { resolve(false) });
+        img.addEventListener('abort', function() { resolve(false) });
+        setTimeout(function() { resolve(false) }, 45000);
+
+        img.src = url;
+      }).then((function(result) {
+        // ignore if another change has happened since this one
+        if (this.imageDialogUrl !== url) return;
+
+        this.imageDialogIsChecking = false;
+        this.imageDialogIsValid = result;
+      }).bind(this));
+    },
   }
 });
