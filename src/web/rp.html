@@ -69,6 +69,7 @@
               :dark-theme="nightMode"
               @edit="editMessage(msg._id, $event)"
               @prompt-image-edit="openImageDialog(msg)"
+              @prompt-audio-edit="openAudioDialog(msg)"
               @resize="rescrollToBottom"
             ></rp-message>
           </template>
@@ -85,6 +86,9 @@
             </button>
             <button class="icon-button" @click="openImageDialog(null)">
               <i class="material-icons" title="Post image">image</i>
+            </button>
+            <button class="icon-button" @click="openAudioDialog(null)">
+              <i class="material-icons" title="Embed audio">headset</i>
             </button>
             <button class="icon-button" @click="showFormatGuide">
               <i class="material-icons" title="Formatting info">text_fields</i>
@@ -232,16 +236,16 @@
           <input placeholder="Enter a URL" type="text" v-model="imageDialogUrl" @keydown.enter="sendImage">
         </div>
 
-        <div id="image-container-busted" v-if="imageDialogIsChecking">
+        <div class="preview-container preview-container-busted" v-if="imageDialogIsChecking">
           <i class="material-icons">hourglass_full</i>
           <span>Loading...</span>
         </div>
 
-        <div id="image-container" v-if="imageDialogIsValid">
+        <div class="preview-container" v-if="imageDialogIsValid">
           <img :src="imageDialogUrl">
         </div>
 
-        <div id="image-container-busted" v-if="!imageDialogIsValid && !imageDialogIsChecking">
+        <div class="preview-container preview-container-busted" v-if="!imageDialogIsValid && !imageDialogIsChecking">
           <span v-if="imageDialogUrl.length > 0 && !imageDialogIsWellFormed">RPNow can't read this URL.</span>
           <span v-if="imageDialogIsWellFormed">Can't load this image.</span>
         </div>
@@ -249,6 +253,24 @@
         <div>
           <button type="button" class="outline-button" @click="sendImage" :disabled="!imageDialogIsValid">Save</button>
           <button type="button" class="outline-button" @click="showImageDialog=false">Cancel</button>
+        </div>
+      </div>
+
+      <div class="overlay overlay-dialog" @click="closeAudioDialog" v-show="showAudioDialog"></div>
+
+      <div id="audio-dialog" class="dialog" v-show="showAudioDialog">
+        <div>
+          <input placeholder="Enter a URL" type="text" v-model="audioDialogUrl" @keydown.enter="sendAudio">
+        </div>
+        <div class="preview-container" v-if="audioDialogUrlTransformed">
+          <iframe sandbox="allow-scripts allow-same-origin" allow="autoplay; encrypted-media" :src="audioDialogUrlTransformed"></iframe>
+        </div>
+        <div class="preview-container preview-container-busted" v-if="!audioDialogUrlTransformed">
+          <span v-if="audioDialogUrl.length > 0">RPNow can't read this URL.</span>
+        </div>
+        <div>
+          <button type="button" class="outline-button" @click="sendAudio" :disabled="!audioDialogUrlTransformed">Save</button>
+          <button type="button" class="outline-button" @click="closeAudioDialog">Cancel</button>
         </div>
       </div>
 

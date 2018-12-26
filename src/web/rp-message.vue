@@ -34,7 +34,7 @@
       </template>
     </div>
 
-    <template v-if="!isImage && !editing">
+    <template v-if="(isNarrator || isOOC || isChara) && !editing">
       <div class="content generated-links" v-html="formattedContent"></div>
     </template>
 
@@ -53,6 +53,9 @@
       </div>
     </template>
 
+    <template v-if="isAudio">
+      Bro it's an audio
+    </template>
   </div>
 </template>
   
@@ -207,6 +210,7 @@
       isOOC: function() { return this.type === 'ooc' },
       isChara: function() { return this.type === 'chara' },
       isImage: function() { return this.type === 'image' },
+      isAudio: function() { return this.type === 'audio' },
       charaColor: function() { return this.isChara ? this.chara.color : null },
       charaName: function() { return this.isChara ? this.chara.name : null },
       elementClasses: function() {
@@ -269,6 +273,8 @@
       beginEdit: function() {
         if (this.isImage) {
           this.$emit('prompt-image-edit')
+        } else if (this.isAudio) {
+          this.$emit('prompt-audio-edit')
         } else {
           this.editing = true;
           this.newContent = this.content;
