@@ -1,8 +1,4 @@
 node_modules
 **/npm-debug.log
-dist/*
-data/*
-rpnow-server-contents.zip
-rpnow-server-contents/*
-
-!**/.gitkeep
+dist
+data

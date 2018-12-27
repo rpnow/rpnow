@@ -1,12 +1,13 @@
-.git
-old-angular-client
 node_modules
+**/npm-debug.log
 dist
 data
 
+.git
 .dockerignore
 .gitignore
 .eslintrc
+old-angular-client
 Dockerfile
 README.md
 TODO
