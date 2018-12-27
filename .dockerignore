@@ -1,6 +1,7 @@
 .git
 old-angular-client
 node_modules
+dist
 data
 
 .dockerignore
