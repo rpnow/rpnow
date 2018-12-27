@@ -19,6 +19,9 @@ router.use(express.urlencoded({ extended: true }));
 if (config.cors) router.use(cors());
 router.use(xRobotsTag);
 
+/**
+ * Create a new RP
+ */
 router.post('/rp.json', awrap(async (req, res, next) => {
     const rpCode = generateRpCode();
     const namespace = 'rp_' + cuid();
@@ -32,6 +35,9 @@ router.post('/rp.json', awrap(async (req, res, next) => {
     res.status(201).json({ rpCode });
 }));
 
+/**
+ * Generate a new set of anon-credentials ("challenge")
+ */
 router.get('/challenge.json', awrap(async (req, res, next) => {
     const challenge = await generateAnonCredentials();
     res.status(200).json(challenge);
@@ -39,6 +45,9 @@ router.get('/challenge.json', awrap(async (req, res, next) => {
 
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 
+/**
+ * Get current state of a RP chatroom
+ */
 router.get(`${rpGroup}`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
@@ -51,6 +60,9 @@ router.get(`${rpGroup}`, awrap(async (req, res, next) => {
     res.status(200).json({ title, desc, msgs, charas, lastEventId })
 }));
 
+/**
+ * Get updates on an RP since some prior state
+ */
 router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
@@ -65,6 +77,9 @@ router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
     res.status(200).json({ lastEventId, updates });
 }));
 
+/**
+ * Get a page from an RP's archive
+ */
 router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
@@ -82,6 +97,9 @@ router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, ne
     res.status(200).json({ title, desc, msgs, charas, pageCount, lastEventId })
 }));
 
+/**
+ * Get and download a .txt file for an entire RP
+ */
 router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
@@ -96,6 +114,9 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
     res.end();
 }));
 
+/**
+ * Create something in an RP (message, chara, etc)
+ */
 router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
@@ -109,6 +130,9 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
     res.status(201).json(doc);
 }));
 
+/**
+ * Update something in an RP (message, chara, etc)
+ */
 router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
@@ -126,10 +150,16 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req
     res.status(200).json(doc);
 }));
 
+/**
+ * Default route (route not found)
+ */
 router.all('*', (req, res, next) => {
     next({ code: 'UNKNOWN_REQUEST' });
 });
 
+/**
+ * Error handling
+ */
 router.use((err, req, res, next) => {
     logger.info(err);
     res.status(500).json({ error: err.toString() });
