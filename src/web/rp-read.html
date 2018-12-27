@@ -29,9 +29,9 @@
     <template v-if="rp != null">
       <div id="main-column">
         <div id="chat-header">
-          <button class="icon-button" @click="showMainMenu=true">
-            <i class="material-icons" title="RPNow menu">menu</i>
-          </button>
+          <a class="icon-button" :href="'/rp/'+rpCode">
+            <i class="material-icons" title="Back to chat">arrow_back</i>
+          </a>
           <span>
             {{ rp.title }}
           </span>
@@ -78,25 +78,7 @@
           </template>
         </div>
       </div>
-
-      <div class="overlay overlay-drawer" @click="showMainMenu=false" v-show="showMainMenu"></div>
-
-      <div id="main-menu" class="drawer" v-show="showMainMenu">
-        <div class="drawer-header">
-          <span>RPNow</span>
-          <button class="icon-button" @click="showMainMenu=false">
-            <i class="material-icons" title="Close">close</i>
-          </button>
-        </div>
-        <div id="title-links" v-if="!demo">
-          <a :href="'/rp/'+rpCode">Home</a> |
-          <a :href="'/rp/'+rpCode+'/1'">Archive</a> |
-          <a href="/">New RP</a>
-        </div>
-      </div>
-
     </template>
-
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 
@@ -114,7 +96,6 @@
         pageNumber: +(location.pathname.match(/\/page\/(\d+)/))[1],
         rpCode: location.pathname.match(/\/read\/([^\/]+)/)[1],
         rp: null,
-        showMainMenu: false,
         isPageEmpty: false
       },
       computed: {

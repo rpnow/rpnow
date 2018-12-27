@@ -354,6 +354,7 @@ html, body {
   background: none;
   border: none;
   outline: none;
+  text-decoration: none;
   cursor: pointer;
   padding: 0;
   width: 40px;
