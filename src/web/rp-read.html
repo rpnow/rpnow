@@ -81,10 +81,20 @@
     </template>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js"></script>
+  <!-- Promise polyfill for older browsers, needed for axios -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4.2.5/dist/es6-promise.auto.min.js" integrity="sha256-8qFPvAMQLj9hOXkNoEO0iOXQx2tHyA8XWkym5O3dxqM=" crossorigin="anonymous"></script>
+  <!-- Axios, our http library -->
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
+  <!-- Vue, our frontend framework -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js" integrity="sha256-ui3vFTgbIIvd9ePh+wF+ju05O3jympV4FyFlpNMV2cw=" crossorigin="anonymous"></script>
+  <!-- Library to load .vue single-file-components without a build tool -->
+  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js" integrity="sha256-f897uAVsdigDKLGjTcl8PwseSHi6KrsgpGqsOQKPW9w=" crossorigin="anonymous"></script>
+  <!-- jQuery is required for Spectrum, but please do not use it for other things -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <!-- Spectrum is a color picker. Also includes the tinycolor library -->
+  <script src="https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.js" integrity="sha256-3wWiHra+MxkTwcZwUQkkowAjnu5uqAF+6hE676OitiE=" crossorigin="anonymous"></script>
+
+  <!-- App code -->
   <script>
     new Vue({
       el: '#rp-chat',
@@ -92,11 +102,9 @@
         'rp-message': httpVueLoader('/client-files/rp-message.vue'),
       },
       data: {
-        demo: false,
         pageNumber: +(location.pathname.match(/\/page\/(\d+)/))[1],
         rpCode: location.pathname.match(/\/read\/([^\/]+)/)[1],
         rp: null,
-        isPageEmpty: false
       },
       computed: {
         charasById: function() {
@@ -105,58 +113,14 @@
             return map;
           }, {});
         },
-        pageCount: function() {
-          return this.rp && this.rp.pageCount;
-        },
         isFirstPage: function() {
           return this.pageNumber === 1;
         },
         isLastPage: function() {
-          return this.rp ? this.pageCount <= this.pageNumber : false;
+          return this.rp.pageCount <= this.pageNumber;
         }
       },
       methods: {
-        fetchUpdates: function() {
-          var scheduleNextUpdate = (function() {
-            setTimeout(this.fetchUpdates.bind(this), 5000);
-          }).bind(this);
-
-          axios.get('/api/rp/' + this.rpCode + '/updates?since=' + this.rp.lastEventId)
-            .then((function(res) {
-              this.rp.lastEventId = res.data.lastEventId;
-
-              res.data.updates.forEach((function(update) {
-                this.updateState(update);
-              }).bind(this));
-
-              scheduleNextUpdate();
-            }).bind(this))
-            .catch((function(err) {
-              console.error(err);
-              scheduleNextUpdate();
-            }).bind(this))
-        },
-        updateState: function(update) {
-          if (update.type === 'msgs') {
-            var index = this.rp.msgs.map(function(msg) { return msg._id }).indexOf(update.data._id);
-
-            if (index !== -1) {
-              this.rp.msgs.splice(index, 1, update.data);
-            }
-            
-            else if (this.rp.msgs.length < 20 && update.data._id > this.rp.msgs[this.rp.msgs.length - 1]._id) {
-              this.rp.msgs.push(updata.data);
-            }
-          } else {
-            var arr = this.rp[update.type];
-
-            arr = arr.filter(function(item) { return item._id !== update.data._id });
-            arr.push(update.data);
-            arr.sort(function(a, b) { return a._id < b._id ? -1 : 1 });
-
-            this.rp[update.type] = arr;
-          }
-        },
         changePage: function(pageNumber) {
           location.href = './'+pageNumber;
         }
@@ -165,11 +129,7 @@
         axios.get('/api/rp/' + this.rpCode + '/page/' + this.pageNumber)
           .then((function(res) {
             this.rp = res.data;
-
             document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';
-            this.isPageEmpty = this.rp.msgs.length === -1;
-
-            this.fetchUpdates();
           }).bind(this));
       },
     })
