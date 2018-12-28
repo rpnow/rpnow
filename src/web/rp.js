@@ -25,16 +25,16 @@ var jsonStorage = (function() {
   }
 })();
 
-var audioDir = '/client-files/assets/sounds/';
-var noises = [
-  {'name': 'Off', 'audio': null},
-  {'name': 'Typewriter', 'audio': new Audio(audioDir + 'typewriter.mp3')},
-  {'name': 'Page turn', 'audio': new Audio(audioDir + 'pageturn.mp3')},
-  {'name': 'Chimes', 'audio': new Audio(audioDir + 'chimes.mp3')},
-  {'name': 'Woosh', 'audio': new Audio(audioDir + 'woosh.mp3')},
-  {'name': 'Frog block', 'audio': new Audio(audioDir + 'frogblock.mp3')},
-  {'name': 'Classic alert', 'audio': new Audio(audioDir + 'alert.mp3')},
-];
+// var audioDir = '/client-files/assets/sounds/';
+// var noises = [
+//   {'name': 'Off', 'audio': null},
+//   {'name': 'Typewriter', 'audio': new Audio(audioDir + 'typewriter.mp3')},
+//   {'name': 'Page turn', 'audio': new Audio(audioDir + 'pageturn.mp3')},
+//   {'name': 'Chimes', 'audio': new Audio(audioDir + 'chimes.mp3')},
+//   {'name': 'Woosh', 'audio': new Audio(audioDir + 'woosh.mp3')},
+//   {'name': 'Frog block', 'audio': new Audio(audioDir + 'frogblock.mp3')},
+//   {'name': 'Classic alert', 'audio': new Audio(audioDir + 'alert.mp3')},
+// ];
 
 /**
  * Tries to determine if this is a desktop keyboard by measuring
@@ -430,18 +430,6 @@ new Vue({
             // Chrome on Android (at least Android 4-7) throws an error
             // "Failed to construct 'Notification': Illegal constructor. Use ServiceWorkerRegistration.showNotification() instead."
             // No action needed
-          }
-        }
-
-        // attempt to play noise
-        var audio = noises[this.notificationNoise].audio;
-        if (audio) {
-          var audioPromise = audio.play();
-          if (audioPromise !== undefined) {
-            audioPromise.catch(function(error) {
-              // TODO handle audio play failure
-              console.log('Could not play an audio alert')
-            });
           }
         }
 
