@@ -219,7 +219,11 @@
           axios.post('/api/rp.json', { title: this.title })
             .then(function(res) {
               window.location.href = '/rp/' + res.data.rpCode;
-            });
+            })
+            .catch((function(err) {
+              this.submitted = false;
+              alert('Failed to create RP: (' + err + ')');
+            }).bind(this));
         }
       }
     })
