@@ -23,14 +23,19 @@ router.use(xRobotsTag);
  * Create a new RP
  */
 router.post('/rp.json', awrap(async (req, res, next) => {
-    const rpCode = generateRpCode();
-    const namespace = 'rp_' + cuid();
+    const rpNamespace = 'rp_' + cuid();
     const fields = req.body;
-    await validate(namespace, 'meta', fields); // TODO or throw BAD_RP
     const ipid = getColorsForIp(req.ip);
 
-    await DB.addDoc(namespace, 'meta', 'meta', fields, ipid);
-    await DB.addDoc('system', 'urls', rpCode, { rpNamespace: namespace }, ipid);
+    await validate(rpNamespace, 'meta', fields); // TODO or throw BAD_RP
+
+    const rpCode = generateRpCode(5);
+    const readCode = fields.title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
+
+    await DB.addDoc(rpNamespace, 'meta', 'meta', fields, ipid);
+    await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, ipid);
+    await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, ipid);
+    await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, ipid);
 
     res.status(201).json({ rpCode });
 }));
@@ -49,15 +54,17 @@ const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
  * Get current state of a RP chatroom
  */
 router.get(`${rpGroup}`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    if (access === 'read') return res.sendStatus(403);
 
     const lastEventId = await DB.lastEventId();
     const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta', { snapshot: lastEventId });
+    const { readCode } = await DB.getDoc(rpNamespace, 'readCode', 'readCode', { snapshot: lastEventId });
     const msgs = await DB.getDocs(rpNamespace, 'msgs', { reverse: true, limit: 60, snapshot: lastEventId }).asArray();
     msgs.reverse();
     const charas = await DB.getDocs(rpNamespace, 'charas', { snapshot: lastEventId }).asArray();
 
-    res.status(200).json({ title, desc, msgs, charas, lastEventId })
+    res.status(200).json({ title, desc, msgs, charas, lastEventId, readCode })
 }));
 
 /**
@@ -118,7 +125,8 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
  * Create something in an RP (message, chara, etc)
  */
 router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
     const _id = cuid();
     const fields = req.body;
@@ -134,7 +142,8 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
  * Update something in an RP (message, chara, etc)
  */
 router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
     const fields = req.body;

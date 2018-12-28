@@ -52,10 +52,15 @@ html, body {
 #chat-header span {
   flex-grow: 1;
   text-align: center;
-  padding-right: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+#chat-header span:first-child {
+  padding-left: 40px;
+}
+#chat-header span:last-child {
+  padding-right: 40px;
 }
 
 /***** Scrollable center box which occupies most of the page. containing messages, etc *****/

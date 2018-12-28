@@ -374,9 +374,9 @@ new Vue({
     },
     downloadTxt: function() {
       if (this.downloadOOC) {
-        window.open('/api/rp/'+this.rpCode+'/download.txt?includeOOC=true', '_blank').focus();
+        window.open('/api/rp/'+this.rp.readCode+'/download.txt?includeOOC=true', '_blank').focus();
       } else {
-        window.open('/api/rp/'+this.rpCode+'/download.txt', '_blank').focus();
+        window.open('/api/rp/'+this.rp.readCode+'/download.txt', '_blank').focus();
       }
     },
     selectCharacter: function(type, charaId) {
