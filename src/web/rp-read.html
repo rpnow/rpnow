@@ -21,9 +21,14 @@
 </head>
 <body>
   <div id="rp-chat">
-    <div id="loading" v-if="rp == null">
+    <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
+    </div>
+
+    <div id="loading" v-if="loadError != null">
+      <i class="material-icons">error</i>
+      <span>Failed to load RP! {{ loadError }}</span>
     </div>
 
     <template v-if="rp != null">
@@ -105,6 +110,7 @@
         pageNumber: +(location.pathname.match(/\/page\/(\d+)/))[1],
         readCode: location.pathname.match(/\/read\/([^\/]+)/)[1],
         rp: null,
+        loadError: null,
       },
       computed: {
         charasById: function() {
@@ -130,6 +136,9 @@
           .then((function(res) {
             this.rp = res.data;
             document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';
+          }).bind(this))
+          .catch((function(err) {
+            this.loadError = 'Check the URL and try again.'
           }).bind(this));
       },
     })

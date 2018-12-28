@@ -108,6 +108,7 @@ new Vue({
     linkToHere: location.href,
     rpCode: rpCode,
     rp: null,
+    loadError: null,
     isNewRp: false,
     msgBoxText: jsonStorage.get('rpnow.'+rpCode+'.msgBoxContent', ''),
     currentMsgType: jsonStorage.get('rpnow.'+rpCode+'.msgBoxType', 'narrator'),
@@ -212,7 +213,7 @@ new Vue({
           scheduleNextUpdate();
         }).bind(this))
         .catch((function(err) {
-          if (!err.status) {
+          if (!err.response.status) {
             this.consecutiveNetworkFailures++;
             scheduleNextUpdate();
           } else {
@@ -466,6 +467,13 @@ new Vue({
         this.isNewRp = this.rp.msgs.length === 0;
 
         this.fetchUpdates();
+      }).bind(this))
+      .catch((function(err) {
+        if (err.response.status === 403) {
+          this.loadError = 'This code can only be used to view an RP, not to write one.'
+        } else {
+          this.loadError = 'Check the URL and try again.';
+        }
       }).bind(this));
   },
   watch: {
