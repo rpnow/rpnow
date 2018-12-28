@@ -54,7 +54,11 @@
     </template>
 
     <template v-if="isAudio">
-      Bro it's an audio
+      <div class="player">
+        <button @click="playAudio">
+          Play content from {{urlOrigin}}
+        </button>
+      </div>
     </template>
   </div>
 </template>
@@ -267,6 +271,10 @@
         else return (this.wasEdited) ?
           'Edited ' + new Date(this.timestamp).toLocaleString() :
           'Posted ' + new Date(this.timestamp).toLocaleString();
+      },
+      urlOrigin: function() {
+        if (!this.url) return this.url;
+        return this.url.split('/')[2];
       }
     },
     methods: {
@@ -294,6 +302,9 @@
       },
       notifySizeChange: function() {
         this.$emit('resize');
+      },
+      playAudio: function() {
+        this.$emit('play-audio');
       }
     },
     created: function() {

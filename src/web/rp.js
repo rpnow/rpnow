@@ -133,6 +133,7 @@ new Vue({
     showAudioDialog: false,
     audioDialogId: null,
     audioDialogUrl: '',
+    nowPlayingAudio: null,
   },
   computed: {
     charasById: function() {
@@ -456,6 +457,9 @@ new Vue({
     pressEnterToSend: function() {
       if (this.overridePressEnterToSend != null) return this.overridePressEnterToSend;
       return isProbablyDesktopKeyboard();
+    },
+    playAudio: function(msg) {
+      this.nowPlayingAudio = msg;
     },
   },
   created: function() {

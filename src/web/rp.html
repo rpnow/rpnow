@@ -34,8 +34,11 @@
             <i class="material-icons" title="RPNow menu">menu</i>
           </button>
           <span>
-          {{ rp.title }}
+            {{ rp.title }}
           </span>
+          <button class="icon-button" v-if="nowPlayingAudio" @click="nowPlayingAudio=null">
+            <i class="material-icons" title="Stop audio">headset</i>
+          </button>
         </div>
 
         <div id="messages" @scroll="onScroll">
@@ -71,6 +74,7 @@
               @prompt-image-edit="openImageDialog(msg)"
               @prompt-audio-edit="openAudioDialog(msg)"
               @resize="rescrollToBottom"
+              @play-audio="playAudio(msg)"
             ></rp-message>
           </template>
         </div>
@@ -285,6 +289,14 @@
           <button type="button" class="outline-button" @click="closeDownloadDialog">Cancel</button>
         </div>
       </div>
+
+      <iframe
+        v-if="nowPlayingAudio"
+        v-show="false"
+        sandbox="allow-scripts allow-same-origin"
+        allow="autoplay; encrypted-media"
+        :src="nowPlayingAudio.url">
+      </iframe>
 
     </template>
 
