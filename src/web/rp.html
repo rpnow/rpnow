@@ -149,10 +149,10 @@
             <span>Night mode</span>
             <i class="material-icons" v-html="nightMode?'check_box':'check_box_outline_blank'"></i>
           </button>
-          <button class="drawer-item" @click="1">
+          <button class="drawer-item" @click="browserAlerts = !browserAlerts">
             <i class="material-icons">notifications</i>
             <span>Alerts</span>
-            <i class="material-icons">chevron_right</i>
+            <i class="material-icons" v-html="browserAlerts?'check_box':'check_box_outline_blank'"></i>
           </button>
           <button class="drawer-item" @click="overridePressEnterToSend = !pressEnterToSend()">
             <i class="material-icons">send</i>

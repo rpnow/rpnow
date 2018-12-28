@@ -122,7 +122,7 @@ new Vue({
     nightMode: jsonStorage.get('rpnow.global.nightMode', false),
     showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
     isScrolledToBottom: true,
-    notificationNoise: jsonStorage.get('rpnow.global.notificationNoise', 1),
+    browserAlerts: jsonStorage.get('rpnow.global.browserAlerts', false),
     showDownloadDialog: false,
     downloadOOC: jsonStorage.get('rpnow.global.downloadOOC', false),
     showImageDialog: false,
@@ -419,7 +419,7 @@ new Vue({
       var oldTitle = null;
       return function(msg) {
         // desktop notifications
-        if ('Notification' in window && Notification.permission === 'granted') {
+        if (this.browserAlerts) {
           try {
             new Notification('New post from "' + this.rp.title + '"', {
               body: msg.content || undefined,
@@ -465,7 +465,25 @@ new Vue({
     'nightMode': jsonStorage.set.bind(null, 'rpnow.global.nightMode'),
     'overridePressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
     'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
-    'notificationNoise': jsonStorage.set.bind(null, 'rpnow.global.notificationNoise'),
+    'browserAlerts': [
+      jsonStorage.set.bind(null, 'rpnow.global.browserAlerts'),
+      function(on) {
+        if (!on) return;
+
+        if (!('Notification' in window)) {
+          this.browserAlerts = false;
+          alert('Notifications are not supported in this browser.');
+        } else if (Notification.permission === 'denied') {
+          this.browserAlerts = false;
+          alert('Could not get notification permissions.')
+        } else if (Notification.permission === 'default') {
+          this.browserAlerts = false;
+          Notification.requestPermission().then((function(result) {
+            if (result === 'granted') this.browserAlerts = true;
+          }).bind(this));
+        }
+      }
+    ],
     'downloadOOC': jsonStorage.set.bind(null, 'rpnow.global.downloadOOC'),
     'msgBoxText': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxContent'),
     'currentMsgType': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxType'),
