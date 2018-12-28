@@ -104,7 +104,6 @@ new Vue({
     }
   },
   data: {
-    demo: false,
     linkToHere: location.href,
     rpCode: rpCode,
     rp: null,
