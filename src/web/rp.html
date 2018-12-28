@@ -29,6 +29,14 @@
 
     <template v-if="rp != null">
       <div id="main-column">
+        <div id="connection-indicator" v-if="consecutiveNetworkFailures > 0">
+          <i class="material-icons">error</i>
+          Connection lost!
+          <template v-if="consecutiveNetworkFailures > 1">
+            (Failed to reconnect {{ consecutiveNetworkFailures }} times.)
+          </template>
+        </div>
+
         <div id="chat-header">
           <button class="icon-button" @click="openMainMenu">
             <i class="material-icons" title="RPNow menu">menu</i>

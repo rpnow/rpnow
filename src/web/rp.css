@@ -532,6 +532,21 @@ i.chara-icon-shadow {
   border-bottom-color: rgb(255,193,7);
 }
 
+
+/***** CONNECTION LOST *****/
+#connection-indicator {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  background-color: #d32f2f;
+}
+#connection-indicator i.material-icons {
+  margin-right: 5px;
+}
+
+
 /***** PAGE NUMBER SUBHEADER on the archive page *****/
 #pager {
   display: flex;

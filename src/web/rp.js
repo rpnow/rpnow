@@ -134,6 +134,7 @@ new Vue({
     audioDialogId: null,
     audioDialogUrl: '',
     nowPlayingAudio: null,
+    consecutiveNetworkFailures: 0,
   },
   computed: {
     charasById: function() {
@@ -201,6 +202,7 @@ new Vue({
 
       axios.get('/api/rp/' + this.rpCode + '/updates?since=' + this.rp.lastEventId)
         .then((function(res) {
+          this.consecutiveNetworkFailures = 0;
           this.rp.lastEventId = res.data.lastEventId;
 
           res.data.updates.forEach((function(update) {
@@ -210,8 +212,13 @@ new Vue({
           scheduleNextUpdate();
         }).bind(this))
         .catch((function(err) {
-          console.error(err);
-          scheduleNextUpdate();
+          if (!err.status) {
+            this.consecutiveNetworkFailures++;
+            scheduleNextUpdate();
+          } else {
+            this.rp = null;
+            this.loadError = err;
+          }
         }).bind(this))
     },
     updateState: function(update) {
