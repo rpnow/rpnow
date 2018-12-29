@@ -13,9 +13,7 @@ Drawer animation
 Challenge/secret (+persistence)
 Options: note noise (+persistence)
 Description handling
-Connection state description
 API unit tests
 Chara drawer organization
 Recent charas (+persistence)
 Remove RPNow branding from some places
-Block messageBox while sending
