@@ -55,7 +55,7 @@
           <button class="icon-button" :disabled="isLastPage" @click="changePage(pageNumber+1)">
             <i class="material-icons" title="Next page">navigate_next</i>
           </button>
-          <button class="icon-button" :disabled="isLastPage" @click="changePage(pageCount)">
+          <button class="icon-button" :disabled="isLastPage" @click="changePage(rp.pageCount)">
             <i class="material-icons" title="Last page">last_page</i>
           </button>
         </div>
