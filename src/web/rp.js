@@ -318,6 +318,8 @@ new Vue({
       return msg;
     },
     sendMessage: function() {
+      var wasFocused = (document.activeElement === document.querySelector('#typing-area textarea'));
+
       var data = {
         content: this.msgBoxText,
         type: this.currentMsgType,
@@ -326,9 +328,15 @@ new Vue({
 
       data = this.applyShortcutsToMessage(data);
 
+      this.isMsgBoxSending = true;
+
       this.postUpdate('msgs', data)
         .then((function() {
           this.msgBoxText = '';
+        }).bind(this))
+        .finally((function() {
+          this.isMsgBoxSending = false;
+          if (wasFocused) this.$nextTick(function() { document.querySelector('#typing-area textarea').focus() });
         }).bind(this));
     },
     editMessage: function(_id, body) {
