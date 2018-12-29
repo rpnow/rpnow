@@ -136,14 +136,8 @@ new Vue({
     imageDialogUrl: '',
     imageDialogIsChecking: false,
     imageDialogIsValid: false,
-    // audio post dialog
-    showAudioDialog: false,
-    audioDialogId: null,
-    audioDialogUrl: '',
     // if any dialog is in the process of sending
     isDialogSending: false,
-    // now playing audio
-    nowPlayingAudio: null,
   },
 
   // when the page is loaded, load the rp
@@ -206,24 +200,6 @@ new Vue({
       var urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
       return !!this.imageDialogUrl.match(urlRegex);
     },
-    // audio dialog computed properties
-    audioDialogUrlTransformed: function() {
-      var youtubeRegex = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([-\w]+)/i;
-      if (this.audioDialogUrl.match(youtubeRegex)) {
-        var id = this.audioDialogUrl.match(youtubeRegex)[1];
-        return 'https://www.youtube.com/embed/'+id+'?autoplay=1&loop=1&playlist='+id;
-      }
-      var youtubePlaylistRegex  = /^https?:\/\/(?:www\.)?youtube\.com\/playlist\?list=([-\w]+)/i;
-      if (this.audioDialogUrl.match(youtubePlaylistRegex)) {
-        var id = this.audioDialogUrl.match(youtubePlaylistRegex)[1];
-        return 'https://www.youtube.com/embed/videoseries?list='+id+'&autoplay=1&loop=1';
-      }
-      var anyUrlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
-      if (this.audioDialogUrl.match(anyUrlRegex)) {
-        return this.audioDialogUrl;
-      }
-      return null;
-    }
   },
 
   methods: {
@@ -378,29 +354,6 @@ new Vue({
           }).bind(this));
       }
     },
-    sendAudio: function() {
-      if (!this.audioDialogUrlTransformed) return;
-
-      var data = {
-        type: 'audio',
-        url: this.audioDialogUrlTransformed,
-      }
-
-      this.closeAudioDialog();
-      this.isDialogSending = true;
-
-      if (this.audioDialogId == null) {
-        this.postUpdate('msgs', data)
-          .finally((function() {
-            this.isDialogSending = false;
-          }).bind(this));
-      } else {
-        this.putUpdate(this.audioDialogId, 'msgs', data)
-          .finally((function() {
-            this.isDialogSending = false;
-          }).bind(this));
-      }
-    },
     openCharacterMenu: function() {
       this.showCharacterMenu = true;
     },
@@ -428,20 +381,6 @@ new Vue({
         this.imageDialogUrl = '';
       }
       this.showImageDialog = true;
-    },
-    openAudioDialog: function(msg) {
-      if (msg != null) {
-        this.audioDialogId = msg._id;
-        this.audioDialogUrl = msg.url;
-      } else {
-        this.audioDialogId = null;
-        this.audioDialogUrl = '';
-      }
-      this.showAudioDialog = true;
-    },
-    closeAudioDialog: function(msg) {
-      this.showAudioDialog = false;
-      this.audioDialogUrl = '';
     },
     openDownloadDialog: function() {
       this.showDownloadDialog = true;
@@ -524,9 +463,6 @@ new Vue({
     pressEnterToSend: function() {
       if (this.overridePressEnterToSend != null) return this.overridePressEnterToSend;
       return isProbablyDesktopKeyboard();
-    },
-    playAudio: function(msg) {
-      this.nowPlayingAudio = msg;
     },
   },
 

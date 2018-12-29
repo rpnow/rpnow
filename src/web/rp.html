@@ -49,9 +49,6 @@
           <span>
             {{ rp.title }}
           </span>
-          <button class="icon-button" v-if="nowPlayingAudio" @click="nowPlayingAudio=null">
-            <i class="material-icons" title="Stop audio">headset</i>
-          </button>
         </div>
 
         <div id="messages" @scroll="onScroll">
@@ -85,9 +82,7 @@
               :dark-theme="nightMode"
               @edit="editMessage(msg._id, $event)"
               @prompt-image-edit="openImageDialog(msg)"
-              @prompt-audio-edit="openAudioDialog(msg)"
               @resize="rescrollToBottom"
-              @play-audio="playAudio(msg)"
             ></rp-message>
           </template>
         </div>
@@ -103,9 +98,6 @@
             </button>
             <button class="icon-button" @click="openImageDialog(null)">
               <i class="material-icons" title="Post image">image</i>
-            </button>
-            <button class="icon-button" @click="openAudioDialog(null)">
-              <i class="material-icons" title="Embed audio">headset</i>
             </button>
             <button class="icon-button" @click="showFormatGuide">
               <i class="material-icons" title="Formatting info">text_fields</i>
@@ -269,24 +261,6 @@
         </div>
       </div>
 
-      <div class="overlay overlay-dialog" @click="closeAudioDialog" v-show="showAudioDialog"></div>
-
-      <div id="audio-dialog" class="dialog" v-show="showAudioDialog">
-        <div>
-          <input placeholder="Enter a URL" type="text" v-model="audioDialogUrl" @keydown.enter="sendAudio">
-        </div>
-        <div class="preview-container" v-if="audioDialogUrlTransformed">
-          <iframe sandbox="allow-scripts allow-same-origin" allow="autoplay; encrypted-media" :src="audioDialogUrlTransformed"></iframe>
-        </div>
-        <div class="preview-container preview-container-busted" v-if="!audioDialogUrlTransformed">
-          <span v-if="audioDialogUrl.length > 0">RPNow can't read this URL.</span>
-        </div>
-        <div>
-          <button type="button" class="outline-button" @click="sendAudio" :disabled="!audioDialogUrlTransformed">Save</button>
-          <button type="button" class="outline-button" @click="closeAudioDialog">Cancel</button>
-        </div>
-      </div>
-
       <div class="overlay overlay-dialog" @click="showDownloadDialog=false" v-show="showDownloadDialog"></div>
 
       <div id="download-dialog" class="dialog" v-show="showDownloadDialog">
@@ -307,14 +281,6 @@
         <i class="material-icons">hourglass_full</i>
         <span>Loading...</span>
       </div>
-
-      <iframe
-        v-if="nowPlayingAudio"
-        v-show="false"
-        sandbox="allow-scripts allow-same-origin"
-        allow="autoplay; encrypted-media"
-        :src="nowPlayingAudio.url">
-      </iframe>
 
     </template>
 
