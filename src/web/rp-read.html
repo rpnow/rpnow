@@ -34,9 +34,10 @@
     <template v-if="rp != null">
       <div id="main-column">
         <div id="chat-header">
-          <!-- <a class="icon-button" :href="'/rp/'+rpCode">
-            <i class="material-icons" title="Back to chat">arrow_back</i>
-          </a> -->
+          <button class="icon-button" @click="nightMode = !nightMode">
+            <i class="material-icons">brightness_4</i>
+            <span>Night mode</span>
+          </button>
           <span>
             {{ rp.title }}
           </span>
