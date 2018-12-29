@@ -337,9 +337,14 @@ html, body {
   bottom: 0;
   right: 0;
   left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
 }
 .dark-theme .overlay {
   background-color: rgba(189,189,189,.6);
+  color: black;
 }
 @media (min-width: 1024px) {
   .overlay.overlay-lt-1024 {

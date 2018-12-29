@@ -151,6 +151,8 @@ new Vue({
     showAudioDialog: false,
     audioDialogId: null,
     audioDialogUrl: '',
+    // if any dialog is in the process of sending
+    isDialogSending: false,
     // now playing audio
     nowPlayingAudio: null,
   },
@@ -281,6 +283,10 @@ new Vue({
         .then((function(res) {
           this.updateState({ type: type, data: res.data });
           return res.data;
+        }).bind(this))
+        .catch((function(err) {
+          alert('Post failed! ' + err)
+          throw err;
         }).bind(this));
     },
     putUpdate: function(_id, type, body) {
@@ -288,6 +294,10 @@ new Vue({
         .then((function(res) {
           this.updateState({ type: type, data: res.data });
           return res.data;
+        }).bind(this))
+        .catch((function(err) {
+          alert('Edit failed! ' + err)
+          throw err;
         }).bind(this));
     },
     applyShortcutsToMessage: function(msg) {
@@ -329,16 +339,22 @@ new Vue({
         name: this.charaDialogName,
         color: this.charaDialogColor,
       };
+
+      this.showCharacterDialog = false;
+      this.isDialogSending = true;
+
       if (this.charaDialogId == null) {
         this.postUpdate('charas', data)
           .then((function(data) {
-            this.showCharacterDialog = false;
             this.selectCharacter('chara', data._id);
+          }).bind(this))
+          .finally((function() {
+            this.isDialogSending = false;
           }).bind(this));
       } else {
         this.putUpdate(this.charaDialogId, 'charas', data)
-          .then((function(data) {
-            this.showCharacterDialog = false;
+          .finally((function() {
+            this.isDialogSending = false;
           }).bind(this));
       }
     },
@@ -349,13 +365,21 @@ new Vue({
         type: 'image',
         url: this.imageDialogUrl,
       }
-      if (this.imageDialogId == null) {
-        this.postUpdate('msgs', data)
-      } else {
-        this.putUpdate(this.imageDialogId, 'msgs', data)
-      }
 
       this.showImageDialog = false;
+      this.isDialogSending = true;
+
+      if (this.imageDialogId == null) {
+        this.postUpdate('msgs', data)
+          .finally((function() {
+            this.isDialogSending = false;
+          }).bind(this));
+      } else {
+        this.putUpdate(this.imageDialogId, 'msgs', data)
+          .finally((function() {
+            this.isDialogSending = false;
+          }).bind(this));
+      }
     },
     sendAudio: function() {
       if (!this.audioDialogUrlTransformed) return;
@@ -364,13 +388,21 @@ new Vue({
         type: 'audio',
         url: this.audioDialogUrlTransformed,
       }
-      if (this.audioDialogId == null) {
-        this.postUpdate('msgs', data)
-      } else {
-        this.putUpdate(this.audioDialogId, 'msgs', data)
-      }
 
       this.closeAudioDialog();
+      this.isDialogSending = true;
+
+      if (this.audioDialogId == null) {
+        this.postUpdate('msgs', data)
+          .finally((function() {
+            this.isDialogSending = false;
+          }).bind(this));
+      } else {
+        this.putUpdate(this.audioDialogId, 'msgs', data)
+          .finally((function() {
+            this.isDialogSending = false;
+          }).bind(this));
+      }
     },
     openCharacterMenu: function() {
       this.showCharacterMenu = true;
