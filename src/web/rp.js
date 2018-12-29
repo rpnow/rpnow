@@ -74,8 +74,11 @@ isProbablyDesktopKeyboard = (function() {
 
 new Vue({
   el: '#rp-chat',
+
   components: {
+    // rp message component: 
     'rp-message': httpVueLoader('/client-files/rp-message.vue'),
+    // adapt jquery colorpicker component for vue
     'spectrum-colorpicker': {
       props: ['value'],
       template: '<input ref="el">',
@@ -103,46 +106,84 @@ new Vue({
       }
     }
   },
+
   data: {
-    linkToHere: location.href,
+    // rp data
     rpCode: rpCode,
     rp: null,
     loadError: null,
+    // rp ui
+    linkToHere: location.href,
     isNewRp: false,
+    isScrolledToBottom: true,
+    unreadMessagesIndicator: false,
+    // connection status
+    consecutiveNetworkFailures: 0,
+    // options
+    overridePressEnterToSend: jsonStorage.get('rpnow.global.pressEnterToSend', null),
+    nightMode: jsonStorage.get('rpnow.global.nightMode', false),
+    showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
+    browserAlerts: jsonStorage.get('rpnow.global.browserAlerts', false),
+    // message box
     msgBoxText: jsonStorage.get('rpnow.'+rpCode+'.msgBoxContent', ''),
     currentMsgType: jsonStorage.get('rpnow.'+rpCode+'.msgBoxType', 'narrator'),
     currentCharaId: jsonStorage.get('rpnow.'+rpCode+'.msgBoxCharaId', null),
+    isMsgBoxSending: false,
+    // main menu
+    showMainMenu: false,
+    // chara selector
+    showCharacterMenu: false,
+    // chara dialog
+    showCharacterDialog: false,
     charaDialogId: null,
     charaDialogName: '',
     charaDialogColor: '#dddddd',
-    showCharacterMenu: false,
-    showCharacterDialog: false,
-    overridePressEnterToSend: jsonStorage.get('rpnow.global.pressEnterToSend', null),
-    showMainMenu: false,
-    nightMode: jsonStorage.get('rpnow.global.nightMode', false),
-    showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
-    isScrolledToBottom: true,
-    browserAlerts: jsonStorage.get('rpnow.global.browserAlerts', false),
+    // download dialog
     showDownloadDialog: false,
     downloadOOC: jsonStorage.get('rpnow.global.downloadOOC', false),
+    // image post dialog
     showImageDialog: false,
     imageDialogId: null,
     imageDialogUrl: '',
     imageDialogIsChecking: false,
     imageDialogIsValid: false,
+    // audio post dialog
     showAudioDialog: false,
     audioDialogId: null,
     audioDialogUrl: '',
+    // now playing audio
     nowPlayingAudio: null,
-    consecutiveNetworkFailures: 0,
   },
+
+  // when the page is loaded, load the rp
+  created: function() {
+    axios.get('/api/rp/' + this.rpCode)
+      .then((function(res) {
+        this.rp = res.data;
+
+        document.title = this.rp.title + ' | RPNow';
+        this.isNewRp = this.rp.msgs.length === 0;
+
+        this.fetchUpdates();
+      }).bind(this))
+      .catch((function(err) {
+        if (err.response.status === 403) {
+          this.loadError = 'This code can only be used to view an RP, not to write one.'
+        } else {
+          this.loadError = 'Check the URL and try again.';
+        }
+      }).bind(this));
+  },
+
   computed: {
+    // rp charas grouped by id
     charasById: function() {
       return this.rp.charas.reduce(function(map, chara) {
         map[chara._id] = chara;
         return map;
       }, {});
     },
+    // message box computed properties
     currentChara: function() {
       if (this.currentMsgType !== 'chara') return undefined;
       return this.charasById[this.currentCharaId]
@@ -166,16 +207,15 @@ new Vue({
         'color': tinycolor(this.currentCharaColor).isLight() ? 'black' : 'white',
       };
     },
-    isMsgBoxSending: function() {
-      return false;
-    },
     msgBoxValid: function() {
       return this.msgBoxText.trim().length > 0;
     },
+    // image dialog computed properties
     imageDialogIsWellFormed: function() {
       var urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
       return !!this.imageDialogUrl.match(urlRegex);
     },
+    // audio dialog computed properties
     audioDialogUrlTransformed: function() {
       var youtubeRegex = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([-\w]+)/i;
       if (this.audioDialogUrl.match(youtubeRegex)) {
@@ -194,6 +234,7 @@ new Vue({
       return null;
     }
   },
+
   methods: {
     fetchUpdates: function() {
       var scheduleNextUpdate = (function() {
@@ -459,28 +500,17 @@ new Vue({
       this.nowPlayingAudio = msg;
     },
   },
-  created: function() {
-    axios.get('/api/rp/' + this.rpCode)
-      .then((function(res) {
-        this.rp = res.data;
 
-        document.title = this.rp.title + ' | RPNow';
-        this.isNewRp = this.rp.msgs.length === 0;
-
-        this.fetchUpdates();
-      }).bind(this))
-      .catch((function(err) {
-        if (err.response.status === 403) {
-          this.loadError = 'This code can only be used to view an RP, not to write one.'
-        } else {
-          this.loadError = 'Check the URL and try again.';
-        }
-      }).bind(this));
-  },
   watch: {
+    // save persistent options back to localStorage
     'nightMode': jsonStorage.set.bind(null, 'rpnow.global.nightMode'),
     'overridePressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
     'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
+    'downloadOOC': jsonStorage.set.bind(null, 'rpnow.global.downloadOOC'),
+    'msgBoxText': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxContent'),
+    'currentMsgType': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxType'),
+    'currentCharaId': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxCharaId'),
+    // browserAlerts saves to localStorage BUT also checks to make sure notifications are supported
     'browserAlerts': [
       jsonStorage.set.bind(null, 'rpnow.global.browserAlerts'),
       function(on) {
@@ -500,22 +530,22 @@ new Vue({
         }
       }
     ],
-    'downloadOOC': jsonStorage.set.bind(null, 'rpnow.global.downloadOOC'),
-    'msgBoxText': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxContent'),
-    'currentMsgType': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxType'),
-    'currentCharaId': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxCharaId'),
+    // actions for when a new message comes in
     'rp.msgs': function(msgs, oldMsgs) {
       if (msgs == null || oldMsgs == null) return;
 
       if (msgs.length > oldMsgs.length) {
+        // if we're scrolled up, show an indicator
         if (!this.isScrolledToBottom) {
           this.unreadMessagesIndicator = true;
         }
+        // alerts
         if (document.visibilityState !== 'visible') {
           this.doMessageAlert(msgs[msgs.length - 1]);
         }
       }
     },
+    // validate the image dialog to see if an image can actually be loaded
     'imageDialogUrl': function(url) {
       if (!this.imageDialogIsWellFormed) {
         this.imageDialogIsChecking = false;
