@@ -152,7 +152,9 @@ new Vue({
         this.fetchUpdates();
       }).bind(this))
       .catch((function(err) {
-        if (err.response.status === 403) {
+        if (!err.response) {
+          this.loadError = 'Failed to connect.';
+        } else if (err.response.status === 403) {
           this.loadError = 'This code can only be used to view an RP, not to write one.'
         } else {
           this.loadError = 'Check the URL and try again.';
@@ -220,12 +222,12 @@ new Vue({
           scheduleNextUpdate();
         }).bind(this))
         .catch((function(err) {
-          if (!err.response.status) {
+          if (!err.response) {
             this.consecutiveNetworkFailures++;
             scheduleNextUpdate();
           } else {
             this.rp = null;
-            this.loadError = err;
+            this.loadError = err.response;
           }
         }).bind(this))
     },
