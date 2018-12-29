@@ -389,7 +389,9 @@ new Vue({
     selectCharacter: function(type, charaId) {
       this.currentMsgType = type;
       this.currentCharaId = (type === 'chara') ? charaId : null;
-      this.showCharacterMenu = false;
+      if (window.matchMedia("(max-width: 1023px)").matches) {
+        this.showCharacterMenu = false;
+      }
     },
     showFormatGuide: function() {
       window.open('/format', '_blank').focus();
