@@ -107,7 +107,7 @@
     #title-entry button {
       padding: 0;
     }
-    #title-entry button mat-icon {
+    #title-entry button i {
       padding: 15px 0;
     }
     @media (min-width: 650px) {
@@ -120,7 +120,7 @@
       #go-button {
         max-width: 120px;
       }
-      #title-entry button mat-icon {
+      #title-entry button i {
         font-size: 32px;
         height: 32px;
         width: 32px;
@@ -167,14 +167,19 @@
       <i class="material-icons">hourglass_full</i>
       Loading...
     </div>
-    <!-- <mat-spinner v-if="submitted" diameter="96"></mat-spinner> -->
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://unpkg.com/coolstory.js"></script>
+  <!-- Promise polyfill for older browsers, needed for axios -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4.2.5/dist/es6-promise.auto.min.js" integrity="sha256-8qFPvAMQLj9hOXkNoEO0iOXQx2tHyA8XWkym5O3dxqM=" crossorigin="anonymous"></script>
+  <!-- Axios, our http library -->
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
+  <!-- Vue, our frontend framework -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js" integrity="sha256-ui3vFTgbIIvd9ePh+wF+ju05O3jympV4FyFlpNMV2cw=" crossorigin="anonymous"></script>
+  <!-- coolstory.js, which gives us fun random titles for stories -->
+  <script src="https://cdn.jsdelivr.net/npm/coolstory.js@0.1.2/coolstory.js" integrity="sha256-X33HnAf/ajyOJmMH3mVWw9lXprSvLk8e12U6esxnC24=" crossorigin="anonymous"></script>
+
+  <!-- Homepage code -->
   <script>
     new Vue({
       el: '#homepage',
