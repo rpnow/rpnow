@@ -35,6 +35,6 @@
   },
   "bin": "src/index.js",
   "pkg": {
-    "assets": "../client/dist/rpnow/**"
+    "assets": "src/web/**"
   }
 }
