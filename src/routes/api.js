@@ -85,9 +85,24 @@ router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
 }));
 
 /**
+ * Count the pages in an RP's archive
+ */
+router.get(`${rpGroup}/pages`, awrap(async (req, res, next) => {
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
+
+    const lastEventId = await DB.lastEventId();
+    const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta', { snapshot: lastEventId });
+
+    const msgCount = await DB.getDocs(rpNamespace, 'msgs').count();
+    const pageCount = Math.ceil(msgCount / 20);
+
+    res.status(200).json({ title, desc, pageCount, lastEventId })
+}));
+
+/**
  * Get a page from an RP's archive
  */
-router.get(`${rpGroup}/page/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/pages/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const skip = (req.params.pageNum - 1) * 20;

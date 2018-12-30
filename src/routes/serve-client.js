@@ -19,6 +19,7 @@ router.get('/', (req, res) => res.renderVue('home.vue', null, { head: { title: '
 router.get('/terms', (req, res) => res.sendFile(`${viewFiles}/terms.txt`));
 router.get('/format', (req, res) => res.renderVue('format.vue', null, { head: { title: 'Format Guide | RPNow' } }));
 router.get('/rp/[\\w-]+', xRobotsTag, (req, res) => res.renderVue('rp.vue', null, { head: { title: 'Loading RP | RPNow' } }));
+router.get('/read/[\\w-]+', xRobotsTag, (req, res) => res.renderVue('rp-read-index.vue', null, { head: { title: 'Loading RP | RPNow' } }));
 router.get('/read/[\\w-]+/page/[0-9]+', xRobotsTag, (req, res) => res.renderVue('rp-read.vue', null, { head: { title: 'Loading RP | RPNow' } }));
 
 // 404

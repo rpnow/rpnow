@@ -13,9 +13,9 @@
     <template v-if="rp != null">
       <div id="main-column">
         <div id="chat-header">
-          <!-- <a class="icon-button" :href="'/rp/'+rpCode">
-            <i class="material-icons" title="Back to chat">arrow_back</i>
-          </a> -->
+          <a class="icon-button" :href="'/read/'+readCode">
+            <i class="material-icons" title="Back to index">arrow_back</i>
+          </a>
           <span>
             {{ rp.title }}
           </span>
@@ -104,7 +104,7 @@
       }
     },
     mounted: function() {
-      axios.get('/api/rp/' + this.readCode + '/page/' + this.pageNumber)
+      axios.get('/api/rp/' + this.readCode + '/pages/' + this.pageNumber)
         .then((function(res) {
           this.rp = res.data;
           document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';

@@ -537,7 +537,23 @@ i.chara-icon-shadow {
 }
 
 
-/***** PAGE NUMBER SUBHEADER on the archive page *****/
+/***** PAGE NUMBER LINKS on the archive index *****/
+#archive-index {
+  max-width: 600px;
+  margin: 2vh auto 0;
+}
+.page-number-link {
+  width: 60px;
+  line-height: 50px;
+  font-size: 150%;
+  display: inline-flex;
+  justify-content: center;
+  align-content: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+/***** PAGINATOR SUBHEADER on an archive page *****/
 #pager {
   display: flex;
   flex-direction: row;

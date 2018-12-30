@@ -31,7 +31,7 @@
 
         <div id="messages" @scroll="onScroll">
           <p id="archive-advice" v-if="rp.msgs.length >= 60">
-            To view older messages, <a :href="'/read/'+rp.readCode+'/page/1'" target="_blank">visit the archive.</a>
+            To view older messages, <a :href="'/read/'+rp.readCode" target="_blank">visit the archive.</a>
           </p>
 
           <div id="welcome" v-if="isNewRp">
@@ -118,7 +118,7 @@
           </button>
         </div>
         <div class="drawer-body">
-          <a class="drawer-item" :href="'/read/'+rp.readCode+'/page/1'" target="_blank">
+          <a class="drawer-item" :href="'/read/'+rp.readCode" target="_blank">
             <i class="material-icons">import_contacts</i>
             <span>Browse archive</span>
           </a>
