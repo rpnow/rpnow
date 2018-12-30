@@ -1,7 +1,7 @@
 module.exports = {
   components: {
     // rp message component: 
-    'rp-message': require('./404.vue'),
+    'rp-message': require('./components/rp-message.vue'),
     // adapt jquery colorpicker component for vue
     'spectrum-colorpicker': {
       props: ['value'],
