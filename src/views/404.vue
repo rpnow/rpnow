@@ -1,6 +1,6 @@
 <template>
   <div id="not-found">
-    <h1>Page not found: <code id="route-text"></code></h1>
+    <h1>Page not found: <code>{{ route }}</code></h1>
 
     <p>Sorry, there's no page at this address. Make sure you've spelled the URL correctly, or <a href="/">return to the RPNow homepage.</a></p>
 
@@ -11,10 +11,12 @@
 <script>
   module.exports = {
     data: function() {
-      return {};
+      return {
+        route: ''
+      };
     },
     mounted: function() {
-      document.getElementById('route-text').appendChild(document.createTextNode(location.pathname));
+      this.route = location.pathname;
     }
   };
 </script>
