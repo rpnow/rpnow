@@ -1,0 +1,33 @@
+<template>
+  <div id="not-found">
+    <h1>Page not found: <code id="route-text"></code></h1>
+
+    <p>Sorry, there's no page at this address. Make sure you've spelled the URL correctly, or <a href="/">return to the RPNow homepage.</a></p>
+
+    <p>If you believe this is an error, contact <a href="mailto:rpnow.net@gmail.com">rpnow.net@gmail.com</a>.</p>
+  </div>
+</template>
+
+<script>
+  module.exports = {
+    data: function() {
+      return {};
+    },
+    mounted: function() {
+      document.getElementById('route-text').appendChild(document.createTextNode(location.pathname));
+    }
+  };
+</script>
+
+<style>
+  #not-found {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: center center;
+    justify-content: center;
+    margin: auto;
+    max-width: 400px;
+    padding: 10px;
+  }
+</style>

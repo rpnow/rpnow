@@ -1,36 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Format Guide | RPNow</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#fafafa">
-
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-16x16.png" sizes="16x16">
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-32x32.png" sizes="32x32">
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-96x96.png" sizes="96x96">
-  <link rel="apple-touch-icon" href="/client-files/assets/favicon/favicon-128x128.png">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alice|Playfair+Display">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="manifest" href="/client-files/manifest.json">
-
-  <style>
-    #format-guide {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      align-items: center center;
-      justify-content: center;
-      margin: auto;
-      max-width: 400px;
-      padding: 10px;
-    }
-  </style>
-</head>
-<body>
+<template>
   <div id="format-guide">
     <p>Here's how to do bold, italics, and other things.</p>
     <ul>
@@ -58,6 +26,25 @@
       </li>
     </ul>
   </div>
-</body>
-</html>
+</template>
 
+<script>
+  module.exports = {
+    data: function() {
+      return {};
+    },
+  };
+</script>
+
+<style>
+  #format-guide {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: center center;
+    justify-content: center;
+    margin: auto;
+    max-width: 400px;
+    padding: 10px;
+  }
+</style>

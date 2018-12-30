@@ -10,10 +10,10 @@ const clientFiles = path.join(__dirname, '../web');
 router.use('/client-files/', express.static(clientFiles));
 
 // .vue file rendering
+const viewFiles = path.join(__dirname, '../views');
 router.use(expressVue.init({
-    rootPath: path.join(__dirname, '../views'),
+    rootPath: viewFiles,
     head: {
-        title: 'RPNow',
         metas: [
             { charset:'utf-8' },
             { name:"viewport", content:"width=device-width, initial-scale=1, maximum-scale=1" },
@@ -42,13 +42,13 @@ router.use(expressVue.init({
 }));
 
 // valid routes
-router.get('/', (req, res) => res.renderVue('home.vue'));
-router.get('/terms', (req, res) => res.sendFile(`${clientFiles}/terms.txt`));
-router.get('/format', (req, res) => res.sendFile(`${clientFiles}/format.html`));
+router.get('/', (req, res) => res.renderVue('home.vue', null, { head: { title: 'RPNow' } }));
+router.get('/terms', (req, res) => res.sendFile(`${viewFiles}/terms.txt`));
+router.get('/format', (req, res) => res.renderVue('format.vue', null, { head: { title: 'Format Guide | RPNow' } }));
 router.get('/rp/[^/]+', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/rp.html`));
 router.get('/read/[^/]+/page/[0-9]+', (req, res) => res.sendFile(`${clientFiles}/rp-read.html`));
 
 // 404
-router.get('*', (req, res) => res.status(404).sendFile(`${clientFiles}/404.html`));
+router.get('*', (req, res) => res.renderVue('404.vue', null, { head: { title: 'Page Not Found' } }));
 
 module.exports = router;
