@@ -119,7 +119,6 @@ module.exports = {
     };
 
     for (var prop in watchProps) {
-      console.log(prop);
       var key = watchProps[prop];
 
       var savedValue = getJson(key);
