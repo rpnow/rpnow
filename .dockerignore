@@ -7,7 +7,6 @@ data
 .dockerignore
 .gitignore
 .eslintrc
-old-angular-client
 Dockerfile
 README.md
 TODO
