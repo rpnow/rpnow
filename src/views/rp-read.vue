@@ -1,25 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Loading RP | RPNow</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#fafafa">
-
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-16x16.png" sizes="16x16">
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-32x32.png" sizes="32x32">
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-96x96.png" sizes="96x96">
-  <link rel="apple-touch-icon" href="/client-files/assets/favicon/favicon-128x128.png">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alice|Playfair+Display">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="manifest" href="/client-files/manifest.json">
-
-  <link rel="stylesheet" href="/client-files/rp.css">
-</head>
-<body>
+<template>
   <div id="rp-chat">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
@@ -85,63 +64,56 @@
       </div>
     </template>
   </div>
+</template>
 
-  <!-- Promise polyfill for older browsers, needed for axios -->
-  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4.2.5/dist/es6-promise.auto.min.js" integrity="sha256-8qFPvAMQLj9hOXkNoEO0iOXQx2tHyA8XWkym5O3dxqM=" crossorigin="anonymous"></script>
-  <!-- Axios, our http library -->
-  <script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
-  <!-- Vue, our frontend framework -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js" integrity="sha256-ui3vFTgbIIvd9ePh+wF+ju05O3jympV4FyFlpNMV2cw=" crossorigin="anonymous"></script>
-  <!-- Library to load .vue single-file-components without a build tool -->
-  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js" integrity="sha256-f897uAVsdigDKLGjTcl8PwseSHi6KrsgpGqsOQKPW9w=" crossorigin="anonymous"></script>
-  <!-- jQuery is required for Spectrum, but please do not use it for other things -->
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-  <!-- Spectrum is a color picker. Also includes the tinycolor library -->
-  <script src="https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.js" integrity="sha256-3wWiHra+MxkTwcZwUQkkowAjnu5uqAF+6hE676OitiE=" crossorigin="anonymous"></script>
-
-  <!-- App code -->
-  <script>
-    new Vue({
-      el: '#rp-chat',
-      components: {
-        'rp-message': httpVueLoader('/client-files/rp-message.vue'),
-      },
-      data: {
-        pageNumber: +(location.pathname.match(/\/page\/(\d+)/))[1],
-        readCode: location.pathname.match(/\/read\/([^\/]+)/)[1],
+<script>
+  module.exports = {
+    components: {
+      'rp-message': require('./components/rp-message.vue'),
+    },
+    data: function() {
+      return {
+        pageNumber: null,
+        readCode: null,
         rp: null,
         loadError: null,
+      };
+    },
+    beforeMount: function() {
+      // get rpCode from URL
+      this.pageNumber = +(location.pathname.match(/\/page\/(\d+)/))[1];
+      this.readCode = location.pathname.match(/\/read\/([^\/]+)/)[1];
+    },
+    computed: {
+      charasById: function() {
+        return this.rp.charas.reduce(function(map, chara) {
+          map[chara._id] = chara;
+          return map;
+        }, {});
       },
-      computed: {
-        charasById: function() {
-          return this.rp.charas.reduce(function(map, chara) {
-            map[chara._id] = chara;
-            return map;
-          }, {});
-        },
-        isFirstPage: function() {
-          return this.pageNumber === 1;
-        },
-        isLastPage: function() {
-          return this.rp.pageCount <= this.pageNumber;
-        }
+      isFirstPage: function() {
+        return this.pageNumber === 1;
       },
-      methods: {
-        changePage: function(pageNumber) {
-          location.href = './'+pageNumber;
-        }
-      },
-      created: function() {
-        axios.get('/api/rp/' + this.readCode + '/page/' + this.pageNumber)
-          .then((function(res) {
-            this.rp = res.data;
-            document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';
-          }).bind(this))
-          .catch((function(err) {
-            this.loadError = 'Check the URL and try again.'
-          }).bind(this));
-      },
-    })
-  </script>
-</body>
-</html>
+      isLastPage: function() {
+        return this.rp.pageCount <= this.pageNumber;
+      }
+    },
+    methods: {
+      changePage: function(pageNumber) {
+        location.href = './'+pageNumber;
+      }
+    },
+    mounted: function() {
+      axios.get('/api/rp/' + this.readCode + '/page/' + this.pageNumber)
+        .then((function(res) {
+          this.rp = res.data;
+          document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';
+        }).bind(this))
+        .catch((function(err) {
+          this.loadError = 'Check the URL and try again.'
+        }).bind(this));
+    },
+  };
+</script>
+
+<style src="rp.css"></style>
