@@ -17,7 +17,7 @@ module.exports = function transformRpMessage(str, color) {
   // tokens that create tags
   var tagLexers = [
     { r: /^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/i, replace: function(link) { return '<a href="'+link+'" target="_blank">'+link+'</a>'; } },
-    { r: /^____/ }, // if there's a lot of _, don't treat it as anything
+    { r: /^____+/ }, // if there's a lot of _, don't treat it as anything
     { r: /^___/, tag: 'BOLDITC' },
     { r: /^__/, tag: 'BOLD' },
     { r: /^_/, tag: 'ITC' },
