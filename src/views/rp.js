@@ -1,72 +1,7 @@
-var rpCode = location.pathname.match(/\/rp\/([^\/]+)/)[1];
-
-var jsonStorage = (function() {
-  var fakeStorage = {};
-
-  return {
-    get: function(key, defaultValue) {
-      var str;
-      try {
-        str = localStorage.getItem(key);
-      } catch (ex) {
-        str = fakeStorage[key];
-      }
-      if (str == null) return defaultValue;
-      return JSON.parse(str);
-    },
-    set: function(key, obj) {
-      var str = JSON.stringify(obj);
-      try {
-        localStorage.setItem(key, str);
-      } catch (ex) {
-        fakeStorage[key] = str;
-      }
-    }
-  }
-})();
-
-/**
- * Tries to determine if this is a desktop keyboard by measuring
- * the average length of time between keydown and keyup events on
- * the page. If it's greater than 25 ms, it's probably desktop.
- */
-isProbablyDesktopKeyboard = (function() {
-  var averageKeypressDuration = 25;
-
-  window.addEventListener('keydown', function() {
-    var start = Date.now();
-
-    function removeListenersForThisKey() {
-      window.removeEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
-      window.removeEventListener('keyup', keyup);
-    }
-
-    function pressedAnotherKeyBeforeReleasingThisOne() {
-      removeListenersForThisKey();
-    }
-    
-    function keyup() {
-      removeListenersForThisKey();
-
-      var myDuration = Date.now() - start;
-      averageKeypressDuration = averageKeypressDuration*0.9 + myDuration*0.1
-    }
-
-    window.addEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
-    window.addEventListener('keyup', keyup);
-  });
-
-  return function isProbablyDesktopKeyboard() {
-    return averageKeypressDuration >= 25;
-  };
-})(),
-
-new Vue({
-  el: '#rp-chat',
-
+module.exports = {
   components: {
     // rp message component: 
-    'rp-message': httpVueLoader('/client-files/rp-message.vue'),
+    'rp-message': require('./404.vue'),
     // adapt jquery colorpicker component for vue
     'spectrum-colorpicker': {
       props: ['value'],
@@ -96,52 +31,106 @@ new Vue({
     }
   },
 
-  data: {
-    // rp data
-    rpCode: rpCode,
-    rp: null,
-    loadError: null,
-    // rp ui
-    linkToHere: location.href,
-    isNewRp: false,
-    isScrolledToBottom: true,
-    unreadMessagesIndicator: false,
-    // connection status
-    consecutiveNetworkFailures: 0,
-    // options
-    overridePressEnterToSend: jsonStorage.get('rpnow.global.pressEnterToSend', null),
-    nightMode: jsonStorage.get('rpnow.global.nightMode', false),
-    showMessageDetails: jsonStorage.get('rpnow.global.showMessageDetails', true),
-    browserAlerts: jsonStorage.get('rpnow.global.browserAlerts', false),
-    // message box
-    msgBoxText: jsonStorage.get('rpnow.'+rpCode+'.msgBoxContent', ''),
-    currentMsgType: jsonStorage.get('rpnow.'+rpCode+'.msgBoxType', 'narrator'),
-    currentCharaId: jsonStorage.get('rpnow.'+rpCode+'.msgBoxCharaId', null),
-    isMsgBoxSending: false,
-    // main menu
-    showMainMenu: false,
-    // chara selector
-    showCharacterMenu: false,
-    // chara dialog
-    showCharacterDialog: false,
-    charaDialogId: null,
-    charaDialogName: '',
-    charaDialogColor: '#dddddd',
-    // download dialog
-    showDownloadDialog: false,
-    downloadOOC: jsonStorage.get('rpnow.global.downloadOOC', false),
-    // image post dialog
-    showImageDialog: false,
-    imageDialogId: null,
-    imageDialogUrl: '',
-    imageDialogIsChecking: false,
-    imageDialogIsValid: false,
-    // if any dialog is in the process of sending
-    isDialogSending: false,
+  data: function() {
+    return {
+      // rp data
+      rpCode: null,
+      rp: null,
+      loadError: null,
+      // rp ui
+      isNewRp: false,
+      isScrolledToBottom: true,
+      unreadMessagesIndicator: false,
+      // connection status
+      consecutiveNetworkFailures: 0,
+      // options
+      overridePressEnterToSend: null,
+      nightMode: false,
+      showMessageDetails: true,
+      browserAlerts: false,
+      // message box
+      msgBoxText: '',
+      currentMsgType: 'narrator',
+      currentCharaId: null,
+      isMsgBoxSending: false,
+      // main menu
+      showMainMenu: false,
+      // chara selector
+      showCharacterMenu: false,
+      // chara dialog
+      showCharacterDialog: false,
+      charaDialogId: null,
+      charaDialogName: '',
+      charaDialogColor: '#dddddd',
+      // download dialog
+      showDownloadDialog: false,
+      downloadOOC: false,
+      // image post dialog
+      showImageDialog: false,
+      imageDialogId: null,
+      imageDialogUrl: '',
+      imageDialogIsChecking: false,
+      imageDialogIsValid: false,
+      // if any dialog is in the process of sending
+      isDialogSending: false,
+    }
+  },
+
+  // localStorage reactivity
+  beforeMount: function() {
+    // get rpCode from URL
+    this.rpCode = location.pathname.match(/\/rp\/([^\/]+)/)[1];
+
+    // store and retrieve json as objects in localStorage
+    // (or memory if localStorage doesn't work)
+    var fakeStorage = {};
+
+    function getJson(key) {
+      var str;
+      try {
+        str = localStorage.getItem(key);
+      } catch (ex) {
+        str = fakeStorage[key];
+      }
+      if (str == null) return null;
+      return JSON.parse(str);
+    }
+    function saveJsonFn(key) {
+      return function setter(obj) {
+        var str = JSON.stringify(obj);
+        try {
+          localStorage.setItem(key, str);
+        } catch (ex) {
+          fakeStorage[key] = str;
+        }
+      }
+    }
+
+    // now, initialize these props from localStorage, and watch them
+    var watchProps = {
+      overridePressEnterToSend: 'rpnow.global.pressEnterToSend',
+      nightMode: 'rpnow.global.nightMode',
+      showMessageDetails: 'rpnow.global.showMessageDetails',
+      browserAlerts: 'rpnow.global.browserAlerts',
+      msgBoxText: 'rpnow.'+this.rpCode+'.msgBoxContent',
+      currentMsgType: 'rpnow.'+this.rpCode+'.msgBoxType',
+      currentCharaId: 'rpnow.'+this.rpCode+'.msgBoxCharaId',
+      downloadOOC: 'rpnow.global.downloadOOC',
+    };
+
+    for (var prop in watchProps) {
+      console.log(prop);
+      var key = watchProps[prop];
+
+      var savedValue = getJson(key);
+      if (savedValue != null) this[prop] = savedValue;
+
+      this.$watch(prop, saveJsonFn(key));
+    }
   },
 
   // when the page is loaded, load the rp
-  created: function() {
+  mounted: function() {
     axios.get('/api/rp/' + this.rpCode)
       .then((function(res) {
         this.rp = res.data;
@@ -160,9 +149,14 @@ new Vue({
           this.loadError = 'Check the URL and try again.';
         }
       }).bind(this));
+
+    // also initialize the localStorage stuff
   },
 
   computed: {
+    linkToHere: function() {
+      return location.href;
+    },
     // rp charas grouped by id
     charasById: function() {
       return this.rp.charas.reduce(function(map, chara) {
@@ -464,39 +458,64 @@ new Vue({
     })(),
     pressEnterToSend: function() {
       if (this.overridePressEnterToSend != null) return this.overridePressEnterToSend;
-      return isProbablyDesktopKeyboard();
+      return this.isProbablyDesktopKeyboard();
     },
+    isProbablyDesktopKeyboard: (function() {
+      /**
+       * Tries to determine if this is a desktop keyboard by measuring
+       * the average length of time between keydown and keyup events on
+       * the page. If it's greater than 25 ms, it's probably desktop.
+       */
+      return function() { return true };
+      var averageKeypressDuration = 25;
+
+      window.addEventListener('keydown', function() {
+        var start = Date.now();
+
+        function removeListenersForThisKey() {
+          window.removeEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
+          window.removeEventListener('keyup', keyup);
+        }
+
+        function pressedAnotherKeyBeforeReleasingThisOne() {
+          removeListenersForThisKey();
+        }
+        
+        function keyup() {
+          removeListenersForThisKey();
+
+          var myDuration = Date.now() - start;
+          averageKeypressDuration = averageKeypressDuration*0.9 + myDuration*0.1
+        }
+
+        window.addEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
+        window.addEventListener('keyup', keyup);
+      });
+
+      return function isProbablyDesktopKeyboard() {
+        return averageKeypressDuration >= 25;
+      };
+    })(),
   },
 
   watch: {
-    // save persistent options back to localStorage
-    'nightMode': jsonStorage.set.bind(null, 'rpnow.global.nightMode'),
-    'overridePressEnterToSend': jsonStorage.set.bind(null, 'rpnow.global.pressEnterToSend'),
-    'showMessageDetails': jsonStorage.set.bind(null, 'rpnow.global.showMessageDetails'),
-    'downloadOOC': jsonStorage.set.bind(null, 'rpnow.global.downloadOOC'),
-    'msgBoxText': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxContent'),
-    'currentMsgType': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxType'),
-    'currentCharaId': jsonStorage.set.bind(null, 'rpnow.'+rpCode+'.msgBoxCharaId'),
-    // browserAlerts saves to localStorage BUT also checks to make sure notifications are supported
-    'browserAlerts': [
-      jsonStorage.set.bind(null, 'rpnow.global.browserAlerts'),
-      function(on) {
-        if (!on) return;
+    // checks to make sure notifications are supported
+    'browserAlerts': function(on) {
+      if (!on) return;
 
-        if (!('Notification' in window)) {
-          this.browserAlerts = false;
-          alert('Notifications are not supported in this browser.');
-        } else if (Notification.permission === 'denied') {
-          this.browserAlerts = false;
-          alert('Could not get notification permissions.')
-        } else if (Notification.permission === 'default') {
-          this.browserAlerts = false;
-          Notification.requestPermission().then((function(result) {
-            if (result === 'granted') this.browserAlerts = true;
-          }).bind(this));
-        }
+      if (!('Notification' in window)) {
+        this.browserAlerts = false;
+        alert('Notifications are not supported in this browser.');
+      } else if (Notification.permission === 'denied') {
+        this.browserAlerts = false;
+        alert('Could not get notification permissions.')
+      } else if (Notification.permission === 'default') {
+        this.browserAlerts = false;
+        Notification.requestPermission().then((function(result) {
+          if (result === 'granted') this.browserAlerts = true;
+        }).bind(this));
       }
-    ],
+    },
     // actions for when a new message comes in
     'rp.msgs': function(msgs, oldMsgs) {
       if (msgs == null || oldMsgs == null) return;
@@ -541,4 +560,4 @@ new Vue({
       }).bind(this));
     },
   }
-});
+};

@@ -1,26 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Loading RP | RPNow</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#fafafa">
-
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-16x16.png" sizes="16x16">
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-32x32.png" sizes="32x32">
-  <link rel="icon" type="image/png" href="/client-files/assets/favicon/favicon-96x96.png" sizes="96x96">
-  <link rel="apple-touch-icon" href="/client-files/assets/favicon/favicon-128x128.png">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alice|Playfair+Display">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="manifest" href="/client-files/manifest.json">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.css" integrity="sha256-0gNW6jKGMP+oFR22hK5tl1qsZf21rWKR5cqmkyaLyjI=" crossorigin="anonymous">
-
-  <link rel="stylesheet" href="/client-files/rp.css">
-</head>
-<body>
+<template>
   <div id="rp-chat" :class="{'dark-theme':nightMode}">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
@@ -207,8 +185,8 @@
             <span>New Character...</span>
           </button>
           <div class="drawer-divider"></div>
-          <template v-for="chara of rp.charas" key="chara._id">
-            <div :class="['drawer-item', {'drawer-item-selected': currentChara===chara}]" @click="selectCharacter('chara', chara._id)">
+          <template v-for="chara of rp.charas">
+            <div :class="['drawer-item', {'drawer-item-selected': currentChara===chara}]" @click="selectCharacter('chara', chara._id)" :key="chara._id">
               <i class="material-icons chara-icon-shadow" :style="{'color':chara.color}">person</i>
               <span>{{ chara.name }}</span>
               <button class="icon-button" @click.prevent.stop="openCharacterDialog(chara)">
@@ -283,24 +261,9 @@
       </div>
 
     </template>
-
   </div>
+</template>
 
-  <!-- Promise polyfill for older browsers, needed for axios -->
-  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4.2.5/dist/es6-promise.auto.min.js" integrity="sha256-8qFPvAMQLj9hOXkNoEO0iOXQx2tHyA8XWkym5O3dxqM=" crossorigin="anonymous"></script>
-  <!-- Axios, our http library -->
-  <script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
-  <!-- Vue, our frontend framework -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js" integrity="sha256-ui3vFTgbIIvd9ePh+wF+ju05O3jympV4FyFlpNMV2cw=" crossorigin="anonymous"></script>
-  <!-- Library to load .vue single-file-components without a build tool -->
-  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.3.5/src/httpVueLoader.js" integrity="sha256-f897uAVsdigDKLGjTcl8PwseSHi6KrsgpGqsOQKPW9w=" crossorigin="anonymous"></script>
-  <!-- jQuery is required for Spectrum, but please do not use it for other things -->
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-  <!-- Spectrum is a color picker. Also includes the tinycolor library -->
-  <script src="https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.js" integrity="sha256-3wWiHra+MxkTwcZwUQkkowAjnu5uqAF+6hE676OitiE=" crossorigin="anonymous"></script>
+<script src="rp.js"></script>
 
-  <!-- App code -->
-  <script src="/client-files/rp.js"></script>
-</body>
-</html>
-
+<style src="rp.css"></style>

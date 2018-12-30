@@ -289,12 +289,11 @@
         this.$emit('resize');
       },
     },
-    created: function() {
+    mounted: function() {
       this.intervalHandle = setInterval((function() {
         this.currentTime = Date.now();
       }).bind(this), 15*1000);
-    },
-    mounted: function() {
+
       this.notifySizeChange();
     },
     watch: {

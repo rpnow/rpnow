@@ -16,8 +16,8 @@ router.use(expressVue.init({
     head: {
         metas: [
             { charset:'utf-8' },
-            { name:"viewport", content:"width=device-width, initial-scale=1, maximum-scale=1" },
 
+            { name:"viewport", content:"width=device-width, initial-scale=1, maximum-scale=1" },
             { name:"apple-mobile-web-app-capable", content:"yes" },
             { name:"apple-mobile-web-app-status-bar-style", content:"default" },
             { name:"theme-color", content:"#fafafa" },
@@ -37,6 +37,14 @@ router.use(expressVue.init({
             { src: "https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js" },
             // coolstory.js, which gives us fun random titles for stories
             { src: "https://cdn.jsdelivr.net/npm/coolstory.js@0.1.2/coolstory.js" },
+            // jQuery is required for Spectrum, but please do not use it for other things
+            { src: "https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" },
+            // Spectrum is a colorpicker. It also happens to include the tinycolor library
+            { src: "https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.js" },
+        ],
+        styles: [
+            // Spectrum.js styles
+            { style: "https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.css" },
         ]
     }
 }));
@@ -45,7 +53,7 @@ router.use(expressVue.init({
 router.get('/', (req, res) => res.renderVue('home.vue', null, { head: { title: 'RPNow' } }));
 router.get('/terms', (req, res) => res.sendFile(`${viewFiles}/terms.txt`));
 router.get('/format', (req, res) => res.renderVue('format.vue', null, { head: { title: 'Format Guide | RPNow' } }));
-router.get('/rp/[^/]+', xRobotsTag, (req, res) => res.sendFile(`${clientFiles}/rp.html`));
+router.get('/rp/[\\w-]+', xRobotsTag, (req, res) => res.renderVue('rp.vue', null, { head: { title: 'Loading RP | RPNow' } }));
 router.get('/read/[^/]+/page/[0-9]+', (req, res) => res.sendFile(`${clientFiles}/rp-read.html`));
 
 // 404
