@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "start": "node src/index.js",
-    "start-dev": "nodemon src/index.js --ext js,json,vue",
+    "start-dev": "VUE_DEV=true nodemon src/index.js --ext js,json,vue",
     "lint": "eslint src/**/*.js src/*.js",
     "test": "ava --watch",
     "build": "./build.sh"
