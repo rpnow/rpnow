@@ -7,8 +7,8 @@ const vueHead = require('../views/head');
 const router = new express.Router();
 
 // bundle
-const clientFiles = path.join(__dirname, '../web');
-router.use('/client-files/', express.static(clientFiles));
+const clientFiles = path.join(__dirname, '../static');
+router.use('/static/', express.static(clientFiles));
 
 // .vue file rendering
 const viewFiles = path.join(__dirname, '../views');
