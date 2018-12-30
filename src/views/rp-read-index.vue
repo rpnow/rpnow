@@ -28,7 +28,7 @@
           </div>
 
           <div id="archive-index">
-            <template v-for="n of 500">
+            <template v-for="n of rp.pageCount">
               <a class="page-number-link" :href="'/read/'+readCode+'/page/'+n" :key="n">
                 {{ n }}
               </a>
