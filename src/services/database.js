@@ -1,14 +1,19 @@
 const Knex = require('knex');
 const fs = require('fs');
+const path = require('path');
+const config = require('./config');
 
-if (!fs.existsSync('./data')){
-    fs.mkdirSync('./data');
+const dbDir = config.dataDir;
+const dbFile = path.join(config.dataDir, 'rpnow.sqlite3');
+
+if (!fs.existsSync(dbDir)){
+    fs.mkdirSync(dbDir);
 }
 
 const knex = Knex({
     client: 'sqlite3',
     connection: {
-        filename: 'data/rpnow.sqlite3',
+        filename: dbFile,
     },
     useNullAsDefault: true,
 });
