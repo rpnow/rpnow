@@ -4,18 +4,18 @@ const app = require('./app');
 
 const api = request(app);
 
-const createRp = async ({ title } = { title: 'Test' }) => (await api.post('/api/rp.json').send({ title })).body;
+const createRp = async ({ title } = { title: 'Test' }) => (await api.post('/api/rp').send({ title })).body;
 const getRpState = async (rpCode) => (await api.get(`/api/rp/${rpCode}`)).body;
 
-test('GET challenge.json', async t => {
-    const { status, body } = await api.get('/api/challenge.json');
+test('GET challenge', async t => {
+    const { status, body } = await api.get('/api/challenge');
     t.is(status, 200);
     t.is(typeof body.secret, 'string');
     t.is(typeof body.secretHash, 'string');
 });
 
 test('Create new RP', async t => {
-    const { status, body } = await api.post('/api/rp.json').send({ title: 'Test' });
+    const { status, body } = await api.post('/api/rp').send({ title: 'Test' });
     t.is(status, 201);
     t.deepEqual(Object.keys(body), ['rpCode'])
 });

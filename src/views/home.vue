@@ -53,7 +53,7 @@
       submitRp: function() {
         this.submitted = true;
 
-        axios.post('/api/rp.json', { title: this.title })
+        axios.post('/api/rp', { title: this.title })
           .then(function(res) {
             window.location.href = '/rp/' + res.data.rpCode;
           })

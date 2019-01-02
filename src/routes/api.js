@@ -22,7 +22,7 @@ router.use(xRobotsTag);
 /**
  * Create a new RP
  */
-router.post('/rp.json', awrap(async (req, res, next) => {
+router.post('/rp', awrap(async (req, res, next) => {
     const rpNamespace = 'rp_' + cuid();
     const fields = req.body;
     const ipid = getColorsForIp(req.ip);
@@ -43,7 +43,7 @@ router.post('/rp.json', awrap(async (req, res, next) => {
 /**
  * Generate a new set of anon-credentials ("challenge")
  */
-router.get('/challenge.json', awrap(async (req, res, next) => {
+router.get('/challenge', awrap(async (req, res, next) => {
     const challenge = await generateAnonCredentials();
     res.status(200).json(challenge);
 }));
