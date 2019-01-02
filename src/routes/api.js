@@ -2,14 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const { Router } = require('express');
 const { generateTextFile } = require('../services/txt-file');
-const { getColorsForIp } = require('../services/get-colors-for-ip');
 const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
 const logger = require('../services/logger');
 const cuid = require('cuid');
 const DB = require('../services/database');
 const { validate } = require('../services/validate-user-documents');
 const { generateRpCode } = require('../services/generate-rp-code');
-const { generateAnonCredentials, verifyAnonCredentials } = require('../services/anon-credentials');
+const { generateAnonCredentials, authMiddleware } = require('../services/anon-credentials');
 const config = require('../services/config');
 const { awrap } = require('../services/express-async-handler');
 
@@ -22,30 +21,31 @@ router.use(xRobotsTag);
 /**
  * Create a new RP
  */
-router.post('/rp', awrap(async (req, res, next) => {
+router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
     const rpNamespace = 'rp_' + cuid();
     const fields = req.body;
-    const ipid = getColorsForIp(req.ip);
+    const { userid } = req.user;
+    const ip = req.ip;
 
     await validate(rpNamespace, 'meta', fields); // TODO or throw BAD_RP
 
     const rpCode = generateRpCode(5);
     const readCode = fields.title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
 
-    await DB.addDoc(rpNamespace, 'meta', 'meta', fields, ipid);
-    await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, ipid);
-    await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, ipid);
-    await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, ipid);
+    await DB.addDoc(rpNamespace, 'meta', 'meta', fields, userid, ip);
+    await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, userid, ip);
+    await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, userid, ip);
+    await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, userid, ip);
 
     res.status(201).json({ rpCode });
 }));
 
 /**
- * Generate a new set of anon-credentials ("challenge")
+ * Generate a new set of credentials for an anonymous user
  */
-router.get('/challenge', awrap(async (req, res, next) => {
-    const challenge = await generateAnonCredentials();
-    res.status(200).json(challenge);
+router.post('/user', awrap(async (req, res, next) => {
+    const credentials = await generateAnonCredentials();
+    res.status(200).json(credentials);
 }));
 
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
@@ -139,16 +139,17 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
 /**
  * Create something in an RP (message, chara, etc)
  */
-router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
+router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, res, next) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
     const _id = cuid();
     const fields = req.body;
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
-    const ipid = getColorsForIp(req.ip);
+    const { userid } = req.user;
+    const ip = req.ip;
 
-    const { doc } = await DB.addDoc(rpNamespace, collection, _id, fields, ipid);
+    const { doc } = await DB.addDoc(rpNamespace, collection, _id, fields, userid, ip);
 
     res.status(201).json(doc);
 }));
@@ -156,20 +157,21 @@ router.post(`${rpGroup}/:collection([a-z]+)`, awrap(async (req, res, next) => {
 /**
  * Update something in an RP (message, chara, etc)
  */
-router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, awrap(async (req, res, next) => {
+router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, awrap(async (req, res, next) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
     const fields = req.body;
     await validate(rpNamespace, collection, fields); // TODO or throw BAD_RP
-    const ipid = getColorsForIp(req.ip);
+    const { userid } = req.user;
+    const ip = req.ip;
 
-    // TODO verify auth
-    // TODO secrets were 64 chars long, challenges were 128
-    // if (!verifyChallenge(editInfo.secret, msg.challenge)) throw { code: 'BAD_SECRET' };
+    const oldDoc = await DB.getDoc(rpNamespace, collection, _id);
+    if (!oldDoc) return res.sendStatus(404);
+    if (userid !== oldDoc.userid) return res.sendStatus(403);
 
-    const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, ipid);
+    const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, userid, ip);
 
     res.status(200).json(doc);
 }));

@@ -39,6 +39,7 @@
       };
     },
     methods: {
+      initializeAuth: require('./components/user'),
       spinTitle: function() {
         var millis = 10.0;
 
@@ -53,7 +54,10 @@
       submitRp: function() {
         this.submitted = true;
 
-        axios.post('/api/rp', { title: this.title })
+        this.initializeAuth()
+          .then((function() {
+            return axios.post('/api/rp', { title: this.title })
+          }).bind(this))
           .then(function(res) {
             window.location.href = '/rp/' + res.data.rpCode;
           })

@@ -29,38 +29,38 @@ const connected = (async function connect() {
             t.json('body', 50000).nullable();
             t.timestamp('timestamp').notNullable();
             t.string('ip', 47).nullable();
-            t.string('auth_hash').nullable();
+            t.string('userid').nullable();
 
             t.unique(['namespace', 'collection', '_id', 'revision']);
             t.index('timestamp');
             t.index('ip');
-            t.index('auth_hash');
+            t.index('userid');
         });
     }
 }());
 
 function formatQueryResult (x, options = {}) {
-    const { event_id, namespace, collection, auth_hash, body, ...docInfo } = x;
+    const { event_id, namespace, collection, ip, body, ...docInfo } = x;
     const deleted = (body == null);
     const doc = { ...JSON.parse(body), ...docInfo, deleted };
     if (options.includeMeta) {
-        const _meta = { event_id, namespace, collection, auth_hash };
+        const _meta = { event_id, namespace, collection, ip };
         return { ...doc, _meta };
     }
     else return doc;
 }
 
 module.exports = {
-    async addDoc(namespace, collection, _id, body, ip) {
+    async addDoc(namespace, collection, _id, body, userid, ip) {
         await connected;
         const timestamp = new Date().toISOString();
         const revision = 0;
-        const doc = { namespace, collection, _id, ip, revision, timestamp, body: JSON.stringify(body) };
+        const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };
     },
 
-    async updateDoc(namespace, collection, _id, body, ip) {
+    async updateDoc(namespace, collection, _id, body, userid, ip) {
         await connected;
         if(!(await this.hasDoc(namespace, collection, _id))) {
             throw new Error(`Document ${collection}:${_id} does not exist`);
@@ -69,7 +69,7 @@ module.exports = {
         const [{ lastRevision }] = await knex('docs').where({ namespace, collection, _id }).max('revision AS lastRevision');
         const revision = lastRevision + 1;
         const timestamp = new Date().toISOString();
-        const doc = { namespace, collection, _id, ip, revision, timestamp, body: JSON.stringify(body) };
+        const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };
     },

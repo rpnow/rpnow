@@ -1,23 +1,31 @@
-const { promisify } = require('util');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const jwt = require('jsonwebtoken');
+const expressJwt = require('express-jwt');
+const cuid = require('cuid');
+const config = require('./config');
 
-const randomBytes = promisify(crypto.randomBytes);
+const jwtSecretDir = config.dataDir;
+const jwtSecretFile = path.join(config.dataDir, 'valid-users.key');
 
-function hashString(str) {
-    return crypto.createHash('sha512')
-        .update(str)
-        .digest('hex');
+if (!fs.existsSync(jwtSecretDir)) {
+    fs.mkdirSync(jwtSecretDir);
 }
 
+if (!fs.existsSync(jwtSecretFile)) {
+    const jwtSecret = crypto.randomBytes(256/8);
+    fs.writeFileSync(jwtSecretFile, jwtSecret);
+}
+
+const jwtSecret = fs.readFileSync(jwtSecretFile);
+
 module.exports = {
-    async generateAnonCredentials() {
-        const secret = (await randomBytes(32)).toString('hex');
-        const secretHash = hashString(secret);
-
-        return { secret, secretHash };
+    generateAnonCredentials() {
+        const userid = 'anon:' + cuid();
+        const token = jwt.sign({ userid }, jwtSecret);
+        return { userid, token };
     },
 
-    verifyAnonCredentials(secret, secretHash) {
-        return hashString(secret) === secretHash;
-    },
+    authMiddleware: expressJwt({ secret: jwtSecret }),
 };
