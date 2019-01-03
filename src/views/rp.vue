@@ -217,11 +217,6 @@
         </div>
       </div>
 
-      <div class="overlay overlay-dialog" v-show="isDialogSending">
-        <i class="material-icons">hourglass_full</i>
-        <span>Loading...</span>
-      </div>
-
     </template>
   </div>
 </template>

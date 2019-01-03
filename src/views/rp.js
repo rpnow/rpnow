@@ -34,8 +34,6 @@ module.exports = {
       // download dialog
       showDownloadDialog: false,
       downloadOOC: false,
-      // if any dialog is in the process of sending
-      isDialogSending: false,
     }
   },
 
