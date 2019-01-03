@@ -1,7 +1,4 @@
-Save JWT in localstorage
-Load JWT from localstorage
-Failsafe get new JWT
-Load JWT in rp chat
+Change IPID to work for new anon id's
 Admin JWT
 Set "canEdit" depending on if userid is the same OR admin == true
 

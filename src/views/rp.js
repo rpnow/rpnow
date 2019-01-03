@@ -91,7 +91,10 @@ module.exports = {
 
   // when the page is loaded, load the rp
   mounted: function() {
-    axios.get('/api/rp/' + this.rpCode)
+    this.initializeAuth()
+      .then((function() {
+        return axios.get('/api/rp/' + this.rpCode)
+      }).bind(this))
       .then((function(res) {
         this.rp = res.data;
 
@@ -154,6 +157,7 @@ module.exports = {
   },
 
   methods: {
+    initializeAuth: require('./components/user'),
     fetchUpdates: function() {
       var scheduleNextUpdate = (function() {
         setTimeout(this.fetchUpdates.bind(this), 5000);
