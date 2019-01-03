@@ -87,8 +87,6 @@
     watch: {
       // validate the image dialog to see if an image can actually be loaded
       'imageDialogUrl': function(url) {
-        console.log(url);
-        console.log(this.imageDialogIsWellFormed)
         if (!this.imageDialogIsWellFormed) {
           this.imageDialogIsChecking = false;
           this.imageDialogIsValid = false;
