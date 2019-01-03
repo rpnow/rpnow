@@ -180,7 +180,7 @@
             <span>Out of Character</span>
           </button>
           <div class="drawer-divider"></div>
-          <button class="drawer-item" @click="openCharacterDialog(null)">
+          <button class="drawer-item" @click="$refs.charaDialog.open(null)">
             <i class="material-icons">person_add</i>
             <span>New Character...</span>
           </button>
@@ -189,7 +189,7 @@
             <div :class="['drawer-item', {'drawer-item-selected': currentChara===chara}]" @click="selectCharacter('chara', chara._id)" :key="chara._id">
               <i class="material-icons chara-icon-shadow" :style="{'color':chara.color}">person</i>
               <span>{{ chara.name }}</span>
-              <button class="icon-button" @click.prevent.stop="openCharacterDialog(chara)">
+              <button class="icon-button" @click.prevent.stop="$refs.charaDialog.open(msg)">
                 <i class="material-icons" title="Edit character">edit</i>
               </button>
             </div>
@@ -197,20 +197,7 @@
         </div>
       </div>
     
-      <div class="overlay overlay-dialog" @click="showCharacterDialog=false" v-show="showCharacterDialog"></div>
-
-      <div id="character-dialog" class="dialog" v-show="showCharacterDialog">
-        <div>
-          <input placeholder="Name your character" type="text" maxlength="30" v-model="charaDialogName">
-        </div>
-        <div>
-          <spectrum-colorpicker v-model="charaDialogColor"></spectrum-colorpicker>
-        </div>
-        <div>
-          <button type="button" class="outline-button" @click="sendChara">Save</button>
-          <button type="button" class="outline-button" @click="closeCharacterDialog">Cancel</button>
-        </div>
-      </div>
+      <chara-dialog ref="charaDialog" :send="sendChara"></chara-dialog>
 
       <image-dialog ref="imageDialog" :send="sendImage"></image-dialog>
 

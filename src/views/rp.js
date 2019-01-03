@@ -1,36 +1,8 @@
 module.exports = {
   components: {
-    // rp message component: 
     'rp-message': require('./components/rp-message.vue'),
-    // image dialog
     'image-dialog': require('./components/image-dialog.vue'),
-    // adapt jquery colorpicker component for vue
-    'spectrum-colorpicker': {
-      props: ['value'],
-      template: '<input ref="el">',
-      mounted: function() {
-        var vm = this;
-        jQuery(this.$refs.el).spectrum({
-          color: this.value,
-          showInput: true,
-          preferredFormat: "hex",
-          move: function(color) {
-            vm.$emit('input', color.toHexString());
-          },
-          change: function(color) {
-            vm.$emit('input', color.toHexString());
-          },
-          hide: function(color) {
-            vm.$emit('input', color.toHexString());
-          },
-        });
-      },
-      watch: {
-        value: function(value) {
-          jQuery(this.$refs.el).spectrum('set', value);
-        }
-      }
-    }
+    'chara-dialog': require('./components/chara-dialog.vue'),
   },
 
   data: function() {
@@ -59,11 +31,6 @@ module.exports = {
       showMainMenu: false,
       // chara selector
       showCharacterMenu: false,
-      // chara dialog
-      showCharacterDialog: false,
-      charaDialogId: null,
-      charaDialogName: '',
-      charaDialogColor: '#dddddd',
       // download dialog
       showDownloadDialog: false,
       downloadOOC: false,
@@ -294,28 +261,12 @@ module.exports = {
       this.putUpdate(_id, 'msgs', body);
     },
     sendChara: function() {
-      var data = {
-        name: this.charaDialogName,
-        color: this.charaDialogColor,
-      };
-
-      this.showCharacterDialog = false;
-      this.isDialogSending = true;
-
-      if (this.charaDialogId == null) {
+      return (this.charaDialogId == null) ?
         this.postUpdate('charas', data)
           .then((function(data) {
             this.selectCharacter('chara', data._id);
-          }).bind(this))
-          .finally((function() {
-            this.isDialogSending = false;
-          }).bind(this));
-      } else {
+          }).bind(this)) :
         this.putUpdate(this.charaDialogId, 'charas', data)
-          .finally((function() {
-            this.isDialogSending = false;
-          }).bind(this));
-      }
     },
     sendImage: function(_id, data) {
       return (_id == null) ?
@@ -324,21 +275,6 @@ module.exports = {
     },
     openCharacterMenu: function() {
       this.showCharacterMenu = true;
-    },
-    openCharacterDialog: function(chara) {
-      if (chara != null) {
-        this.charaDialogId = chara._id;
-        this.charaDialogName = chara.name;
-        this.charaDialogColor = chara.color;
-      } else {
-        this.charaDialogId = null;
-        this.charaDialogName = '';
-        // leave charaDialogColor as it was
-      }
-      this.showCharacterDialog = true;
-    },
-    closeCharacterDialog: function() {
-      this.showCharacterDialog = false;
     },
     openDownloadDialog: function() {
       this.showDownloadDialog = true;
