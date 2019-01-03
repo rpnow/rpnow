@@ -64,6 +64,12 @@ const tests = {
     ['_invalid italics/', null, '_invalid italics/'],
     ['_ambiguous formatting__', null, '_ambiguous formatting__'],
     ['__ambiguous formatting_', null, '__ambiguous formatting_'],
+    ['¯\_(ツ)_/¯', null, '¯\_(ツ)_/¯'],
+    ['idk ¯\_(ツ)_/¯ lol', null, 'idk ¯\_(ツ)_/¯ lol'],
+    ['and/or /words/', null, 'and/or <i>words</i>'],
+    ['and/or _words_', null, 'and/or <i>words</i>'],
+    ['and/or /words/ and/or', null, 'and/or <i>words</i> and/or'],
+    ['and/or _words_ and/or', null, 'and/or <i>words</i> and/or'],
   ],
 
   'links': [

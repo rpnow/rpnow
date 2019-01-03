@@ -14,20 +14,27 @@ module.exports = function transformRpMessage(str, color) {
     'STRIKE': { open: function() { return '<del>' }, close: '</del>' },
   };
 
+  function escape(str) {
+    return str.replace(/[&<>"']/g, function (char) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[char];
+    });
+  }
+
   // tokens that create tags
   var tagLexers = [
-    { r: /^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/i, replace: function(link) { return '<a href="'+link+'" target="_blank">'+link+'</a>'; } },
-    { r: /^____+/ }, // if there's a lot of _, don't treat it as anything
-    { r: /^___/, tag: 'BOLDITC' },
-    { r: /^__/, tag: 'BOLD' },
-    { r: /^_/, tag: 'ITC' },
-    { r: /^\//, tag: 'ITC' },
-    { r: /^~~/, tag: 'STRIKE' },
-    { r: /^\*/, tag: 'ACTION' },
-    { r: /^(?:\r\n|\n\r|\r|\n)/, replaceWith: '<br>' },
-    { r: /^--/, replaceWith: '&mdash;' },
-    { r: /^\s/ },
-    { r: /^\S/, replace: function(str) { return str.replace(/[&<>"']/g, function (char) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[char]; }); } },
+    { r: /^(https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i, replace: function(link) { return '<a href="'+link+'" target="_blank">'+link+'</a>'; } },
+    { r: /^(____+)/ }, // if there's a lot of _, don't treat it as anything
+    { r: /^(___)/, tag: 'BOLDITC' },
+    { r: /^(__)/, tag: 'BOLD' },
+    { r: /^(_)/, tag: 'ITC' },
+    { r: /^(\/)/, tag: 'ITC' },
+    { r: /^(~~)/, tag: 'STRIKE' },
+    { r: /^(\*)/, tag: 'ACTION' },
+    { r: /^(\r\n|\n\r|\r|\n)/, replaceWith: '<br>' },
+    { r: /^(--)/, replaceWith: '&mdash;' },
+    { r: /^(\s)/ },
+    { r: /^(\S[^\s-]*[^\s_\/~\*-])(?:\s|$)/, replace: escape }, // attempt to ignore symbols like /, _, etc inside of words
+    { r: /^(.)/, replace: escape },
   ];
 
   // processed tokens
@@ -47,7 +54,7 @@ module.exports = function transformRpMessage(str, color) {
       var tagLexer = tagLexers[i];
       var result = tagLexer.r.exec(str);
       if (result) {
-        match = result[0];
+        match = result[1];
         replace = tagLexer.replace;
         replaceWith = tagLexer.replaceWith;
         tag = tagLexer.tag;
