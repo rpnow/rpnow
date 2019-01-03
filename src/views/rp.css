@@ -315,6 +315,7 @@ html, body {
 .dialog {
   z-index: 7;
   background-color: #fafafa;
+  color: black;
   position: fixed;
   top: 25px;
   left: 5px;
@@ -326,6 +327,7 @@ html, body {
 }
 .dark-theme .dialog {
   background-color: #444444;
+  color: white;
 }
 
 /***** OVERLAYS, which cover and darkens the rest of the UI when a dialog/drawer is open *****/

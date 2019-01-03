@@ -2,6 +2,8 @@ module.exports = {
   components: {
     // rp message component: 
     'rp-message': require('./components/rp-message.vue'),
+    // image dialog
+    'image-dialog': require('./components/image-dialog.vue'),
     // adapt jquery colorpicker component for vue
     'spectrum-colorpicker': {
       props: ['value'],
@@ -65,12 +67,6 @@ module.exports = {
       // download dialog
       showDownloadDialog: false,
       downloadOOC: false,
-      // image post dialog
-      showImageDialog: false,
-      imageDialogId: null,
-      imageDialogUrl: '',
-      imageDialogIsChecking: false,
-      imageDialogIsValid: false,
       // if any dialog is in the process of sending
       isDialogSending: false,
     }
@@ -189,11 +185,6 @@ module.exports = {
     },
     msgBoxValid: function() {
       return this.msgBoxText.trim().length > 0;
-    },
-    // image dialog computed properties
-    imageDialogIsWellFormed: function() {
-      var urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
-      return !!this.imageDialogUrl.match(urlRegex);
     },
   },
 
@@ -326,28 +317,10 @@ module.exports = {
           }).bind(this));
       }
     },
-    sendImage: function() {
-      if (!this.imageDialogIsValid) return;
-
-      var data = {
-        type: 'image',
-        url: this.imageDialogUrl,
-      }
-
-      this.showImageDialog = false;
-      this.isDialogSending = true;
-
-      if (this.imageDialogId == null) {
-        this.postUpdate('msgs', data)
-          .finally((function() {
-            this.isDialogSending = false;
-          }).bind(this));
-      } else {
-        this.putUpdate(this.imageDialogId, 'msgs', data)
-          .finally((function() {
-            this.isDialogSending = false;
-          }).bind(this));
-      }
+    sendImage: function(_id, data) {
+      return (_id == null) ?
+        this.postUpdate('msgs', data) : 
+        this.putUpdate(_id, 'msgs', data);
     },
     openCharacterMenu: function() {
       this.showCharacterMenu = true;
@@ -366,16 +339,6 @@ module.exports = {
     },
     closeCharacterDialog: function() {
       this.showCharacterDialog = false;
-    },
-    openImageDialog: function(msg) {
-      if (msg != null) {
-        this.imageDialogId = msg._id;
-        this.imageDialogUrl = msg.url;
-      } else {
-        this.imageDialogId = null;
-        this.imageDialogUrl = '';
-      }
-      this.showImageDialog = true;
     },
     openDownloadDialog: function() {
       this.showDownloadDialog = true;
@@ -529,34 +492,6 @@ module.exports = {
           this.doMessageAlert(msgs[msgs.length - 1]);
         }
       }
-    },
-    // validate the image dialog to see if an image can actually be loaded
-    'imageDialogUrl': function(url) {
-      if (!this.imageDialogIsWellFormed) {
-        this.imageDialogIsChecking = false;
-        this.imageDialogIsValid = false;
-        return;
-      }
-
-      this.imageDialogIsChecking = true;
-      this.imageDialogIsValid = false;
-
-      new Promise(function(resolve, reject) {
-        var img = document.createElement('img');
-
-        img.addEventListener('load', function() { resolve(true) });
-        img.addEventListener('error', function() { resolve(false) });
-        img.addEventListener('abort', function() { resolve(false) });
-        setTimeout(function() { resolve(false) }, 45000);
-
-        img.src = url;
-      }).then((function(result) {
-        // ignore if another change has happened since this one
-        if (this.imageDialogUrl !== url) return;
-
-        this.imageDialogIsChecking = false;
-        this.imageDialogIsValid = result;
-      }).bind(this));
     },
   }
 };

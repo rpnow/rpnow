@@ -59,7 +59,7 @@
               :show-message-details="showMessageDetails"
               :dark-theme="nightMode"
               @edit="editMessage(msg._id, $event)"
-              @prompt-image-edit="openImageDialog(msg)"
+              @prompt-image-edit="$refs.imageDialog.open(msg)"
               @resize="rescrollToBottom"
             ></rp-message>
           </template>
@@ -74,7 +74,7 @@
             <button class="icon-button" @click="openCharacterMenu">
               <i class="material-icons" title="Change character">people</i>
             </button>
-            <button class="icon-button" @click="openImageDialog(null)">
+            <button class="icon-button" @click="$refs.imageDialog.open(null)">
               <i class="material-icons" title="Post image">image</i>
             </button>
             <button class="icon-button" @click="showFormatGuide">
@@ -212,32 +212,7 @@
         </div>
       </div>
 
-      <div class="overlay overlay-dialog" @click="showImageDialog=false" v-show="showImageDialog"></div>
-
-      <div id="image-dialog" class="dialog" v-show="showImageDialog">
-        <div>
-          <input placeholder="Enter a URL" type="text" v-model="imageDialogUrl" @keydown.enter="sendImage">
-        </div>
-
-        <div class="preview-container preview-container-busted" v-if="imageDialogIsChecking">
-          <i class="material-icons">hourglass_full</i>
-          <span>Loading...</span>
-        </div>
-
-        <div class="preview-container" v-if="imageDialogIsValid">
-          <img :src="imageDialogUrl">
-        </div>
-
-        <div class="preview-container preview-container-busted" v-if="!imageDialogIsValid && !imageDialogIsChecking">
-          <span v-if="imageDialogUrl.length > 0 && !imageDialogIsWellFormed">RPNow can't read this URL.</span>
-          <span v-if="imageDialogIsWellFormed">Can't load this image.</span>
-        </div>
-
-        <div>
-          <button type="button" class="outline-button" @click="sendImage" :disabled="!imageDialogIsValid">Save</button>
-          <button type="button" class="outline-button" @click="showImageDialog=false">Cancel</button>
-        </div>
-      </div>
+      <image-dialog ref="imageDialog" :send="sendImage"></image-dialog>
 
       <div class="overlay overlay-dialog" @click="showDownloadDialog=false" v-show="showDownloadDialog"></div>
 
