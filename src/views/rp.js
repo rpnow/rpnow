@@ -3,6 +3,7 @@ module.exports = {
     'rp-message': require('./components/rp-message.vue'),
     'image-dialog': require('./components/image-dialog.vue'),
     'chara-dialog': require('./components/chara-dialog.vue'),
+    'send-box': require('./components/send-box.vue'),
   },
 
   data: function() {
@@ -22,11 +23,6 @@ module.exports = {
       nightMode: false,
       showMessageDetails: true,
       browserAlerts: false,
-      // message box
-      msgBoxText: '',
-      currentMsgType: 'narrator',
-      currentCharaId: null,
-      isMsgBoxSending: false,
       // main menu
       showMainMenu: false,
       // chara selector
@@ -127,33 +123,6 @@ module.exports = {
         return map;
       }, {});
     },
-    // message box computed properties
-    currentChara: function() {
-      if (this.currentMsgType !== 'chara') return undefined;
-      return this.charasById[this.currentCharaId]
-    },
-    currentVoiceName: function() {
-      if (this.currentMsgType === 'narrator') return 'Narrator';
-      if (this.currentMsgType === 'ooc') return 'Out of Character';
-      return this.currentChara.name;
-    },
-    currentCharaColor: function() {
-      if (this.currentMsgType !== 'chara') return undefined;
-      return this.currentChara.color;
-    },
-    messageBoxClass: function() {
-      return 'send-box-' + this.currentMsgType;
-    },
-    messageBoxStyle: function() {
-      if (this.currentMsgType !== 'chara') return {};
-      else return {
-        'background-color': this.currentCharaColor,
-        'color': tinycolor(this.currentCharaColor).isLight() ? 'black' : 'white',
-      };
-    },
-    msgBoxValid: function() {
-      return this.msgBoxText.trim().length > 0;
-    },
   },
 
   methods: {
@@ -220,47 +189,11 @@ module.exports = {
           throw err;
         }).bind(this));
     },
-    applyShortcutsToMessage: function(msg) {
-      if (msg.type !== 'ooc') {
-        var oocShortcuts = [
-          /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( message text ))
-          /^\{+\s*(.*?[^\s])\s*\}*$/g, // { message text }, {{ message text }}, ...
-          /^\/\/\s*(.*[^\s])\s*$/g // //message text
-        ];
-        for (var i = 0; i < oocShortcuts.length; ++i) {
-          var regex = oocShortcuts[i];
-          var match = regex.exec(msg.content);
-          if (match) {
-            return { type: 'ooc', content: match[1] };
-          }
-        }
-      }
-      return msg;
-    },
     sendMessage: function() {
-      var wasFocused = (document.activeElement === document.querySelector('#typing-area textarea'));
-
-      var data = {
-        content: this.msgBoxText,
-        type: this.currentMsgType,
-        charaId: this.currentCharaId || undefined,
-      };
-
-      data = this.applyShortcutsToMessage(data);
-
-      this.isMsgBoxSending = true;
-
-      this.postUpdate('msgs', data)
-        .then((function() {
-          this.msgBoxText = '';
-        }).bind(this))
-        .finally((function() {
-          this.isMsgBoxSending = false;
-          if (wasFocused) this.$nextTick(function() { document.querySelector('#typing-area textarea').focus() });
-        }).bind(this));
+      return this.postUpdate('msgs', data);
     },
     editMessage: function(_id, body) {
-      this.putUpdate(_id, 'msgs', body);
+      return this.putUpdate(_id, 'msgs', body);
     },
     sendChara: function() {
       return (this.charaDialogId == null) ?
@@ -274,9 +207,6 @@ module.exports = {
       return (_id == null) ?
         this.postUpdate('msgs', data) : 
         this.putUpdate(_id, 'msgs', data);
-    },
-    openCharacterMenu: function() {
-      this.showCharacterMenu = true;
     },
     openDownloadDialog: function() {
       this.showDownloadDialog = true;
@@ -298,20 +228,8 @@ module.exports = {
         this.showCharacterMenu = false;
       }
     },
-    showFormatGuide: function() {
-      window.open('/format', '_blank').focus();
-    },
     openMainMenu: function() {
       this.showMainMenu = true;
-    },
-    resizeTextareaOnInput: function($event, minRows, maxRows) {
-      var el = $event.target;
-      while (el.rows > minRows && el.scrollHeight <= el.offsetHeight) {
-        el.rows = el.rows - 1;
-      }
-      while (el.rows < maxRows && el.scrollHeight > el.offsetHeight) {
-        el.rows = el.rows + 1;
-      }
     },
     onScroll: function() {
       var el = document.querySelector('#messages');

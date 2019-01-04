@@ -65,47 +65,12 @@
           </template>
         </div>
 
-        <div id="send-box" :class="messageBoxClass" :style="messageBoxStyle">
-
-          <div id="voice-bar">
-            <div id="click-to-change" title="Change character" @click="openCharacterMenu">
-              {{ currentVoiceName }}
-            </div>
-            <button class="icon-button" @click="openCharacterMenu">
-              <i class="material-icons" title="Change character">people</i>
-            </button>
-            <button class="icon-button" @click="$refs.imageDialog.open(null)">
-              <i class="material-icons" title="Post image">image</i>
-            </button>
-            <button class="icon-button" @click="showFormatGuide">
-              <i class="material-icons" title="Formatting info">text_fields</i>
-            </button>
-          </div>
-
-          <div id="typing-area">
-            <textarea
-              rows="3"
-              placeholder="Type your message."
-              maxlength="10000"
-              :disabled="isMsgBoxSending"
-              v-model="msgBoxText"
-              @keydown.enter.ctrl.exact="($event.preventDefault(), sendMessage())"
-              @keydown.enter.exact="pressEnterToSend() ? ($event.preventDefault(), sendMessage()) : null"
-              @input="resizeTextareaOnInput($event, 3, 6)"
-            ></textarea>
-            <template v-if="!isMsgBoxSending">
-              <button class="icon-button" :disabled="!msgBoxValid" @click="sendMessage">
-                <i class="material-icons" title="Send">send</i>
-              </button>
-            </template>
-            <template v-if="isMsgBoxSending">
-              <div id="send-loader-container">
-                <i class="material-icons">hourglass_full</i>
-              </div>
-            </template>
-          </div>
-
-        </div>
+        <send-box
+          :charas-by-id="charasById"
+          :press-enter-to-send="pressEnterToSend"
+          :send="sendMessage"
+          @open-character-menu="showCharacterMenu=true"
+        ></send-box>
       </div>
 
       <div class="overlay overlay-drawer" @click="showMainMenu=false" v-show="showMainMenu"></div>
