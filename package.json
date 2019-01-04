@@ -27,7 +27,7 @@
     "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "nodemon": "^1.18.7",
+    "nodemon": "^1.18.9",
     "pkg": "^4.3.5",
     "supertest": "^3.3.0"
   },
