@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node src/index.js",
     "start-dev": "VUE_DEV=true nodemon src/index.js --ext js,json,vue,css",
+    "start-dev-windows": "set VUE_DEV=true&& nodemon src/index.js --ext js,json,vue,css",
     "lint": "eslint src/**/*.js src/*.js",
     "test": "ava --watch",
     "build": "./build.sh"
