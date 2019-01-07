@@ -312,8 +312,10 @@ html, body {
 }
 
 /***** DIALOG BOXES *****/
+.dialog-container {
+  z-index: 6;
+}
 .dialog {
-  z-index: 7;
   background-color: #fafafa;
   color: black;
   position: fixed;
@@ -348,15 +350,23 @@ html, body {
   color: black;
 }
 @media (min-width: 1024px) {
-  .overlay.overlay-lt-1024 {
+  .drawer-dock-1024 .overlay {
     display: none;
   }
 }
-.overlay.overlay-drawer {
-  z-index: 4;
+.drawer-right .overlay {
+  right: 320px;
 }
-.overlay.overlay-dialog {
-  z-index: 6;
+.drawer-left .overlay {
+  left: 320px;
+}
+@media (max-width: 400px) {
+  .drawer-right .overlay {
+    right: 80vw;
+  }
+  .drawer-left .overlay {
+    left: 80vw;
+  }
 }
 
 /***** ICON BUTTONS: icons you can click on, used throughout the page *****/

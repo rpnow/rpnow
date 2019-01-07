@@ -1,5 +1,5 @@
 <template>
-  <div class="overlay overlay-dialog" @click="showImageDialog=false" v-show="showImageDialog || isDialogSending">
+  <div class="dialog-container overlay" @click="showImageDialog=false" v-show="showImageDialog || isDialogSending">
 
     <div id="image-dialog" class="dialog" @click.stop v-show="showImageDialog">
       <div>

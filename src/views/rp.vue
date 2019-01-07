@@ -73,9 +73,9 @@
         ></send-box>
       </div>
 
-      <div class="overlay overlay-drawer" @click="showMainMenu=false" v-show="showMainMenu"></div>
-
       <div id="main-menu" class="drawer drawer-left" v-show="showMainMenu">
+        <div class="overlay" @click="showMainMenu=false"></div>
+
         <div class="drawer-header">
           <span>RPNow</span>
           <button class="icon-button" @click="showMainMenu=false">
@@ -136,19 +136,19 @@
 
       <image-dialog ref="imageDialog" :send="sendImage"></image-dialog>
 
-      <div class="overlay overlay-dialog" @click="showDownloadDialog=false" v-show="showDownloadDialog"></div>
-
-      <div id="download-dialog" class="dialog" v-show="showDownloadDialog">
-        <h4>Download RP</h4>
-        <p>
-          <label>
-            <input type="checkbox" v-model="downloadOOC">
-            Include OOC messages
-          </label>
-        </p>
-        <div>
-          <button type="button" class="outline-button" @click="downloadTxt">Download</button>
-          <button type="button" class="outline-button" @click="closeDownloadDialog">Cancel</button>
+      <div class="dialog-container overlay" @click="showDownloadDialog=false" v-show="showDownloadDialog">
+        <div id="download-dialog" class="dialog" @click.stop>
+          <h4>Download RP</h4>
+          <p>
+            <label>
+              <input type="checkbox" v-model="downloadOOC">
+              Include OOC messages
+            </label>
+          </p>
+          <div>
+            <button type="button" class="outline-button" @click="downloadTxt">Download</button>
+            <button type="button" class="outline-button" @click="closeDownloadDialog">Cancel</button>
+          </div>
         </div>
       </div>
 

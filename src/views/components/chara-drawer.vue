@@ -1,7 +1,6 @@
 <template>
   <div id="character-menu" class="drawer drawer-right drawer-dock-1024" v-show="showCharacterMenu">
-
-    <div class="overlay overlay-lt-1024 overlay-drawer" @click="showCharacterMenu=false"></div>
+    <div class="overlay" @click="showCharacterMenu=false"></div>
 
     <div class="drawer-header">
       <span>Characters</span>
