@@ -4,6 +4,7 @@ module.exports = {
     'image-dialog': require('./components/image-dialog.vue'),
     'chara-dialog': require('./components/chara-dialog.vue'),
     'send-box': require('./components/send-box.vue'),
+    'chara-drawer': require('./components/chara-drawer.vue'),
   },
 
   data: function() {
@@ -25,8 +26,6 @@ module.exports = {
       browserAlerts: false,
       // main menu
       showMainMenu: false,
-      // chara selector
-      showCharacterMenu: false,
       // download dialog
       showDownloadDialog: false,
       downloadOOC: false,
@@ -219,13 +218,6 @@ module.exports = {
         window.open('/api/rp/'+this.rp.readCode+'/download.txt?includeOOC=true', '_blank').focus();
       } else {
         window.open('/api/rp/'+this.rp.readCode+'/download.txt', '_blank').focus();
-      }
-    },
-    selectCharacter: function(type, charaId) {
-      this.currentMsgType = type;
-      this.currentCharaId = (type === 'chara') ? charaId : null;
-      if (window.matchMedia("(max-width: 1023px)").matches) {
-        this.showCharacterMenu = false;
       }
     },
     openMainMenu: function() {

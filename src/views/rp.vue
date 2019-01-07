@@ -69,7 +69,7 @@
           :charas-by-id="charasById"
           :press-enter-to-send="pressEnterToSend"
           :send="sendMessage"
-          @open-character-menu="showCharacterMenu=true"
+          @open-character-menu="$refs.charaDrawer.open()"
         ></send-box>
       </div>
 
@@ -126,42 +126,12 @@
         </div>
       </div>
 
-      <div class="overlay overlay-lt-1024 overlay-drawer" @click="showCharacterMenu=false" v-show="showCharacterMenu"></div>
+      <chara-drawer ref="charaDrawer"
+        :charas="rp.charas"
+        @create-chara="$refs.charaDialog.open(null)"
+        @edit-chara="$refs.charaDialog.open($event)"
+      ></chara-drawer>
 
-      <div id="character-menu" class="drawer drawer-right drawer-dock-1024" v-show="showCharacterMenu">
-        <div class="drawer-header">
-          <span>Characters</span>
-          <button class="icon-button" @click="showCharacterMenu=false">
-            <i class="material-icons" title="Close">close</i>
-          </button>
-        </div>
-        <div class="drawer-body">
-          <button :class="['drawer-item', {'drawer-item-selected': currentMsgType==='narrator'}]" @click="selectCharacter('narrator')">
-            <i class="material-icons">local_library</i>
-            <span>Narrator</span>
-          </button>
-          <button :class="['drawer-item', {'drawer-item-selected': currentMsgType==='ooc'}]" @click="selectCharacter('ooc')">
-            <i class="material-icons">chat</i>
-            <span>Out of Character</span>
-          </button>
-          <div class="drawer-divider"></div>
-          <button class="drawer-item" @click="$refs.charaDialog.open(null)">
-            <i class="material-icons">person_add</i>
-            <span>New Character...</span>
-          </button>
-          <div class="drawer-divider"></div>
-          <template v-for="chara of rp.charas">
-            <div :class="['drawer-item', {'drawer-item-selected': currentChara===chara}]" @click="selectCharacter('chara', chara._id)" :key="chara._id">
-              <i class="material-icons chara-icon-shadow" :style="{'color':chara.color}">person</i>
-              <span>{{ chara.name }}</span>
-              <button class="icon-button" @click.prevent.stop="$refs.charaDialog.open(msg)">
-                <i class="material-icons" title="Edit character">edit</i>
-              </button>
-            </div>
-          </template>
-        </div>
-      </div>
-    
       <chara-dialog ref="charaDialog" :send="sendChara"></chara-dialog>
 
       <image-dialog ref="imageDialog" :send="sendImage"></image-dialog>
