@@ -48,34 +48,33 @@
       'charasById',
       'pressEnterToSend',
       'send',
+      'voice',
     ],
     data: function() {
       return {
         msgBoxText: '',
-        currentMsgType: 'narrator',
-        currentCharaId: null,
         isMsgBoxSending: false,
       };
     },
     computed: {
       currentChara: function() {
-        if (this.currentMsgType !== 'chara') return undefined;
-        return this.charasById[this.currentCharaId]
+        if (this.voice.type !== 'chara') return undefined;
+        return this.charasById[this.voice.charaId]
       },
       currentVoiceName: function() {
-        if (this.currentMsgType === 'narrator') return 'Narrator';
-        if (this.currentMsgType === 'ooc') return 'Out of Character';
+        if (this.voice.type === 'narrator') return 'Narrator';
+        if (this.voice.type === 'ooc') return 'Out of Character';
         return this.currentChara.name;
       },
       currentCharaColor: function() {
-        if (this.currentMsgType !== 'chara') return undefined;
+        if (this.voice.type !== 'chara') return undefined;
         return this.currentChara.color;
       },
       messageBoxClass: function() {
-        return 'send-box-' + this.currentMsgType;
+        return 'send-box-' + this.voice.type;
       },
       messageBoxStyle: function() {
-        if (this.currentMsgType !== 'chara') return {};
+        if (this.voice.type !== 'chara') return {};
         else return {
           'background-color': this.currentCharaColor,
           'color': tinycolor(this.currentCharaColor).isLight() ? 'black' : 'white',
@@ -110,8 +109,8 @@
 
         var data = {
           content: this.msgBoxText,
-          type: this.currentMsgType,
-          charaId: this.currentCharaId || undefined,
+          type: this.voice.type,
+          charaId: this.voice.charaId || undefined,
         };
 
         data = this.applyShortcutsToMessage(data);

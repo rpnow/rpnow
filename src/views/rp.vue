@@ -66,6 +66,7 @@
         </div>
 
         <send-box
+          :voice="currentVoice"
           :charas-by-id="charasById"
           :press-enter-to-send="pressEnterToSend"
           :send="sendMessage"
@@ -127,7 +128,9 @@
       </div>
 
       <chara-drawer ref="charaDrawer"
+        :current-voice="currentVoice"
         :charas="rp.charas"
+        @select-voice="currentVoice = $event"
         @create-chara="$refs.charaDialog.open(null)"
         @edit-chara="$refs.charaDialog.open($event)"
       ></chara-drawer>
@@ -176,6 +179,7 @@
         isNewRp: false,
         isScrolledToBottom: true,
         unreadMessagesIndicator: false,
+        currentVoice: { type: 'narrator', charaId: null },
         // connection status
         consecutiveNetworkFailures: 0,
         // options
@@ -228,8 +232,7 @@
         showMessageDetails: 'rpnow.global.showMessageDetails',
         browserAlerts: 'rpnow.global.browserAlerts',
         msgBoxText: 'rpnow.'+this.rpCode+'.msgBoxContent',
-        currentMsgType: 'rpnow.'+this.rpCode+'.msgBoxType',
-        currentCharaId: 'rpnow.'+this.rpCode+'.msgBoxCharaId',
+        currentVoice: 'rpnow.'+this.rpCode+'.currentVoice',
         downloadOOC: 'rpnow.global.downloadOOC',
       };
 
@@ -347,19 +350,19 @@
             throw err;
           }).bind(this));
       },
-      sendMessage: function() {
+      sendMessage: function(data) {
         return this.postUpdate('msgs', data);
       },
       editMessage: function(_id, body) {
         return this.putUpdate(_id, 'msgs', body);
       },
-      sendChara: function() {
-        return (this.charaDialogId == null) ?
-          this.postUpdate('charas', data)
-            .then((function(data) {
-              this.selectCharacter('chara', data._id);
-            }).bind(this)) :
-          this.putUpdate(this.charaDialogId, 'charas', data)
+      sendChara: function(_id, data) {
+        return (_id == null) ?
+          this.postUpdate('charas', data) :
+            // .then((function(res) {
+            //   this.selectCharacter('chara', res._id);
+            // }).bind(this)) :
+          this.putUpdate(_id, 'charas', data)
       },
       sendImage: function(_id, data) {
         return (_id == null) ?
