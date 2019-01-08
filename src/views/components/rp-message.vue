@@ -52,18 +52,23 @@
         </a>
       </div>
     </template>
+
+    <image-dialog ref="imageDialog" :send="send"></image-dialog>
   </div>
 </template>
   
 <script>
   module.exports = {
+    components: {
+      'image-dialog': require('./image-dialog.vue'),
+    },
     props: [
+      '_id',
       'type',
       'content',
       'url',
       'timestamp',
       'revision',
-      'ipid',
 
       'chara',
 
@@ -72,6 +77,8 @@
       'showMessageDetails',
       
       'darkTheme',
+
+      'send',
     ],
     data: function() {
       return {
@@ -98,12 +105,14 @@
         ];
       },
       ipidVisibility: function() {
-        return (this.ipid && !this.editing) ? 'visible' : 'hidden';
+        // return (this.ipid && !this.editing) ? 'visible' : 'hidden';
+        return 'hidden';
       },
       ipidColors: function() {
-        if (!this.ipid) return ['#000','#000','#000'];
-        return this.ipid.match(/[0-9a-f]{6}/gi)
-          .map(function(hex) { return '#' + hex });
+        // if (!this.ipid) return ['#000','#000','#000'];
+        // return this.ipid.match(/[0-9a-f]{6}/gi)
+        //   .map(function(hex) { return '#' + hex });
+        return ['#000']
       },
       validEdit: function() {
         return this.newContent.trim() && this.newContent !== this.content;
@@ -148,7 +157,7 @@
     methods: {
       beginEdit: function() {
         if (this.isImage) {
-          this.$emit('prompt-image-edit')
+          this.$refs.imageDialog.open({ _id: this._id, url: this.url });
         } else {
           this.editing = true;
           this.newContent = this.content;
@@ -164,7 +173,7 @@
           charaId: this.chara && this.chara._id || undefined,
           content: this.newContent,
         }
-        this.$emit('edit', messageData);
+        this.send(messageData, this._id);
       },
       notifySizeChange: function() {
         this.$emit('resize');

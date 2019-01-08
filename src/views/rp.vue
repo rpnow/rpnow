@@ -46,20 +46,14 @@
 
           <template v-for="msg of rp.msgs">
             <rp-message
+              v-bind="msg"
               :key="msg._id"
-              :type="msg.type"
-              :content="msg.content"
-              :url="msg.url"
-              :timestamp="msg.timestamp"
-              :revision="msg.revision"
-              :ipid="msg.ip"
               :chara="charasById[msg.charaId]"
               :can-edit="true"
               :press-enter-to-send="pressEnterToSend"
               :show-message-details="showMessageDetails"
               :dark-theme="nightMode"
-              @edit="editMessage(msg._id, $event)"
-              @prompt-image-edit="$refs.imageDialog.open(msg)"
+              :send="sendMessage"
               @resize="rescrollToBottom"
             ></rp-message>
           </template>
@@ -134,8 +128,6 @@
         @select-voice="currentVoice = $event"
       ></chara-drawer>
 
-      <image-dialog ref="imageDialog" :send="sendImage"></image-dialog>
-
       <div class="dialog-container overlay" @click="showDownloadDialog=false" v-show="showDownloadDialog">
         <div id="download-dialog" class="dialog" @click.stop>
           <h4>Download RP</h4>
@@ -160,7 +152,6 @@
   module.exports = {
     components: {
       'rp-message': require('./components/rp-message.vue'),
-      'image-dialog': require('./components/image-dialog.vue'),
       'send-box': require('./components/send-box.vue'),
       'chara-drawer': require('./components/chara-drawer.vue'),
     },
@@ -324,43 +315,26 @@
 
         this.rp[update.type] = arr;
       },
-      postUpdate: function(type, body) {
-        return axios.post('/api/rp/' + this.rpCode + '/' + type, body)
+      sendUpdate: function(type, body, _id) {
+        return axios.request({
+          method: (_id ? 'put' : 'post'),
+          url: '/api/rp/' + this.rpCode + '/' + type + (_id ? ('/' + _id) : ''),
+          data: body
+        })
           .then((function(res) {
             this.updateState({ type: type, data: res.data });
             return res.data;
           }).bind(this))
           .catch((function(err) {
-            alert('Post failed! ' + err)
+            alert('Error! ' + err)
             throw err;
           }).bind(this));
       },
-      putUpdate: function(_id, type, body) {
-        return axios.put('/api/rp/' + this.rpCode + '/' + type + '/' + _id, body)
-          .then((function(res) {
-            this.updateState({ type: type, data: res.data });
-            return res.data;
-          }).bind(this))
-          .catch((function(err) {
-            alert('Edit failed! ' + err)
-            throw err;
-          }).bind(this));
+      sendMessage: function(data, _id) {
+        return this.sendUpdate('msgs', data, _id);
       },
-      sendMessage: function(data) {
-        return this.postUpdate('msgs', data);
-      },
-      editMessage: function(_id, body) {
-        return this.putUpdate(_id, 'msgs', body);
-      },
-      sendChara: function(_id, data) {
-        return (_id == null) ?
-          this.postUpdate('charas', data) :
-          this.putUpdate(_id, 'charas', data)
-      },
-      sendImage: function(_id, data) {
-        return (_id == null) ?
-          this.postUpdate('msgs', data) : 
-          this.putUpdate(_id, 'msgs', data);
+      sendChara: function(data, _id) {
+        return this.sendUpdate('charas', data, _id);
       },
       openDownloadDialog: function() {
         this.showDownloadDialog = true;

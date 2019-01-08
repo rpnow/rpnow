@@ -39,11 +39,16 @@
       </template>
     </div>
 
+    <image-dialog ref="imageDialog" :send="send"></image-dialog>
+
   </div>
 </template>
 
 <script>
   module.exports =  {
+    components: {
+      'image-dialog': require('./image-dialog.vue'),
+    },
     props: [
       'charasById',
       'pressEnterToSend',

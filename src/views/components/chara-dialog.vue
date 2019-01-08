@@ -70,7 +70,7 @@
         this.showCharacterDialog = false;
         this.isDialogSending = true;
 
-        this.send(this.edit, data)
+        this.send(data, this.charaDialogId)
           .then((function(res) {
             if (this.charaDialogId) {
               this.$emit('edited', res);

@@ -78,7 +78,7 @@
         this.showImageDialog = false;
         this.isDialogSending = true;
 
-        this.send(this.imageDialogId, data)
+        this.send(data, this.imageDialogId)
           .finally((function() {
             this.isDialogSending = false;
           }).bind(this));
