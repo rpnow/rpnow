@@ -1,5 +1,5 @@
 <template>
-  <div class="dialog-container overlay" @click="showCharacterDialog=false" v-show="showCharacterDialog || isDialogSending">
+  <div class="dialog-container overlay" @click="close" v-show="showCharacterDialog || isDialogSending">
 
     <div id="character-dialog" class="dialog" @click.stop v-show="showCharacterDialog">
       <div>
@@ -10,7 +10,7 @@
       </div>
       <div>
         <button type="button" class="outline-button" @click="submit">Save</button>
-        <button type="button" class="outline-button" @click="showCharacterDialog=false">Cancel</button>
+        <button type="button" class="outline-button" @click="close">Cancel</button>
       </div>
     </div>
 
@@ -54,6 +54,11 @@
         }
         this.showCharacterDialog = true;
       },
+      close: function() {
+        if (!this.isDialogSending) {
+          this.showCharacterDialog = false;
+        }
+      },
       submit: function() {
         if (!this.isValid) return;
 
@@ -65,7 +70,14 @@
         this.showCharacterDialog = false;
         this.isDialogSending = true;
 
-        this.send(this.charaDialogId, data)
+        this.send(this.edit, data)
+          .then((function(res) {
+            if (this.charaDialogId) {
+              this.$emit('edited', res);
+            } else {
+              this.$emit('created', res);
+            }
+          }).bind(this))
           .finally((function() {
             this.isDialogSending = false;
           }).bind(this));

@@ -350,21 +350,21 @@ html, body {
   color: black;
 }
 @media (min-width: 1024px) {
-  .drawer-dock-1024 .overlay {
+  .drawer-dock-1024 .overlay.overlay-drawer {
     display: none;
   }
 }
-.drawer-right .overlay {
+.drawer-right .overlay.overlay-drawer {
   right: 320px;
 }
-.drawer-left .overlay {
+.drawer-left .overlay.overlay-drawer {
   left: 320px;
 }
 @media (max-width: 400px) {
-  .drawer-right .overlay {
+  .drawer-right .overlay.overlay-drawer {
     right: 80vw;
   }
-  .drawer-left .overlay {
+  .drawer-left .overlay.overlay-drawer {
     left: 80vw;
   }
 }

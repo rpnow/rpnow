@@ -1,6 +1,6 @@
 <template>
   <div id="character-menu" class="drawer drawer-right drawer-dock-1024" v-show="showCharacterMenu">
-    <div class="overlay" @click="showCharacterMenu=false"></div>
+    <div class="overlay overlay-drawer" @click="showCharacterMenu=false"></div>
 
     <div class="drawer-header">
       <span>Characters</span>
@@ -18,7 +18,7 @@
         <span>Out of Character</span>
       </button>
       <div class="drawer-divider"></div>
-      <button class="drawer-item" @click="$emit('create-chara')">
+      <button class="drawer-item" @click="$refs.charaDialog.open(null)">
         <i class="material-icons">person_add</i>
         <span>New Character...</span>
       </button>
@@ -27,20 +27,29 @@
         <div :class="['drawer-item', {'drawer-item-selected': currentVoice.charaId===chara._id}]" @click="selectCharacter('chara', chara._id)" :key="chara._id">
           <i class="material-icons chara-icon-shadow" :style="{'color':chara.color}">person</i>
           <span>{{ chara.name }}</span>
-          <button class="icon-button" @click.prevent.stop="$emit('edit-chara', chara)">
+          <button class="icon-button" @click.prevent.stop="$refs.charaDialog.open(chara)">
             <i class="material-icons" title="Edit character">edit</i>
           </button>
         </div>
       </template>
     </div>
+
+    <chara-dialog ref="charaDialog"
+      :send="send"
+      @created="selectCharacter('chara', $event._id)"
+    ></chara-dialog>
   </div>
 </template>
 
 <script>
   module.exports = {
+    components: {
+      'chara-dialog': require('./chara-dialog.vue'),
+    },
     props: [
       'charas',
       'currentVoice',
+      'send',
     ],
     data: function() {
       return {

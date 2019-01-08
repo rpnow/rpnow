@@ -75,7 +75,7 @@
       </div>
 
       <div id="main-menu" class="drawer drawer-left" v-show="showMainMenu">
-        <div class="overlay" @click="showMainMenu=false"></div>
+        <div class="overlay overlay-drawer" @click="showMainMenu=false"></div>
 
         <div class="drawer-header">
           <span>RPNow</span>
@@ -130,12 +130,9 @@
       <chara-drawer ref="charaDrawer"
         :current-voice="currentVoice"
         :charas="rp.charas"
+        :send="sendChara"
         @select-voice="currentVoice = $event"
-        @create-chara="$refs.charaDialog.open(null)"
-        @edit-chara="$refs.charaDialog.open($event)"
       ></chara-drawer>
-
-      <chara-dialog ref="charaDialog" :send="sendChara"></chara-dialog>
 
       <image-dialog ref="imageDialog" :send="sendImage"></image-dialog>
 
@@ -164,7 +161,6 @@
     components: {
       'rp-message': require('./components/rp-message.vue'),
       'image-dialog': require('./components/image-dialog.vue'),
-      'chara-dialog': require('./components/chara-dialog.vue'),
       'send-box': require('./components/send-box.vue'),
       'chara-drawer': require('./components/chara-drawer.vue'),
     },
@@ -359,9 +355,6 @@
       sendChara: function(_id, data) {
         return (_id == null) ?
           this.postUpdate('charas', data) :
-            // .then((function(res) {
-            //   this.selectCharacter('chara', res._id);
-            // }).bind(this)) :
           this.putUpdate(_id, 'charas', data)
       },
       sendImage: function(_id, data) {
