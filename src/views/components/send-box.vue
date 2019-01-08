@@ -24,7 +24,7 @@
         :disabled="isMsgBoxSending"
         v-model="msgBoxText"
         @keydown.enter.ctrl.exact="($event.preventDefault(), submit())"
-        @keydown.enter.exact="pressEnterToSend() ? ($event.preventDefault(), submit()) : null"
+        @keydown.enter.exact="pressEnterToSend ? ($event.preventDefault(), submit()) : null"
         @input="resizeTextareaOnInput($event, 3, 6)"
       ></textarea>
       <template v-if="!isMsgBoxSending">

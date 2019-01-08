@@ -41,7 +41,7 @@
     <template v-if="editing">
       <textarea class="content" v-model="newContent" maxlength="10000" rows="4"
         @keydown.enter.ctrl.exact.prevent="confirmEdit"
-        @keydown.enter.exact.prevent="pressEnterToSend() && confirmEdit()"
+        @keydown.enter.exact.prevent="pressEnterToSend && confirmEdit()"
       ></textarea>
     </template>
 

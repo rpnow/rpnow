@@ -97,12 +97,10 @@
             <span>Alerts</span>
             <i class="material-icons" v-html="browserAlerts?'check_box':'check_box_outline_blank'"></i>
           </button>
-          <button class="drawer-item" @click="overridePressEnterToSend = !pressEnterToSend()">
+          <button class="drawer-item" @click="pressEnterToSend = !pressEnterToSend">
             <i class="material-icons">send</i>
             <span>Quick send</span>
-            <i class="material-icons" v-if="overridePressEnterToSend===true">check_box</i>
-            <i class="material-icons" v-if="overridePressEnterToSend===false">check_box_outline_blank</i>
-            <i class="material-icons" v-if="overridePressEnterToSend===null">indeterminate_check_box</i>
+            <i class="material-icons" v-html="pressEnterToSend?'check_box':'check_box_outline_blank'"></i>
           </button>
           <button class="drawer-item" @click="showMessageDetails = !showMessageDetails">
             <i class="material-icons">account_box</i>
@@ -170,7 +168,7 @@
         // connection status
         consecutiveNetworkFailures: 0,
         // options
-        overridePressEnterToSend: null,
+        pressEnterToSend: true,
         nightMode: false,
         showMessageDetails: true,
         browserAlerts: false,
@@ -214,7 +212,7 @@
 
       // now, initialize these props from localStorage, and watch them
       var watchProps = {
-        overridePressEnterToSend: 'rpnow.global.pressEnterToSend',
+        pressEnterToSend: 'rpnow.global.pressEnterToSend',
         nightMode: 'rpnow.global.nightMode',
         showMessageDetails: 'rpnow.global.showMessageDetails',
         browserAlerts: 'rpnow.global.browserAlerts',
@@ -394,46 +392,6 @@
             document.removeEventListener('visibilitychange', resetTitle);
           });
         }
-      })(),
-      pressEnterToSend: function() {
-        if (this.overridePressEnterToSend != null) return this.overridePressEnterToSend;
-        return this.isProbablyDesktopKeyboard();
-      },
-      isProbablyDesktopKeyboard: (function() {
-        /**
-         * Tries to determine if this is a desktop keyboard by measuring
-         * the average length of time between keydown and keyup events on
-         * the page. If it's greater than 25 ms, it's probably desktop.
-         */
-        return function() { return true };
-        var averageKeypressDuration = 25;
-
-        window.addEventListener('keydown', function() {
-          var start = Date.now();
-
-          function removeListenersForThisKey() {
-            window.removeEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
-            window.removeEventListener('keyup', keyup);
-          }
-
-          function pressedAnotherKeyBeforeReleasingThisOne() {
-            removeListenersForThisKey();
-          }
-          
-          function keyup() {
-            removeListenersForThisKey();
-
-            var myDuration = Date.now() - start;
-            averageKeypressDuration = averageKeypressDuration*0.9 + myDuration*0.1
-          }
-
-          window.addEventListener('keydown', pressedAnotherKeyBeforeReleasingThisOne);
-          window.addEventListener('keyup', keyup);
-        });
-
-        return function isProbablyDesktopKeyboard() {
-          return averageKeypressDuration >= 25;
-        };
       })(),
     },
 
