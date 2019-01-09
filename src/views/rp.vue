@@ -51,7 +51,6 @@
               :chara="charasById[msg.charaId]"
               :press-enter-to-send="pressEnterToSend"
               :show-message-details="showMessageDetails"
-              :dark-theme="nightMode"
               :send="sendMessage"
               :can-edit="canEdit(msg)"
               @resize="rescrollToBottom"

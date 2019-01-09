@@ -69,14 +69,13 @@
       'url',
       'timestamp',
       'revision',
+      'userid',
 
       'chara',
 
       'canEdit',
       'pressEnterToSend',
       'showMessageDetails',
-      
-      'darkTheme',
 
       'send',
     ],
@@ -101,7 +100,6 @@
           'message',
           'message-'+this.type,
           {'message-sending':this.sending},
-          {'dark-theme':this.darkTheme},
         ];
       },
       ipidVisibility: function() {
@@ -199,7 +197,7 @@
   }
 </script>
   
-<style scoped>
+<style>
   .message{
     word-wrap: break-word;
     margin: 20px auto 0;
@@ -262,7 +260,7 @@
     border: 1px solid #999;
     border-radius: 8px;
   }
-  .dark-theme.message-narrator {
+  .dark-theme .message-narrator {
     background-color:#444;
   }
   .message-ooc {
@@ -311,7 +309,7 @@
     word-spacing: 1px;
     box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
   }
-  .dark-theme.message-chara {
+  .dark-theme .message-chara {
     border-color: rgba(255,255,255,0.3);
   }
   .message-chara .content {
@@ -320,7 +318,7 @@
     opacity: 0.8;
     border-radius: 12px 12px 12px 0;
   }
-  .dark-theme.message-chara .content {
+  .dark-theme .message-chara .content {
     background-color: black;
     color: white;
     opacity: 0.6;
