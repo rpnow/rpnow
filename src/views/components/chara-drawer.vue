@@ -27,7 +27,7 @@
         <div :class="['drawer-item', {'drawer-item-selected': currentVoice.charaId===chara._id}]" @click="selectCharacter('chara', chara._id)" :key="chara._id">
           <i class="material-icons chara-icon-shadow" :style="{'color':chara.color}">person</i>
           <span>{{ chara.name }}</span>
-          <button class="icon-button" @click.prevent.stop="$refs.charaDialog.open(chara)">
+          <button class="icon-button" @click.prevent.stop="$refs.charaDialog.open(chara)" v-if="canEdit(chara)">
             <i class="material-icons" title="Edit character">edit</i>
           </button>
         </div>
@@ -50,6 +50,7 @@
       'charas',
       'currentVoice',
       'send',
+      'canEdit',
     ],
     data: function() {
       return {

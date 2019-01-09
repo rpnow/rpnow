@@ -49,11 +49,11 @@
               v-bind="msg"
               :key="msg._id"
               :chara="charasById[msg.charaId]"
-              :can-edit="true"
               :press-enter-to-send="pressEnterToSend"
               :show-message-details="showMessageDetails"
               :dark-theme="nightMode"
               :send="sendMessage"
+              :can-edit="canEdit(msg)"
               @resize="rescrollToBottom"
             ></rp-message>
           </template>
@@ -123,6 +123,7 @@
         :current-voice="currentVoice"
         :charas="rp.charas"
         :send="sendChara"
+        :can-edit="canEdit"
         @select-voice="currentVoice = $event"
       ></chara-drawer>
 
@@ -160,6 +161,7 @@
         rpCode: null,
         rp: null,
         loadError: null,
+        user: {},
         // rp ui
         isNewRp: false,
         isScrolledToBottom: true,
@@ -234,7 +236,8 @@
     // when the page is loaded, load the rp
     mounted: function() {
       this.initializeAuth()
-        .then((function() {
+        .then((function(data) {
+          this.user = data;
           return axios.get('/api/rp/' + this.rpCode)
         }).bind(this))
         .then((function(res) {
@@ -333,6 +336,9 @@
       },
       sendChara: function(data, _id) {
         return this.sendUpdate('charas', data, _id);
+      },
+      canEdit: function(thing) {
+        return thing.userid === this.user.userid;
       },
       openDownloadDialog: function() {
         this.showDownloadDialog = true;
