@@ -63,7 +63,7 @@
 <script>
   module.exports = {
     components: {
-      'rp-message': require('./components/rp-message.vue'),
+      'rp-message': require('../components/rp-message.vue'),
     },
     data: function() {
       return {

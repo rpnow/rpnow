@@ -39,7 +39,7 @@
       };
     },
     methods: {
-      initializeAuth: require('./components/user'),
+      initializeAuth: require('../components/user'),
       spinTitle: function() {
         var millis = 10.0;
 

@@ -42,9 +42,6 @@
 
 <script>
   module.exports = {
-    components: {
-      'rp-message': require('./components/rp-message.vue'),
-    },
     data: function() {
       return {
         readCode: null,
@@ -55,11 +52,6 @@
     beforeMount: function() {
       // get rpCode from URL
       this.readCode = location.pathname.match(/\/read\/([^\/]+)/)[1];
-    },
-    computed: {
-      pages: function() {
-        return Array(this.rp.pageCount).fill
-      }
     },
     methods: {
       changePage: function(pageNumber) {

@@ -149,9 +149,9 @@
 <script>
   module.exports = {
     components: {
-      'rp-message': require('./components/rp-message.vue'),
-      'send-box': require('./components/send-box.vue'),
-      'chara-drawer': require('./components/chara-drawer.vue'),
+      'rp-message': require('../components/rp-message.vue'),
+      'send-box': require('../components/send-box.vue'),
+      'chara-drawer': require('../components/chara-drawer.vue'),
     },
 
     data: function() {
@@ -274,7 +274,7 @@
     },
 
     methods: {
-      initializeAuth: require('./components/user'),
+      initializeAuth: require('../components/user'),
       fetchUpdates: function() {
         var scheduleNextUpdate = (function() {
           setTimeout(this.fetchUpdates.bind(this), 5000);
