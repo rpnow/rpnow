@@ -46,18 +46,12 @@
 
           <template v-for="msg of rp.msgs">
             <rp-message
+              v-bind="msg"
               :key="msg._id"
-              :type="msg.type"
-              :content="msg.content"
-              :url="msg.url"
-              :timestamp="msg.timestamp"
-              :revision="msg.revision"
-              :ipid="msg.ip"
               :chara="charasById[msg.charaId]"
-              :can-edit="false"
               :press-enter-to-send="false"
               :show-message-details="false"
-              :dark-theme="false"
+              :can-edit="false"
             ></rp-message>
           </template>
         </div>
