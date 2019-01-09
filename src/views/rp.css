@@ -70,6 +70,173 @@ html, body {
   padding: 10px 10px 20px;
 }
 
+
+/***** RP MESSAGES *****/
+.message {
+  word-wrap: break-word;
+  margin: 20px auto 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  padding: 24px 8px;
+}
+.message-sending {
+  opacity: 0.7;
+}
+.message .content {
+  line-height: 1.6;
+  padding: 8px;
+}
+.message textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  border: solid 1px rgba(0,0,0,0.35);
+}
+/* .message mat-spinner {
+  position: absolute;
+  top: 2px;
+  right: 22px;
+  z-index: 1;
+} */
+.message .message-details {
+  position: absolute;
+  top: 1px;
+  right: 48px;
+  display: flex;
+  align-items: center;
+}
+.message .message-details * {
+  z-index: 1;
+}
+.message .timestamp {
+  margin-right: 4px;
+  opacity: 0.66;
+}
+.message .action-buttons {
+  position: absolute;
+  display: flex;
+  top: 0;
+  right: 8px;
+  z-index: 1;
+}
+.message .icon-button {
+  margin: -9px 0 0 -8px;
+}
+.message .icon-button i.material-icons {
+  opacity: 0.66;
+}
+
+.message-narrator {
+  background-color: white;
+  border: 1px solid #999;
+  border-radius: 8px;
+}
+.dark-theme .message-narrator {
+  background-color:#444;
+}
+
+.message-ooc {
+  border-left: 3px solid rgba(128,128,128,0.3);
+  padding: 0 8px 0 14px;
+}
+.message-ooc + .message-ooc {
+  margin-top: 10px;
+}
+.message-ooc .message-details {
+  position: initial;
+  float: right;
+  border-bottom: 1px dotted rgba(128,128,128,0.3);
+  padding-bottom: 3px;
+  padding-right: 36px;
+  margin: 0 7px 12px 20px;
+}
+.message-ooc .content {
+  opacity: 0.66;
+}
+.message-ooc .content:not(textarea) {
+  display: inline;
+  padding: 0;
+}
+.message-ooc textarea.content {
+  margin-top: 24px;
+}
+
+.message-chara {
+  margin-top: 30px;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 16px 16px 16px 0;
+  padding-bottom: 12px;
+}
+.message-chara .name{
+  display: inline-block;
+  position: absolute;
+  left: 25px;
+  top: -13px;
+  z-index: 1;
+  background-color: inherit;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 6px;
+  padding: 4px 14px;
+  font-size: 95%;
+  letter-spacing: 1px;
+  word-spacing: 1px;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
+}
+.dark-theme .message-chara {
+  border-color: rgba(255,255,255,0.3);
+}
+.message-chara .content {
+  background-color: white;
+  color: black;
+  opacity: 0.8;
+  border-radius: 12px 12px 12px 0;
+}
+.dark-theme .message-chara .content {
+  background-color: black;
+  color: white;
+  opacity: 0.6;
+}
+
+.message-image {
+  padding-bottom: 10px;
+}
+.message-image .message-details {
+  border-bottom: 1px dotted rgba(128,128,128,0.3);
+  padding-bottom: 3px;
+}
+.message-image .content {
+  text-align: center;
+  padding: 0;
+}
+.message-image .content a {
+  display: block;
+  width: 100%;
+}
+.message-image .content img {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+  max-height: 50vh;
+}
+
+/***** Color boxes to identify user who sent a message *****/
+.color-ip-box {
+  display: inline-flex;
+  height: 8px;
+  width: 18px;
+  border: solid 1px rgba(0,0,0,0.7);
+  position: relative;
+}
+.color-ip-box-section {
+  flex-grow: 1;
+}
+.dark-theme .color-ip-box {
+  border-color: rgba(255,255,255,0.7);
+}
+
+
 /***** SEND BOX: the box where you type stuff in to send as a message *****/
 #send-box {
   display: flex;
