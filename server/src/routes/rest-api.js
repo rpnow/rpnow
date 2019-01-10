@@ -3,6 +3,7 @@ const cors = require('cors');
 const { Router } = require('express');
 // const { downloadDocx } = require('../services/download.docx');
 const { txtFileStream } = require('../services/download.txt');
+const { jsonFileStream } = require('../services/download.json');
 const { getIpid } = require('../services/ipid');
 const xRobotsTag = require('../services/x-robots-tag');
 const logger = require('../services/logger');
@@ -100,6 +101,19 @@ router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.txt', async (req, res, next) => 
 
     const rpStream = txtFileStream(rp, { includeOOC });
     res.attachment(`${rp.title}.txt`).type('.txt');
+    return rpStream.pipe(res);
+});
+
+router.get('/rp/:rpCode([-0-9a-zA-Z]+)/download.json', async (req, res, next) => {
+    let rp;
+    try {
+        (rp = await model.getRpWithMessageStream(req.params.rpCode));
+    } catch (err) {
+        return next(err);
+    }
+
+    const rpStream = jsonFileStream(rp);
+    res.attachment(`${rp.title}.json`).type('.json');
     return rpStream.pipe(res);
 });
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { DownloadTxtService } from '../services/download-txt.service';
 import { DownloadDocxService } from '../services/download-docx.service';
+import { DownloadJsonService } from '../services/download-json.service';
 import { OptionsService } from '../services/options.service';
 
 @Component({
@@ -20,6 +21,10 @@ import { OptionsService } from '../services/options.service';
         <mat-icon>file_download</mat-icon>
         .TXT
       </button>
+      <button mat-raised-button color="primary" (click)="printJson()">
+        <mat-icon>archive</mat-icon>
+        .JSON
+      </button>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -29,7 +34,7 @@ import { OptionsService } from '../services/options.service';
       align-items: center;
     }
   `],
-  providers: [DownloadDocxService, DownloadTxtService],
+  providers: [DownloadDocxService, DownloadTxtService, DownloadJsonService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DownloadDialogComponent {
@@ -38,6 +43,7 @@ export class DownloadDialogComponent {
 
   constructor(
     private txtService: DownloadTxtService,
+    private jsonService: DownloadJsonService,
     private docxService: DownloadDocxService
   ) { }
 
@@ -47,6 +53,10 @@ export class DownloadDialogComponent {
 
   printDocx() {
     this.docxService.downloadDocx(this.downloadOOC);
+  }
+
+  printJson() {
+    this.jsonService.downloadJson();
   }
 
 }
