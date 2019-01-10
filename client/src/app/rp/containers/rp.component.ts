@@ -8,8 +8,8 @@ import { mapTo } from 'rxjs/operators';
 import { RpCodeService } from '../services/rp-code.service';
 import { RoomService } from '../services/room.service';
 import { ChallengeService } from '../services/challenge.service';
-import { ClientUpdateService } from '../services/client-update.service';
-import { SwUpdate } from '@angular/service-worker';
+// import { ClientUpdateService } from '../services/client-update.service';
+// import { SwUpdate } from '@angular/service-worker';
 
 @Component({
   selector: 'rpn-room',
@@ -26,9 +26,9 @@ import { SwUpdate } from '@angular/service-worker';
 
           <rpn-banner-message
             [showTos]="(options.agreeToTerms$|async) === false"
-            [hasUpdate]="updates$|async"
+            [hasUpdate]="false"
             (acceptTerms)="acceptTerms()"
-            (activateUpdate)="activateUpdate()"
+            (activateUpdate)="0"
           ></rpn-banner-message>
 
           <router-outlet></router-outlet>
@@ -48,7 +48,7 @@ import { SwUpdate } from '@angular/service-worker';
   `],
   providers: [
     ChallengeService,
-    ClientUpdateService,
+    // ClientUpdateService,
     MainMenuService,
     OptionsService,
     RoomService,
@@ -60,15 +60,15 @@ export class RpComponent implements OnInit, OnDestroy {
   @ViewChild('mainMenu') mainMenu: MatSidenav;
 
   private subscription: Subscription;
-  public updates$: Observable<boolean>;
+  // public updates$: Observable<boolean>;
 
   constructor(
     public rpCodeService: RpCodeService,
     private mainMenuService: MainMenuService,
     public options: OptionsService,
     @Inject(DOCUMENT) private document: Document,
-    private clientUpdateService: ClientUpdateService, // does stuff in the constructor
-    private clientUpdates: SwUpdate,
+    // private clientUpdateService: ClientUpdateService, // does stuff in the constructor
+    // private clientUpdates: SwUpdate,
   ) { }
 
   ngOnInit() {
@@ -78,9 +78,9 @@ export class RpComponent implements OnInit, OnDestroy {
       this.document.body.className = nightMode ? 'dark-theme' : '';
     });
 
-    this.updates$ = this.clientUpdates.available.pipe(
-      mapTo(true),
-    );
+    // this.updates$ = this.clientUpdates.available.pipe(
+    //   mapTo(true),
+    // );
   }
 
   ngOnDestroy() {
@@ -92,8 +92,8 @@ export class RpComponent implements OnInit, OnDestroy {
     this.options.agreeToTerms = true;
   }
 
-  activateUpdate() {
-    this.clientUpdates.activateUpdate().then(() => document.location.reload());
-  }
+  // activateUpdate() {
+  //   this.clientUpdates.activateUpdate().then(() => document.location.reload());
+  // }
 
 }
