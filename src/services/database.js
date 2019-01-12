@@ -51,16 +51,15 @@ function formatQueryResult (x, options = {}) {
 }
 
 module.exports = {
-    async addDoc(namespace, collection, _id, body, userid, ip) {
+    async addDoc(namespace, collection, _id, body, { userid = null, ip = null, timestamp = (new Date().toISOString()) } = {}) {
         await connected;
-        const timestamp = new Date().toISOString();
         const revision = 0;
         const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };
     },
 
-    async updateDoc(namespace, collection, _id, body, userid, ip) {
+    async updateDoc(namespace, collection, _id, body, { userid = null, ip = null, timestamp = (new Date().toISOString()) } = {}) {
         await connected;
         if(!(await this.hasDoc(namespace, collection, _id))) {
             throw new Error(`Document ${collection}:${_id} does not exist`);
@@ -68,7 +67,6 @@ module.exports = {
         // TODO just get lastRevision inside of the query
         const [{ lastRevision }] = await knex('docs').where({ namespace, collection, _id }).max('revision AS lastRevision');
         const revision = lastRevision + 1;
-        const timestamp = new Date().toISOString();
         const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };

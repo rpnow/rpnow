@@ -32,10 +32,10 @@ router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
     const rpCode = generateRpCode(5);
     const readCode = fields.title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
 
-    await DB.addDoc(rpNamespace, 'meta', 'meta', fields, userid, ip);
-    await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, userid, ip);
-    await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, userid, ip);
-    await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, userid, ip);
+    await DB.addDoc(rpNamespace, 'meta', 'meta', fields, { userid, ip });
+    await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, { userid, ip });
+    await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, { userid, ip });
+    await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, { userid, ip });
 
     res.status(201).json({ rpCode });
 }));
@@ -149,7 +149,7 @@ router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, 
     const { userid } = req.user;
     const ip = req.ip;
 
-    const { doc } = await DB.addDoc(rpNamespace, collection, _id, fields, userid, ip);
+    const { doc } = await DB.addDoc(rpNamespace, collection, _id, fields, { userid, ip });
 
     res.status(201).json(doc);
 }));
@@ -171,7 +171,7 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, 
     if (!oldDoc) return res.sendStatus(404);
     if (userid !== oldDoc.userid) return res.sendStatus(403);
 
-    const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, userid, ip);
+    const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, { userid, ip });
 
     res.status(200).json(doc);
 }));
