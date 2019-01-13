@@ -117,6 +117,6 @@ module.exports = {
             return true;
         }
         // No validators in this group worked. Fail
-        throw new Error('Invalid object');
+        throw new Error(`Invalid object on ${namespace}/${collection}: ${JSON.stringify(body)}`);
     }
 };
