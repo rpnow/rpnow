@@ -20,6 +20,12 @@
           <i class="material-icons">arrow_forward</i>
         </button>
       </div>
+
+      <label for="json-upload">Import from rpnow.net:</label>
+      <input type="file"
+        id="json-upload" name="json-upload"
+        accept="application/json,.json"
+        @change="uploadJson">
     </template>
 
     <div id="loading" v-if="submitted">
@@ -65,6 +71,30 @@
             this.submitted = false;
             alert('Failed to create RP: (' + err + ')');
           }).bind(this));
+      },
+      uploadJson: function(evt) {
+        if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
+          alert('File API not supported');
+        }
+
+        var reader = new FileReader();
+
+        reader.onload = function() {
+          var json = JSON.parse(reader.result);
+          this.initializeAuth()
+            .then((function() {
+              return axios.post('/api/rp/import', json)
+            }).bind(this))
+            .then(function(res) {
+              window.location.href = '/rp/' + res.data.rpCode;
+            })
+            .catch((function(err) {
+              this.submitted = false;
+              alert('Failed to import RP: (' + err + ')');
+            }).bind(this));
+        }.bind(this);
+
+        reader.readAsText(evt.target.files[0]);
       }
     }
   };

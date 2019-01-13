@@ -41,6 +41,101 @@ router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
 }));
 
 /**
+ * Import RP from JSON
+ */
+router.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
+    const rpNamespace = 'rp_' + cuid();
+    let { version, charas, msgs, ...meta } = req.body;
+    const { userid } = req.user;
+    const ip = req.ip;
+
+    if (version !== 1) throw new Error('Not an RP version 1 JSON file');
+
+    meta.desc = meta.desc || undefined;
+
+    await validate(rpNamespace, 'meta', meta); // TODO or throw BAD_RP
+
+    const rpCode = generateRpCode(5);
+    const readCode = meta.title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
+
+    await DB.addDoc(rpNamespace, 'meta', 'meta', meta, { userid, ip });
+    await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, { userid, ip });
+    await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, { userid, ip });
+    await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, { userid, ip });
+
+    const charaIdMap = new Map();
+
+    charas = charas
+        .map(({ _id, challenge, ipid, timestamp, edited, name, color }) => {
+            const newid = cuid();
+            charaIdMap.set(_id, newid);
+
+            timestamp = new Date(timestamp * 1000).toISOString();
+
+            if (edited) {
+                edited = new Date(edited * 1000).toISOString();
+                return [
+                    { _id: newid, name: '(Revision unavailable)', color: '#ffffff', timestamp, },
+                    { _id: newid, name, color, timestamp: edited, isEdit: true },
+                ];
+            } else {
+                return [
+                    { _id: newid, name, color, timestamp },
+                ];
+            }
+        })
+        .reduce((arr, subArr) => { arr.push(...subArr); return arr }, [])
+        // remove undefined keys
+        .map(x => JSON.parse(JSON.stringify(x)));
+
+
+    for (const { _id, timestamp, isEdit, ...fields } of charas) {
+        await validate(rpNamespace, 'charas', fields); // TODO or throw BAD_RP
+        if (isEdit) {
+            await DB.updateDoc(rpNamespace, 'charas', _id, fields, { userid, ip, timestamp });
+        } else {
+            await DB.addDoc(rpNamespace, 'charas', _id, fields, { userid, ip, timestamp });
+        }
+    }
+
+    msgs = msgs
+        .map(({ challenge, ipid, timestamp, edited, type, content, charaId, url }) => {
+            const newid = cuid();
+
+            timestamp = new Date(timestamp * 1000).toISOString();
+
+            if (charaId) charaId = charaIdMap.get(charaId);
+
+            if (edited) {
+                edited = new Date(edited * 1000).toISOString();
+                // images could not be edited in v1 format so we can assume 'content' exists, and 'url' does not
+                return [
+                    { _id: newid, type, charaId, content: '(Revision unavailable)', timestamp, },
+                    { _id: newid, type, charaId, content, timestamp: edited, isEdit: true },
+                ];
+            } else {
+                return [
+                    { _id: newid, type, charaId, content, url, timestamp },
+                ];
+            }
+        })
+        .reduce((arr, subArr) => { arr.push(...subArr); return arr }, [])
+        // remove undefined keys
+        .map(x => JSON.parse(JSON.stringify(x)));
+
+    for (const { _id, timestamp, isEdit, ...fields } of msgs) {
+        await validate(rpNamespace, 'msgs', fields); // TODO or throw BAD_RP
+        if (isEdit) {
+            await DB.updateDoc(rpNamespace, 'msgs', _id, fields, { userid, ip, timestamp });
+        } else {
+            await DB.addDoc(rpNamespace, 'msgs', _id, fields, { userid, ip, timestamp });
+        }
+    }
+
+    res.status(201).json({ rpCode });
+}));
+
+/**
  * Generate a new set of credentials for an anonymous user
  */
 router.post('/user', awrap(async (req, res, next) => {
