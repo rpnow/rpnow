@@ -70,6 +70,7 @@ const tests = {
     ['and/or _words_', null, 'and/or <i>words</i>'],
     ['and/or /words/ and/or', null, 'and/or <i>words</i> and/or'],
     ['and/or _words_ and/or', null, 'and/or <i>words</i> and/or'],
+    ['//', null, '//'],
   ],
 
   'links': [
