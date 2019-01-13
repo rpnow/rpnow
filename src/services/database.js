@@ -51,9 +51,8 @@ function formatQueryResult (x, options = {}) {
 }
 
 module.exports = {
-    async addDoc(namespace, collection, _id, body, { userid = null, ip = null, timestamp = (new Date().toISOString()) } = {}) {
+    async addDoc(namespace, collection, _id, body, { userid = null, ip = null, revision = 0, timestamp = (new Date().toISOString()) } = {}) {
         await connected;
-        const revision = 0;
         const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };
@@ -70,6 +69,15 @@ module.exports = {
         const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };
+    },
+
+    async addDocs(namespace, collection, docs) {
+        await connected;
+        docs = docs.map(({ _id, userid = null, ip = null, revision = 0, timestamp = (new Date().toISOString()), body }) => {
+            return { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
+        });
+        const eventIds = await knex.batchInsert('docs', docs, 100);
+        return { eventId: Math.max(...eventIds) };
     },
 
     getDocs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse, includeMeta } = {}) {

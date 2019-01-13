@@ -95,6 +95,8 @@
         }.bind(this);
 
         reader.readAsText(evt.target.files[0]);
+
+        this.submitted = true;
       }
     }
   };
