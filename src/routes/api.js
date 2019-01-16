@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const { Router } = require('express');
+const Busboy = require('busboy');
 const { generateTextFile } = require('../services/txt-file');
-const { exportRp } = require('../services/json-file');
+const { exportRp, importRp } = require('../services/json-file');
 const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
 const logger = require('../services/logger');
 const cuid = require('cuid');
@@ -45,82 +46,29 @@ router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
  */
 router.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
     const rpNamespace = 'rp_' + cuid();
-    let { version, charas, msgs, ...meta } = req.body;
     const { userid } = req.user;
     const ip = req.ip;
 
-    if (version !== 1) throw new Error('Not an RP version 1 JSON file');
+    const busboy = new Busboy({ headers: req.headers });
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        if (fieldname === 'file') {
+            importRp(rpNamespace, userid, ip, file, async (err) => {
+                if (err) return res.status(500).json({ error: err.toString() });
 
-    meta.desc = meta.desc || undefined;
+                const { title } = await DB.getDoc(rpNamespace, 'meta', 'meta');
 
-    await validate(rpNamespace, 'meta', meta); // TODO or throw BAD_RP
+                const rpCode = generateRpCode(5);
+                const readCode = title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
 
-    const rpCode = generateRpCode(5);
-    const readCode = meta.title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
+                await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, { userid, ip });
+                await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, { userid, ip });
+                await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, { userid, ip });
 
-    await DB.addDoc(rpNamespace, 'meta', 'meta', meta, { userid, ip });
-    await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, { userid, ip });
-    await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, { userid, ip });
-    await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, { userid, ip });
-
-    const charaIdMap = new Map();
-
-    charas = charas
-        .map(({ _id, timestamp, edited, name, color }) => {
-            const newid = cuid();
-            charaIdMap.set(_id, newid);
-
-            timestamp = new Date(timestamp * 1000).toISOString();
-
-            if (edited) {
-                edited = new Date(edited * 1000).toISOString();
-                return [
-                    { _id: newid, revision: 0, body: { name: '(Revision unavailable)', color: '#ffffff' }, timestamp, userid, ip },
-                    { _id: newid, revision: 1, body: { name, color }, timestamp: edited, userid, ip },
-                ];
-            } else {
-                return [
-                    { _id: newid, revision: 0, body: { name, color }, timestamp, userid, ip },
-                ];
-            }
-        })
-        .reduce((arr, subArr) => { arr.push(...subArr); return arr }, [])
-
-    await Promise.all(charas.map(({ body }) => validate(rpNamespace, 'charas', body)));
-
-    await DB.addDocs(rpNamespace, 'charas', charas);
-
-    msgs = msgs
-        .map(({ timestamp, edited, type, content, charaId, url }) => {
-            const newid = cuid();
-
-            timestamp = new Date(timestamp * 1000).toISOString();
-
-            if (charaId) charaId = charaIdMap.get(charaId);
-
-            if (edited) {
-                edited = new Date(edited * 1000).toISOString();
-                // images could not be edited in v1 format so we can assume 'content' exists, and 'url' does not
-                return [
-                    { _id: newid, revision: 0, body: { type, charaId, content: '(Revision unavailable)' }, timestamp, userid, ip },
-                    { _id: newid, revision: 1, body: { type, charaId, content }, timestamp: edited, isEdit: true, userid, ip },
-                ];
-            } else {
-                return [
-                    { _id: newid, revision: 0, body: { type, charaId, content, url }, timestamp, userid, ip },
-                ];
-            }
-        })
-        .reduce((arr, subArr) => { arr.push(...subArr); return arr }, [])
-        // remove undefined keys
-        .map(x => JSON.parse(JSON.stringify(x)));
-
-
-    await Promise.all(msgs.map(({ body }) => validate(rpNamespace, 'msgs', body)));
-
-    await DB.addDocs(rpNamespace, 'msgs', msgs);
-
-    res.status(201).json({ rpCode });
+                res.status(201).json({ rpCode });
+            });
+        }
+    });
+    return req.pipe(busboy);
 }));
 
 /**

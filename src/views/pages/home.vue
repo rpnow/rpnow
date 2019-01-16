@@ -22,10 +22,8 @@
       </div>
 
       <label for="json-upload">Import from rpnow.net:</label>
-      <input type="file"
-        id="json-upload" name="json-upload"
-        accept="application/json,.json"
-        @change="uploadJson">
+      <input type="file" ref="fileInput" accept="application/json,.json">
+      <button @click="uploadJson">Upload</button>
     </template>
 
     <div id="loading" v-if="submitted">
@@ -73,30 +71,21 @@
           }).bind(this));
       },
       uploadJson: function(evt) {
-        if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
-          alert('File API not supported');
-        }
-
-        var reader = new FileReader();
-
-        reader.onload = function() {
-          var json = JSON.parse(reader.result);
-          this.initializeAuth()
-            .then((function() {
-              return axios.post('/api/rp/import', json)
-            }).bind(this))
-            .then(function(res) {
-              window.location.href = '/rp/' + res.data.rpCode;
-            })
-            .catch((function(err) {
-              this.submitted = false;
-              alert('Failed to import RP: (' + err + ')');
-            }).bind(this));
-        }.bind(this);
-
-        reader.readAsText(evt.target.files[0]);
-
         this.submitted = true;
+
+        this.initializeAuth()
+          .then((function() {
+            var data = new FormData();
+            data.append('file', this.$refs.fileInput.files[0]);
+            return axios.post('/api/rp/import', data);
+          }).bind(this))
+          .then(function(res) {
+            window.location.href = '/rp/' + res.data.rpCode;
+          })
+          .catch((function(err) {
+            this.submitted = false;
+            alert('Failed to import RP: (' + err + ')');
+          }).bind(this));
       }
     }
   };
