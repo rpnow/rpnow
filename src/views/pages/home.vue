@@ -71,12 +71,13 @@
           }).bind(this));
       },
       uploadJson: function(evt) {
+        var file = this.$refs.fileInput.files[0];
         this.submitted = true;
 
         this.initializeAuth()
           .then((function() {
             var data = new FormData();
-            data.append('file', this.$refs.fileInput.files[0]);
+            data.append('file', file);
             return axios.post('/api/rp/import', data);
           }).bind(this))
           .then(function(res) {
