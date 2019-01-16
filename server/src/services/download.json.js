@@ -18,7 +18,7 @@ module.exports = ({
 
         msgStream.on('data', (msg) => {
             const { timestamp, type, content, url, charaId } = msg;
-            msg = ({ timestamp: new Date(timestamp*1000).toISOString(), type, content, url, charaId: charaIdMap.get(charaId)});
+            msg = ({ timestamp: new Date(timestamp*1000).toISOString(), type, content, url, charaId: charaIdMap.get(charaId && charaId.toString())});
             rpStream.write(`,\n${JSON.stringify(msg)}`)
         });
 
