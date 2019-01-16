@@ -12,7 +12,7 @@ module.exports = ({
 
         const charaIdMap = charas.reduce((map,{_id},i) => map.set(_id.toString(),i), new Map());
 
-        charas = charas.map(({ timestamp, name, color }) => ({ timestamp: new Date(timestamp*1000).toISOString(), name, color }))
+        charas = charas.map(({ timestamp, name, color }) => ({ timestamp: timestamp ? new Date(timestamp*1000).toISOString(): null, name, color }))
 
         rpStream.write(`[\n${JSON.stringify({ title, desc, charas })}`);
 
