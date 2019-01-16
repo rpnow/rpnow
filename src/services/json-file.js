@@ -106,6 +106,12 @@ module.exports = ({
                         if (charaId == null) return body;
                         return { ...body, charaId: charaIdMap.get(charaId) };
                     })
+                    // chop content to 10000 length
+                    msgs = msgs.map(({ content, ...body }) => {
+                        if (content == null) return body;
+                        if (content.length <= 10000) return { ...body, content };
+                        return { ...body, content: content.substr(0, 10000) };
+                    })
                     // elevate body above timestamp
                     msgs = msgs.map(({ timestamp, ...body }) => ({ timestamp, body }))
 
