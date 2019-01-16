@@ -44,31 +44,47 @@ router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
 /**
  * Import RP from JSON
  */
+const importStatus = new Map();
+
 router.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
     const rpNamespace = 'rp_' + cuid();
     const { userid } = req.user;
     const ip = req.ip;
 
     const busboy = new Busboy({ headers: req.headers });
+
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        if (fieldname === 'file') {
-            importRp(rpNamespace, userid, ip, file, async (err) => {
-                if (err) return res.status(500).json({ error: err.toString() });
+        if (fieldname !== 'file') return file.resume();
 
-                const { title } = await DB.getDoc(rpNamespace, 'meta', 'meta');
+        const rpCode = generateRpCode(5);
 
-                const rpCode = generateRpCode(5);
-                const readCode = title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
+        file.on('end', () => {
+            importStatus.set(rpCode, { status: 'pending' });
+            res.status(202).json({ rpCode });
+        });
 
-                await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, { userid, ip });
-                await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, { userid, ip });
-                await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, { userid, ip });
+        importRp(rpNamespace, userid, ip, file, async (err) => {
+            if (err) return importStatus.set(rpCode, { status: 'error', error: err.toString() });
 
-                res.status(201).json({ rpCode });
-            });
-        }
+            const { title } = await DB.getDoc(rpNamespace, 'meta', 'meta');
+
+            const readCode = title.replace(/\W/ig, '-').toLowerCase() + '-' + generateRpCode(3);
+
+            await DB.addDoc(rpNamespace, 'readCode', 'readCode', { readCode }, { userid, ip });
+            await DB.addDoc('system', 'urls', rpCode, { rpNamespace, access: 'normal' }, { userid, ip });
+            await DB.addDoc('system', 'urls', readCode, { rpNamespace, access: 'read' }, { userid, ip });
+
+            importStatus.set(rpCode, { status: 'success' })
+        });
     });
+
     return req.pipe(busboy);
+}));
+
+router.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, next) => {
+    const info = importStatus.get(req.params.rpCode);
+    if (!info) return res.status(404).json({ error: 'Import expired' })
+    return res.status(200).json(info);
 }));
 
 /**
