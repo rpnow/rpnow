@@ -1,10 +1,11 @@
 Change IPID to work for new anon id's
 Admin JWT
 
-Export RP
-Import RP
 Error messages
 
+LocalStorage auth must be cleared if database is reset. Improve this
+Import should be admin-only?
+Import should give better feedback (ie upload progress, then how many msgs are processed)
 Cache invalidation
 
 ---
