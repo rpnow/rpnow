@@ -2,7 +2,7 @@ const { Transform } = require('stream');
 
 module.exports = ({
 
-    jsonFileStream({ title, desc = null, msgStream, charas }) {
+    jsonFileStream({ title, desc, msgStream, charas }) {
         const rpStream = new Transform({
             transform(chunk, encoding, callback) {
                 this.push(chunk);
@@ -10,26 +10,20 @@ module.exports = ({
             },
         });
 
-        rpStream.write('{\n');
-        rpStream.write('"version": 1,\n');
-        rpStream.write(`"title": ${JSON.stringify(title)},\n`);
-        rpStream.write(`"desc": ${JSON.stringify(desc || null)},\n`);
-        rpStream.write(`"charas": [\n`);
-        for (const chara of charas) {
-            if (chara !== charas[0]) rpStream.write(',\n');
-            rpStream.write(JSON.stringify(chara));
-        }
-        rpStream.write('],\n');
-        rpStream.write(`"msgs": [\n`);
-        let firstMsg = true;
+        const charaIdMap = charas.reduce((map,{_id},i) => map.set(_id.toString(),i), new Map());
+
+        charas = charas.map(({ timestamp, name, color }) => ({ timestamp: new Date(timestamp*1000).toISOString(), name, color }))
+
+        rpStream.write(`[\n${JSON.stringify({ title, desc, charas })}`);
+
         msgStream.on('data', (msg) => {
-            if (!firstMsg) rpStream.write(',\n');
-            firstMsg = false;
-            rpStream.write(JSON.stringify(msg));
+            const { timestamp, type, content, url, charaId } = msg;
+            msg = ({ timestamp: new Date(timestamp*1000).toISOString(), type, content, url, charaId: charaIdMap.get(charaId)});
+            rpStream.write(`,\n${JSON.stringify(msg)}`)
         });
 
         msgStream.on('end', () => {
-            rpStream.write('\n]\n}\n');
+            rpStream.write('\n]\n');
             rpStream.end()
         });
 
