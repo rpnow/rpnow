@@ -98,7 +98,7 @@ module.exports = ({
             }))
             
             // Add each message to the database
-            .pipe(new Writable({
+            .pipe(new Transform({
                 objectMode: true,
                 async write(msgs, encoding, callback) {
                     // hydrate charaId
@@ -122,7 +122,16 @@ module.exports = ({
                     msgs = msgs.map((doc) => ({ _id: cuid(), userid, ip, ...doc }))
 
                     await DB.addDocs(rpNamespace, 'msgs', msgs);
-                    console.log('added ' + msgs.length)
+                    this.push(msgs.length);
+                    callback();
+                }
+            }))
+
+            .pipe(new Writable({ 
+                objectMode: true,
+                write(info, encoding, callback) {
+                    this.count = (this.count || 0) + info;
+                    console.log(rpNamespace, this.count);
                     callback();
                 }
             }))
