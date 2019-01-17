@@ -125,10 +125,11 @@
         this.send(data)
           .then((function() {
             this.msgBoxText = '';
-          }).bind(this))
-          .finally((function() {
             this.isMsgBoxSending = false;
             if (wasFocused) this.$nextTick(function() { document.querySelector('#typing-area textarea').focus() });
+          }).bind(this))
+          .catch((function() {
+            this.isMsgBoxSending = false;
           }).bind(this));
       },
       resizeTextareaOnInput: function($event, minRows, maxRows) {

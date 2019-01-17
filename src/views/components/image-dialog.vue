@@ -79,7 +79,10 @@
         this.isDialogSending = true;
 
         this.send(data, this.imageDialogId)
-          .finally((function() {
+          .then((function() {
+            this.isDialogSending = false;
+          }).bind(this))
+          .catch((function() {
             this.isDialogSending = false;
           }).bind(this));
       }

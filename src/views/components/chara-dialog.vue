@@ -77,8 +77,9 @@
             } else {
               this.$emit('created', res);
             }
+            this.isDialogSending = false;
           }).bind(this))
-          .finally((function() {
+          .catch((function() {
             this.isDialogSending = false;
           }).bind(this));
       }
