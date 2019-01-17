@@ -12,8 +12,6 @@ COPY ./src/ ./src/
 ENV NODE_ENV 'production'
 ENV RPNOW_PORT ''
 ENV RPNOW_TRUST_PROXY ''
-ENV RPNOW_CORS ''
-ENV RPNOW_LOG_LEVEL ''
 
 RUN mkdir data
 VOLUME ./data

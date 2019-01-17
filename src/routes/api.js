@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const { Router } = require('express');
 const Busboy = require('busboy');
 const debug = require('debug')('rpnow');
@@ -16,7 +15,6 @@ const { awrap } = require('../services/express-async-handler');
 
 const router = Router();
 router.use(express.json({ limit: '100mb' }));
-if (config.cors) router.use(cors());
 router.use(xRobotsTag);
 
 /**
