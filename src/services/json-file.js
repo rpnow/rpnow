@@ -7,6 +7,7 @@
 const { Writable, Transform } = require('stream');
 const JSONStream = require('JSONStream');
 const cuid = require('cuid');
+const debug = require('debug')('rpnow');
 const DB = require('../services/database');
 const { validate } = require('../services/validate-user-documents');
 
@@ -131,7 +132,7 @@ module.exports = ({
                 objectMode: true,
                 write(info, encoding, callback) {
                     this.count = (this.count || 0) + info;
-                    console.log(rpNamespace, this.count);
+                    debug(rpNamespace, this.count);
                     callback();
                 }
             }))

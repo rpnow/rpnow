@@ -2,10 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const { Router } = require('express');
 const Busboy = require('busboy');
+const debug = require('debug')('rpnow');
 const { generateTextFile } = require('../services/txt-file');
 const { exportRp, importRp } = require('../services/json-file');
 const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
-const logger = require('../services/logger');
 const cuid = require('cuid');
 const DB = require('../services/database');
 const { validate } = require('../services/validate-user-documents');
@@ -246,7 +246,7 @@ router.all('*', (req, res, next) => {
  * Error handling
  */
 router.use((err, req, res, next) => {
-    logger.info(err);
+    debug(err);
     res.status(500).json({ error: err.toString() });
 });
 
