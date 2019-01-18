@@ -4,6 +4,7 @@ const DB = require('./database');
 const isString = str => typeof str === 'string';
 const isStringMaxLength = length => str => isString(str) && str.length <= length;
 const matchRegex = regex => str => isString(str) && str.match(regex) !== null;
+const isUrl = matchRegex(/^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]+$/gi);
 const isOneOf = (...values) => str => values.includes(str);
 const is = isOneOf;
 const all = (...fns) => async (...args) => {
@@ -23,19 +24,7 @@ const validators = {
     msgs: [
         {
             type: is('image'),
-            url: async url => {
-                if (typeof url !== 'string') return false;
-                // validate image
-                let res;
-                try {
-                    res = await got.head(url);
-                } catch (err) {
-                    return false;
-                }
-                if (!res.headers['content-type']) return false;
-                if (!res.headers['content-type'].startsWith('image/')) return false;
-                return true;
-            }
+            url: isUrl,
         },
         {
             type: is('chara'),
