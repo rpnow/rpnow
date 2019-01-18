@@ -38,19 +38,6 @@ const validators = {
             }
         },
         {
-            type: is('audio'),
-            url: async url => {
-                if (typeof url !== 'string') return false;
-                // validate URL
-                try {
-                    await got.head(url);
-                } catch (err) {
-                    return false;
-                }
-                return true;
-            }
-        },
-        {
             type: is('chara'),
             content: isStringMaxLength(10000),
             charaId: async (charaId, { namespace }) => {
