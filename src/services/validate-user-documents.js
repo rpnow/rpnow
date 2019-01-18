@@ -1,4 +1,3 @@
-const got = require('got');
 const DB = require('./database');
 
 const isString = str => typeof str === 'string';
