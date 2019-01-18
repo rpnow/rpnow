@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const config = require('./services/config');
 const checkIfAlreadyRunning = require('./services/is-already-running');
 const bannerMessage = require('./services/cli-banner-message');
