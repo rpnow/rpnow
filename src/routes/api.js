@@ -18,6 +18,13 @@ router.use(express.json({ limit: '100mb' }));
 router.use(xRobotsTag);
 
 /**
+ * Health check to see if the server is alive and responding
+ */
+router.get('/health', (req, res, next) => {
+    res.status(200).json({rpnow:'ok'})
+})
+
+/**
  * Create a new RP
  */
 router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
