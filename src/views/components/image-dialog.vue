@@ -52,7 +52,7 @@
     },
     computed: {
       imageDialogIsWellFormed: function() {
-        var urlRegex = /^((ftp|https?):\/\/|(www\.)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]$/gi;
+        var urlRegex = /^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]+$/gi;
         return !!this.imageDialogUrl.match(urlRegex);
       },
     },
