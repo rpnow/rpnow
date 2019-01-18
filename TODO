@@ -1,18 +1,34 @@
-Change IPID to work for new anon id's
-Admin JWT
+Admin: CLI interface
+Admin: List rps
+Admin: Delete rps
 
-Error messages
+HTTPS
+
+Reconsider JWTs
 
 Import should be admin-only?
 Import should give better feedback (ie upload progress, then how many msgs are processed)
-Cache invalidation
+
+Change IPID to work for new auth system
+
+Error message: Import rp start
+Error message: Import rp progress
+Error message: New rp
+Error message: 404
+Error message: 403
+Error message: Update fetch 404
+Error message: Update fetch 403
+Error message: Chara dialog
+Error message: Image dialog
+Error message: Message box
 
 ---
 
-Archive updates test
+Cache invalidation
+Dynamic archives
 Drawer animation
 Options: note noise (+persistence)
-Description handling
+Put the 'desc' on the page somewhere?
 API unit tests
 Chara drawer organization
 Recent charas (+persistence)
