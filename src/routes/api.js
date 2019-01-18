@@ -100,6 +100,13 @@ router.post('/user', awrap(async (req, res, next) => {
     res.status(200).json(credentials);
 }));
 
+/**
+ * Verify user using authMiddleware and return OK
+ */
+router.get('/user/verify', authMiddleware, (req, res, next) => {
+    res.sendStatus(204);
+})
+
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 
 /**
