@@ -12,6 +12,7 @@ module.exports = {
         { name:"apple-mobile-web-app-capable", content:"yes" },
         { name:"apple-mobile-web-app-status-bar-style", content:"default" },
         { name:"theme-color", content:"#fafafa" },
+        { name:"referrer", content:"origin" },
 
         { rel: "icon", type: "image/png", href: "/static/favicon/favicon-16x16.png", sizes: "16x16" },
         { rel:"icon", type:"image/png", href:"/static/favicon/favicon-32x32.png", sizes:"32x32" },
