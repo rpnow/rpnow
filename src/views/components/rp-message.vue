@@ -20,7 +20,7 @@
 
     <div v-if="!sending" class="action-buttons">
       <template v-if="!editing">
-        <button class="icon-button" @click="showHistory">
+        <button v-if="showMessageDetails" class="icon-button" @click="showHistory">
           <i class="material-icons" title="History">history</i>
         </button>
         <button v-if="canEdit" class="icon-button" @click="beginEdit">
