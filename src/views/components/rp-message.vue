@@ -57,9 +57,27 @@
     </template>
 
     <image-dialog ref="imageDialog" :send="send"></image-dialog>
+
+    <div class="dialog-container overlay" @click="historyOpen=false" v-if="historyOpen">
+      <div id="history-dialog" class="dialog" @click.stop v-if="history">
+        <div id="history-dialog-messages">
+          <div v-for="(msg, i) in history" :key="'history'+i">
+            <p>{{ msg.content || msg.url || '' }}</p>
+            <hr />
+          </div>
+        </div>
+        <div>
+          <button type="button" class="outline-button" @click="historyOpen=false">Close</button>
+        </div>
+      </div>
+      <template v-else>
+        <i class="material-icons">hourglass_full</i>
+        <span>Loading...</span>
+      </template>
+    </div>
+
   </div>
 </template>
-  
 <script>
   module.exports = {
     components: {
@@ -90,6 +108,8 @@
         sending: false,
         currentTime: Date.now(),
         intervalHandle: null,
+        historyOpen: false,
+        history: null,
       }
     },
     computed: {
@@ -181,7 +201,10 @@
         this.$emit('resize');
       },
       showHistory: function() {
-        this.getHistory().then(function(x) { console.log(x) });
+        this.historyOpen = true;
+        this.getHistory().then((function(data) {
+          this.history = data;
+        }).bind(this));
       },
       transformRpMessage: require('./rp-message-format'),
     },
