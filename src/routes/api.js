@@ -248,6 +248,19 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, 
 }));
 
 /**
+ * Get the history of something in an RP (message, chara, etc)
+ */
+router.get(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)/history`, awrap(async (req, res, next) => {
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    const collection = req.params.collection;
+    const _id = req.params.doc_id;
+
+    const docs = await DB.getDocs(rpNamespace, collection, { _id, includeHistory: true }).asArray();
+
+    res.status(200).json(docs);
+}));
+
+/**
  * Default route (route not found)
  */
 router.all('*', (req, res, next) => {

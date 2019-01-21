@@ -52,6 +52,7 @@
               :press-enter-to-send="pressEnterToSend"
               :show-message-details="showMessageDetails"
               :send="sendMessage"
+              :getHistory="getMessageHistory(msg._id)"
               :can-edit="canEdit(msg)"
               @resize="rescrollToBottom"
             ></rp-message>
@@ -339,6 +340,19 @@
       },
       sendChara: function(data, _id) {
         return this.sendUpdate('charas', data, _id);
+      },
+      getHistory: function(type, _id) {
+        return axios.get('/api/rp/' + this.rpCode + '/' + type + '/' + _id + '/history')
+          .then((function(res) {
+            return res.data;
+          }).bind(this))
+          .catch((function(err) {
+            alert('Error! ' + err)
+            throw err;
+          }).bind(this));
+      },
+      getMessageHistory: function(_id) {
+        return this.getHistory.bind(this, 'msgs', _id);
       },
       canEdit: function(thing) {
         return thing.userid === this.user.userid;

@@ -18,9 +18,12 @@
       </template>
     </div>
 
-    <div v-if="canEdit && !sending" class="action-buttons">
+    <div v-if="!sending" class="action-buttons">
       <template v-if="!editing">
-        <button class="icon-button" @click="beginEdit">
+        <button class="icon-button" @click="showHistory">
+          <i class="material-icons" title="History">history</i>
+        </button>
+        <button v-if="canEdit" class="icon-button" @click="beginEdit">
           <i class="material-icons" title="Edit">edit</i>
         </button>
       </template>
@@ -78,6 +81,7 @@
       'showMessageDetails',
 
       'send',
+      'getHistory',
     ],
     data: function() {
       return {
@@ -175,6 +179,9 @@
       },
       notifySizeChange: function() {
         this.$emit('resize');
+      },
+      showHistory: function() {
+        this.getHistory().then(function(x) { console.log(x) });
       },
       transformRpMessage: require('./rp-message-format'),
     },
