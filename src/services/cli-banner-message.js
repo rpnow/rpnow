@@ -18,7 +18,7 @@ Your RPNow server is ready!
 Data will be stored in ${config.dataDir}.
 Be sure to back this up regularly!
 
-${(process.platform === 'win32' || process.platform === 'darwin') ? (
+${(process.platform === 'win32') ? (
 `To access RPNow on the local network, (i.e., when connected to the
 same wi-fi as this computer) try visiting one of the following in your
 web browser:`
