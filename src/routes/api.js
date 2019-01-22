@@ -10,7 +10,6 @@ const DB = require('../services/database');
 const { validate } = require('../services/validate-user-documents');
 const { generateRpCode } = require('../services/generate-rp-code');
 const { generateAnonCredentials, authMiddleware } = require('../services/anon-credentials');
-const config = require('../services/config');
 const { awrap } = require('../services/express-async-handler');
 
 const router = Router();
