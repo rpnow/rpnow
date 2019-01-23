@@ -8,7 +8,7 @@ function getDataDirectory() {
 }
 
 module.exports = {
-    port: (+process.env.RPNOW_PORT) || 13000,
+    port: (+process.env.RPNOW_PORT) || 80,
     trustProxy: (process.env.RPNOW_TRUST_PROXY || '').toLowerCase() === 'true',
     dataDir: (process.env.RPNOW_DATA_DIR) || getDataDirectory(),
 };
