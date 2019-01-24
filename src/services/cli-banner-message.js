@@ -28,7 +28,7 @@ web browser:`
 )}
 
 ${(myIpAddresses.length > 0) ? (
-myIpAddresses.map(ip => `* http://${ip}:${config.port}`)
+myIpAddresses.map(ip => `* http://${ip}:${config.port}`).join('\n')
 ):(
 `  (Unable to determine my address.)`
 )}
