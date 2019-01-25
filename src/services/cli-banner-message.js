@@ -1,12 +1,11 @@
 const os = require('os');
-const config = require('./config');
 
 const myIpAddresses = Object.values(os.networkInterfaces())
     .map(x => x.find(({ family, internal }) => family === 'IPv4' && !internal))
     .filter(x => x)
     .map(x => x.address);
 
-const banner = `
+const banner = ({ https, httpPort, httpsPort, domain }) => `
  _ __ _ __  _ __   _____      __
 | '__| '_ \\| '_ \\ / _ \\ \\ /\\ / /
 | |  | |_) | | | | (_) \\ V  V /
@@ -15,10 +14,13 @@ const banner = `
 
 Your RPNow server is ready!
 
-Data will be stored in ${config.dataDir}.
-Be sure to back this up regularly!
+${(domain) ? (
+`To access this RPNow server, try visiting the following in your
+web browser:
 
-${(process.platform === 'win32') ? (
+* ${https ? 'https://' : 'http://'}${domain}:${httpsPort}`
+):(
+`${(process.platform === 'win32') ? (
 `To access RPNow on the local network, (i.e., when connected to the
 same wi-fi as this computer) try visiting one of the following in your
 web browser:`
@@ -28,10 +30,10 @@ web browser:`
 )}
 
 ${(myIpAddresses.length > 0) ? (
-myIpAddresses.map(ip => `* http://${ip}:${config.port}`).join('\n')
+myIpAddresses.map(ip => httpPort === 80 ? `* http://${ip}` : `* http://${ip}:${httpPort}`).join('\n')
 ):(
 `  (Unable to determine my address.)`
-)}
+)}`)}
 
 Have fun!
 `;

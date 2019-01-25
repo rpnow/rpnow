@@ -1,24 +1,22 @@
 const Knex = require('knex');
-const fs = require('fs');
 const path = require('path');
-const config = require('./config');
+const debug = require('debug')('rpnow');
 
-const dbDir = config.dataDir;
-const dbFile = path.join(config.dataDir, 'rpnow.sqlite3');
+let knex;
+let initCb;
 
-if (!fs.existsSync(dbDir)){
-    fs.mkdirSync(dbDir);
-}
+const connected = new Promise(resolve => {
+    initCb = (() => resolve());
+})
 
-const knex = Knex({
-    client: 'sqlite3',
-    connection: {
-        filename: dbFile,
-    },
-    useNullAsDefault: true,
-});
-
-const connected = (async function connect() {
+async function open(dataDir) {
+    knex = Knex({
+        client: 'sqlite3',
+        connection: {
+            filename: path.join(dataDir, 'rpnow.sqlite3'),
+        },
+        useNullAsDefault: true,
+    });
     if (!(await knex.schema.hasTable('docs'))) {
         await knex.schema.createTable('docs', (t) => {
             t.increments('event_id').primary();
@@ -37,7 +35,9 @@ const connected = (async function connect() {
             t.index('userid');
         });
     }
-}());
+    debug(`dbopen ${dataDir}`)
+    initCb();
+}
 
 function formatQueryResult (x, options = {}) {
     const { event_id, namespace, collection, ip, body, ...docInfo } = x;
@@ -51,8 +51,12 @@ function formatQueryResult (x, options = {}) {
 }
 
 module.exports = {
+    open,
+
     async addDoc(namespace, collection, _id, body, { userid = null, ip = null, revision = 0, timestamp = (new Date().toISOString()) } = {}) {
         await connected;
+        debug(`add ${namespace}/${collection}/${_id}:${revision}`)
+
         const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };
@@ -60,6 +64,8 @@ module.exports = {
 
     async updateDoc(namespace, collection, _id, body, { userid = null, ip = null, timestamp = (new Date().toISOString()) } = {}) {
         await connected;
+        debug(`update ${namespace}/${collection}/${_id}`)
+
         if(!(await this.hasDoc(namespace, collection, _id))) {
             throw new Error(`Document ${collection}:${_id} does not exist`);
         }
@@ -73,6 +79,8 @@ module.exports = {
 
     async addDocs(namespace, collection, docs) {
         await connected;
+        debug(`add ${namespace}/${collection}/<${docs.length} docs>`)
+
         docs = docs.map(({ _id, userid = null, ip = null, revision = 0, timestamp = (new Date().toISOString()), body }) => {
             return { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         });
@@ -81,67 +89,79 @@ module.exports = {
     },
 
     getDocs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse, includeMeta } = {}) {
-        let q = knex('docs').where('docs.namespace', namespace)
+        const query = () => {
+            let q = knex('docs').where('docs.namespace', namespace)
 
-        if (collection != null) {
-            q = q.where('docs.collection', collection);
-        }
-        if (_id != null) {
-            q = q.where('docs._id', _id);
-        }
-        if (since != null) {
-            q = q.where('docs.event_id', '>', since);
-        }
-        if (snapshot != null) {
-            q = q.where('docs.event_id', '<=', snapshot);
-        }
-        if (skip >= 0) {
-            q = q.offset(skip)
-        }
-        if (limit >= 0) {
-            q = q.limit(limit);
-        }
-        if (!includeHistory) {
-            q = q.leftJoin('docs as newerDocs', function() {
-                    this.on('docs.namespace', 'newerDocs.namespace');
-                    this.andOn('docs.collection', 'newerDocs.collection');
-                    this.andOn('docs._id', 'newerDocs._id');
-                    this.andOn('docs.event_id', '<', 'newerDocs.event_id');
-                    if (snapshot != null) {
-                        this.andOn('newerDocs.event_id', '<=', knex.raw('?', [snapshot]));
-                    }
-                })
-                .whereNull('newerDocs._id')
-                .select('docs.*');
-        }
+            if (collection != null) {
+                q = q.where('docs.collection', collection);
+            }
+            if (_id != null) {
+                q = q.where('docs._id', _id);
+            }
+            if (since != null) {
+                q = q.where('docs.event_id', '>', since);
+            }
+            if (snapshot != null) {
+                q = q.where('docs.event_id', '<=', snapshot);
+            }
+            if (skip >= 0) {
+                q = q.offset(skip)
+            }
+            if (limit >= 0) {
+                q = q.limit(limit);
+            }
+            if (!includeHistory) {
+                q = q.leftJoin('docs as newerDocs', function() {
+                        this.on('docs.namespace', 'newerDocs.namespace');
+                        this.andOn('docs.collection', 'newerDocs.collection');
+                        this.andOn('docs._id', 'newerDocs._id');
+                        this.andOn('docs.event_id', '<', 'newerDocs.event_id');
+                        if (snapshot != null) {
+                            this.andOn('newerDocs.event_id', '<=', knex.raw('?', [snapshot]));
+                        }
+                    })
+                    .whereNull('newerDocs._id')
+                    .select('docs.*');
+            }
 
-        q = q
-            .orderBy('docs.namespace', 'asc')
-            .orderBy('docs.collection', 'asc')
-            .orderBy('docs._id', reverse ? 'desc' : 'asc')
-            .orderBy('docs.revision', 'asc')
+            q = q
+                .orderBy('docs.namespace', 'asc')
+                .orderBy('docs.collection', 'asc')
+                .orderBy('docs._id', reverse ? 'desc' : 'asc')
+                .orderBy('docs.revision', 'asc')
+            
+            return q;
+        };
         
         return {
             async single() {
                 await connected;
-                const result = await q.first();
+                debug(`getSingle ${namespace}/${collection}/${_id}`)
+
+                const result = await query().first();
                 if (!result) throw new Error(`Unable to find document. (collection:${collection}, _id:${_id})`)
                 return formatQueryResult(result, { includeMeta });
             },
             async asArray() {
                 await connected;
-                const res = await q;
+                debug(`getArray ${namespace}/${collection||'*'}/${_id||'*'}`)
+
+                const res = await query();
                 return res.map(row => formatQueryResult(row, { includeMeta }));
             },
             async asMap() {
                 await connected;
-                const res = await q;
+                debug(`getMap ${namespace}/${collection||'*'}/${_id||'*'}`)
+
+                const res = await query();
                 return res.map(row => formatQueryResult(row, { includeMeta }))
                     .reduce((map, x) => map.set(x._id, x), new Map());
             },
             async count() {
                 await connected;
-                const [{ count }] = await q.count('* as count');
+                debug(`count ${namespace}/${collection||'*'}/${_id||'*'}`)
+
+                const [{ count }] = await query().count('* as count');
                 return count;
             },
         };
