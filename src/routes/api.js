@@ -239,7 +239,6 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, 
 
     const oldDoc = await DB.getDoc(rpNamespace, collection, _id);
     if (!oldDoc) return res.sendStatus(404);
-    if (userid !== oldDoc.userid) return res.sendStatus(403);
 
     const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, { userid, ip });
 

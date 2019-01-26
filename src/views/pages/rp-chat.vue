@@ -53,7 +53,7 @@
               :show-message-details="showMessageDetails"
               :send="sendMessage"
               :getHistory="getMessageHistory(msg._id)"
-              :can-edit="canEdit(msg)"
+              :can-edit="true"
               @resize="rescrollToBottom"
             ></rp-message>
           </template>
@@ -127,7 +127,6 @@
         :current-voice="currentVoice"
         :charas="rp.charas"
         :send="sendChara"
-        :can-edit="canEdit"
         @select-voice="currentVoice = $event"
       ></chara-drawer>
 
@@ -353,9 +352,6 @@
       },
       getMessageHistory: function(_id) {
         return this.getHistory.bind(this, 'msgs', _id);
-      },
-      canEdit: function(thing) {
-        return thing.userid === this.user.userid;
       },
       openDownloadDialog: function() {
         this.showDownloadDialog = true;
