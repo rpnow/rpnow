@@ -11,8 +11,6 @@ Reconsider JWTs
 Import should be admin-only?
 Import should give better feedback (ie upload progress, then how many msgs are processed)
 
-Change IPID to work for new auth system
-
 Error message: Import rp start
 Error message: Import rp progress
 Error message: New rp

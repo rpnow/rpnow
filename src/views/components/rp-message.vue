@@ -12,15 +12,15 @@
           <template v-if="wasEdited">Edited:</template>
           {{ timeAgoText }}
         </div>
-        <span class="color-ip-box" title="Anonymous user ID" :style="{visibility:ipidVisibility}">
-          <span class="color-ip-box-section" v-for="color of ipidColors" :style="{backgroundColor:color}" :key="color"></span>
+        <span class="color-ip-box" title="Anonymous user ID" :style="{visibility:useridVisibility}">
+          <span class="color-ip-box-section" v-for="color of useridColors" :style="{backgroundColor:color}" :key="color"></span>
         </span>
       </template>
     </div>
 
     <div v-if="!sending" class="action-buttons">
       <template v-if="!editing">
-        <button v-if="showMessageDetails" class="icon-button" @click="showHistory">
+        <button v-if="showMessageDetails && revision > 0" class="icon-button" @click="showHistory">
           <i class="material-icons" title="History">history</i>
         </button>
         <button v-if="canEdit" class="icon-button" @click="beginEdit">
@@ -126,15 +126,20 @@
           {'message-sending':this.sending},
         ];
       },
-      ipidVisibility: function() {
-        // return (this.ipid && !this.editing) ? 'visible' : 'hidden';
-        return 'hidden';
+      useridColors: function() {
+        // get the last 6 digits of the userid and turn it into colors
+        // because these are the last 6 digits of a cuid, which are pseudorandom values,
+        // they're good to use for a random color string
+        return [-1, -3, -5]
+          .map(function(n) { return this.userid.substr(n, 2) }.bind(this))
+          .map(function(str) { return parseInt(str, 36) })
+          .map(function(n) { return '#'+[n, (n / 6 | 0), (n / 36 | 0)]
+            .map(function(n) { return ('0'+(n % 6 * 51).toString(16)).substr(-2) })
+            .join('')
+          });
       },
-      ipidColors: function() {
-        // if (!this.ipid) return ['#000','#000','#000'];
-        // return this.ipid.match(/[0-9a-f]{6}/gi)
-        //   .map(function(hex) { return '#' + hex });
-        return ['#000']
+      useridVisibility: function() {
+        return (this.userid && !this.editing) ? 'visible' : 'hidden';
       },
       validEdit: function() {
         return this.newContent.trim() && this.newContent !== this.content;
