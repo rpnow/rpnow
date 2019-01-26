@@ -9,7 +9,9 @@
       </template>
       <template v-if="!sending">
         <div class="timestamp" :title="timeAgoTitleText">
-          <template v-if="wasEdited">Edited:</template>
+          <template v-if="wasEdited">
+            <a href="javascript:;" @click="showHistory">edited</a>
+          </template>
           {{ timeAgoText }}
         </div>
         <span class="color-ip-box" title="Anonymous user ID" :style="{visibility:useridVisibility}">
@@ -20,9 +22,6 @@
 
     <div v-if="!sending" class="action-buttons">
       <template v-if="!editing">
-        <button v-if="showMessageDetails && revision > 0" class="icon-button" @click="showHistory">
-          <i class="material-icons" title="History">history</i>
-        </button>
         <button v-if="canEdit" class="icon-button" @click="beginEdit">
           <i class="material-icons" title="Edit">edit</i>
         </button>

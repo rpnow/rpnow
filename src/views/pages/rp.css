@@ -114,6 +114,9 @@ html, body {
   margin-right: 4px;
   opacity: 0.66;
 }
+.message .timestamp a {
+  color: inherit;
+}
 .message .action-buttons {
   position: absolute;
   display: flex;
