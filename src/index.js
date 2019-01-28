@@ -26,6 +26,7 @@ function showError(str) {
 (async function main() {
     // determine data directory
     const dataDir = path.join(process.env.APPDATA || os.homedir(), 'rpnow_data');
+    const letsencryptDir = path.join(dataDir, 'letsencrypt');
 
     // if not exists
     if (!fs.existsSync(dataDir)){
@@ -34,6 +35,7 @@ function showError(str) {
 
         // create directory
         fs.mkdirSync(dataDir);
+        fs.mkdirSync(letsencryptDir);
     }
 
     // initialize db
@@ -72,7 +74,7 @@ function showError(str) {
             email: config.letsencryptEmail,
             agreeTos: config.letsencryptAgree,
             approvedDomains: [config.domain],
-            configDir: dataDir,
+            configDir: letsencryptDir,
 
             communityMember: false,
             securityUpdates: false,
