@@ -49,7 +49,7 @@ const config = nconf
     })
     .defaults({
         dataDir: (process.platform === 'win32' ?
-            path.join(process.env.APPDATA, 'rpnow', 'data') :
+            path.join(process.env.APPDATA, 'rpnow') :
             path.join(os.homedir(), 'rpnow')
         ),
         port: 80,
@@ -92,10 +92,10 @@ function showError(str) {
     notifyRunning(config.dataDir, config.sslPort || config.port)
 
     // enable trustProxy?
-    if (config.trustProxy) app.enable('trust proxy');
+    if (config.trustProxy === true) app.enable('trust proxy');
 
     // start server
-    if (config.ssl) {
+    if (config.ssl === true) {
         // ensure we agreed to the letsencrypt TOS
         if (config.letsencryptAcceptTOS !== true) return showError("ERROR: You must accept the Let's Encrypt TOS to use this service.");
 
@@ -106,7 +106,7 @@ function showError(str) {
             app,
 
             email: config.letsencryptEmail,
-            agreeTos: config.letsencryptAcceptTOS,
+            agreeTos: config.letsencryptAcceptTOS === true,
             approvedDomains: [config.sslDomain],
             configDir: letsencryptDir,
 
