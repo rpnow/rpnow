@@ -10,7 +10,6 @@ const ini = require('ini');
 const DB = require('./services/database');
 const { isAlreadyRunning, notifyRunning } = require('./services/is-already-running');
 const bannerMessage = require('./services/cli-banner-message');
-const httpsPrompts = require('./services/https-prompts');
 const app = require('./app');
 
 // get app configuration
@@ -28,16 +27,16 @@ const config = nconf
         },
         parseValues: true,
     })
-    .add('default configPath', {
+    .add('default configFile location', {
         type: 'literal',
         store: {
-            configPath: (process.pkg) ?
+            configFile: (process.pkg) ?
                 path.join(path.dirname(process.argv[0], 'rpnow.ini')) :
                 path.join(path.dirname(process.argv[1]), '..', 'rpnow.ini')
         }
     })
     .file('rpnow.ini config file', {
-        file: nconf.get('configPath'),
+        file: nconf.get('configFile'),
         format: {
             parse: str => {
                 const obj = ini.parse(str);
@@ -48,32 +47,20 @@ const config = nconf
             }
         },
     })
-    .add('default dataDir', {
-        type: 'literal',
-        store: {
-            dataDir: process.platform === 'win32' ?
-                path.join(process.env.APPDATA, 'rpnow', 'data') :
-                path.join(os.homedir(), 'rpnow')
-        }
-    })
     .defaults({
+        dataDir: (process.platform === 'win32' ?
+            path.join(process.env.APPDATA, 'rpnow', 'data') :
+            path.join(os.homedir(), 'rpnow')
+        ),
         port: 80,
         ssl: false,
         sslPort: 443,
         sslDomain: '',
-        letsencryptAgree: false,
+        letsencryptAcceptTOS: false,
         letsencryptEmail: '',
-        letsencryptDir: path.join(nconf.get('dataDir'), 'letsencrypt'),
         trustProxy: false,
     })
     .get();
-
-console.log(config);
-process.exit(0);
-
-
-
-
 
 
 function showError(str) {
@@ -90,15 +77,8 @@ function showError(str) {
 }
 
 (async function main() {
-    // if not exists
-    if (!fs.existsSync(config.dataDir)){
-        // if not interactive, die and tell why
-        if (!process.stdin.isTTY) return showError('Cannot find data directory')
-
-        // create directory
-        fs.mkdirSync(config.dataDir);
-        fs.mkdirSync(config.letsencryptDir);
-    }
+    // create data directory if it doesnt exist
+    if (!fs.existsSync(config.dataDir)) fs.mkdirSync(config.dataDir);
 
     // initialize db
     await DB.open(config.dataDir);
@@ -116,15 +96,19 @@ function showError(str) {
 
     // start server
     if (config.ssl) {
-        if (!config.letsencryptAgree) return showError("ERROR: You must accept the Let's Encrypt TOS to use this service.");
+        // ensure we agreed to the letsencrypt TOS
+        if (config.letsencryptAcceptTOS !== true) return showError("ERROR: You must accept the Let's Encrypt TOS to use this service.");
+
+        const letsencryptDir = path.join(config.dataDir, 'letsencrypt');
+        if (!fs.existsSync(letsencryptDir)) fs.mkdirSync(letsencryptDir);
 
         const server = GreenlockExpress.create({
             app,
 
             email: config.letsencryptEmail,
-            agreeTos: config.letsencryptAgree,
+            agreeTos: config.letsencryptAcceptTOS,
             approvedDomains: [config.sslDomain],
-            configDir: config.letsencryptDir,
+            configDir: letsencryptDir,
 
             communityMember: false,
             securityUpdates: false,
