@@ -4,11 +4,77 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const GreenlockExpress = require('greenlock-express')
+const nconf = require('nconf');
+const camelcase = require('camelcase');
+const ini = require('ini');
 const DB = require('./services/database');
 const { isAlreadyRunning, notifyRunning } = require('./services/is-already-running');
 const bannerMessage = require('./services/cli-banner-message');
 const httpsPrompts = require('./services/https-prompts');
 const app = require('./app');
+
+// get app configuration
+const config = nconf
+    .argv({
+        parseValues: true,
+    })
+    .env({
+        transform({ key, value }) {
+            if (!/^RPNOW_/.test(key)) return false;
+            return {
+                key: camelcase(obj.key.substr('RPNOW_'.length)),
+                value
+            };
+        },
+        parseValues: true,
+    })
+    .add('default configPath', {
+        type: 'literal',
+        store: {
+            configPath: (process.pkg) ?
+                path.join(path.dirname(process.argv[0], 'rpnow.ini')) :
+                path.join(path.dirname(process.argv[1]), '..', 'rpnow.ini')
+        }
+    })
+    .file('rpnow.ini config file', {
+        file: nconf.get('configPath'),
+        format: {
+            parse: str => {
+                const obj = ini.parse(str);
+                Object.entries(obj).forEach(([key, value]) => {
+                    try { obj[key] = JSON.parse(value) } catch (_) {}
+                });
+                return obj;
+            }
+        },
+    })
+    .add('default dataDir', {
+        type: 'literal',
+        store: {
+            dataDir: process.platform === 'win32' ?
+                path.join(process.env.APPDATA, 'rpnow', 'data') :
+                path.join(os.homedir(), 'rpnow')
+        }
+    })
+    .defaults({
+        port: 80,
+        ssl: false,
+        sslPort: 443,
+        sslDomain: '',
+        letsencryptAgree: false,
+        letsencryptEmail: '',
+        letsencryptDir: path.join(nconf.get('dataDir'), 'letsencrypt'),
+        trustProxy: false,
+    })
+    .get();
+
+console.log(config);
+process.exit(0);
+
+
+
+
+
 
 function showError(str) {
     console.error(str);
@@ -24,70 +90,54 @@ function showError(str) {
 }
 
 (async function main() {
-    // determine data directory
-    const dataDir = path.join(process.env.APPDATA || os.homedir(), 'rpnow_data');
-    const letsencryptDir = path.join(dataDir, 'letsencrypt');
-
     // if not exists
-    if (!fs.existsSync(dataDir)){
-        // if interactive, prompt to make sure creating a directory is ok
-        // TODO
+    if (!fs.existsSync(config.dataDir)){
+        // if not interactive, die and tell why
+        if (!process.stdin.isTTY) return showError('Cannot find data directory')
 
         // create directory
-        fs.mkdirSync(dataDir);
-        fs.mkdirSync(letsencryptDir);
+        fs.mkdirSync(config.dataDir);
+        fs.mkdirSync(config.letsencryptDir);
     }
 
     // initialize db
-    await DB.open(dataDir);
+    await DB.open(config.dataDir);
 
     // check if the server is already running (or ports are used)
-    if (await isAlreadyRunning(dataDir)) {
+    if (await isAlreadyRunning(config.dataDir)) {
         return showError('ERROR: RPNow is already running');
     }
 
-    // get remaining config (may trigger prompts if interactive)
-    // const { https, letsencryptTos, letsencryptEmail, domain } = await httpsPrompts();
-    const config = {
-        httpPort: (+process.env.RPNOW_PORT) || 80,
-        https: false,
-        httpsPort: 443,
-        domain: '',
-        letsencryptAgree: false,
-        letsencryptEmail: '',
-        trustProxy: (process.env.RPNOW_TRUST_PROXY || '').toLowerCase() === 'true',
-    };
-
     // write lastport.lock
-    notifyRunning(dataDir, config.httpsPort || config.httpPort)
+    notifyRunning(config.dataDir, config.sslPort || config.port)
 
     // enable trustProxy?
     if (config.trustProxy) app.enable('trust proxy');
 
     // start server
-    if (config.https) {
+    if (config.ssl) {
         if (!config.letsencryptAgree) return showError("ERROR: You must accept the Let's Encrypt TOS to use this service.");
 
-        const httpsServer = GreenlockExpress.create({
+        const server = GreenlockExpress.create({
             app,
 
             email: config.letsencryptEmail,
             agreeTos: config.letsencryptAgree,
-            approvedDomains: [config.domain],
-            configDir: letsencryptDir,
+            approvedDomains: [config.sslDomain],
+            configDir: config.letsencryptDir,
 
             communityMember: false,
             securityUpdates: false,
             telemetry: true,
         });
-        httpsServer.listen(config.httpPort, config.httpsPort, (err) => {
+        server.listen(config.port, config.httpsPort, (err) => {
             if (err) return showError(`ERROR: RPNow failed to start: ${err}`);
 
             // delay logging this until messages generated by vue-pronto are done
             setTimeout(() => console.log(bannerMessage(config)), 2000);
         });
     } else {
-        app.listen(config.httpPort, (err) => {
+        app.listen(config.port, (err) => {
             if (err) return showError(`ERROR: RPNow failed to start: ${err}`);
 
             // delay logging this until messages generated by vue-pronto are done

@@ -5,7 +5,7 @@ const myIpAddresses = Object.values(os.networkInterfaces())
     .filter(x => x)
     .map(x => x.address);
 
-const banner = ({ https, httpPort, httpsPort, domain }) => `
+const banner = ({ port, ssl, sslPort, sslDomain }) => `
  _ __ _ __  _ __   _____      __
 | '__| '_ \\| '_ \\ / _ \\ \\ /\\ / /
 | |  | |_) | | | | (_) \\ V  V /
@@ -14,11 +14,11 @@ const banner = ({ https, httpPort, httpsPort, domain }) => `
 
 Your RPNow server is ready!
 
-${(domain) ? (
+${(sslDomain) ? (
 `To access this RPNow server, try visiting the following in your
 web browser:
 
-* ${https ? 'https://' : 'http://'}${domain}:${httpsPort}`
+* ${ssl ? 'https://' : 'http://'}${sslDomain}`
 ):(
 `${(process.platform === 'win32') ? (
 `To access RPNow on the local network, (i.e., when connected to the
@@ -30,7 +30,10 @@ web browser:`
 )}
 
 ${(myIpAddresses.length > 0) ? (
-myIpAddresses.map(ip => httpPort === 80 ? `* http://${ip}` : `* http://${ip}:${httpPort}`).join('\n')
+myIpAddresses.map(ip => {
+    if (ssl) return sslPort === 443 ? `* https://${ip}` : `* https://${ip}:${sslPort}`;
+    else return port === 80 ? `* http://${ip}` : `* http://${ip}:${port}`
+}).join('\n')
 ):(
 `  (Unable to determine my address.)`
 )}`)}
