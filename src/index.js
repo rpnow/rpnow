@@ -31,7 +31,7 @@ const config = nconf
         type: 'literal',
         store: {
             configFile: (process.pkg) ?
-                path.join(path.dirname(process.argv[0], 'rpnow.ini')) :
+                path.join(path.dirname(process.argv[0]), 'rpnow.ini') :
                 path.join(path.dirname(process.argv[1]), '..', 'rpnow.ini')
         }
     })
