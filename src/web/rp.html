@@ -148,6 +148,10 @@
             <i class="material-icons">cloud_download</i>
             <span>Download</span>
           </button>
+          <a class="drawer-item" :href="'/api/rp/'+rpCode+'/export'" target="_blank">
+            <i class="material-icons">archive</i>
+            <span>Export data</span>
+          </a>
           <div class="drawer-divider"></div>
           <button class="drawer-item" @click="nightMode = !nightMode">
             <i class="material-icons">brightness_4</i>

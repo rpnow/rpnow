@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { Router } = require('express');
 const { generateTextFile } = require('../services/txt-file');
+const { exportRp } = require('../services/json-file');
 const { getColorsForIp } = require('../services/get-colors-for-ip');
 const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
 const logger = require('../services/logger');
@@ -118,6 +119,18 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
 
     res.attachment(`${title}.txt`).type('.txt');
     generateTextFile({ title, desc, msgs, charasMap, includeOOC }, str => res.write(str));
+    res.end();
+}));
+
+/**
+ * Export RP data as a .JSON file
+ */
+router.get(`${rpGroup}/export`, awrap(async (req, res, next) => {
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
+    const { title } = await DB.getDoc(rpNamespace, 'meta', 'meta');
+
+    res.attachment(`${title}.json`).type('.json');
+    await exportRp(rpNamespace, str => res.write(str));
     res.end();
 }));
 
