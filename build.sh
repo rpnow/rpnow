@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# Exit on error
+set -e
+
+# Check node version
+node -p "require('assert').ok(process.versions.node.split('.')[0] == '10', 'Node version must be ^10.12.0')"
+node -p "require('assert').ok(process.versions.node.split('.')[1] >= '12', 'Node version must be ^10.12.0')"
+
 # Clean dist folder
 rm -rf dist
 mkdir dist
