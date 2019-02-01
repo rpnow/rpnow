@@ -11,6 +11,12 @@ npx node-pre-gyp install --directory ./node_modules/sqlite3 --target_platform=li
 mkdir -p ./dist/node_modules/sqlite3/lib
 cp -r ./node_modules/sqlite3/lib/binding ./dist/node_modules/sqlite3/lib/binding
 
+# Remove ursa-optional, which is an (obviously) optional package that
+# cannot be bundled up properly into pkg, and breaks things when we try
+# (This step can be removed when ursa-optional is no longer installed
+# as a dependency of greenlock-express)
+rm -rf node_modules/ursa-optional
+
 # Copy in sample rpnow.ini
 cp ./rpnow.ini ./dist
 
