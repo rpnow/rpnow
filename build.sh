@@ -33,8 +33,9 @@ npx pkg ./package.json --targets node8-linux-x64 --output dist/rpnow
 
 # Zip up the distributables
 cd dist
-zip rpnow-windows.zip RPNow.exe rpnow.ini node_modules/sqlite3/lib/binding/node-v57-win32-ia32/node_sqlite3.node
-zip rpnow-linux.zip rpnow rpnow.ini node_modules/sqlite3/lib/binding/node-v57-linux-x64/node_sqlite3.node
+V=$(node -p process.versions.modules)
+zip rpnow-windows.zip RPNow.exe rpnow.ini node_modules/sqlite3/lib/binding/node-v${V}-win32-ia32/node_sqlite3.node
+zip rpnow-linux.zip rpnow rpnow.ini node_modules/sqlite3/lib/binding/node-v${V}-linux-x64/node_sqlite3.node
 
 # Clean up dist folder
 rm -rf node_modules
