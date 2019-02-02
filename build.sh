@@ -20,6 +20,10 @@ rm -rf node_modules/ursa-optional
 # Copy in sample rpnow.ini
 cp ./rpnow.ini ./dist
 
+# Copy in src/views
+mkdir -p ./dist/src
+cp -r src/views dist/src/views
+
 # Build exe files
 npx nexe src/index.js -t linux-x64 -r src/views -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/rpnow-linux-x64
 

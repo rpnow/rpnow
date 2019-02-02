@@ -30,9 +30,7 @@ const config = nconf
     .add('default configFile location', {
         type: 'literal',
         store: {
-            configFile: (process.pkg) ?
-                path.join(path.dirname(process.argv[0]), 'rpnow.ini') :
-                path.join(path.dirname(process.argv[1]), '..', 'rpnow.ini')
+            configFile: path.join(path.dirname(process.argv[1]), '..', 'rpnow.ini')
         }
     })
     .file('rpnow.ini config file', {
@@ -62,11 +60,16 @@ const config = nconf
     })
     .get();
 
+if(fs.existsSync(config.configFile)) {
+    console.log('Loaded config from ' + config.configFile)
+} else {
+    console.log('No config data found at ' + config.configFile)
+}
 
 function showError(str) {
     console.error(str);
 
-    if (process.pkg) {
+    if (process.argv[0].includes('rpnow')) {
         // In desktop app mode, keep the process alive
         console.error('(Press Ctrl+C to exit.)')
         setInterval(() => {}, 10000); 
