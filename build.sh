@@ -5,8 +5,8 @@ rm -rf dist/*
 mkdir -p dist
 
 # Get native sqlite3 bindings for all platforms, and copy them in
-npx node-pre-gyp install --directory ./node_modules/sqlite3 --target_platform=win32 --target_arch=ia32
-npx node-pre-gyp install --directory ./node_modules/sqlite3 --target_platform=linux --target_arch=x64
+npx node-pre-gyp install --directory ./node_modules/sqlite3 --target=10.15.1 --target_platform=win32 --target_arch=ia32
+npx node-pre-gyp install --directory ./node_modules/sqlite3 --target=10.15.1 --target_platform=linux --target_arch=x64
 
 mkdir -p ./dist/node_modules/sqlite3/lib
 cp -r ./node_modules/sqlite3/lib/binding ./dist/node_modules/sqlite3/lib/binding
@@ -25,7 +25,7 @@ mkdir -p ./dist/src
 cp -r src/views dist/src/views
 
 # Build exe files
-npx nexe src/index.js -t linux-x64 -r src/views -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/rpnow-linux-x64
+npx nexe src/index.js -t linux-x64-10.15.1 -r src/views -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/rpnow-linux-x64
 
 # Zip up the distributables
 # cd dist
