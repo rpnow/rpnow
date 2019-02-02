@@ -23,17 +23,17 @@ cp ./rpnow.ini ./dist
 # Copy in src/views
 mkdir -p ./dist/src
 cp -r src/views dist/src/views
+cp -r src/static dist/src/static
 
 # Build exe files
-npx nexe src/index.js -t linux-x64-10.15.1 -r src/views -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/rpnow-linux-x64
+npx nexe src/index.js -t linux-x64-10.15.1 -r src/views -r src/static -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/rpnow
+npx nexe src/index.js -t windows-x86-10.15.1 -r src/views -r src/static -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/RPNow.exe
 
 # Zip up the distributables
-# cd dist
-# zip -r rpnow-win-x64.zip rpnow-win-x64.exe static views node_modules/sqlite3/lib/binding/node-v57-win32-x64/node_sqlite3.node
-# zip -r rpnow-win-x86.zip rpnow-win-x86.exe static views node_modules/sqlite3/lib/binding/node-v57-win32-ia32/node_sqlite3.node
-# zip -r rpnow-macos-x64.zip rpnow-macos-x64 static views node_modules/sqlite3/lib/binding/node-v57-darwin-x64/node_sqlite3.node
-# zip -r rpnow-linux-x64.zip rpnow-linux-x64 static views node_modules/sqlite3/lib/binding/node-v57-linux-x64/node_sqlite3.node
+cd dist
+zip -r rpnow-windows.zip RPNow.exe rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-win32-ia32/node_sqlite3.node
+zip -r rpnow-linux.zip rpnow rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-linux-x64/node_sqlite3.node
 
 # Clean up dist folder
-# rm -rf node_modules src
-# find . -type f ! -name '*.zip' -delete
+rm -rf node_modules src
+find . -type f ! -name '*.zip' -delete
