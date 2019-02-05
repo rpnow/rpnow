@@ -1,4 +1,4 @@
-const test = require('ava');
+const assert = require('assert');
 const formatMessage = require('./rp-message-format');
 
 const tests = {
@@ -64,6 +64,9 @@ const tests = {
     ['_invalid italics/', null, '_invalid italics/'],
     ['_ambiguous formatting__', null, '_ambiguous formatting__'],
     ['__ambiguous formatting_', null, '__ambiguous formatting_'],
+  ],
+
+  'edge cases': [
     ['¯\_(ツ)_/¯', null, '¯\_(ツ)_/¯'],
     ['idk ¯\_(ツ)_/¯ lol', null, 'idk ¯\_(ツ)_/¯ lol'],
     ['and/or /words/', null, 'and/or <i>words</i>'],
@@ -71,6 +74,11 @@ const tests = {
     ['and/or /words/ and/or', null, 'and/or <i>words</i> and/or'],
     ['and/or _words_ and/or', null, 'and/or <i>words</i> and/or'],
     ['//', null, '//'],
+    ['_big fish_,', null, '<i>big fish</i>,'],
+    ['_big fish_, good', null, '<i>big fish</i>, good'],
+    ['_big fish_. good', null, '<i>big fish</i>. good'],
+    ['_big fish_? good', null, '<i>big fish</i>? good'],
+    ['_big fish_! good', null, '<i>big fish</i>! good'],
   ],
 
   'links': [
@@ -85,10 +93,11 @@ const tests = {
 };
 
 for (const [testName, pairs] of Object.entries(tests)) {
-  test(testName, t => {
+  // test(testName, t => {
     for (const [input, color, expected] of pairs) {
       const html = formatMessage(input, color);
-      t.is(html, expected);
+      assert.strictEqual(html, expected, `${testName}:\n  EXPECTED: ${expected}\n  ACTUAL:   ${html}\n`)
+      // t.is(html, expected);
     }
-  });
+  // });
 }

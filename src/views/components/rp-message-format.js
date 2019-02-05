@@ -34,7 +34,7 @@ module.exports = function transformRpMessage(str, color) {
     { r: /^(\r\n|\n\r|\r|\n)/, replaceWith: '<br>' },
     { r: /^(--)/, replaceWith: '&mdash;' },
     { r: /^(\s)/ },
-    { r: /^(\S[^\s-]*[^\s_\/~\*-])(?:\s|$)/, replace: escape }, // attempt to ignore symbols like /, _, etc inside of words
+    { r: /^(\S[^\s-]*[^\s_\/~\*-,.?!])(?:\s|$)/, replace: escape }, // attempt to ignore symbols like /, _, etc inside of words
     { r: /^(.)/, replace: escape },
   ];
 
