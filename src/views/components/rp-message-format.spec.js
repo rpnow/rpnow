@@ -1,4 +1,4 @@
-const assert = require('assert');
+const test = require('ava');
 const formatMessage = require('./rp-message-format');
 
 const tests = {
@@ -93,11 +93,10 @@ const tests = {
 };
 
 for (const [testName, pairs] of Object.entries(tests)) {
-  // test(testName, t => {
+  test(testName, t => {
     for (const [input, color, expected] of pairs) {
       const html = formatMessage(input, color);
-      assert.strictEqual(html, expected, `${testName}:\n  EXPECTED: ${expected}\n  ACTUAL:   ${html}\n`)
-      // t.is(html, expected);
+      t.is(html, expected);
     }
-  // });
+  });
 }

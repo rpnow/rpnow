@@ -12,9 +12,9 @@ const connected = new Promise(resolve => {
 async function open(dataDir) {
     knex = Knex({
         client: 'sqlite3',
-        connection: {
-            filename: path.join(dataDir, 'rpnow.sqlite3'),
-        },
+        connection: (dataDir === ':memory:') ?
+            ':memory:' :
+            { filename: path.join(dataDir, 'rpnow.sqlite3') },
         useNullAsDefault: true,
     });
     if (!(await knex.schema.hasTable('docs'))) {

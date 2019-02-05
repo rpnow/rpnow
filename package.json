@@ -29,18 +29,21 @@
     "word-wrap": "^1.2.3"
   },
   "devDependencies": {
-    "ava": "1.0.0-rc.2",
+    "ava": "^1.2.1",
     "cross-env": "^5.2.0",
     "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "nodemon": "^1.18.9",
     "nexe": "^3.0.0-beta.13",
+    "nodemon": "^1.18.9",
     "supertest": "^3.3.0"
   },
   "ava": {
     "files": [
       "src/**/*.spec.js"
+    ],
+    "sources": [
+      "src/**/*.js"
     ]
   }
 }
