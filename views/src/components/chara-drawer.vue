@@ -42,9 +42,11 @@
 </template>
 
 <script>
-  module.exports = {
+  import CharaDialog from './chara-dialog.vue';
+
+  export default {
     components: {
-      'chara-dialog': require('./chara-dialog.vue'),
+      CharaDialog
     },
     props: [
       'charas',

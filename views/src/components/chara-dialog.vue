@@ -23,7 +23,11 @@
 </template>
 
 <script>
-  module.exports = {
+  import jQuery from 'jquery';
+  import 'spectrum-colorpicker';
+  import 'spectrum-colorpicker/spectrum.css'
+
+  export default {
     props: [
       'send',
     ],
@@ -87,10 +91,10 @@
     components: {
       'spectrum-colorpicker': {
         props: ['value'],
-        template: '<input ref="el">',
+        render: function(h) { return h('input', { ref: 'colorpicker' }) },
         mounted: function() {
           var vm = this;
-          jQuery(this.$refs.el).spectrum({
+          jQuery(this.$refs['colorpicker']).spectrum({
             color: this.value,
             showInput: true,
             preferredFormat: "hex",

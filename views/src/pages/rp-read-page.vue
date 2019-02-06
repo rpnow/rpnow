@@ -61,9 +61,12 @@
 </template>
 
 <script>
-  module.exports = {
+  import axios from 'axios';
+  import RpMessage from '../components/rp-message.vue';
+
+  export default {
     components: {
-      'rp-message': require('../components/rp-message.vue'),
+      RpMessage
     },
     data: function() {
       return {
@@ -76,7 +79,7 @@
     beforeMount: function() {
       // get rpCode from URL
       this.pageNumber = +(location.pathname.match(/\/page\/(\d+)/))[1];
-      this.readCode = location.pathname.match(/\/read\/([^\/]+)/)[1];
+      this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
     },
     computed: {
       charasById: function() {
@@ -103,11 +106,11 @@
           this.rp = res.data;
           document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';
         }).bind(this))
-        .catch((function(err) {
+        .catch((function() {
           this.loadError = 'Check the URL and try again.'
         }).bind(this));
     },
   };
 </script>
 
-<style src="rp.css"></style>
+<style src="./rp.css"></style>

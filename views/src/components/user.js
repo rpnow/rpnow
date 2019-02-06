@@ -1,5 +1,7 @@
-module.exports = function auth() {
-  return new Promise(function(resolve, reject) {
+import axios from 'axios';
+
+export default function auth() {
+  return new Promise(function(resolve) {
     // check if we have a token in the cache
     try {
       var str = localStorage.getItem('rpnow.auth');
@@ -8,7 +10,7 @@ module.exports = function auth() {
         resolve(data);
         return;
       }
-    } catch (err) {}
+    } catch (err) {/* it's ok */}
     resolve(null);
 
   }).then(function(data) {
@@ -34,7 +36,7 @@ module.exports = function auth() {
       .then(function(res) {
         try {
           localStorage.setItem('rpnow.auth', JSON.stringify(res.data))
-        } catch (err) {}
+        } catch (err) {/* it's ok */}
         return res.data;
       })
 
@@ -43,4 +45,4 @@ module.exports = function auth() {
     axios.defaults.headers.common.authorization = 'Bearer ' + data.token;
     return data;
   });
-};
+}

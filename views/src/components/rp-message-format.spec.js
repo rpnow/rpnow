@@ -67,8 +67,8 @@ const tests = {
   ],
 
   'edge cases': [
-    ['¯\_(ツ)_/¯', null, '¯\_(ツ)_/¯'],
-    ['idk ¯\_(ツ)_/¯ lol', null, 'idk ¯\_(ツ)_/¯ lol'],
+    ['¯\\_(ツ)_/¯', null, '¯\\_(ツ)_/¯'],
+    ['idk ¯\\_(ツ)_/¯ lol', null, 'idk ¯\\_(ツ)_/¯ lol'],
     ['and/or /words/', null, 'and/or <i>words</i>'],
     ['and/or _words_', null, 'and/or <i>words</i>'],
     ['and/or /words/ and/or', null, 'and/or <i>words</i> and/or'],
@@ -88,7 +88,7 @@ const tests = {
 
   'mdash': [
     ['HI-HI', null, 'HI-HI'],
-    ['HI--HI', null, 'HI\&mdash;HI'],
+    ['HI--HI', null, 'HI&mdash;HI'],
   ]
 };
 

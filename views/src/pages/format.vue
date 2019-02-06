@@ -19,22 +19,14 @@
     <ul>
       <li>Quickly write an OOC message by using one of these methods:
         <ul>
-		      <li><code>(( inside two parentheses ))</code></li>
-		      <li><code>{ inside one or more braces }</code></li>
-		      <li><code>// following two slashes</code></li>
+          <li><code>(( inside two parentheses ))</code></li>
+          <li><code>{ inside one or more braces }</code></li>
+          <li><code>// following two slashes</code></li>
         </ul>
       </li>
     </ul>
   </div>
 </template>
-
-<script>
-  module.exports = {
-    data: function() {
-      return {};
-    },
-  };
-</script>
 
 <style>
   #format-guide {

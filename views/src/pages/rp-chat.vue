@@ -151,11 +151,17 @@
 </template>
 
 <script>
-  module.exports = {
+  import axios from 'axios';
+  import RpMessage from '../components/rp-message.vue';
+  import SendBox from '../components/send-box.vue';
+  import CharaDrawer from '../components/chara-drawer.vue';
+  import initializeAuth from '../components/user.js';
+
+  export default {
     components: {
-      'rp-message': require('../components/rp-message.vue'),
-      'send-box': require('../components/send-box.vue'),
-      'chara-drawer': require('../components/chara-drawer.vue'),
+      RpMessage,
+      SendBox,
+      CharaDrawer
     },
 
     data: function() {
@@ -188,7 +194,7 @@
     // localStorage reactivity
     beforeMount: function() {
       // get rpCode from URL
-      this.rpCode = location.pathname.match(/\/rp\/([^\/]+)/)[1];
+      this.rpCode = location.pathname.match(/\/rp\/([^/]+)/)[1];
 
       // store and retrieve json as objects in localStorage
       // (or memory if localStorage doesn't work)
@@ -278,7 +284,7 @@
     },
 
     methods: {
-      initializeAuth: require('../components/user'),
+      initializeAuth: initializeAuth,
       fetchUpdates: function() {
         var scheduleNextUpdate = (function() {
           setTimeout(this.fetchUpdates.bind(this), 5000);
@@ -451,4 +457,4 @@
   };
 </script>
 
-<style src="rp.css"></style>
+<style src="./rp.css"></style>

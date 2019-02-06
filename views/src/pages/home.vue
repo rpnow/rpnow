@@ -40,7 +40,11 @@
 </template>
 
 <script>
-  module.exports = {
+  import axios from 'axios';
+  import initializeAuth from '../components/user';
+  import coolstory from 'coolstory.js';
+
+  export default {
     data: function() {
       return {
         title: '',
@@ -49,7 +53,7 @@
       };
     },
     methods: {
-      initializeAuth: require('../components/user'),
+      initializeAuth: initializeAuth,
       spinTitle: function() {
         var millis = 10.0;
 
@@ -76,7 +80,7 @@
             alert('Failed to create RP: (' + err + ')');
           }).bind(this));
       },
-      uploadJson: function(evt) {
+      uploadJson: function() {
         var file = this.$refs.fileInput.files[0];
         this.submitted = true;
 
@@ -126,7 +130,7 @@
   };
 </script>
 
-<style>
+<style scoped>
   #homepage {
     display: flex;
     flex-direction: column;

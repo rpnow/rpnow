@@ -41,7 +41,9 @@
 </template>
 
 <script>
-  module.exports = {
+  import axios from 'axios';
+
+  export default {
     data: function() {
       return {
         readCode: null,
@@ -51,7 +53,7 @@
     },
     beforeMount: function() {
       // get rpCode from URL
-      this.readCode = location.pathname.match(/\/read\/([^\/]+)/)[1];
+      this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
     },
     methods: {
       changePage: function(pageNumber) {
@@ -64,11 +66,11 @@
           this.rp = res.data;
           document.title = this.rp.title + ' | RPNow';
         }).bind(this))
-        .catch((function(err) {
+        .catch((function() {
           this.loadError = 'Check the URL and try again.'
         }).bind(this));
     },
   };
 </script>
 
-<style src="rp.css"></style>
+<style src="./rp.css"></style>

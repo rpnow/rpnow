@@ -45,9 +45,12 @@
 </template>
 
 <script>
-  module.exports =  {
+  import tinycolor from 'tinycolor2';
+  import ImageDialog from './image-dialog.vue';
+
+  export default  {
     components: {
-      'image-dialog': require('./image-dialog.vue'),
+      ImageDialog
     },
     props: [
       'charasById',

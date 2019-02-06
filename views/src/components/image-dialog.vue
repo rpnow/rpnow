@@ -35,7 +35,7 @@
 </template>
 
 <script>
-  module.exports = {
+  export default {
     props: [
       'send',
     ],
@@ -52,7 +52,7 @@
     },
     computed: {
       imageDialogIsWellFormed: function() {
-        var urlRegex = /^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]+$/gi;
+        var urlRegex = /^https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]+$/gi;
         return !!this.imageDialogUrl.match(urlRegex);
       },
     },
@@ -99,7 +99,7 @@
         this.imageDialogIsChecking = true;
         this.imageDialogIsValid = false;
 
-        new Promise(function(resolve, reject) {
+        new Promise(function(resolve) {
           var img = document.createElement('img');
 
           img.addEventListener('load', function() { resolve(true) });

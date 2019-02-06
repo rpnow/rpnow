@@ -78,9 +78,12 @@
   </div>
 </template>
 <script>
-  module.exports = {
+  import tinycolor from 'tinycolor2';
+  import ImageDialog from './image-dialog.vue';
+  import transformRpMessage from './rp-message-format';
+  export default {
     components: {
-      'image-dialog': require('./image-dialog.vue'),
+      ImageDialog
     },
     props: [
       '_id',
@@ -210,7 +213,7 @@
           this.history = data;
         }).bind(this));
       },
-      transformRpMessage: require('./rp-message-format'),
+      transformRpMessage: transformRpMessage,
     },
     mounted: function() {
       this.intervalHandle = setInterval((function() {

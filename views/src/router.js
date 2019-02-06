@@ -1,10 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
+
+import Home from './pages/home.vue'
+import Format from './pages/format.vue'
 
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -12,12 +15,24 @@ export default new Router({
       component: Home
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
-    }
+      path: '/format',
+      name: 'format',
+      component: Format
+    },
+    {
+      path: '/rp/:rpCode',
+      name: 'chat',
+      component: () => import(/* webpackChunkName: "chat" */ './pages/rp-chat.vue')
+    },
+    {
+      path: '/read/:readCode',
+      name: 'archive',
+      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-index.vue')
+    },
+    {
+      path: '/read/:readCode/page/:page',
+      name: 'page',
+      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-page.vue')
+    },
   ]
 })
