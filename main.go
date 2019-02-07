@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rpnow/rpnow/api"
 )
 
 func main() {
@@ -31,22 +32,20 @@ func main() {
 	router.PathPrefix("/api").HandlerFunc(apiMalformed)
 
 	// routes
-	router.HandleFunc("/", indexHTML).Methods("GET")
-	router.HandleFunc("/terms", indexHTML).Methods("GET")
-	router.HandleFunc("/format", indexHTML).Methods("GET")
-	router.HandleFunc("/rp/{rpCode}", indexHTML).Methods("GET")
-	router.HandleFunc("/read/{rpCode}", indexHTML).Methods("GET")
-	router.HandleFunc("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
+	router.HandleFunc("/", api.IndexHTML).Methods("GET")
+	router.HandleFunc("/terms", api.IndexHTML).Methods("GET")
+	router.HandleFunc("/format", api.IndexHTML).Methods("GET")
+	router.HandleFunc("/rp/{rpCode}", api.IndexHTML).Methods("GET")
+	router.HandleFunc("/read/{rpCode}", api.IndexHTML).Methods("GET")
+	router.HandleFunc("/read/{rpCode}/page/{page}", api.IndexHTML).Methods("GET")
 
 	// assets
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("views/dist")))
 
 	// listen
-	log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-func indexHTML(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "views/dist/index.html")
+	port := "8080"
+	fmt.Printf("Listening on %s", port)
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
