@@ -4,48 +4,64 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/rpnow/rpnow/api"
+	bolt "go.etcd.io/bbolt"
 )
 
+var port = 8080
+var addr = fmt.Sprintf(":%d", port)
+
 func main() {
+	// db
+	db, err := bolt.Open("my.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
 
 	// api
-	router.HandleFunc("/api/health", todo).Methods("GET")
-	router.HandleFunc("/api/rp", todo).Methods("POST")
-	router.HandleFunc("/api/rp/import", todo).Methods("POST")
-	router.HandleFunc("/api/rp/import/{id:[-0-9a-zA-Z]+}", todo).Methods("POST")
-	router.HandleFunc("/api/user", todo).Methods("POST")
-	router.HandleFunc("/api/user/verify", todo).Methods("GET")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}", todo).Methods("GET")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/updates", todo).Methods("GET")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/pages", todo).Methods("GET")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/pages/{pageNum:[1-9][0-9]*}", todo).Methods("GET")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/download.txt", todo).Methods("GET")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/export", todo).Methods("GET")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/{collections:[a-z]+}", todo).Methods("POST")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/{collections:[a-z]+}/{docId:[0-9a-z]+}", todo).Methods("PUT")
-	router.HandleFunc("/api/rp/{id:[-0-9a-zA-Z]+}/{collections:[a-z]+}/history", todo).Methods("GET")
-	router.PathPrefix("/api").HandlerFunc(apiMalformed)
+	api := router.PathPrefix("/api").Subrouter()
+	api.HandleFunc("/health", todo).Methods("GET")
+	api.HandleFunc("/rp", todo).Methods("POST")
+	api.HandleFunc("/rp/import", todo).Methods("POST")
+	api.HandleFunc("/rp/import/{id:[-0-9a-zA-Z]+}", todo).Methods("POST")
+	api.HandleFunc("/user", todo).Methods("POST")
+	api.HandleFunc("/user/verify", todo).Methods("GET")
+	roomAPI := api.PathPrefix("/rp/{id:[-0-9a-zA-Z]+}").Subrouter()
+	roomAPI.HandleFunc("/", todo).Methods("GET")
+	roomAPI.HandleFunc("/updates", todo).Methods("GET")
+	roomAPI.HandleFunc("/pages", todo).Methods("GET")
+	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", todo).Methods("GET")
+	roomAPI.HandleFunc("/download.txt", todo).Methods("GET")
+	roomAPI.HandleFunc("/export", todo).Methods("GET")
+	roomAPI.HandleFunc("/{collections:[a-z]+}", todo).Methods("POST")
+	roomAPI.HandleFunc("/{collections:[a-z]+}/{docId:[0-9a-z]+}", todo).Methods("PUT")
+	roomAPI.HandleFunc("/{collections:[a-z]+}/history", todo).Methods("GET")
+	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
-	router.HandleFunc("/", api.IndexHTML).Methods("GET")
-	router.HandleFunc("/terms", api.IndexHTML).Methods("GET")
-	router.HandleFunc("/format", api.IndexHTML).Methods("GET")
-	router.HandleFunc("/rp/{rpCode}", api.IndexHTML).Methods("GET")
-	router.HandleFunc("/read/{rpCode}", api.IndexHTML).Methods("GET")
-	router.HandleFunc("/read/{rpCode}/page/{page}", api.IndexHTML).Methods("GET")
+	router.HandleFunc("/", indexHTML).Methods("GET")
+	router.HandleFunc("/terms", indexHTML).Methods("GET")
+	router.HandleFunc("/format", indexHTML).Methods("GET")
+	router.HandleFunc("/rp/{rpCode}", indexHTML).Methods("GET")
+	router.HandleFunc("/read/{rpCode}", indexHTML).Methods("GET")
+	router.HandleFunc("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
 
 	// assets
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("views/dist")))
 
 	// listen
-	port := "8080"
-	fmt.Printf("Listening on %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	fmt.Printf("Listening on %s", addr)
+	log.Fatal(http.ListenAndServe(addr, router))
+}
+
+func indexHTML(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "views/dist/index.html")
 }
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
