@@ -8,11 +8,14 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	gonanoid "github.com/matoous/go-nanoid"
+	"github.com/rs/xid"
 	bolt "go.etcd.io/bbolt"
 )
 
 var port = 8080
 var addr = fmt.Sprintf(":%d", port)
+var db bolt.DB
 
 func main() {
 	// db
@@ -21,6 +24,20 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+	err = db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte("urls"))
+		if err != nil {
+			return err
+		}
+		_, err = tx.CreateBucketIfNotExists([]byte("secrets"))
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
@@ -75,6 +92,28 @@ func createRp() http.HandlerFunc {
 			panic(err)
 		}
 		fmt.Println(fields)
+		url, err := gonanoid.Nanoid()
+		if err != nil {
+			panic(err)
+		}
+		rpid := xid.New()
+		err = db.Update(func(tx *bolt.Tx) error {
+			rp, err := tx.CreateBucket(rpid.Bytes())
+			if err != nil {
+				return err
+			}
+			_ = rp // TODO put field meta in rp bucket
+
+			urls := tx.Bucket([]byte("urls"))
+			err = urls.Put([]byte(url), rpid.Bytes())
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			panic(err)
+		}
 		json.NewEncoder(w).Encode(map[string]string{"rpCode": "abc"})
 	}
 }
