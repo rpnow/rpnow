@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,15 +27,15 @@ func main() {
 
 	// api
 	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/health", todo).Methods("GET")
-	api.HandleFunc("/rp", todo).Methods("POST")
+	api.HandleFunc("/health", health).Methods("GET")
+	api.HandleFunc("/rp", createRp()).Methods("POST")
 	api.HandleFunc("/rp/import", todo).Methods("POST")
 	api.HandleFunc("/rp/import/{id:[-0-9a-zA-Z]+}", todo).Methods("POST")
 	api.HandleFunc("/user", todo).Methods("POST")
-	api.HandleFunc("/user/verify", todo).Methods("GET")
+	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{id:[-0-9a-zA-Z]+}").Subrouter()
-	roomAPI.HandleFunc("/", todo).Methods("GET")
-	roomAPI.HandleFunc("/updates", todo).Methods("GET")
+	roomAPI.HandleFunc("/", rpChat).Methods("GET")
+	roomAPI.HandleFunc("/updates", rpChatUpdates).Methods("GET").Queries("since", "{since:[1-9][0-9]*}")
 	roomAPI.HandleFunc("/pages", todo).Methods("GET")
 	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", todo).Methods("GET")
 	roomAPI.HandleFunc("/download.txt", todo).Methods("GET")
@@ -56,8 +57,51 @@ func main() {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("views/dist")))
 
 	// listen
-	fmt.Printf("Listening on %s", addr)
+	fmt.Printf("Listening on %s\n", addr)
 	log.Fatal(http.ListenAndServe(addr, router))
+}
+
+func health(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, `{"rpnow":"ok"}`)
+}
+
+func createRp() http.HandlerFunc {
+	type request struct {
+		Title string `json:"title"`
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		var fields request
+		if err := json.NewDecoder(r.Body).Decode(&fields); err != nil {
+			panic(err)
+		}
+		fmt.Println(fields)
+		json.NewEncoder(w).Encode(map[string]string{"rpCode": "abc"})
+	}
+}
+
+func rpChat(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	fmt.Println(params)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"title":       "Test API",
+		"msgs":        []interface{}{},
+		"charas":      []interface{}{},
+		"lastEventId": 2,
+		"readCode":    "abc-read",
+	})
+}
+
+func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	fmt.Println(params)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"lastEventId": params["since"],
+		"updates":     []interface{}{},
+	})
+}
+
+func verifyUser(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func indexHTML(w http.ResponseWriter, r *http.Request) {
