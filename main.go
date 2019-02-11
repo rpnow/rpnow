@@ -30,6 +30,7 @@ func main() {
 	opts.Dir = "./db"
 	opts.ValueDir = "./db"
 	opts.NumVersionsToKeep = math.MaxInt32
+	// TODO disable opts.Logger when it becomes available in a future release of Badger
 
 	db, err := badger.Open(opts)
 	if err != nil {
