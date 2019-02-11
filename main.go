@@ -1,43 +1,38 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
+	"github.com/dgraph-io/badger"
 	"github.com/gorilla/mux"
 	gonanoid "github.com/matoous/go-nanoid"
 	"github.com/rs/xid"
-	bolt "go.etcd.io/bbolt"
 )
 
 var port = 8080
 var addr = fmt.Sprintf(":%d", port)
-var db bolt.DB
+var db badger.DB
 
 func main() {
 	// db
-	db, err := bolt.Open("my.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	opts := badger.DefaultOptions
+	opts.Dir = "./db"
+	opts.ValueDir = "./db"
+	opts.NumVersionsToKeep = math.MaxInt32
+
+	db, err := badger.Open(opts)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer db.Close()
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("urls"))
-		if err != nil {
-			return err
-		}
-		_, err = tx.CreateBucketIfNotExists([]byte("secrets"))
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		panic(err)
-	}
 
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
@@ -97,23 +92,24 @@ func createRp() http.HandlerFunc {
 			panic(err)
 		}
 		rpid := xid.New()
-		err = db.Update(func(tx *bolt.Tx) error {
-			rp, err := tx.CreateBucket(rpid.Bytes())
-			if err != nil {
-				return err
-			}
-			_ = rp // TODO put field meta in rp bucket
+		// err = db.Update(func(tx *bolt.Tx) error {
+		// 	rp, err := tx.CreateBucket(rpid.Bytes())
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	_ = rp // TODO put field meta in rp bucket
 
-			urls := tx.Bucket([]byte("urls"))
-			err = urls.Put([]byte(url), rpid.Bytes())
-			if err != nil {
-				return err
-			}
-			return nil
-		})
-		if err != nil {
-			panic(err)
-		}
+		// 	urls := tx.Bucket([]byte("urls"))
+		// 	err = urls.Put([]byte(url), rpid.Bytes())
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	return nil
+		// })
+		// if err != nil {
+		// 	panic(err)
+		// }
+		_, _ = url, rpid
 		json.NewEncoder(w).Encode(map[string]string{"rpCode": "abc"})
 	}
 }
