@@ -22,6 +22,9 @@ var addr = fmt.Sprintf(":%d", port)
 var db badger.DB
 
 func main() {
+	// Print "Goodbye" after all defer statements are done
+	defer log.Println("Goodbye!")
+
 	// db
 	opts := badger.DefaultOptions
 	opts.Dir = "./db"
@@ -69,8 +72,35 @@ func main() {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("views/dist")))
 
 	// listen
-	fmt.Printf("Listening on %s\n", addr)
-	log.Fatal(http.ListenAndServe(addr, router))
+	srv := &http.Server{
+		Addr: addr,
+		// Good practice to set timeouts to avoid Slowloris attacks.
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      router, // Pass our instance of gorilla/mux in.
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("listen and serve: %s", err)
+		}
+	}()
+
+	log.Printf("Listening on %s\n", addr)
+
+	// await kill signal
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+
+	// gracefully end http server
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("http shutdown: %s", err)
+	}
+	log.Println("Http server stopped")
 }
 
 func health(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +116,7 @@ func createRp() http.HandlerFunc {
 		if err := json.NewDecoder(r.Body).Decode(&fields); err != nil {
 			panic(err)
 		}
-		fmt.Println(fields)
+		log.Println(fields)
 		url, err := gonanoid.Nanoid()
 		if err != nil {
 			panic(err)
@@ -116,7 +146,7 @@ func createRp() http.HandlerFunc {
 
 func rpChat(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	fmt.Println(params)
+	log.Println(params)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"title":       "Test API",
 		"msgs":        []interface{}{},
@@ -128,7 +158,7 @@ func rpChat(w http.ResponseWriter, r *http.Request) {
 
 func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	fmt.Println(params)
+	log.Println(params)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"lastEventId": params["since"],
 		"updates":     []interface{}{},
