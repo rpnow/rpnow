@@ -5,38 +5,34 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/dgraph-io/badger"
 	"github.com/gorilla/mux"
 	gonanoid "github.com/matoous/go-nanoid"
+	"github.com/rpnow/rpnow/db"
 	"github.com/rs/xid"
 )
 
 var port = 8080
 var addr = fmt.Sprintf(":%d", port)
-var db badger.DB
 
 func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
 
-	// db
-	opts := badger.DefaultOptions
-	opts.Dir = "./db"
-	opts.ValueDir = "./db"
-	opts.NumVersionsToKeep = math.MaxInt32
-	// TODO disable opts.Logger when it becomes available in a future release of Badger
-
-	db, err := badger.Open(opts)
-	if err != nil {
+	if err := db.Open("./data"); err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Badger stopped")
+	}()
 
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
