@@ -1,6 +1,7 @@
 package db
 
 import (
+	"encoding/json"
 	"math"
 	"net"
 	"time"
@@ -78,8 +79,14 @@ type Filters struct {
 	IncludeMeta    bool
 }
 
-func Add(key []byte, value interface{}) {
-
+func Add(key []byte, valObj interface{}) error {
+	valBytes, err := json.Marshal(valObj)
+	if err != nil {
+		return err
+	}
+	return bdb.Update(func(txn *badger.Txn) error {
+		return txn.Set(key, valBytes)
+	})
 }
 
 func Update(key []byte, value interface{}) {
@@ -97,8 +104,20 @@ func Count(prefix []byte) {
 
 }
 
-func One(key []byte) {
-
+func One(key []byte) ([]byte, error) {
+	var val []byte
+	err := bdb.View(func(txn *badger.Txn) error {
+		item, err := txn.Get(key)
+		if err != nil {
+			return err
+		}
+		val, err = item.ValueCopy(nil)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return val, err
 }
 
 func Has(key []byte) {

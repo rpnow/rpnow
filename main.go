@@ -23,6 +23,7 @@ func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
 
+	// db
 	if err := db.Open("./data"); err != nil {
 		log.Fatal(err)
 	}
@@ -40,12 +41,12 @@ func main() {
 	// api
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/health", health).Methods("GET")
-	api.HandleFunc("/rp", createRp()).Methods("POST")
+	api.HandleFunc("/rp", createRp).Methods("POST")
 	api.HandleFunc("/rp/import", todo).Methods("POST")
-	api.HandleFunc("/rp/import/{id:[-0-9a-zA-Z]+}", todo).Methods("POST")
+	api.HandleFunc("/rp/import/{slug:[-0-9a-zA-Z]+}", todo).Methods("POST")
 	api.HandleFunc("/user", todo).Methods("POST")
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
-	roomAPI := api.PathPrefix("/rp/{id:[-0-9a-zA-Z]+}").Subrouter()
+	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
 	roomAPI.HandleFunc("/", rpChat).Methods("GET")
 	roomAPI.HandleFunc("/updates", rpChatUpdates).Methods("GET").Queries("since", "{since:[1-9][0-9]*}")
 	roomAPI.HandleFunc("/pages", todo).Methods("GET")
@@ -104,46 +105,51 @@ func health(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `{"rpnow":"ok"}`)
 }
 
-func createRp() http.HandlerFunc {
-	type request struct {
-		Title string `json:"title"`
-	}
-	return func(w http.ResponseWriter, r *http.Request) {
-		var fields request
-		if err := json.NewDecoder(r.Body).Decode(&fields); err != nil {
-			panic(err)
-		}
-		log.Println(fields)
-		url, err := gonanoid.Nanoid()
-		if err != nil {
-			panic(err)
-		}
-		rpid := xid.New()
-		// err = db.Update(func(tx *bolt.Tx) error {
-		// 	rp, err := tx.CreateBucket(rpid.Bytes())
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	_ = rp // TODO put field meta in rp bucket
+type RoomHeader struct {
+	Title string `json:"title"`
+}
 
-		// 	urls := tx.Bucket([]byte("urls"))
-		// 	err = urls.Put([]byte(url), rpid.Bytes())
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	return nil
-		// })
-		// if err != nil {
-		// 	panic(err)
-		// }
-		_, _ = url, rpid
-		json.NewEncoder(w).Encode(map[string]string{"rpCode": "abc"})
+type SlugInfo struct {
+	Rpid string `json:"rpid"`
+}
+
+func createRp(w http.ResponseWriter, r *http.Request) {
+	// parse rp header fields
+	var fields RoomHeader
+	err := json.NewDecoder(r.Body).Decode(&fields)
+	if err != nil {
+		panic(err)
 	}
+	log.Println(fields)
+	// generate slug
+	slug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
+	if err != nil {
+		panic(err)
+	}
+	// generate rpid
+	var slugInfo SlugInfo
+	slugInfo.Rpid = xid.New().String()
+
+	// add to db
+	db.Add([]byte(slugInfo.Rpid), fields)
+	db.Add([]byte(slug), slugInfo)
+	// tell user the created response slug
+	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
 func rpChat(w http.ResponseWriter, r *http.Request) {
+	// parse slug
 	params := mux.Vars(r)
-	log.Println(params)
+	log.Println(params["slug"])
+	// get rpid from slug
+	rpid, err := db.One([]byte(params["slug"]))
+	if err != nil {
+		log.Printf("err: %s", err)
+	}
+	log.Printf("rpid %s\n", string(rpid))
+	// get rp data
+
+	// send data
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"title":       "Test API",
 		"msgs":        []interface{}{},
