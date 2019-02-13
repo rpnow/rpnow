@@ -1,6 +1,21 @@
-Admin: List rps
-Admin: Add/Change/Remove URL
-Admin: Delete rps
+RPNOW CLI:
+rpnow (launches cli; if no tty, error)
+rpnow run (runs in current process)
+rpnow start (launches daemon)
+rpnow stop
+rpnow version/-v/--version
+rpnow help/-h/--help
+rpnow admin
+rpnow admin list
+rpnow admin link list <rpcode|rpid>
+rpnow admin link add chat <rpcode> <rpcode|rpid>
+rpnow admin link add read <rpcode> <rpcode|rpid>
+rpnow admin link remove <rpcode>
+rpnow admin delete <rpcode|rpid> [--yes]
+
+Serve admin API on 127.0.0.1:12789
+
+Provide install script
 
 Import should be admin-only?
 Import should give better feedback (ie upload progress, then how many msgs are processed)
