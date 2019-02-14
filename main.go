@@ -83,22 +83,24 @@ func main() {
 			log.Fatalf("listen and serve: %s", err)
 		}
 	}()
+	// defer gracefully closing the server
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
 
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Fatalf("http shutdown: %s", err)
+		}
+		log.Println("Http server stopped")
+	}()
+
+	// server is ready
 	log.Printf("Listening on %s\n", addr)
 
 	// await kill signal
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-
-	// gracefully end http server
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("http shutdown: %s", err)
-	}
-	log.Println("Http server stopped")
 }
 
 func health(w http.ResponseWriter, r *http.Request) {
