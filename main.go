@@ -44,7 +44,7 @@ func main() {
 	api.HandleFunc("/rp", createRp).Methods("POST")
 	api.HandleFunc("/rp/import", todo).Methods("POST")
 	api.HandleFunc("/rp/import/{slug:[-0-9a-zA-Z]+}", todo).Methods("POST")
-	api.HandleFunc("/user", todo).Methods("POST")
+	api.HandleFunc("/user", createUser).Methods("POST")
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
 	roomAPI.HandleFunc("/", rpChat).Methods("GET")
@@ -168,6 +168,10 @@ func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 		"lastEventId": params["since"],
 		"updates":     []interface{}{},
 	})
+}
+
+func createUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, `{"userid":"nobody","token":"x"}`)
 }
 
 func verifyUser(w http.ResponseWriter, r *http.Request) {
