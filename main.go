@@ -24,7 +24,7 @@ func main() {
 	defer log.Println("Goodbye!")
 
 	// db
-	if err := db.Open("./data"); err != nil {
+	if err := db.Open("./data/rpnow.boltdb"); err != nil {
 		log.Fatal(err)
 	}
 	defer func() {
@@ -32,7 +32,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println("Badger stopped")
+		log.Println("Database stopped")
 	}()
 
 	// create router
@@ -130,40 +130,50 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	}
 	// generate rpid
 	var slugInfo SlugInfo
-	slugInfo.Rpid = xid.New().String()
+	slugInfo.Rpid = "rp_" + xid.New().String()
 
 	// add to db
-	db.Add([]byte(slugInfo.Rpid), fields)
-	db.Add([]byte(slug), slugInfo)
+	db.Add(slugInfo.Rpid+"_head", fields)
+	db.Add("slug_"+slug, slugInfo)
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
 func rpChat(w http.ResponseWriter, r *http.Request) {
+	// data to be sent
+	type RpData struct {
+		*RoomHeader
+		Msgs     []int  `json:"msgs"`
+		Charas   []int  `json:"charas"`
+		LastSeq  int    `json:"lastEventId"`
+		ReadCode string `json:"readCode"`
+	}
+	var data RpData
+
 	// parse slug
 	params := mux.Vars(r)
-	log.Println(params["slug"])
 	// get rpid from slug
-	rpid, err := db.One([]byte(params["slug"]))
+	var slugInfo SlugInfo
+	err := db.One("slug_"+params["slug"], &slugInfo)
 	if err != nil {
-		log.Printf("err: %s", err)
+		panic(err)
 	}
-	log.Printf("rpid %s\n", string(rpid))
 	// get rp data
+	err = db.One(slugInfo.Rpid+"_head", &data.RoomHeader)
+	if err != nil {
+		panic(err)
+	}
+	data.Msgs = []int{}
+	data.Charas = []int{}
+	data.LastSeq = 2
+	data.ReadCode = "abc-read"
 
 	// send data
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"title":       "Test API",
-		"msgs":        []interface{}{},
-		"charas":      []interface{}{},
-		"lastEventId": 2,
-		"readCode":    "abc-read",
-	})
+	json.NewEncoder(w).Encode(data)
 }
 
 func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	log.Println(params)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"lastEventId": params["since"],
 		"updates":     []interface{}{},
