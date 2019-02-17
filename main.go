@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"regexp"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -108,17 +107,9 @@ func health(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `{"rpnow":"ok"}`)
 }
 
-type RoomHeader struct {
-	Title string `json:"title"`
-}
-
-type SlugInfo struct {
-	Rpid string `json:"rpid"`
-}
-
 func createRp(w http.ResponseWriter, r *http.Request) {
 	// parse rp header fields
-	var fields RoomHeader
+	var fields RpHeader
 	err := json.NewDecoder(r.Body).Decode(&fields)
 	if err != nil {
 		panic(err)
@@ -142,14 +133,7 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 
 func rpChat(w http.ResponseWriter, r *http.Request) {
 	// data to be sent
-	type RpData struct {
-		*RoomHeader
-		Msgs     []int  `json:"msgs"`
-		Charas   []int  `json:"charas"`
-		LastSeq  int    `json:"lastEventId"`
-		ReadCode string `json:"readCode"`
-	}
-	var data RpData
+	var data RpChatState
 
 	// parse slug
 	params := mux.Vars(r)
@@ -160,12 +144,12 @@ func rpChat(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	// get rp data
-	err = db.One(slugInfo.Rpid+"_head", &data.RoomHeader)
+	err = db.One(slugInfo.Rpid+"_head", &data.RpHeader)
 	if err != nil {
 		panic(err)
 	}
-	data.Msgs = []int{}
-	data.Charas = []int{}
+	data.Msgs = []RpMessage{}
+	data.Charas = []RpChara{}
 	data.LastSeq = 2
 	data.ReadCode = "abc-read"
 
@@ -179,79 +163,6 @@ func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 		"lastEventId": params["since"],
 		"updates":     []interface{}{},
 	})
-}
-
-type RpMessageBody struct {
-	Type    string `json:"type"`
-	Content string `json:"content"`
-	URL     string `json:"url"`
-	CharaID string `json:"charaId,omitempty"`
-}
-
-func (m *RpMessageBody) Validate() error {
-	if m.Type == "image" {
-		if m.Content != "" {
-			return fmt.Errorf("Msg: image should not have 'content'")
-		}
-		if m.CharaID != "" {
-			return fmt.Errorf("Msg: image should not have 'charaId'")
-		}
-		urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
-		if urlRegexp.MatchString(m.URL) {
-			return fmt.Errorf("Msg: url is invalid")
-		}
-		return nil
-	} else if m.Type == "narrator" || m.Type == "chara" || m.Type == "ooc" {
-		if m.URL != "" {
-			return fmt.Errorf("Msg: non-image should not have 'url'")
-		}
-		if m.Content == "" {
-			return fmt.Errorf("Msg: content is empty")
-		}
-		if len(m.Content) > 10000 {
-			return fmt.Errorf("Msg: content is too long (%d characters)", len(m.Content))
-		}
-		if m.Type == "chara" {
-			if m.CharaID == "" {
-				return fmt.Errorf("Msg: charaId is empty")
-			}
-			// TODO check if the doc is in the db
-		} else {
-			if m.CharaID != "" {
-				return fmt.Errorf("Msg: non-chara msg should not have 'charaId'")
-			}
-		}
-		return nil
-	} else {
-		return fmt.Errorf("Msg: invalid type")
-	}
-}
-
-type RpMessage struct {
-	*RpMessageBody
-}
-
-type RpCharaBody struct {
-	Name  string `json:"name"`
-	Color string `json:"color"`
-}
-
-type RpChara struct {
-	*RpCharaBody
-}
-
-func (c *RpCharaBody) Validate() error {
-	if len(c.Name) == 0 {
-		return fmt.Errorf("Chara: name is empty")
-	}
-	if len(c.Name) > 30 {
-		return fmt.Errorf("Chara: name is too long")
-	}
-	colorRegexp := regexp.MustCompile("^#[0-9a-f]{6}$")
-	if !colorRegexp.MatchString(c.Color) {
-		return fmt.Errorf("Chara: color is invalid")
-	}
-	return nil
 }
 
 func rpSendThing(w http.ResponseWriter, r *http.Request) {
