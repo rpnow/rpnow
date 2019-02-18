@@ -41,6 +41,7 @@ async function open(dataDir) {
 
 function formatQueryResult (x, options = {}) {
     const { event_id, namespace, collection, ip, body, ...docInfo } = x;
+    const { _id, revision, timestamp, userid } = docInfo;
     const deleted = (body == null);
     const doc = { ...JSON.parse(body), ...docInfo, deleted };
     if (options.includeMeta) {

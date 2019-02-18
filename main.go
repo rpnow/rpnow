@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -182,9 +183,41 @@ func rpSendThing(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	id := xid.New().String()
-	key := slugInfo.Rpid + "_" + params["collectionName"] + "_" + id
+	coll := params["collectionName"]
+	key := slugInfo.Rpid + "_" + coll + "_" + id
 
 	// validate value
+	type RpDoc struct {
+		// private info
+		Seq        int    `json:"event_id"`
+		Namespace  string `json:"namespace"`
+		Collection string `json:"collection"`
+		IP         net.IP `json:"ip"`
+		// public info
+		Body      interface{} `json:"body"`
+		ID        string      `json:"_id"`
+		Revision  int         `json:"_revision"`
+		Timestamp time.Time   `json:"_timestamp"`
+		Userid    string      `json:"_userid"`
+	}
+	var doc RpDoc
+	if coll == "msgs" {
+		var body RpMessageBody
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			panic(err)
+		}
+		doc.Body = body
+	} else if coll == "charas" {
+		var body RpCharaBody
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			panic(err)
+		}
+		doc.Body = body
+	} else {
+		panic(fmt.Errorf("Invalid collection: %s", coll))
+	}
 	// TODO
 
 	// put it in the db
