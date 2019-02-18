@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -158,11 +159,18 @@ func rpChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
+	var data RpChatUpdates
+
 	params := mux.Vars(r)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"lastEventId": params["since"],
-		"updates":     []interface{}{},
-	})
+	since, err := strconv.Atoi(params["since"])
+	if err != nil {
+		panic(err)
+	}
+
+	data.LastSeq = since
+	data.Updates = []interface{}{}
+
+	json.NewEncoder(w).Encode(data)
 }
 
 func rpSendThing(w http.ResponseWriter, r *http.Request) {

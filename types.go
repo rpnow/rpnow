@@ -5,16 +5,18 @@ import (
 	"regexp"
 )
 
-// Seq is the type of token used to indicate some state of the DB
-type Seq int
-
 // RpChatState is the current state of an RP's chat
 type RpChatState struct {
 	*RpHeader
 	Msgs     []RpMessage `json:"msgs"`
 	Charas   []RpChara   `json:"charas"`
-	LastSeq  Seq         `json:"lastEventId"`
+	LastSeq  int         `json:"lastEventId"`
 	ReadCode string      `json:"readCode"`
+}
+
+type RpChatUpdates struct {
+	Updates []interface{} `json:"updates"`
+	LastSeq int           `json:"lastEventId"`
 }
 
 // SlugInfo describes what URL corresponds to what RP
