@@ -174,60 +174,89 @@ func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
+type RpDocBody struct {
+	*RpCharaBody
+	*RpMessageBody
+}
+type RpDoc struct {
+	// private info
+	Seq        *int   `json:"event_id"`
+	Namespace  string `json:"namespace"`
+	Collection string `json:"collection"`
+	IP         net.IP `json:"ip"`
+	// public info
+	*RpDocBody
+	ID        string    `json:"_id"`
+	Revision  *int      `json:"revision"`
+	Timestamp time.Time `json:"timestamp"`
+	Userid    string    `json:"userid"`
+}
+
+func (x *RpDoc) Key() string {
+	return x.Namespace + "_" + x.Collection + "_" + x.ID
+}
+
+// func (b RpDocBody) MarshalJSON() ([]byte, error) {
+// 	if b.RpMessageBody != nil {
+// 		return json.Marshal(b.RpMessageBody)
+// 	} else if b.RpCharaBody != nil {
+// 		return json.Marshal(b.RpCharaBody)
+// 	} else {
+// 		return nil, errors.New("RpDocBody MarshalJSON: Empty doc body")
+// 	}
+// }
+
 func rpSendThing(w http.ResponseWriter, r *http.Request) {
+	var doc RpDoc
+
 	// generate key for new object
+	doc.ID = xid.New().String()
+
 	params := mux.Vars(r)
+	doc.Collection = params["collectionName"]
+
 	var slugInfo SlugInfo
 	err := db.One("slug_"+params["slug"], &slugInfo)
 	if err != nil {
 		panic(err)
 	}
-	id := xid.New().String()
-	coll := params["collectionName"]
-	key := slugInfo.Rpid + "_" + coll + "_" + id
+	doc.Namespace = slugInfo.Rpid
 
 	// validate value
-	type RpDoc struct {
-		// private info
-		Seq        int    `json:"event_id"`
-		Namespace  string `json:"namespace"`
-		Collection string `json:"collection"`
-		IP         net.IP `json:"ip"`
-		// public info
-		Body      interface{} `json:"body"`
-		ID        string      `json:"_id"`
-		Revision  int         `json:"_revision"`
-		Timestamp time.Time   `json:"_timestamp"`
-		Userid    string      `json:"_userid"`
-	}
-	var doc RpDoc
-	if coll == "msgs" {
-		var body RpMessageBody
-		err := json.NewDecoder(r.Body).Decode(&body)
+	doc.RpDocBody = &RpDocBody{}
+	if doc.Collection == "msgs" {
+		err := json.NewDecoder(r.Body).Decode(&doc.RpDocBody.RpMessageBody)
 		if err != nil {
 			panic(err)
 		}
-		doc.Body = body
-	} else if coll == "charas" {
-		var body RpCharaBody
-		err := json.NewDecoder(r.Body).Decode(&body)
+	} else if doc.Collection == "charas" {
+		err := json.NewDecoder(r.Body).Decode(&doc.RpDocBody.RpCharaBody)
 		if err != nil {
 			panic(err)
 		}
-		doc.Body = body
 	} else {
-		panic(fmt.Errorf("Invalid collection: %s", coll))
+		panic(fmt.Errorf("Invalid collection: %s", doc.Collection))
 	}
-	// TODO
+
+	// More
+	ipStr, _, _ := net.SplitHostPort(r.RemoteAddr)
+	doc.IP = net.ParseIP(ipStr)
+	doc.Timestamp = time.Now()
+	doc.Userid = "nobody09c39024f1ef"
 
 	// put it in the db
-	db.Add(key, []byte{})
+	db.Add(doc.Key(), doc)
+
+	// simulate retrieval
+	var res RpDoc
+	err = db.One(doc.Key(), &res)
 
 	// bounce it back and send
+	json.NewEncoder(w).Encode(res)
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, `{"userid":"nobody","token":"x"}`)
+	fmt.Fprintln(w, `{"userid":"nobody09c39024f1ef","token":"x"}`)
 }
 
 func verifyUser(w http.ResponseWriter, r *http.Request) {
