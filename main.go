@@ -111,12 +111,12 @@ func health(w http.ResponseWriter, r *http.Request) {
 
 func createRp(w http.ResponseWriter, r *http.Request) {
 	// parse rp header fields
-	var fields RpHeader
-	err := json.NewDecoder(r.Body).Decode(&fields)
+	var header RpHeader
+	err := json.NewDecoder(r.Body).Decode(&header)
 	if err != nil {
 		panic(err)
 	}
-	log.Println(fields)
+	log.Println(header)
 	// generate slug
 	slug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
 	if err != nil {
@@ -127,8 +127,8 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	slugInfo.Rpid = "rp_" + xid.New().String()
 
 	// add to db
-	db.Add(slugInfo.Rpid+"_head", fields)
-	db.Add("slug_"+slug, slugInfo)
+	db.Add(&db.Doc{Namespace: slugInfo.Rpid, Collection: "head", ID: "0", Value: &header})
+	db.Add(&db.Doc{Namespace: "system", Collection: "slugs", ID: slug, Value: &slugInfo})
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
@@ -141,12 +141,12 @@ func rpChat(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// get rpid from slug
 	var slugInfo SlugInfo
-	err := db.One("slug_"+params["slug"], &slugInfo)
+	err := db.One(&db.Doc{Namespace: "system", Collection: "slugs", ID: params["slug"], Value: &slugInfo})
 	if err != nil {
 		panic(err)
 	}
 	// get rp data
-	err = db.One(slugInfo.Rpid+"_head", &data.RpHeader)
+	err = db.One(&db.Doc{Namespace: slugInfo.Rpid, Collection: "head", ID: "0", Value: &data.RpHeader})
 	if err != nil {
 		panic(err)
 	}
@@ -174,40 +174,8 @@ func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-type RpDocBody struct {
-	*RpCharaBody
-	*RpMessageBody
-}
-type RpDoc struct {
-	// private info
-	Seq        *int   `json:"event_id"`
-	Namespace  string `json:"namespace"`
-	Collection string `json:"collection"`
-	IP         net.IP `json:"ip"`
-	// public info
-	*RpDocBody
-	ID        string    `json:"_id"`
-	Revision  *int      `json:"revision"`
-	Timestamp time.Time `json:"timestamp"`
-	Userid    string    `json:"userid"`
-}
-
-func (x *RpDoc) Key() string {
-	return x.Namespace + "_" + x.Collection + "_" + x.ID
-}
-
-// func (b RpDocBody) MarshalJSON() ([]byte, error) {
-// 	if b.RpMessageBody != nil {
-// 		return json.Marshal(b.RpMessageBody)
-// 	} else if b.RpCharaBody != nil {
-// 		return json.Marshal(b.RpCharaBody)
-// 	} else {
-// 		return nil, errors.New("RpDocBody MarshalJSON: Empty doc body")
-// 	}
-// }
-
 func rpSendThing(w http.ResponseWriter, r *http.Request) {
-	var doc RpDoc
+	var doc db.Doc
 
 	// generate key for new object
 	doc.ID = xid.New().String()
@@ -216,24 +184,27 @@ func rpSendThing(w http.ResponseWriter, r *http.Request) {
 	doc.Collection = params["collectionName"]
 
 	var slugInfo SlugInfo
-	err := db.One("slug_"+params["slug"], &slugInfo)
+	err := db.One(&db.Doc{Namespace: "system", Collection: "slugs", ID: params["slug"], Value: &slugInfo})
 	if err != nil {
 		panic(err)
 	}
 	doc.Namespace = slugInfo.Rpid
 
 	// validate value
-	doc.RpDocBody = &RpDocBody{}
 	if doc.Collection == "msgs" {
-		err := json.NewDecoder(r.Body).Decode(&doc.RpDocBody.RpMessageBody)
+		var body RpMessageBody
+		err := json.NewDecoder(r.Body).Decode(&body)
 		if err != nil {
 			panic(err)
 		}
+		doc.Value = body
 	} else if doc.Collection == "charas" {
-		err := json.NewDecoder(r.Body).Decode(&doc.RpDocBody.RpCharaBody)
+		var body RpCharaBody
+		err := json.NewDecoder(r.Body).Decode(&body)
 		if err != nil {
 			panic(err)
 		}
+		doc.Value = body
 	} else {
 		panic(fmt.Errorf("Invalid collection: %s", doc.Collection))
 	}
@@ -245,14 +216,10 @@ func rpSendThing(w http.ResponseWriter, r *http.Request) {
 	doc.Userid = "nobody09c39024f1ef"
 
 	// put it in the db
-	db.Add(doc.Key(), doc)
-
-	// simulate retrieval
-	var res RpDoc
-	err = db.One(doc.Key(), &res)
+	db.Add(&doc)
 
 	// bounce it back and send
-	json.NewEncoder(w).Encode(res)
+	w.Write(doc.PublicValue())
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {

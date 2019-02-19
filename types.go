@@ -31,8 +31,8 @@ type RpHeader struct {
 
 type RpMessageBody struct {
 	Type    string `json:"type"`
-	Content string `json:"content"`
-	URL     string `json:"url"`
+	Content string `json:"content,omitempty"`
+	URL     string `json:"url,omitempty"`
 	CharaID string `json:"charaId,omitempty"`
 }
 

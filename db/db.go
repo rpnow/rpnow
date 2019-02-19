@@ -50,15 +50,57 @@ func Close() error {
 	return bdb.Close()
 }
 
-type Value struct {
-	Userid    string    `json:"_userid"`
-	IP        net.IP    `json:"_ip"`
-	Timestamp time.Time `json:"_timestamp"`
+// type RpDocBody struct {
+// 	*RpCharaBody
+// 	*RpMessageBody
+// }
+
+// func (b RpDocBody) MarshalJSON() ([]byte, error) {
+// 	if b.RpMessageBody != nil {
+// 		return json.Marshal(b.RpMessageBody)
+// 	} else if b.RpCharaBody != nil {
+// 		return json.Marshal(b.RpCharaBody)
+// 	} else {
+// 		return nil, errors.New("RpDocBody MarshalJSON: Empty doc body")
+// 	}
+// }
+
+type DocBody interface{}
+
+type Doc struct {
+	// private info
+	Seq        *uint64 `json:"event_id"`
+	Namespace  string  `json:"namespace"`
+	Collection string  `json:"collection"`
+	IP         net.IP  `json:"ip"`
+	// public info
+	Value     DocBody
+	ID        string    `json:"_id"`
+	Revision  *int      `json:"revision"`
+	Timestamp time.Time `json:"timestamp"`
+	Userid    string    `json:"userid"`
 }
 
-type Entry struct {
-	Key   []byte
-	Value Value
+func (x *Doc) Key() []byte {
+	return []byte(x.Namespace + "_" + x.Collection + "_" + x.ID)
+}
+
+func (x *Doc) PublicValue() []byte {
+	docStr, err := json.Marshal(x.Value)
+	if err != nil {
+		panic(err)
+	}
+	var pubMap map[string]interface{}
+	json.Unmarshal(docStr, &pubMap)
+	pubMap["_id"] = x.ID
+	pubMap["revision"] = x.Revision
+	pubMap["timestamp"] = x.Timestamp
+	pubMap["userid"] = x.Userid
+	pubVal, err := json.Marshal(pubMap)
+	if err != nil {
+		panic(err)
+	}
+	return pubVal
 }
 
 type Filters struct {
@@ -70,26 +112,41 @@ type Filters struct {
 	IncludeMeta    bool
 }
 
-func Add(keyStr string, valObj interface{}) error {
-	key := []byte(keyStr)
-	valBytes, err := json.Marshal(valObj)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("DB ADD %s : %s\n", keyStr, valBytes)
+func Add(doc *Doc) error {
+	key := doc.Key()
 	return bdb.Update(func(tx *bolt.Tx) error {
 		docs := tx.Bucket([]byte("docs"))
+
+		// set seq
+		seq, err := docs.NextSequence()
+		doc.Seq = &seq
+
+		// set timestamp if not exists
+		if doc.Timestamp.IsZero() {
+			doc.Timestamp = time.Now()
+		}
+
+		// make sure doc does not exist already
 		existingDoc := docs.Get(key)
 		if existingDoc != nil {
-			return fmt.Errorf("Document %s already exists", key)
+			return fmt.Errorf("Document %s already exists", string(key))
 		}
+
+		// get bytes to store
+		valBytes, err := json.Marshal(doc)
+		if err != nil {
+			return fmt.Errorf("Document add: JSON marshal error: %s", err)
+		}
+		fmt.Printf("DB ADD %s : %s\n", string(key), valBytes)
+
+		// store doc
 		// valueArr := [][]byte{valBytes}
-		err := docs.Put(key, valBytes)
+		err = docs.Put(key, valBytes)
 		return err
 	})
 }
 
-func Update(key []byte, value interface{}) {
+func Update(doc *Doc) {
 
 }
 
@@ -104,15 +161,15 @@ func Count(prefix []byte) {
 
 }
 
-func One(keyStr string, dst interface{}) error {
-	key := []byte(keyStr)
+func One(doc *Doc) error {
+	key := doc.Key()
 	err := bdb.View(func(tx *bolt.Tx) error {
 		docs := tx.Bucket([]byte("docs"))
 		valBytes := docs.Get(key)
 		if valBytes == nil {
-			return fmt.Errorf("No document at %s", keyStr)
+			return fmt.Errorf("No document at %s", string(key))
 		}
-		err := json.Unmarshal(valBytes, dst)
+		err := json.Unmarshal(valBytes, doc)
 		return err
 	})
 	return err
