@@ -5,20 +5,6 @@ import (
 	"regexp"
 )
 
-// RpChatState is the current state of an RP's chat
-type RpChatState struct {
-	*RpHeader
-	Msgs     []RpMessage `json:"msgs"`
-	Charas   []RpChara   `json:"charas"`
-	LastSeq  int         `json:"lastEventId"`
-	ReadCode string      `json:"readCode"`
-}
-
-type RpChatUpdates struct {
-	Updates []interface{} `json:"updates"`
-	LastSeq int           `json:"lastEventId"`
-}
-
 // SlugInfo describes what URL corresponds to what RP
 type SlugInfo struct {
 	Rpid string `json:"rpid"`
@@ -36,17 +22,9 @@ type RpMessageBody struct {
 	CharaID string `json:"charaId,omitempty"`
 }
 
-type RpMessage struct {
-	*RpMessageBody
-}
-
 type RpCharaBody struct {
 	Name  string `json:"name"`
 	Color string `json:"color"`
-}
-
-type RpChara struct {
-	*RpCharaBody
 }
 
 func (m *RpMessageBody) Validate() error {

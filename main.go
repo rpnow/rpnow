@@ -135,7 +135,13 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 
 func rpChat(w http.ResponseWriter, r *http.Request) {
 	// data to be sent
-	var data RpChatState
+	var data struct {
+		*RpHeader
+		Msgs     []interface{} `json:"msgs"`
+		Charas   []interface{} `json:"charas"`
+		LastSeq  int           `json:"lastEventId"`
+		ReadCode string        `json:"readCode"`
+	}
 
 	// parse slug
 	params := mux.Vars(r)
@@ -160,7 +166,10 @@ func rpChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
-	var data RpChatUpdates
+	var data struct {
+		Updates []interface{} `json:"updates"`
+		LastSeq int           `json:"lastEventId"`
+	}
 
 	params := mux.Vars(r)
 	since, err := strconv.Atoi(params["since"])
