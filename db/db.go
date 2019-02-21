@@ -99,10 +99,10 @@ type Filters struct {
 func Add(doc *Doc) error {
 	key := doc.Key()
 	return bdb.Update(func(tx *bolt.Tx) error {
-		docs := tx.Bucket([]byte("docs"))
+		bucket := tx.Bucket([]byte("docs"))
 
 		// set seq
-		seq, err := docs.NextSequence()
+		seq, err := bucket.NextSequence()
 		doc.Seq = &seq
 
 		// set rev
@@ -115,7 +115,7 @@ func Add(doc *Doc) error {
 		}
 
 		// make sure doc does not exist already
-		existingDoc := docs.Get(key)
+		existingDoc := bucket.Get(key)
 		if existingDoc != nil {
 			return fmt.Errorf("Document %s already exists", string(key))
 		}
@@ -129,7 +129,7 @@ func Add(doc *Doc) error {
 
 		// store doc
 		// valueArr := [][]byte{valBytes}
-		err = docs.Put(key, valBytes)
+		err = bucket.Put(key, valBytes)
 		return err
 	})
 }
@@ -148,8 +148,8 @@ func Count(prefix []byte) {
 func One(doc *Doc) error {
 	key := doc.Key()
 	err := bdb.View(func(tx *bolt.Tx) error {
-		docs := tx.Bucket([]byte("docs"))
-		valBytes := docs.Get(key)
+		bucket := tx.Bucket([]byte("docs"))
+		valBytes := bucket.Get(key)
 		if valBytes == nil {
 			return fmt.Errorf("No document at %s", string(key))
 		}
@@ -162,8 +162,8 @@ func One(doc *Doc) error {
 func Query(prefix []byte, filters Filters) ([]Doc, error) {
 	res := make([]Doc, 0)
 	err := bdb.View(func(tx *bolt.Tx) error {
-		docs := tx.Bucket([]byte("docs"))
-		c := docs.Cursor()
+		bucket := tx.Bucket([]byte("docs"))
+		c := bucket.Cursor()
 
 		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
 			var doc Doc
