@@ -33,6 +33,7 @@ html, body {
   display: flex;
   flex-direction: column;
   order: 0;
+  width: 100%;
 }
 
 /***** CHAT HEADER is the title app bar above the chat *****/
