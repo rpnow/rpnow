@@ -1,6 +1,7 @@
 package db
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -50,23 +51,6 @@ func Close() error {
 	return bdb.Close()
 }
 
-// type RpDocBody struct {
-// 	*RpCharaBody
-// 	*RpMessageBody
-// }
-
-// func (b RpDocBody) MarshalJSON() ([]byte, error) {
-// 	if b.RpMessageBody != nil {
-// 		return json.Marshal(b.RpMessageBody)
-// 	} else if b.RpCharaBody != nil {
-// 		return json.Marshal(b.RpCharaBody)
-// 	} else {
-// 		return nil, errors.New("RpDocBody MarshalJSON: Empty doc body")
-// 	}
-// }
-
-type DocBody interface{}
-
 type Doc struct {
 	// private info
 	Seq        *uint64 `json:"event_id"`
@@ -74,7 +58,7 @@ type Doc struct {
 	Collection string  `json:"collection"`
 	IP         net.IP  `json:"ip"`
 	// public info
-	Value     DocBody
+	Value     interface{}
 	ID        string    `json:"_id"`
 	Revision  *int      `json:"revision"`
 	Timestamp time.Time `json:"timestamp"`
@@ -82,10 +66,10 @@ type Doc struct {
 }
 
 func (x *Doc) Key() []byte {
-	return []byte(x.Namespace + "_" + x.Collection + "_" + x.ID)
+	return []byte(x.Namespace + "/" + x.Collection + "/" + x.ID)
 }
 
-func (x *Doc) PublicValue() []byte {
+func (x *Doc) PublicValue() json.RawMessage {
 	docStr, err := json.Marshal(x.Value)
 	if err != nil {
 		panic(err)
@@ -121,6 +105,10 @@ func Add(doc *Doc) error {
 		seq, err := docs.NextSequence()
 		doc.Seq = &seq
 
+		// set rev
+		rev := 0
+		doc.Revision = &rev
+
 		// set timestamp if not exists
 		if doc.Timestamp.IsZero() {
 			doc.Timestamp = time.Now()
@@ -153,10 +141,6 @@ func Update(doc *Doc) {
 // func AddBulk(entries []Entry) {
 // }
 
-func Query(prefix []byte, filters Filters) {
-
-}
-
 func Count(prefix []byte) {
 
 }
@@ -173,6 +157,27 @@ func One(doc *Doc) error {
 		return err
 	})
 	return err
+}
+
+func Query(prefix []byte, filters Filters) ([]Doc, error) {
+	res := make([]Doc, 0)
+	err := bdb.View(func(tx *bolt.Tx) error {
+		docs := tx.Bucket([]byte("docs"))
+		c := docs.Cursor()
+
+		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
+			var doc Doc
+			err := json.Unmarshal(v, &doc)
+			if err != nil {
+				return err
+			}
+			res = append(res, doc)
+		}
+
+		return nil
+	})
+	fmt.Printf("SIZE %d\n", len(res))
+	return res, err
 }
 
 func Has(key []byte) {

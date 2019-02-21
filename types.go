@@ -10,6 +10,10 @@ type SlugInfo struct {
 	Rpid string `json:"rpid"`
 }
 
+type ReadCodeInfo struct {
+	ReadCode string `json:"readCode"`
+}
+
 // RpHeader holds info about the RP's title, and (later?) other RP metadata
 type RpHeader struct {
 	Title string `json:"title"`

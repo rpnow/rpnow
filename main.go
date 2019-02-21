@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -122,25 +124,35 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+	readSlug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
+	if err != nil {
+		panic(err)
+	}
+	readSlug = strings.ToLower(header.Title) + "-" + readSlug
+	readSlug = regexp.MustCompile("[^a-z0-9]+").ReplaceAllString(readSlug, "-")
 	// generate rpid
-	var slugInfo SlugInfo
-	slugInfo.Rpid = "rp_" + xid.New().String()
+	rpid := "rp_" + xid.New().String()
 
 	// add to db
-	db.Add(&db.Doc{Namespace: slugInfo.Rpid, Collection: "head", ID: "0", Value: &header})
-	db.Add(&db.Doc{Namespace: "system", Collection: "slugs", ID: slug, Value: &slugInfo})
+	db.Add(&db.Doc{Namespace: rpid, Collection: "head", ID: "0", Value: &header})
+	db.Add(&db.Doc{Namespace: rpid, Collection: "readCode", ID: "0", Value: &ReadCodeInfo{ReadCode: readSlug}})
+	db.Add(&db.Doc{Namespace: "system", Collection: "slugs", ID: slug, Value: &SlugInfo{Rpid: rpid}})
+	db.Add(&db.Doc{Namespace: "system", Collection: "slugs", ID: readSlug, Value: &SlugInfo{Rpid: rpid}})
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
 func rpChat(w http.ResponseWriter, r *http.Request) {
 	// data to be sent
-	var data struct {
+	data := struct {
 		*RpHeader
-		Msgs     []interface{} `json:"msgs"`
-		Charas   []interface{} `json:"charas"`
-		LastSeq  int           `json:"lastEventId"`
-		ReadCode string        `json:"readCode"`
+		*ReadCodeInfo
+		Msgs    []json.RawMessage `json:"msgs"`
+		Charas  []json.RawMessage `json:"charas"`
+		LastSeq int               `json:"lastEventId"`
+	}{
+		Msgs:   make([]json.RawMessage, 0),
+		Charas: make([]json.RawMessage, 0),
 	}
 
 	// parse slug
@@ -156,10 +168,29 @@ func rpChat(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	data.Msgs = []RpMessage{}
-	data.Charas = []RpChara{}
+
+	err = db.One(&db.Doc{Namespace: slugInfo.Rpid, Collection: "readCode", ID: "0", Value: &data.ReadCodeInfo})
+	if err != nil {
+		panic(err)
+	}
+
+	msgs, err := db.Query([]byte(slugInfo.Rpid+"/msgs/"), db.Filters{})
+	if err != nil {
+		panic(err)
+	}
+	for _, v := range msgs {
+		data.Msgs = append(data.Msgs, v.PublicValue())
+	}
+
+	charas, err := db.Query([]byte(slugInfo.Rpid+"/charas/"), db.Filters{})
+	if err != nil {
+		panic(err)
+	}
+	for _, v := range charas {
+		data.Charas = append(data.Charas, v.PublicValue())
+	}
+
 	data.LastSeq = 2
-	data.ReadCode = "abc-read"
 
 	// send data
 	json.NewEncoder(w).Encode(data)
@@ -228,7 +259,7 @@ func rpSendThing(w http.ResponseWriter, r *http.Request) {
 	db.Add(&doc)
 
 	// bounce it back and send
-	w.Write(doc.PublicValue())
+	json.NewEncoder(w).Encode(doc.PublicValue())
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
