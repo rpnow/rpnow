@@ -5,7 +5,7 @@
 # This script safely installs RPNow into your PATH (which may require
 # password authorization). Use it like this:
 #
-#	$ curl https://raw.githubusercontent.com/rpnow/rpnow/master/rpnow.ini | bash
+#	$ curl https://raw.githubusercontent.com/rpnow/rpnow/master/install.sh | bash
 #
 
 [[ $- = *i* ]] && echo "Don't source this script!" && return 10
