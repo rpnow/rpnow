@@ -106,8 +106,8 @@ cd /opt/rpnow
 EOF'
 	sudo chmod +x /usr/local/bin/rpnow
 
-	# TODO check installation
-	# rpnow --version
+	# check installation
+	rpnow --version
 
 	echo "Successfully installed"
 	trap ERR

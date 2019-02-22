@@ -6,6 +6,7 @@ const path = require('path');
 const os = require('os');
 const GreenlockExpress = require('greenlock-express')
 const nconf = require('nconf');
+const yargs = require('yargs')
 const camelcase = require('camelcase');
 const ini = require('ini');
 const DB = require('./services/database');
@@ -15,9 +16,37 @@ const app = require('./app');
 
 // get app configuration
 const config = nconf
-    .argv({
-        parseValues: true,
-    })
+    .argv(yargs
+        .usage('Usage: $0 <command> [options]')
+        // .example('$0 count -f foo.js', 'count the lines in the given file')
+        .command('$0', 'Launch the interactive RPNow CLI', y => y
+            .version('2.2-alpha8')
+            .alias('v', 'version')
+        )
+        .command('start', 'Start the RPNow server')
+        .command('stop', 'Stop the RPNow server')
+        .command('run-attached', 'Run the RPNow process in the current shell')
+        .command('admin', 'Administrative functions', y => y
+            .demandCommand()
+            .command('list', 'List all RPs in the system')
+            .command('get-links <id>', 'Show all links that point to some RP')
+            .command('add-link <slug> <id>', 'Add a chat-capable link for the RP', y => y
+                .option('read')
+                .alias('r', 'read')
+                .nargs('r', 1)
+                .describe('r', 'Make link read-only')
+            )
+            .command('remove-link <slug>', 'Deactivate a link to some RP (but the RP itself will still exist)')
+            .command('destroy <id>', 'Permanently delete an RP (will prompt to confirm)', y => y
+                .option('yes')
+                .describe('yes', 'Skip prompt to delete RP')
+            )
+        )
+        .help('h')
+        .alias('h', 'help')
+        .version(false)
+        // .epilog('copyright 2015')
+    )
     .env({
         transform({ key, value }) {
             if (!/^RPNOW_/.test(key)) return false;
@@ -62,6 +91,26 @@ const config = nconf
         trustProxy: false,
     })
     .get();
+
+
+//
+console.log(config)
+console.log(yargs.argv)
+
+
+
+
+
+
+
+process.exit(0)
+
+
+
+
+
+
+
 
 if(fs.existsSync(config.configFile)) {
     console.log('Loaded config from ' + config.configFile)

@@ -1,17 +1,14 @@
 RPNOW CLI:
 rpnow (launches cli; if no tty, error)
-rpnow run (runs in current process)
 rpnow start (launches daemon)
 rpnow stop
-rpnow version/-v/--version
-rpnow help/-h/--help
-rpnow admin
+rpnow run-attached (runs in current process)
 rpnow admin list
-rpnow admin link list <rpcode|rpid>
-rpnow admin link add chat <rpcode> <rpcode|rpid>
-rpnow admin link add read <rpcode> <rpcode|rpid>
-rpnow admin link remove <rpcode>
-rpnow admin delete <rpcode|rpid> [--yes]
+rpnow admin get-links <id>
+rpnow admin add-link <slug> <id>
+rpnow admin add-link --read <slug> <id>
+rpnow admin remove-link <slug>
+rpnow admin destroy <id> [--yes]
 
 Serve admin API on 127.0.0.1:12789
 
