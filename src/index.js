@@ -48,7 +48,7 @@ const config = nconf
     .defaults({
         dataDir: (process.platform === 'win32' ?
             path.join(process.env.APPDATA, 'rpnow') :
-            path.join(os.homedir(), 'rpnow')
+            path.join(os.homedir(), 'rpdata')
         ),
         port: 80,
         ssl: false,
