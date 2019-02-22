@@ -21,11 +21,7 @@ web browser:
 `${(process.platform === 'win32') ? (
 `To access RPNow on the local network, (i.e., when connected to the
 same wi-fi as this computer) try visiting one of the following in your
-web browser:`
-):(
-`To access this RPNow server, try visiting one of the following in your
-web browser:`
-)}
+web browser:
 
 ${(myIpAddresses.length > 0) ? (
 myIpAddresses.map(ip => {
@@ -34,7 +30,11 @@ myIpAddresses.map(ip => {
 }).join('\n')
 ):(
 `  (Unable to determine my address.)`
-)}`)}
+)}`
+):(
+''
+)}`
+)}
 
 RP data will be stored in ${dataDir}
 
