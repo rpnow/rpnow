@@ -87,6 +87,14 @@ install_rpnow()
 	sudo mv "$dl_unzip" "/opt/rpnow"
 	if setcap_cmd=$(PATH+=$PATH:/sbin type -p setcap); then
 		sudo $setcap_cmd cap_net_bind_service=+ep "/opt/rpnow/rpnow"
+	else
+		echo ""
+		echo "***WARNING: setcap not installed!***"
+		echo "Permission errors may occur when running RPNow with default settings!"
+		echo "Try running the following command to install setcap, then re-run this installer."
+		echo ""
+		echo "  sudo apt install libcap2-bin"
+		echo ""
 	fi
 	sudo rm -- "$dl"
 
