@@ -32,8 +32,7 @@ npx nexe src/index.js -t windows-x86-10.15.1 -r src/views -r src/static -r node_
 # Zip up the distributables
 cd dist
 zip -r rpnow-windows.zip RPNow.exe rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-win32-ia32/node_sqlite3.node
-zip -r rpnow-linux.zip rpnow rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-linux-x64/node_sqlite3.node
+tar -cvzf rpnow-linux.tar.gz rpnow rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-linux-x64/node_sqlite3.node
 
 # Clean up dist folder
-rm -rf node_modules src
-find . -type f ! -name '*.zip' -delete
+rm -rf node_modules src rpnow RPNow.exe rpnow.ini
