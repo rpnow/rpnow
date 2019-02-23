@@ -21,8 +21,8 @@ install_rpnow()
 	# Which OS and version? #
 	#########################
 
-	rpnow_version="2.2-alpha7"
-	rpnow_dl_ext=".zip"
+	rpnow_version="2.2-alpha8"
+	rpnow_dl_ext=".tar.gz"
 
 	# NOTE: `uname -m` is more accurate and universal than `arch`
 	# See https://en.wikipedia.org/wiki/Uname
@@ -48,7 +48,7 @@ install_rpnow()
 
 	echo "Downloading RPNow for ${rpnow_os}/${rpnow_arch}..."
 	rpnow_file="rpnow-${rpnow_os}-${rpnow_version}${rpnow_dl_ext}"
-	rpnow_url="https://github.com/rpnow/rpnow/releases/download/${rpnow_version}/rpnow-${rpnow_os}.zip"
+	rpnow_url="https://github.com/rpnow/rpnow/releases/download/${rpnow_version}/rpnow-${rpnow_os}${rpnow_dl_ext}"
 
 	dl="/tmp/$rpnow_file"
 	rm -rf -- "$dl"
@@ -70,7 +70,7 @@ install_rpnow()
 
 	case "$rpnow_file" in
 		*.zip)    unzip -q "$dl" -d "$dl_unzip" ;;
-		# *.tar.gz) tar -xzf "$dl" -C "/tmp/" "$rpnow_bin" ;;
+		*.tar.gz) tar -xzf "$dl" -C "$dl_unzip" ;;
 	esac
 	chmod +x "$dl_unzip/rpnow"
 
