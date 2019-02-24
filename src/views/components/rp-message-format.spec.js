@@ -79,6 +79,7 @@ const tests = {
     ['_big fish_. good', null, '<i>big fish</i>. good'],
     ['_big fish_? good', null, '<i>big fish</i>? good'],
     ['_big fish_! good', null, '<i>big fish</i>! good'],
+    ['"I\'m going to show you _everything_."', null, '&quot;I&#039;m going to show you <i>everything</i>.&quot;'],
   ],
 
   'links': [
