@@ -22,7 +22,7 @@ module.exports = function transformRpMessage(str, color) {
 
   // tokens that create tags
   var tagLexers = [
-    { r: /^(https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i, replace: function(link) { return '<a href="'+link+'" target="_blank">'+link+'</a>'; } },
+    { r: /^(https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/i, replace: function(link) { return '<a href="'+link+'" target="_blank">'+link+'</a>'; } },
     { r: /^(____+)/ }, // if there's a lot of _, don't treat it as anything
     { r: /^(\/\/+)/ }, // same with lots of /
     { r: /^(___)/, tag: 'BOLDITC' },
@@ -34,7 +34,7 @@ module.exports = function transformRpMessage(str, color) {
     { r: /^(\r\n|\n\r|\r|\n)/, replaceWith: '<br>' },
     { r: /^(--)/, replaceWith: '&mdash;' },
     { r: /^(\s)/ },
-    { r: /^(\S[^\s-]*[^\s_\/~\*-,.?!"])(?:\s|$)/, replace: escape }, // attempt to ignore symbols like /, _, etc inside of words
+    { r: /^(\S[^\s-]*[^\s_/~*-,.?!"])(?:\s|$)/, replace: escape }, // attempt to ignore symbols like /, _, etc inside of words
     { r: /^(.)/, replace: escape },
   ];
 
