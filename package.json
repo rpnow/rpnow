@@ -6,7 +6,7 @@
     "start-dev": "cross-env VUE_DEV=true DEBUG=rpnow nodemon src/index.js --ext js,json,vue,css",
     "lint": "eslint src/**/*.js src/*.js",
     "test": "ava --watch",
-    "build": "./build.sh",
+    "build": "./tooling/build.sh",
     "grant-node-low-ports": "sudo sh -c \"setcap 'cap_net_bind_service=+ep' $(which node)\""
   },
   "dependencies": {

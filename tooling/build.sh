@@ -18,7 +18,7 @@ cp -r ./node_modules/sqlite3/lib/binding ./dist/node_modules/sqlite3/lib/binding
 rm -rf node_modules/ursa-optional
 
 # Copy in sample rpnow.ini
-cp ./rpnow.ini ./dist
+cp ./tooling/rpnow.ini ./dist
 
 # Copy in src/views
 mkdir -p ./dist/src
