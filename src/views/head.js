@@ -20,7 +20,6 @@ module.exports = {
         { rel:"apple-touch-icon", href:"/static/favicon/favicon-128x128.png" },
         { rel:"stylesheet", href:"https://fonts.googleapis.com/css?family=Alice|Playfair+Display" },
         { rel:"stylesheet", href:"https://fonts.googleapis.com/icon?family=Material+Icons" },
-        { rel:"manifest", href:"/static/manifest.json" },
     ],
     scripts: [
         // Promise polyfill for older browsers, needed for axios
