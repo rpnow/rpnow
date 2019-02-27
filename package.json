@@ -4,7 +4,7 @@
   "scripts": {
     "start": "node src/index.js",
     "start-dev": "cross-env VUE_DEV=true DEBUG=rpnow nodemon src/index.js --ext js,json,vue,css",
-    "lint": "eslint src/**/*.js src/*.js",
+    "lint": "eslint 'src/**/*.js' --ignore-pattern='src/views/'",
     "test": "ava",
     "build": "./tooling/build.sh",
     "grant-node-low-ports": "sudo sh -c \"setcap 'cap_net_bind_service=+ep' $(which node)\""
