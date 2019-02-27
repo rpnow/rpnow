@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +22,7 @@ const config = nconf
         transform({ key, value }) {
             if (!/^RPNOW_/.test(key)) return false;
             return {
-                key: camelcase(obj.key.substr('RPNOW_'.length)),
+                key: camelcase(key.substr('RPNOW_'.length)),
                 value
             };
         },
@@ -39,7 +40,9 @@ const config = nconf
             parse: str => {
                 const obj = ini.parse(str);
                 Object.entries(obj).forEach(([key, value]) => {
-                    try { obj[key] = JSON.parse(value) } catch (_) {}
+                    try {
+                        obj[key] = JSON.parse(value)
+                    } catch (_) { /* just use string value */ }
                 });
                 return obj;
             }

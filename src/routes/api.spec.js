@@ -8,7 +8,7 @@ const app = express();
 app.use('/api', apiRoutes);
 const api = request(app);
 
-test.before(async t => {
+test.before(async () => {
     await DB.open(':memory:');
 })
 

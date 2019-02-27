@@ -3,15 +3,9 @@ const DB = require('./database');
 const isString = str => typeof str === 'string';
 const isStringMaxLength = length => str => isString(str) && str.length <= length;
 const matchRegex = regex => str => isString(str) && str.match(regex) !== null;
-const isUrl = matchRegex(/^https?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]+$/gi);
+const isUrl = matchRegex(/^https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]+$/gi);
 const isOneOf = (...values) => str => values.includes(str);
 const is = isOneOf;
-const all = (...fns) => async (...args) => {
-    for (const fn of fns) {
-        if (!await fn(...args)) return false;
-    }
-    return true;
-};
 const any = (...fns) => async (...args) => {
     for (const fn of fns) {
         if (await fn(...args)) return true;

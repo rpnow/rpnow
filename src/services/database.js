@@ -172,7 +172,7 @@ module.exports = {
     },
 
     async hasDoc(namespace, collection, _id) {
-        return this.getDoc(namespace, collection, _id).then(_ => true, _ => false);
+        return this.getDoc(namespace, collection, _id).then(() => true, () => false);
     },
 
     async lastEventId() {
