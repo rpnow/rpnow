@@ -12,6 +12,7 @@ const DB = require('./services/database');
 const { isAlreadyRunning, notifyRunning } = require('./services/is-already-running');
 const bannerMessage = require('./services/cli-banner-message');
 const app = require('./app');
+const adminApp = require('./admin-api/admin-api');
 
 // get app configuration
 const config = nconf
@@ -83,6 +84,9 @@ function showError(str) {
 }
 
 (async function main() {
+    // open admin app
+    adminApp.listen(12789, '127.0.0.1', err => err && showError('Could not bind admin port'))
+
     // create data directory if it doesnt exist
     if (!fs.existsSync(config.dataDir)) fs.mkdirSync(config.dataDir);
 

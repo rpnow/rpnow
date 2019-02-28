@@ -90,7 +90,9 @@ module.exports = {
 
     getDocs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse, includeMeta } = {}) {
         const query = () => {
-            let q = knex('docs').where('docs.namespace', namespace)
+            const namespaceLike = namespace.replace(/\*/g, '%');
+
+            let q = knex('docs').where('docs.namespace', 'like', namespaceLike);
 
             if (collection != null) {
                 q = q.where('docs.collection', collection);
