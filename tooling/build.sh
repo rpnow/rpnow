@@ -5,7 +5,6 @@ rm -rf dist/*
 mkdir -p dist
 
 # Get native sqlite3 bindings for all platforms, and copy them in
-npx node-pre-gyp install --directory ./node_modules/sqlite3 --target=10.15.1 --target_platform=win32 --target_arch=ia32
 npx node-pre-gyp install --directory ./node_modules/sqlite3 --target=10.15.1 --target_platform=linux --target_arch=x64
 
 mkdir -p ./dist/node_modules/sqlite3/lib
@@ -27,12 +26,10 @@ cp -r src/static dist/src/static
 
 # Build exe files
 npx nexe src/index.js -t linux-x64-10.15.1 -r src/views -r src/static -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/rpnow
-npx nexe src/index.js -t windows-x86-10.15.1 -r src/views -r src/static -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/RPNow.exe
 
 # Zip up the distributables
 cd dist
-zip -r rpnow-windows.zip RPNow.exe rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-win32-ia32/node_sqlite3.node
 tar -cvzf rpnow-linux.tar.gz rpnow rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-linux-x64/node_sqlite3.node
 
 # Clean up dist folder
-rm -rf node_modules src rpnow RPNow.exe rpnow.ini
+rm -rf node_modules src rpnow rpnow.ini
