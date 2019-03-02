@@ -1,3 +1,11 @@
+Installation:
+rpnow           /usr/local/rpnow
+rpnow.ini       /etc/rpnow.ini
+rpnow.sqlite3   /var/local/rpnow/db.sqlite3
+certs           /var/local/rpnow/certs
+lastport.lock   /var/run/rpnow.lastport
+systemd         /etc/systemd/system/rpnow.service
+
 rpadmin > browse
 rpadmin > expand rp
 rpadmin > edit links
