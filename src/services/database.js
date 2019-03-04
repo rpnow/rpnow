@@ -50,7 +50,7 @@ function formatQueryResult (x, options = {}) {
     else return doc;
 }
 
-module.exports = {
+const DB = module.exports = {
     open,
 
     async addDoc(namespace, collection, _id, body, { userid = null, ip = null, revision = 0, timestamp = (new Date().toISOString()) } = {}) {
@@ -75,6 +75,15 @@ module.exports = {
         const doc = { namespace, collection, _id, userid, ip, revision, timestamp, body: JSON.stringify(body) };
         const [eventId] = await knex('docs').insert(doc);
         return { eventId, doc: formatQueryResult(doc) };
+    },
+
+    async putDoc(namespace, collection, _id, body, { userid = null, ip = null, timestamp = (new Date().toISOString()) } = {}) {
+        const args = { userid, ip, timestamp }
+        if (await DB.hasDoc(namespace, collection, _id)) {
+            await DB.updateDoc(namespace, collection, _id, body, args)
+        } else {
+            await DB.addDoc(namespace, collection, _id, body, args);
+        }
     },
 
     async addDocs(namespace, collection, docs) {
@@ -165,6 +174,12 @@ module.exports = {
 
                 const [{ count }] = await query().count('* as count');
                 return count;
+            },
+            async purge() {
+                await connected;
+                debug(`***PURGE*** ${namespace}/${collection||'*'}/${_id||'*'}`)
+
+                return query().del();
             },
         };
     },
