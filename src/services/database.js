@@ -14,7 +14,7 @@ async function open(dataDir) {
         client: 'sqlite3',
         connection: (dataDir === ':memory:') ?
             ':memory:' :
-            { filename: path.join(dataDir, 'rpnow.sqlite3') },
+            { filename: path.resolve(dataDir, 'rpnow.sqlite3') },
         useNullAsDefault: true,
     });
     if (!(await knex.schema.hasTable('docs'))) {
