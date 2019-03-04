@@ -2,9 +2,8 @@
 #
 #                  RPNow Installer Script
 #
-# This script safely installs RPNow as a systemd service.
-#
-# Use it like this: (may require password authorization)
+# This script safely installs RPNow into your PATH (which may require
+# password authorization). Use it like this:
 #
 #	$ curl https://raw.githubusercontent.com/rpnow/rpnow/master/install.sh | bash
 #
@@ -109,24 +108,6 @@ EOF'
 
 	# TODO check installation
 	# rpnow --version
-
-	echo "Installing systemd service"
-	sudo bash -c 'cat > /etc/systemd/system/rpnow.service << EOF
-[Unit]
-Description=RPNow, the Web-based Roleplay Chat Server
-
-[Service]
-ExecStart=/opt/rpnow/rpnow
-WorkingDirectory=/opt/rpnow
-User=nobody
-Group=nogroup
-Environment=PATH=/usr/bin:/usr/local/bin
-Environment=NODE_ENV=production
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF'
 
 	echo "Successfully installed"
 	trap ERR
