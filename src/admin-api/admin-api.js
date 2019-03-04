@@ -21,7 +21,7 @@ app.get('/status', (req, res) => {
  */
 app.get('/rps', awrap(async (req, res) => {
     const docs = await DB.getDocs('rp_*', 'meta', { includeMeta: true }).asArray();
-    const rps = docs.map(({ title, _meta }) => ({ title, rpid: _meta.namespace }))
+    const rps = docs.map(({ title, _meta, timestamp }) => ({ title, rpid: _meta.namespace, timestamp }))
 
     res.status(200).json(rps);
 }));

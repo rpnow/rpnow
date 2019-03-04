@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/manifoldco/promptui"
 )
@@ -74,12 +75,13 @@ func pickRp(rps []rpInfo) (*rpInfo, error) {
 }
 
 type rpInfo struct {
-	Title string `json:"title"`
-	RPID  string `json:"rpid"`
+	Title     string    `json:"title"`
+	RPID      string    `json:"rpid"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 func (r *rpInfo) String() string {
-	return fmt.Sprintf("%s [%s]", r.Title, r.RPID)
+	return fmt.Sprintf("%-30s (%s)", r.Title, r.Timestamp.Format("02 Jan 2006"))
 }
 
 func getRpList() ([]rpInfo, error) {
