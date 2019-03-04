@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/manifoldco/promptui"
@@ -38,9 +39,10 @@ func main() {
 		}
 
 		for {
+			fmt.Println()
 			prompt := promptui.Select{
-				Label: "Action",
-				Items: []string{"go back"},
+				Label: fmt.Sprintf("Modify %q", rp.Title),
+				Items: []string{"go back", "edit urls", "destroy rp"},
 			}
 			_, action, err := prompt.Run()
 			if err != nil {
@@ -48,6 +50,18 @@ func main() {
 			}
 			if action == "go back" {
 				break
+			} else if action == "edit urls" {
+
+			} else if action == "destroy rp" {
+				killswitch := strings.ToUpper(fmt.Sprintf("destroy %s", rp.Title))
+				prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
+				result, _ := prompt.Run()
+				if result == killswitch {
+					fmt.Println("BOOM")
+					break
+				} else {
+					fmt.Println("Incorrect. Will not delete.")
+				}
 			}
 		}
 	}
