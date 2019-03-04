@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"gopkg.in/AlecAivazis/survey.v1"
+	"github.com/manifoldco/promptui"
 )
 
 func main() {
@@ -21,9 +21,9 @@ func main() {
 	}
 
 	for {
-		rp := pickRp(rps)
-		if rp == nil {
-			break
+		rp, err := pickRp(rps)
+		if err != nil {
+			panic(err)
 		}
 		urls, err := getRpUrls(rp.RPID)
 		if err != nil {
@@ -53,22 +53,24 @@ func checkStatus() error {
 	return nil
 }
 
-func pickRp(rps []rpInfo) *rpInfo {
+func pickRp(rps []rpInfo) (*rpInfo, error) {
 	strings := make([]string, len(rps))
-	stringMap := make(map[string]*rpInfo)
 	for i, v := range rps {
 		str := v.String()
 		strings[i] = str
-		stringMap[str] = &v
 	}
-	var choiceStr string
-	prompt := &survey.Select{
-		Message: "Choose an RP:",
-		Options: strings,
+
+	prompt := promptui.Select{
+		Label: "Choose an RP:",
+		Items: strings,
 	}
-	survey.AskOne(prompt, &choiceStr, nil)
-	choice := stringMap[choiceStr]
-	return choice
+
+	idx, _, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	return &rps[idx], nil
 }
 
 type rpInfo struct {

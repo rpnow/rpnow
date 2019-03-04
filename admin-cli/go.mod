@@ -1,3 +1,3 @@
 module rpadmin
 
-require gopkg.in/AlecAivazis/survey.v1 v1.8.2
+require github.com/manifoldco/promptui v0.3.2
