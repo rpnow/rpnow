@@ -16,12 +16,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	rps, err := getRpList()
-	if err != nil {
-		panic(err)
-	}
-
 	for {
+		rps, err := getRpList()
+		if err != nil {
+			panic(err)
+		}
+
 		rp, err := pickRp(rps)
 		if err != nil {
 			panic(err)
@@ -30,8 +30,9 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		fmt.Println()
 		fmt.Println(rp.Title)
-		fmt.Printf("Available at %d URLs:\n", len(urls))
 		for _, url := range urls {
 			fmt.Printf("*  %s\n", url.String())
 		}
@@ -73,6 +74,8 @@ func checkStatus() error {
 }
 
 func pickRp(rps []rpInfo) (*rpInfo, error) {
+	fmt.Println()
+
 	strings := make([]string, len(rps))
 	for i, v := range rps {
 		str := v.String()
