@@ -30,7 +30,25 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(urls)
+		fmt.Println(rp.Title)
+		fmt.Printf("Available at %d URLs:\n", len(urls))
+		for _, url := range urls {
+			fmt.Printf("*  %s\n", url.String())
+		}
+
+		for {
+			prompt := promptui.Select{
+				Label: "Action",
+				Items: []string{"go back"},
+			}
+			_, action, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+			if action == "go back" {
+				break
+			}
+		}
 	}
 }
 
@@ -62,10 +80,9 @@ func pickRp(rps []rpInfo) (*rpInfo, error) {
 	}
 
 	prompt := promptui.Select{
-		Label: "Choose an RP:",
+		Label: "Choose an RP",
 		Items: strings,
 	}
-
 	idx, _, err := prompt.Run()
 	if err != nil {
 		return nil, err
@@ -103,8 +120,18 @@ type rpURL struct {
 	Access string `json:"access"`
 }
 
+func (u *rpURL) String() string {
+	if u.Access == "normal" {
+		return "/rp/" + u.URL
+	} else if u.Access == "read" {
+		return "/read/" + u.URL
+	} else {
+		return "???" + u.Access + "???"
+	}
+}
+
 func getRpUrls(rpid string) ([]rpURL, error) {
-	res, err := http.Get(fmt.Sprintf("http://127.0.0.1:12789/rps/%s", rpid))
+	res, err := http.Get("http://127.0.0.1:12789/rps/" + rpid)
 	if err != nil {
 		return nil, err
 	}
