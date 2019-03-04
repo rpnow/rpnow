@@ -1,8 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
 # Clean dist folder
 rm -rf dist/*
 mkdir -p dist
+
+# Build admin-cli tool
+pushd admin-cli
+go build -o ../dist/rpadmin .
+popd
 
 # Get native sqlite3 bindings for all platforms, and copy them in
 npx node-pre-gyp install --directory ./node_modules/sqlite3 --target=10.15.1 --target_platform=linux --target_arch=x64
