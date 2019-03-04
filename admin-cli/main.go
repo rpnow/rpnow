@@ -25,7 +25,11 @@ func main() {
 		if rp == nil {
 			break
 		}
-		fmt.Println(rp)
+		urls, err := getRpUrls(rp.RPID)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(urls)
 	}
 }
 
@@ -88,4 +92,23 @@ func getRpList() ([]rpInfo, error) {
 		return nil, err
 	}
 	return rps, nil
+}
+
+type rpURL struct {
+	URL    string `json:"url"`
+	Access string `json:"access"`
+}
+
+func getRpUrls(rpid string) ([]rpURL, error) {
+	res, err := http.Get(fmt.Sprintf("http://127.0.0.1:12789/rps/%s", rpid))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var urls []rpURL
+	err = json.NewDecoder(res.Body).Decode(&urls)
+	if err != nil {
+		return nil, err
+	}
+	return urls, nil
 }
