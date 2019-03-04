@@ -14,6 +14,13 @@ app.get('/health', (req, res) => {
 })
 
 /**
+ * Get process PID. This allows the admin to issue the kill command on it
+ */
+app.get('/pid', (req, res) => {
+    res.status(200).send(`${process.pid}`)
+})
+
+/**
  * List all RPs
  */
 app.get('/rp', awrap(async (req, res) => {
