@@ -18,6 +18,7 @@ func main() {
 		panic(err)
 	}
 	for {
+		// Select an RP from the list
 		rps, err := getRpList()
 		if err != nil {
 			panic(err)
@@ -28,6 +29,7 @@ func main() {
 			panic(err)
 		}
 		for {
+			// Expand & edit the selected RP
 			urls, err := getRpUrls(rp.RPID)
 			if err != nil {
 				panic(err)
@@ -93,15 +95,12 @@ func checkStatus() error {
 func pickRp(rps []rpInfo) (*rpInfo, error) {
 	fmt.Println()
 
-	strings := make([]string, len(rps))
-	for i, v := range rps {
-		str := v.String()
-		strings[i] = str
-	}
-
 	prompt := promptui.Select{
 		Label: "Choose an RP",
-		Items: strings,
+		Items: rps,
+		Searcher: func(input string, index int) bool {
+			return strings.Contains(strings.ToLower(rps[index].Title), strings.ToLower(input))
+		},
 	}
 	idx, _, err := prompt.Run()
 	if err != nil {
@@ -117,7 +116,7 @@ type rpInfo struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-func (r *rpInfo) String() string {
+func (r rpInfo) String() string {
 	return fmt.Sprintf("%-30s (%s)", r.Title, r.Timestamp.Format("02 Jan 2006"))
 }
 
