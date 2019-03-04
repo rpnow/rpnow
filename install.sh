@@ -81,12 +81,12 @@ install_rpnow()
 	# 	echo "(Password may be required.)"
 	# 	sudo mv "$rpnow_path" "$rpnow_backup"
 	# fi
-	sudo rm -rf "/opt/rpnow"
+	sudo rm -rf "/usr/local/rpnow"
 
-	echo "Putting rpnow files in /opt/rpnow (may require password)"
-	sudo mv "$dl_unzip" "/opt/rpnow"
+	echo "Putting rpnow files in /usr/local/rpnow (may require password)"
+	sudo mv "$dl_unzip" "/usr/local/rpnow"
 	if setcap_cmd=$(PATH+=$PATH:/sbin type -p setcap); then
-		sudo $setcap_cmd cap_net_bind_service=+ep "/opt/rpnow/rpnow"
+		sudo $setcap_cmd cap_net_bind_service=+ep "/usr/local/rpnow/rpnow"
 	else
 		echo ""
 		echo "***WARNING: setcap not installed!***"
@@ -98,10 +98,33 @@ install_rpnow()
 	fi
 	sudo rm -- "$dl"
 
+	# Put /etc/rpnow.ini if not exists
+	if [ ! -f /etc/rpnow.ini ]; then
+		echo "Putting default /etc/rpnow.ini file (may require password)"
+		sudo bash -c 'cat > /etc/rpnow.ini << EOF
+; Turn SSL (HTTPS) on or off.
+ssl=false
+; SSL requires a domain name. Enter the domain name that points to your server.
+; Example: sslDomain=rpnow.net
+sslDomain=
+
+; SSL certificates are generated automatically by letsencrypt.org
+; By changing this from 'false' to 'true', you accept their
+; terms of service, which can currently be found at:
+; https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf
+letsencryptAcceptTOS=false
+
+; You must also provide an e-mail address to use letsencrypt
+letsencryptEmail=
+EOF'
+	else
+		echo "/etc/rpnow.ini already exists, skipping"
+	fi
+
 	echo "Putting rpnow command in /usr/local/bin (may require password)"
 	sudo bash -c 'cat > /usr/local/bin/rpnow << EOF
 #!/bin/sh
-cd /opt/rpnow
+cd /usr/local/rpnow
 ./rpnow "\$@"
 EOF'
 	sudo chmod +x /usr/local/bin/rpnow
@@ -109,16 +132,15 @@ EOF'
 	# TODO check installation
 	# rpnow --version
 
-	# Add system user
+	echo "Creating RPNow system user"
 	sudo useradd --system --shell /bin/false rpnow || true
+	# setgid for rpnow server, so it has access to its special directories
+	sudo chown rpnow:rpnow /usr/local/rpnow/rpnow
+	sudo chmod g+s /usr/local/rpnow/rpnow
 
-	# Add directory
+	echo "Adding empty directory for storing RPNow data"
 	sudo mkdir -p /var/local/rpnow
 	sudo chown rpnow:rpnow /var/local/rpnow
-
-	# setgid for rpnow, so it has access to its special directories
-	sudo chown rpnow:rpnow /opt/rpnow/rpnow
-	sudo chmod g+s /opt/rpnow/rpnow
 
 	echo "Successfully installed"
 	trap ERR
