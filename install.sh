@@ -109,6 +109,17 @@ EOF'
 	# TODO check installation
 	# rpnow --version
 
+	# Add system user
+	sudo useradd --system --shell /bin/false rpnow || true
+
+	# Add directory
+	sudo mkdir -p /var/local/rpnow
+	sudo chown rpnow:rpnow /var/local/rpnow
+
+	# setgid for rpnow, so it has access to its special directories
+	sudo chown rpnow:rpnow /opt/rpnow/rpnow
+	sudo chmod g+s /opt/rpnow/rpnow
+
 	echo "Successfully installed"
 	trap ERR
 	return 0
