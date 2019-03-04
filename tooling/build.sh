@@ -21,9 +21,6 @@ cp -r ./node_modules/sqlite3/lib/binding ./dist/node_modules/sqlite3/lib/binding
 # as a dependency of greenlock-express)
 rm -rf node_modules/ursa-optional
 
-# Copy in sample rpnow.ini
-cp ./tooling/rpnow.ini ./dist
-
 # Copy in src/views
 mkdir -p ./dist/src
 cp -r src/views dist/src/views
@@ -33,8 +30,11 @@ cp -r src/static dist/src/static
 npx nexe src/index.js -t linux-x64-10.15.1 -r src/views -r src/static -r node_modules/sqlite3 -r node_modules/knex -r node_modules/vue-pronto -o dist/rpnow
 
 # Zip up the distributables
-cd dist
-tar -cvzf rpnow-linux.tar.gz rpnow rpnow.ini src node_modules/sqlite3/lib/binding/node-v64-linux-x64/node_sqlite3.node
+pushd dist
+
+tar -cvzf rpnow-linux.tar.gz rpnow src node_modules/sqlite3/lib/binding/node-v64-linux-x64/node_sqlite3.node
 
 # Clean up dist folder
-rm -rf node_modules src rpnow rpnow.ini
+rm -rf node_modules src rpnow
+
+popd
