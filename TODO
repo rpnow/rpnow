@@ -5,12 +5,8 @@ rpnow.ini       /etc/rpnow.ini
 rpnow.sqlite3   /var/local/rpnow/db.sqlite3
 certs/          /var/local/rpnow/certs/
 
-rpadmin > status
 rpadmin > start/stop/restart
-rpadmin > browse
-rpadmin > expand rp
 rpadmin > edit links
-rpadmin > destroy > confirm
 
 Logging
 

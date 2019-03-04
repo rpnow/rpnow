@@ -27,19 +27,18 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		urls, err := getRpUrls(rp.RPID)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println()
-		fmt.Println(rp.Title)
-		for _, url := range urls {
-			fmt.Printf("*  %s\n", url.String())
-		}
-
 		for {
+			urls, err := getRpUrls(rp.RPID)
+			if err != nil {
+				panic(err)
+			}
+
 			fmt.Println()
+			fmt.Println(rp.Title)
+			for _, url := range urls {
+				fmt.Printf("*  %s\n", url.String())
+			}
+
 			prompt := promptui.Select{
 				Label: fmt.Sprintf("Modify %q", rp.Title),
 				Items: []string{"go back", "edit urls", "destroy rp"},
@@ -57,7 +56,11 @@ func main() {
 				prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
 				result, _ := prompt.Run()
 				if result == killswitch {
-					fmt.Println("BOOM")
+					err := destroyRp(rp.RPID)
+					if err != nil {
+						panic(err)
+					}
+					fmt.Printf("BOOM! %q is no more.\n", rp.Title)
 					break
 				} else {
 					fmt.Println("Incorrect. Will not delete.")
@@ -159,4 +162,18 @@ func getRpUrls(rpid string) ([]rpURL, error) {
 		return nil, err
 	}
 	return urls, nil
+}
+
+func destroyRp(rpid string) error {
+	req, err := http.NewRequest("DELETE", "http://127.0.0.1:12789/rps/"+rpid, nil)
+	if err != nil {
+		return err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
 }
