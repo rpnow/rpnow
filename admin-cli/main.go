@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -13,10 +15,55 @@ import (
 func main() {
 	fmt.Println("RPNow Admin Console")
 
-	err := checkStatus()
-	if err != nil {
-		panic(err)
+	for {
+		up, pid := isServerUp()
+
+		var options []string
+		if up {
+			options = []string{"manage rooms", "stop server", "exit"}
+		} else {
+			options = []string{"start server", "exit"}
+		}
+
+		prompt := promptui.Select{
+			Label: "RP Admin",
+			Items: options,
+		}
+		_, action, err := prompt.Run()
+
+		if err != nil {
+			return
+		}
+		switch action {
+		case "start server":
+			server := exec.Command("rpnow")
+			out, err := server.CombinedOutput()
+			if err != nil {
+				fmt.Printf("Error starting server: %s\n", err)
+			}
+			fmt.Printf("%s\n", out)
+			fmt.Println("Server started")
+		case "stop server":
+			process, err := os.FindProcess(pid)
+			if err != nil {
+				fmt.Printf("Error finding process with pid %d: %s\n", pid, err)
+				continue
+			}
+			err = process.Kill()
+			if err != nil {
+				fmt.Printf("Error killing server process: %s\n", err)
+				continue
+			}
+			fmt.Println("Server stopped")
+		case "manage rooms":
+			editRps()
+		case "exit":
+			return
+		}
 	}
+}
+
+func editRps() {
 	for {
 		// Select an RP from the list
 		rps, err := getRpList()
@@ -24,9 +71,9 @@ func main() {
 			panic(err)
 		}
 
-		rp, err := pickRp(rps)
-		if err != nil {
-			panic(err)
+		rp := pickRp(rps)
+		if rp == nil {
+			return
 		}
 		for {
 			// Expand & edit the selected RP
@@ -72,12 +119,13 @@ func main() {
 	}
 }
 
-func checkStatus() error {
+func isServerUp() (bool, int) {
 	fmt.Print("Getting server status... ")
 
 	res, err := http.Get("http://127.0.0.1:12789/status")
 	if err != nil {
-		return err
+		fmt.Println("(server not running)")
+		return false, 0
 	}
 	defer res.Body.Close()
 	var status struct {
@@ -86,13 +134,14 @@ func checkStatus() error {
 	}
 	err = json.NewDecoder(res.Body).Decode(&status)
 	if err != nil {
-		return err
+		fmt.Println("(bad response)")
+		return false, 0
 	}
 	fmt.Println(status.RPNowLine)
-	return nil
+	return status.RPNowLine == "ok", status.PID
 }
 
-func pickRp(rps []rpInfo) (*rpInfo, error) {
+func pickRp(rps []rpInfo) *rpInfo {
 	fmt.Println()
 
 	prompt := promptui.Select{
@@ -104,10 +153,10 @@ func pickRp(rps []rpInfo) (*rpInfo, error) {
 	}
 	idx, _, err := prompt.Run()
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
-	return &rps[idx], nil
+	return &rps[idx]
 }
 
 type rpInfo struct {
