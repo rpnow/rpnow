@@ -72,6 +72,7 @@ function showError(str) {
 
 (async function main() {
     // open admin API on loopback-only address
+    console.log('Starting admin API on 127.0.0.1:12789')
     await new Promise(resolve => {
         adminApp.listen(12789, '127.0.0.1', err => {
             if (err) showError('Could not bind admin port');
@@ -80,9 +81,15 @@ function showError(str) {
     });
 
     // create data directory if it doesnt exist
-    if (!fs.existsSync(config.dataDir)) fs.mkdirSync(config.dataDir);
+    if (!fs.existsSync(config.dataDir)) {
+        console.log(`Data directory not found at ${config.dataDir}, creating`)
+        fs.mkdirSync(config.dataDir);
+    } else {
+        console.log(`Found data directory at ${config.dataDir}`)
+    }
 
     // initialize db
+    console.log('Initializing database')
     await DB.open(config.dataDir);
 
     // enable trustProxy?
@@ -94,7 +101,12 @@ function showError(str) {
         if (config.letsencryptAcceptTOS !== true) return showError("ERROR: You must accept the Let's Encrypt TOS to use this service.");
 
         const letsencryptDir = path.resolve(config.dataDir, 'letsencrypt');
-        if (!fs.existsSync(letsencryptDir)) fs.mkdirSync(letsencryptDir);
+        if (!fs.existsSync(letsencryptDir)) {
+            console.log(`Creating certs directory at ${letsencryptDir}`)
+            fs.mkdirSync(letsencryptDir);
+        } else {
+            console.log(`Found certs directory at ${letsencryptDir}`)
+        }
 
         const server = GreenlockExpress.create({
             app,
@@ -108,6 +120,7 @@ function showError(str) {
             securityUpdates: false,
             telemetry: true,
         });
+        console.log(`Starting GreenlockExpress server on ports http:${config.port} and https:${config.httpsPort}`)
         server.listen(config.port, config.httpsPort, (err) => {
             if (err) return showError(`ERROR: RPNow failed to start: ${err}`);
 
@@ -115,6 +128,7 @@ function showError(str) {
             setTimeout(() => console.log(bannerMessage(config)), 2000);
         });
     } else {
+        console.log(`Starting HTTP server on port ${config.port}`)
         app.listen(config.port, (err) => {
             if (err) return showError(`ERROR: RPNow failed to start: ${err}`);
 
@@ -122,4 +136,7 @@ function showError(str) {
             setTimeout(() => console.log(bannerMessage(config)), 2000);
         });
     }
-}());
+}().catch(err => {
+    console.log(err)
+    showError(err)
+}));
