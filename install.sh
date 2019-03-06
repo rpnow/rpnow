@@ -89,17 +89,6 @@ install_rpnow()
 
 	echo "Putting rpnow files in /usr/local/rpnow (may require password)"
 	sudo mv "$dl_unzip" "/usr/local/rpnow"
-	if setcap_cmd=$(PATH+=$PATH:/sbin type -p setcap); then
-		sudo $setcap_cmd cap_net_bind_service=+ep "/usr/local/rpnow/rpnow"
-	else
-		echo ""
-		echo "***WARNING: setcap not installed!***"
-		echo "Permission errors may occur when running RPNow with default settings!"
-		echo "Try running the following command to install setcap, then re-run this installer."
-		echo ""
-		echo "  sudo apt install libcap2-bin"
-		echo ""
-	fi
 	sudo rm -- "$dl"
 
 	# Put /etc/rpnow.ini if not exists
@@ -138,9 +127,23 @@ EOF'
 	sudo chown rpnow:rpnow /usr/local/rpnow/rpnow
 	sudo chmod g+s /usr/local/rpnow/rpnow
 
+	echo "Adding network capabilities for rpnow program"
+	if setcap_cmd=$(PATH+=$PATH:/sbin type -p setcap); then
+		sudo $setcap_cmd cap_net_bind_service=+ep "/usr/local/rpnow/rpnow"
+	else
+		echo ""
+		echo "***WARNING: setcap not installed!***"
+		echo "Permission errors may occur when running RPNow with default settings!"
+		echo "Try running the following command to install setcap, then re-run this installer."
+		echo ""
+		echo "  sudo apt install libcap2-bin"
+		echo ""
+	fi
+
 	echo "Adding empty directory for storing RPNow data"
 	sudo mkdir -p /var/local/rpnow
 	sudo chown rpnow:rpnow /var/local/rpnow
+	sudo chmod 775 /var/local/rpnow
 
 	echo "Successfully installed"
 	trap ERR
