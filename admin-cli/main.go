@@ -38,38 +38,43 @@ func main() {
 		switch action {
 		case "start server":
 			cmd := exec.Command("/usr/local/rpnow/rpnow")
+			cmd.Dir = "/usr/local/rpnow"
 
 			if err := cmd.Start(); err != nil {
 				fmt.Printf("Error starting server: %s\n", err)
 			}
 
-			isUp := make(chan bool)
+			exited := make(chan error)
+			online := make(chan bool)
 
 			go func() {
-				cmd.Wait()
-				isUp <- false
+				exited <- cmd.Wait()
 			}()
 
 			go func() {
 				for i := 0; i < 10; i++ {
 					time.Sleep(time.Duration(250) * time.Millisecond)
 					if rpnowStatus, _ := isServerUp(); rpnowStatus {
-						isUp <- true
+						online <- true
 						return
 					}
 				}
-				isUp <- false
+				online <- false
 			}()
 
-			if <-isUp {
-				fmt.Println("Server launched")
-			} else {
-				fmt.Println("Server failed")
+			select {
+			case err := <-exited:
+				fmt.Printf("Server exited! %s\n", err)
+			case isOnline := <-online:
+				if isOnline {
+					fmt.Println("Server ready")
+				} else {
+					fmt.Println("Server is running, but admin interface is not working")
+				}
 			}
-
-			close(isUp)
 		case "test server":
 			cmd := exec.Command("/usr/local/rpnow/rpnow")
+			cmd.Dir = "/usr/local/rpnow"
 
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stdout
