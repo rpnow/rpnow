@@ -1,12 +1,13 @@
-FROM alpine
+FROM debian:buster-slim
 
-RUN apk add --no-cache bash libcap shadow tini 
+RUN apt-get update && apt-get install -y curl libcap2-bin tini
 
 COPY ./install.sh /tmp/
 RUN /tmp/install.sh
 
 EXPOSE 80 443
 
-# USER rpnow
-# ENTRYPOINT ["tini", "--"]
+USER rpnow
+WORKDIR /usr/local/rpnow
+ENTRYPOINT ["tini", "--"]
 CMD ["/usr/local/rpnow/rpnow"]
