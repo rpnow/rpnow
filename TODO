@@ -1,11 +1,3 @@
-Installation:
-rpadmin         /usr/local/bin/rpadmin
-rpnow/          /usr/local/rpnow/
-rpnow.ini       /etc/rpnow.ini
-rpnow.sqlite3   /var/local/rpnow/db.sqlite3
-certs/          /var/local/rpnow/certs/
-
-rpadmin > start/stop/restart
 rpadmin > edit links
 
 Logging
