@@ -37,7 +37,7 @@ func main() {
 		}
 		switch action {
 		case "start server":
-			cmd := exec.Command("../src/index.js")
+			cmd := exec.Command("/var/local/rpnow/rpnow")
 
 			if err := cmd.Start(); err != nil {
 				fmt.Printf("Error starting server: %s\n", err)
@@ -69,7 +69,7 @@ func main() {
 
 			close(isUp)
 		case "test server":
-			cmd := exec.Command("../src/index.js")
+			cmd := exec.Command("/var/local/rpnow/rpnow")
 
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stdout
