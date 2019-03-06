@@ -21,7 +21,7 @@ install_rpnow()
 	# Which OS and version? #
 	#########################
 
-	rpnow_version="2.2-alpha8"
+	rpnow_version="2.2-alpha9"
 	rpnow_dl_ext=".tar.gz"
 
 	# NOTE: `uname -m` is more accurate and universal than `arch`
@@ -49,14 +49,18 @@ install_rpnow()
 	echo "Downloading RPNow for ${rpnow_os}/${rpnow_arch}..."
 	rpnow_file="rpnow-${rpnow_os}-${rpnow_version}${rpnow_dl_ext}"
 	rpnow_url="https://github.com/rpnow/rpnow/releases/download/${rpnow_version}/rpnow-${rpnow_os}${rpnow_dl_ext}"
+	rpadmin_url="https://github.com/rpnow/rpnow/releases/download/${rpnow_version}/rpadmin"
 
 	dl="/tmp/$rpnow_file"
+	dladmin="/tmp/rpadmin"
 	rm -rf -- "$dl"
 
 	if type -p curl >/dev/null 2>&1; then
 		curl -fsSL "$rpnow_url" -o "$dl"
+		curl -fsSL "$rpadmin_url" -o "$dladmin"
 	elif type -p wget >/dev/null 2>&1; then
 		wget --quiet "$rpnow_url" -O "$dl"
+		wget --quiet "$rpadmin_url" -O "$dladmin"
 	else
 		echo "Aborted, could not find curl or wget"
 		return 7
@@ -121,16 +125,12 @@ EOF'
 		echo "/etc/rpnow.ini already exists, skipping"
 	fi
 
-	echo "Putting rpnow command in /usr/local/bin (may require password)"
-	sudo bash -c 'cat > /usr/local/bin/rpnow << EOF
-#!/bin/sh
-cd /usr/local/rpnow
-./rpnow "\$@"
-EOF'
-	sudo chmod +x /usr/local/bin/rpnow
+	echo "Putting rpadmin command in /usr/local/bin (may require password)"
+	sudo mv "$dladmin" /usr/local/bin/
+	sudo chmod +x /usr/local/bin/rpadmin
 
 	# TODO check installation
-	# rpnow --version
+	# rpadmin --version
 
 	echo "Creating RPNow system user"
 	sudo useradd --system --shell /bin/false rpnow || true
