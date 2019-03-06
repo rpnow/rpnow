@@ -17,6 +17,12 @@ install_rpnow()
 	rpnow_os="unsupported"
 	rpnow_arch="unknown"
 
+	if ! [ $(id -u) = 0 ]; then
+		sudo_cmd="sudo"
+	else
+		sudo_cmd=""
+	fi
+
 	#########################
 	# Which OS and version? #
 	#########################
@@ -85,16 +91,16 @@ install_rpnow()
 	# 	echo "(Password may be required.)"
 	# 	sudo mv "$rpnow_path" "$rpnow_backup"
 	# fi
-	sudo rm -rf "/usr/local/rpnow"
+	$sudo_cmd rm -rf "/usr/local/rpnow"
 
 	echo "Putting rpnow files in /usr/local/rpnow (may require password)"
-	sudo mv "$dl_unzip" "/usr/local/rpnow"
-	sudo rm -- "$dl"
+	$sudo_cmd mv "$dl_unzip" "/usr/local/rpnow"
+	$sudo_cmd rm -- "$dl"
 
 	# Put /etc/rpnow.ini if not exists
 	if [ ! -f /etc/rpnow.ini ]; then
 		echo "Putting default /etc/rpnow.ini file (may require password)"
-		sudo bash -c 'cat > /etc/rpnow.ini << EOF
+		$sudo_cmd bash -c 'cat > /etc/rpnow.ini << EOF
 ; Turn SSL (HTTPS) on or off.
 ssl=false
 ; SSL requires a domain name. Enter the domain name that points to your server.
@@ -115,21 +121,21 @@ EOF'
 	fi
 
 	echo "Putting rpadmin command in /usr/local/bin (may require password)"
-	sudo mv "$dladmin" /usr/local/bin/
-	sudo chmod +x /usr/local/bin/rpadmin
+	$sudo_cmd mv "$dladmin" /usr/local/bin/
+	$sudo_cmd chmod +x /usr/local/bin/rpadmin
 
 	# TODO check installation
 	# rpadmin --version
 
 	echo "Creating RPNow system user"
-	sudo useradd --system --shell /bin/false rpnow || true
+	$sudo_cmd useradd --system --shell /bin/false rpnow || true
 	# setgid for rpnow server, so it has access to its special directories
-	sudo chown rpnow:rpnow /usr/local/rpnow/rpnow
-	sudo chmod g+s /usr/local/rpnow/rpnow
+	$sudo_cmd chown rpnow:rpnow /usr/local/rpnow/rpnow
+	$sudo_cmd chmod g+s /usr/local/rpnow/rpnow
 
 	echo "Adding network capabilities for rpnow program"
 	if setcap_cmd=$(PATH+=$PATH:/sbin type -p setcap); then
-		sudo $setcap_cmd cap_net_bind_service=+ep "/usr/local/rpnow/rpnow"
+		$sudo_cmd $setcap_cmd cap_net_bind_service=+ep "/usr/local/rpnow/rpnow"
 	else
 		echo ""
 		echo "***WARNING: setcap not installed!***"
@@ -141,9 +147,9 @@ EOF'
 	fi
 
 	echo "Adding empty directory for storing RPNow data"
-	sudo mkdir -p /var/local/rpnow
-	sudo chown rpnow:rpnow /var/local/rpnow
-	sudo chmod 775 /var/local/rpnow
+	$sudo_cmd mkdir -p /var/local/rpnow
+	$sudo_cmd chown rpnow:rpnow /var/local/rpnow
+	$sudo_cmd chmod 775 /var/local/rpnow
 
 	echo "Successfully installed"
 	trap ERR

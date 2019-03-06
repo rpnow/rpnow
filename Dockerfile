@@ -1,22 +1,12 @@
-FROM node:8-alpine
+FROM alpine
 
-RUN apk add --no-cache tini
+RUN apk add --no-cache bash libcap shadow tini 
 
-WORKDIR /usr/src/app/
+COPY ./install.sh /tmp/
+RUN /tmp/install.sh
 
-COPY ./package.json ./package-lock.json ./
-RUN npm install --production
+EXPOSE 80 443
 
-COPY ./src/ ./src/
-
-ENV NODE_ENV 'production'
-ENV RPNOW_PORT ''
-ENV RPNOW_TRUST_PROXY ''
-
-RUN mkdir data
-VOLUME ./data
-
-EXPOSE 13000
-
-ENTRYPOINT ["tini", "--"]
-CMD ["node", "src/index.js"]
+# USER rpnow
+# ENTRYPOINT ["tini", "--"]
+CMD ["/usr/local/rpnow/rpnow"]
