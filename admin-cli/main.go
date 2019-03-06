@@ -16,13 +16,14 @@ func main() {
 	fmt.Println("RPNow Admin Console")
 
 	for {
+		fmt.Println()
 		up, pid := isServerUp()
 
 		var options []string
 		if up {
 			options = []string{"manage rooms", "stop server", "exit"}
 		} else {
-			options = []string{"start server", "exit"}
+			options = []string{"start server", "test server", "exit"}
 		}
 
 		prompt := promptui.Select{
@@ -36,13 +37,52 @@ func main() {
 		}
 		switch action {
 		case "start server":
-			server := exec.Command("rpnow")
-			out, err := server.CombinedOutput()
-			if err != nil {
+			cmd := exec.Command("../src/index.js")
+
+			if err := cmd.Start(); err != nil {
 				fmt.Printf("Error starting server: %s\n", err)
 			}
-			fmt.Printf("%s\n", out)
-			fmt.Println("Server started")
+
+			isUp := make(chan bool)
+
+			go func() {
+				cmd.Wait()
+				isUp <- false
+			}()
+
+			go func() {
+				for i := 0; i < 10; i++ {
+					time.Sleep(time.Duration(250) * time.Millisecond)
+					if rpnowStatus, _ := isServerUp(); rpnowStatus {
+						isUp <- true
+						return
+					}
+				}
+				isUp <- false
+			}()
+
+			if <-isUp {
+				fmt.Println("Server launched")
+			} else {
+				fmt.Println("Server failed")
+			}
+
+			close(isUp)
+		case "test server":
+			cmd := exec.Command("../src/index.js")
+
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stdout
+
+			if err := cmd.Start(); err != nil {
+				fmt.Printf("Error starting server: %s\n", err)
+			}
+
+			if err := cmd.Wait(); err != nil {
+				fmt.Printf("Server exited on error: %s\n", err)
+			} else {
+				fmt.Println("Server exited cleanly")
+			}
 		case "stop server":
 			process, err := os.FindProcess(pid)
 			if err != nil {
@@ -120,7 +160,7 @@ func editRps() {
 }
 
 func isServerUp() (bool, int) {
-	fmt.Print("Getting server status... ")
+	fmt.Print("server status... ")
 
 	res, err := http.Get("http://127.0.0.1:12789/status")
 	if err != nil {
