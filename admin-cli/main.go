@@ -73,6 +73,7 @@ func main() {
 				}
 			}
 		case "test server":
+			fmt.Printf("########################\n TESTING RPNOW SERVER\n (Press CTRL+C to stop)\n########################\n")
 			cmd := exec.Command("/usr/local/rpnow/rpnow")
 			cmd.Dir = "/usr/local/rpnow"
 
