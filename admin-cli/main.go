@@ -186,8 +186,9 @@ func isServerUp() (bool, int) {
 	return status.RPNowLine == "ok", status.PID
 }
 
-func pickRp(rps []rpInfo) *rpInfo {
+func pickRp(rpsListWithoutBackOption []*rpInfo) *rpInfo {
 	fmt.Println()
+	rps := append([]*rpInfo{nil}, rpsListWithoutBackOption...)
 
 	prompt := promptui.Select{
 		Label: "Choose an RP",
@@ -201,7 +202,7 @@ func pickRp(rps []rpInfo) *rpInfo {
 		return nil
 	}
 
-	return &rps[idx]
+	return rps[idx]
 }
 
 type rpInfo struct {
@@ -210,17 +211,20 @@ type rpInfo struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-func (r rpInfo) String() string {
+func (r *rpInfo) String() string {
+	if r == nil {
+		return "(main menu)"
+	}
 	return fmt.Sprintf("%-30s (%s)", r.Title, r.Timestamp.Format("02 Jan 2006"))
 }
 
-func getRpList() ([]rpInfo, error) {
+func getRpList() ([]*rpInfo, error) {
 	res, err := http.Get("http://127.0.0.1:12789/rps")
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
-	var rps []rpInfo
+	var rps []*rpInfo
 	err = json.NewDecoder(res.Body).Decode(&rps)
 	if err != nil {
 		return nil, err
