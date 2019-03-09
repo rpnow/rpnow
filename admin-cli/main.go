@@ -145,7 +145,7 @@ func editRps() {
 			if action == "go back" {
 				break
 			} else if action == "edit urls" {
-
+				editRpUrls(rp)
 			} else if action == "destroy rp" {
 				killswitch := strings.ToUpper(fmt.Sprintf("destroy %s", rp.Title))
 				prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
@@ -161,6 +161,59 @@ func editRps() {
 					fmt.Println("Incorrect. Will not delete.")
 				}
 			}
+		}
+	}
+}
+
+type urlEditOpt struct {
+	rpURL
+	Action string
+}
+
+func (x urlEditOpt) String() string {
+	switch {
+	case x.Action == "go back":
+		return "go back"
+	case x.rpURL.URL == "":
+		return fmt.Sprintf("%s URL: %s", strings.Title(x.Action), x.rpURL.String()+"...")
+	default:
+		return fmt.Sprintf("%s URL: %s", strings.Title(x.Action), x.rpURL.String())
+	}
+}
+
+func editRpUrls(rp *rpInfo) {
+	for {
+		urls, err := getRpUrls(rp.RPID)
+		if err != nil {
+			panic(err)
+		}
+
+		urlActions := make([]*urlEditOpt, 3+len(urls))
+		urlActions[0] = &urlEditOpt{rpURL{}, "go back"}
+		urlActions[1] = &urlEditOpt{rpURL{URL: "", Access: "normal"}, "add"}
+		urlActions[2] = &urlEditOpt{rpURL{URL: "", Access: "read"}, "add"}
+		for i, url := range urls {
+			urlActions[3+i] = &urlEditOpt{url, "deactivate"}
+		}
+
+		prompt := promptui.Select{
+			Label: "What?",
+			Items: urlActions,
+		}
+		idx, _, err := prompt.Run()
+		if err != nil {
+			panic(err)
+		}
+		urlAction := urlActions[idx]
+		switch urlAction.Action {
+		case "go back":
+			return
+		case "add":
+
+		case "deactivate":
+
+		case "activate":
+
 		}
 	}
 }
