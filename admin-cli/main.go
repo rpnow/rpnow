@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -209,11 +210,32 @@ func editRpUrls(rp *rpInfo) {
 		case "go back":
 			return
 		case "add":
-
+			prompt := promptui.Prompt{Label: "Enter a URL (a-z, 0-9, dashes) (leave blank to cancel)"}
+			urlSlug, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+			urlAction.URL = urlSlug
+			err = putURL(rp.RPID, urlAction.rpURL)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("Added URL:%s\n", urlAction.rpURL.String())
+			break
 		case "deactivate":
+			prompt := promptui.Prompt{
+				Label:     fmt.Sprintf("Remove URL %q", urlAction.rpURL.String()),
+				IsConfirm: true,
+			}
+			_, err := prompt.Run()
 
-		case "activate":
-
+			if err == nil {
+				err = deactivateURL(urlAction.rpURL)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Printf("Deactivated URL: %q\n", urlAction.rpURL.String())
+			}
 		}
 	}
 }
@@ -287,8 +309,9 @@ func getRpList() ([]*rpInfo, error) {
 }
 
 type rpURL struct {
-	URL    string `json:"url"`
-	Access string `json:"access"`
+	URL     string `json:"url"`
+	Access  string `json:"access"`
+	Deleted bool   `json:"deleted,omitempty"`
 }
 
 func (u *rpURL) String() string {
@@ -313,6 +336,43 @@ func getRpUrls(rpid string) ([]rpURL, error) {
 		return nil, err
 	}
 	return urls, nil
+}
+
+func putURL(rpid string, url rpURL) error {
+	reqBody := struct {
+		RPID   string `json:"rpNamespace"`
+		Access string `json:"access"`
+	}{rpid, url.Access}
+	reqBodyJSON, err := json.Marshal(reqBody)
+	if err != nil {
+		panic(err)
+	}
+	req, err := http.NewRequest("PUT", "http://127.0.0.1:12789/url/"+url.URL, bytes.NewBuffer(reqBodyJSON))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
+}
+
+func deactivateURL(url rpURL) error {
+	req, err := http.NewRequest("DELETE", "http://127.0.0.1:12789/url/"+url.URL, nil)
+	if err != nil {
+		return err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
 }
 
 func destroyRp(rpid string) error {
