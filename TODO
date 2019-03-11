@@ -1,5 +1,3 @@
-rpadmin > edit links
-
 Logging
 
 Import should be admin-only?
@@ -10,8 +8,10 @@ Error message: Import rp progress
 Error message: New rp
 Error message: 404
 Error message: 403
+Error message: 410 gone
 Error message: Update fetch 404
 Error message: Update fetch 403
+Error message: Update fetch 410 gone
 Error message: Chara dialog
 Error message: Image dialog
 Error message: Message box
