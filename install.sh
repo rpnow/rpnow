@@ -27,7 +27,7 @@ install_rpnow()
 	# Which OS and version? #
 	#########################
 
-	rpnow_version="2.2-alpha9"
+	rpnow_version="v3.0-beta1"
 	rpnow_dl_ext=".tar.gz"
 
 	# NOTE: `uname -m` is more accurate and universal than `arch`
