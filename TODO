@@ -1,10 +1,25 @@
-Logging
+Fix issue when a readLink is removed
 
-Import should be admin-only?
+Pretty homepage
+Recent RPs shortcuts
+Remove RP shortcuts
+Remake create RP area
+Remake import RP area
+
+Remove RPNow branding from some places
+
+Enable/disable create&import: Admin API
+Enable/disable create&import: Admin CLI
+Enable/disable create&import: Remove buttons on homepage
+Enable/disable create&import: Cache permissions on homepage
+
 Import should give better feedback (ie upload progress, then how many msgs are processed)
 
 Error message: Import rp start
 Error message: Import rp progress
+
+---
+
 Error message: New rp
 Error message: 404
 Error message: 403
@@ -16,8 +31,6 @@ Error message: Chara dialog
 Error message: Image dialog
 Error message: Message box
 
----
-
 Cache invalidation
 Dynamic archives
 Drawer animation
@@ -26,4 +39,4 @@ Put the 'desc' on the page somewhere?
 API unit tests
 Chara drawer organization
 Recent charas (+persistence)
-Remove RPNow branding from some places
+Logging
