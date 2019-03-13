@@ -34,6 +34,8 @@ module.exports = {
         { src: "https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.js" },
     ],
     styles: [
+        // Internal styles
+        { style: "/static/rp.css" },
         // Spectrum.js styles
         { style: "https://cdn.jsdelivr.net/gh/bgrins/spectrum@1.8.0/spectrum.css" },
     ]
