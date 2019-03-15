@@ -2,7 +2,7 @@
   "name": "rpnow",
   "private": true,
   "scripts": {
-    "start": "cross-env VUE_DEV=true DEBUG=rpnow RPNOW_CONFIG_FILE='./rpnow.ini' RPNOW_DATA_DIR='./data' nodemon src/index.js --ext js,json,vue,css",
+    "start": "cross-env VUE_DEV=true DEBUG=rpnow RPNOW_PORT=13000 RPNOW_CONFIG_FILE='./rpnow.ini' RPNOW_DATA_DIR='./data' nodemon src/index.js --ext js,json,vue,css",
     "lint": "eslint 'src/**/*.js' --ignore-pattern='src/views/'",
     "test": "ava",
     "build": "./tooling/build.sh",
