@@ -1,5 +1,5 @@
 <template>
-  <div id="rp-chat">
+  <div id="app">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>

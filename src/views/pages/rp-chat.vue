@@ -1,5 +1,5 @@
 <template>
-  <div id="rp-chat" :class="{'dark-theme':nightMode}">
+  <div id="app" :class="{'dark-theme':nightMode}">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
