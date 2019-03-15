@@ -16,6 +16,7 @@ router.use(expressVue.init({ rootPath: viewFiles, head: vueHead }));
 
 // valid routes
 router.get('/', (req, res) => res.renderVue('pages/home.vue', null, { head: { title: 'RPNow' } }));
+router.get('/import', (req, res) => res.renderVue('pages/import.vue', null, { head: { title: 'Import RP | RPNow' } }));
 router.get('/terms', (req, res) => res.sendFile(`${viewFiles}/pages/terms.txt`));
 router.get('/format', (req, res) => res.renderVue('pages/format.vue', null, { head: { title: 'Format Guide | RPNow' } }));
 router.get('/rp/[\\w-]+', xRobotsTag, (req, res) => res.renderVue('pages/rp-chat.vue', null, { head: { title: 'Loading RP | RPNow' } }));

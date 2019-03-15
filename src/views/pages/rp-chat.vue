@@ -182,6 +182,8 @@
         // download dialog
         showDownloadDialog: false,
         downloadOOC: false,
+        // global list of recently visited rooms
+        recentRooms: [],
       }
     },
 
@@ -224,6 +226,7 @@
         msgBoxText: 'rpnow.'+this.rpCode+'.msgBoxContent',
         currentVoice: 'rpnow.'+this.rpCode+'.currentVoice',
         downloadOOC: 'rpnow.global.downloadOOC',
+        recentRooms: 'rpnow.global.recentRooms',
       };
 
       for (var prop in watchProps) {
@@ -248,6 +251,10 @@
 
           document.title = this.rp.title + ' | RPNow';
           this.isNewRp = this.rp.msgs.length === 0;
+
+          if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
+            this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
+          }
 
           this.fetchUpdates();
         }).bind(this))
