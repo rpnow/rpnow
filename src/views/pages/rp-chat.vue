@@ -116,10 +116,6 @@
             <i class="material-icons">meeting_room</i>
             <span>Return home</span>
           </a>
-          <a class="drawer-item" href="/terms" target="_blank">
-            <i class="material-icons">account_balance</i>
-            <span>Terms of use</span>
-          </a>
         </div>
       </div>
 
