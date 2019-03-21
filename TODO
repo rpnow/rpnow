@@ -1,12 +1,8 @@
-Fix issue when a readLink is removed
-
 Pretty homepage
-Recent RPs shortcuts
 Remove RP shortcuts
 Remake create RP area
-Remake import RP area
 
-Remove RPNow branding from some places
+Update TOS
 
 Enable/disable create&import: Admin API
 Enable/disable create&import: Admin CLI
