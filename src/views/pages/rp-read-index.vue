@@ -62,7 +62,7 @@
       axios.get('/api/rp/' + this.readCode + '/pages')
         .then((function(res) {
           this.rp = res.data;
-          document.title = this.rp.title + ' | RPNow';
+          document.title = this.rp.title;
         }).bind(this))
         .catch((function(err) {
           this.loadError = 'Check the URL and try again.'

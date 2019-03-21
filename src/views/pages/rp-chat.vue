@@ -22,7 +22,7 @@
 
         <div id="chat-header">
           <button class="icon-button" @click="openMainMenu">
-            <i class="material-icons" title="RPNow menu">menu</i>
+            <i class="material-icons" title="Site Menu">menu</i>
           </button>
           <span>
             {{ rp.title }}
@@ -72,7 +72,7 @@
         <div class="overlay overlay-drawer" @click="showMainMenu=false"></div>
 
         <div class="drawer-header">
-          <span>RPNow</span>
+          <span>Site Menu</span>
           <button class="icon-button" @click="showMainMenu=false">
             <i class="material-icons" title="Close">close</i>
           </button>
@@ -249,7 +249,7 @@
         .then((function(res) {
           this.rp = res.data;
 
-          document.title = this.rp.title + ' | RPNow';
+          document.title = this.rp.title;
           this.isNewRp = this.rp.msgs.length === 0;
 
           if (this.currentVoice.type === 'chara' && this.charasById[this.currentVoice.charaId] == null) {

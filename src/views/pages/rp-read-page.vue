@@ -101,7 +101,7 @@
       axios.get('/api/rp/' + this.readCode + '/pages/' + this.pageNumber)
         .then((function(res) {
           this.rp = res.data;
-          document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title + ' | RPNow';
+          document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title;
         }).bind(this))
         .catch((function(err) {
           this.loadError = 'Check the URL and try again.'
