@@ -56,7 +56,24 @@ app.delete('/rps/:rpid', awrap(async (req, res) => {
  * Remove an RP's link
  */
 app.delete('/url/:url', awrap(async (req, res) => {
+    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.url);
+    const { readCode } = await DB.getDoc(rpNamespace, 'readCode', 'readCode');
+
+    // if we're removing this RP's read link, replace it with something or set to null
+    if (req.params.url === readCode) {
+        const allUrls = await DB.getDocs('system', 'urls').asArray();
+        const myReadUrl = allUrls
+            .filter(({rpNamespace}) => rpNamespace === req.params.rpid)
+            .filter(({_id}) => _id !== req.params.url)
+            .map(({_id, access}) => ({ url: _id, access }))
+            .find(({access}) => access === 'read');
+
+        await DB.updateDoc(rpNamespace, 'readCode', 'readCode', { readCode: myReadUrl || null });
+    }
+
+    // either way, delete the url pointer
     await DB.updateDoc('system', 'urls', req.params.url, null)
+
     res.sendStatus(204);
 }));
 
@@ -66,6 +83,13 @@ app.delete('/url/:url', awrap(async (req, res) => {
 app.put('/url/:url', awrap(async (req, res) => {
     const { rpNamespace, access } = req.body;
     await DB.putDoc('system', 'urls', req.params.url, { rpNamespace, access })
+
+    // if no readCode is registered for this rp anymore, add this one
+    const { readCode } = await DB.getDoc(rpNamespace, 'readCode', 'readCode');
+    if (readCode == null) {
+        await DB.updateDoc(rpNamespace, 'readCode', 'readCode', { readCode: req.params.url });
+    }
+
     res.sendStatus(204);
 }));
 

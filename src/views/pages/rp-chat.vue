@@ -31,7 +31,7 @@
 
         <div id="messages" @scroll="onScroll">
           <p id="archive-advice" v-if="rp.msgs.length >= 60">
-            To view older messages, <a :href="'/read/'+rp.readCode" target="_blank">visit the archive.</a>
+            To view older messages, <a @click="openArchive" :href="'/read/'+rp.readCode" target="_blank">visit the archive.</a>
           </p>
 
           <div id="welcome" v-if="isNewRp">
@@ -78,7 +78,7 @@
           </button>
         </div>
         <div class="drawer-body">
-          <a class="drawer-item" :href="'/read/'+rp.readCode" target="_blank">
+          <a class="drawer-item" @click="openArchive" :href="'/read/'+rp.readCode" target="_blank">
             <i class="material-icons">import_contacts</i>
             <span>Browse archive</span>
           </a>
@@ -379,6 +379,14 @@
       },
       openMainMenu: function() {
         this.showMainMenu = true;
+      },
+      openArchive: function(evt) {
+        evt.preventDefault();
+        if (this.rp.readCode == null) {
+          alert('No reader URL; the admin must fix this.');
+          return;
+        }
+        window.open('/read/'+this.rp.readCode, '_blank').focus();
       },
       onScroll: function() {
         var el = document.querySelector('#messages');
