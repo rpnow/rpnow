@@ -252,6 +252,10 @@
           document.title = this.rp.title + ' | RPNow';
           this.isNewRp = this.rp.msgs.length === 0;
 
+          if (this.currentVoice.type === 'chara' && this.charasById[this.currentVoice.charaId] == null) {
+            this.currentVoice = { type: 'narrator', charaId: null };
+          }
+
           if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
             this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
           }
