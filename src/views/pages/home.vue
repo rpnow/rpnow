@@ -2,11 +2,11 @@
   <div id="homepage">
     <h1>{{ siteName }}</h1>
 
-    <div v-if="!submitted">
-      <div>
+    <div v-if="!loading">
+      <div v-if="canCreate">
         <button @click="createRp">Create New RP</button>
       </div>
-      <div>
+      <div v-if="canImport">
         <a href="/import">Import RP</a>
       </div>
       <div v-if="recentRooms.length > 0">
@@ -32,7 +32,9 @@
         siteName: 'rpnow',
         recentRooms: [],
         title: '',
-        submitted: false,
+        loading: true,
+        canCreate: false,
+        canImport: false,
       };
     },
     beforeMount: function() {
@@ -42,6 +44,12 @@
       } catch (err) {
         // no big deal
       }
+      axios.post('/api/dashboard')
+        .then((function(res) {
+          this.canCreate = res.data.canCreate;
+          this.canImport = res.data.canImport;
+          this.loading = false;
+        }).bind(this))
     },
     methods: {
       initializeAuth: require('../components/user'),
@@ -64,7 +72,7 @@
         }
       },
       submitRp: function() {
-        this.submitted = true;
+        this.loading = true;
 
         this.initializeAuth()
           .then((function() {
@@ -74,7 +82,7 @@
             window.location.href = '/rp/' + res.data.rpCode;
           })
           .catch((function(err) {
-            this.submitted = false;
+            this.loading = false;
             alert('Failed to create RP: (' + err + ')');
           }).bind(this));
       },

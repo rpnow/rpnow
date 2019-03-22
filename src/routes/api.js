@@ -24,9 +24,21 @@ router.get('/health', (req, res) => {
 })
 
 /**
+ * Dashboard page info
+ */
+router.post('/dashboard', awrap(async (req, res) => {
+    // Get URLs
+    const { canCreate=true, canImport=true } = DB.getDoc('system', 'permissions', 'anon');
+    res.status(200).json({ canCreate, canImport });
+}));
+
+/**
  * Create a new RP
  */
 router.post('/rp', authMiddleware, awrap(async (req, res) => {
+    const { canCreate=true } = DB.getDoc('system', 'permissions', 'anon');
+    if (!canCreate) return res.status(403).json({ error: 'New RP forbidden' });
+
     const rpNamespace = 'rp_' + cuid();
     const fields = req.body;
     const { userid } = req.user;
@@ -51,6 +63,9 @@ router.post('/rp', authMiddleware, awrap(async (req, res) => {
 const importStatus = new Map();
 
 router.post('/rp/import', authMiddleware, awrap(async (req, res) => {
+    const { canImport=true } = DB.getDoc('system', 'permissions', 'anon');
+    if (!canImport) return res.status(403).json({ error: 'Import forbidden' });
+
     const rpNamespace = 'rp_' + cuid();
     const { userid } = req.user;
     const ip = req.ip;
