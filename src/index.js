@@ -1,16 +1,15 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const GreenlockExpress = require('greenlock-express')
 const nconf = require('nconf');
 const camelcase = require('camelcase');
 const ini = require('ini');
 const DB = require('./services/database');
-const { isAlreadyRunning, notifyRunning } = require('./services/is-already-running');
-const bannerMessage = require('./services/cli-banner-message');
 const app = require('./app');
+const adminApp = require('./admin-api/admin-api');
 
 // get app configuration
 const config = nconf
@@ -21,7 +20,7 @@ const config = nconf
         transform({ key, value }) {
             if (!/^RPNOW_/.test(key)) return false;
             return {
-                key: camelcase(obj.key.substr('RPNOW_'.length)),
+                key: camelcase(key.substr('RPNOW_'.length)),
                 value
             };
         },
@@ -30,26 +29,25 @@ const config = nconf
     .add('default configFile location', {
         type: 'literal',
         store: {
-            configFile: path.join(path.dirname(process.argv[1]), '..', 'rpnow.ini')
+            configFile: '/etc/rpnow.ini'
         }
     })
     .file('rpnow.ini config file', {
-        file: nconf.get('configFile'),
+        file: path.resolve(nconf.get('configFile')),
         format: {
             parse: str => {
                 const obj = ini.parse(str);
                 Object.entries(obj).forEach(([key, value]) => {
-                    try { obj[key] = JSON.parse(value) } catch (_) {}
+                    try {
+                        obj[key] = JSON.parse(value)
+                    } catch (_) { /* just use string value */ }
                 });
                 return obj;
             }
         },
     })
     .defaults({
-        dataDir: (process.platform === 'win32' ?
-            path.join(process.env.APPDATA, 'rpnow') :
-            path.join(os.homedir(), 'rpnow')
-        ),
+        dataDir: '/var/local/rpnow',
         port: 80,
         ssl: false,
         sslPort: 443,
@@ -68,31 +66,30 @@ if(fs.existsSync(config.configFile)) {
 
 function showError(str) {
     console.error(str);
-
-    if (process.argv[0].includes('rpnow')) {
-        // In desktop app mode, keep the process alive
-        console.error('(Press Ctrl+C to exit.)')
-        setInterval(() => {}, 10000); 
-    } else {
-        // In command line mode, exit with error code
-        process.exit(1);
-    }
+    process.exit(1);
 }
 
 (async function main() {
+    // open admin API on loopback-only address
+    console.log('Starting admin API on 127.0.0.1:12789')
+    await new Promise(resolve => {
+        adminApp.listen(12789, '127.0.0.1', err => {
+            if (err) showError('Could not bind admin port');
+            else resolve()
+        });
+    });
+
     // create data directory if it doesnt exist
-    if (!fs.existsSync(config.dataDir)) fs.mkdirSync(config.dataDir);
-
-    // initialize db
-    await DB.open(config.dataDir);
-
-    // check if the server is already running (or ports are used)
-    if (await isAlreadyRunning(config.dataDir)) {
-        return showError('ERROR: RPNow is already running');
+    if (!fs.existsSync(config.dataDir)) {
+        console.log(`Data directory not found at ${config.dataDir}, creating`)
+        fs.mkdirSync(config.dataDir);
+    } else {
+        console.log(`Found data directory at ${config.dataDir}`)
     }
 
-    // write lastport.lock
-    notifyRunning(config.dataDir, config.sslPort || config.port)
+    // initialize db
+    console.log(`Loading database in ${config.dataDir}`)
+    await DB.open(config.dataDir);
 
     // enable trustProxy?
     if (config.trustProxy === true) app.enable('trust proxy');
@@ -102,8 +99,13 @@ function showError(str) {
         // ensure we agreed to the letsencrypt TOS
         if (config.letsencryptAcceptTOS !== true) return showError("ERROR: You must accept the Let's Encrypt TOS to use this service.");
 
-        const letsencryptDir = path.join(config.dataDir, 'letsencrypt');
-        if (!fs.existsSync(letsencryptDir)) fs.mkdirSync(letsencryptDir);
+        const letsencryptDir = path.resolve(config.dataDir, 'letsencrypt');
+        if (!fs.existsSync(letsencryptDir)) {
+            console.log(`Creating certs directory at ${letsencryptDir}`)
+            fs.mkdirSync(letsencryptDir);
+        } else {
+            console.log(`Found certs directory at ${letsencryptDir}`)
+        }
 
         const server = GreenlockExpress.create({
             app,
@@ -117,16 +119,18 @@ function showError(str) {
             securityUpdates: false,
             telemetry: true,
         });
+        console.log(`Starting GreenlockExpress server on ports http:${config.port} and https:${config.httpsPort}`)
         server.listen(config.port, config.httpsPort, (err) => {
             if (err) return showError(`ERROR: RPNow failed to start: ${err}`);
-
-            console.log(bannerMessage(config));
+            console.log('Ready');
         });
     } else {
+        console.log(`Starting HTTP server on port ${config.port}`)
         app.listen(config.port, (err) => {
             if (err) return showError(`ERROR: RPNow failed to start: ${err}`);
-
-            console.log(bannerMessage(config));
+            console.log('Ready');
         });
     }
-}());
+}().catch(err => {
+    showError(err)
+}));

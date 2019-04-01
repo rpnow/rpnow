@@ -16,7 +16,7 @@
       </div>
 
       <div class="preview-container preview-container-busted" v-if="!imageDialogIsValid && !imageDialogIsChecking">
-        <span v-if="imageDialogUrl.length > 0 && !imageDialogIsWellFormed">RPNow can't read this URL.</span>
+        <span v-if="imageDialogUrl.length > 0 && !imageDialogIsWellFormed">Can't read this URL.</span>
         <span v-if="imageDialogIsWellFormed">Can't load this image.</span>
       </div>
 

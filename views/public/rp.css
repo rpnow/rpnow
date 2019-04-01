@@ -3,7 +3,7 @@ html, body {
   height: 100%;
   margin: 0;
 }
-#rp-chat {
+#app {
   height: 100%;
   display: flex;
   flex-direction: row;
@@ -11,11 +11,11 @@ html, body {
   background-color: #fafafa;
   color: black;
 }
-#rp-chat.dark-theme {
+#app.dark-theme {
   background-color: #303030;
   color: white;
 }
-#rp-chat textarea, #rp-chat button, #rp-chat input {
+#app textarea, #app button, #app input {
   font-size: inherit;
   font-family: inherit;
 }

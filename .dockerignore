@@ -1,13 +1,2 @@
-node_modules
-**/npm-debug.log
-dist
-data
-
-.git
-.dockerignore
-.gitignore
-.eslintrc
-Dockerfile
-README.md
-TODO
-build.sh
+**
+!install.sh

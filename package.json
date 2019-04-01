@@ -2,11 +2,10 @@
   "name": "rpnow",
   "private": true,
   "scripts": {
-    "start": "node src/index.js",
-    "start-dev": "cross-env VUE_DEV=true DEBUG=rpnow nodemon src/index.js --ext js,json,vue,css",
-    "lint": "eslint src/**/*.js src/*.js",
-    "test": "ava --watch",
-    "build": "./build.sh",
+    "start": "cross-env VUE_DEV=true DEBUG=rpnow RPNOW_PORT=13000 RPNOW_CONFIG_FILE='./rpnow.ini' RPNOW_DATA_DIR='./data' nodemon src/index.js --ext js,json,vue,css",
+    "lint": "eslint 'src/**/*.js' --ignore-pattern='src/views/'",
+    "test": "ava",
+    "build": "./tooling/build.sh",
     "grant-node-low-ports": "sudo sh -c \"setcap 'cap_net_bind_service=+ep' $(which node)\""
   },
   "dependencies": {
@@ -32,8 +31,6 @@
     "ava": "^1.2.1",
     "cross-env": "^5.2.0",
     "eslint": "^5.9.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
     "nexe": "^3.0.0-beta.13",
     "nodemon": "^1.18.9",
     "supertest": "^3.3.0"
@@ -45,5 +42,20 @@
     "sources": [
       "src/**/*.js"
     ]
+  },
+  "eslintConfig": {
+    "root": true,
+    "parserOptions": {
+      "ecmaVersion": 2018,
+      "parser": "babel-eslint"
+    },
+    "env": {
+      "es6": true,
+      "node": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "rules": {}
   }
 }

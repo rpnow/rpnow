@@ -19,14 +19,26 @@ router.use(xRobotsTag);
 /**
  * Health check to see if the server is alive and responding
  */
-router.get('/health', (req, res, next) => {
+router.get('/health', (req, res) => {
     res.status(200).json({rpnow:'ok'})
 })
 
 /**
+ * Dashboard page info
+ */
+router.post('/dashboard', awrap(async (req, res) => {
+    // Get URLs
+    const { canCreate=true, canImport=true } = DB.getDoc('system', 'permissions', 'anon');
+    res.status(200).json({ canCreate, canImport });
+}));
+
+/**
  * Create a new RP
  */
-router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
+router.post('/rp', authMiddleware, awrap(async (req, res) => {
+    const { canCreate=true } = DB.getDoc('system', 'permissions', 'anon');
+    if (!canCreate) return res.status(403).json({ error: 'New RP forbidden' });
+
     const rpNamespace = 'rp_' + cuid();
     const fields = req.body;
     const { userid } = req.user;
@@ -50,14 +62,17 @@ router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
  */
 const importStatus = new Map();
 
-router.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
+router.post('/rp/import', authMiddleware, awrap(async (req, res) => {
+    const { canImport=true } = DB.getDoc('system', 'permissions', 'anon');
+    if (!canImport) return res.status(403).json({ error: 'Import forbidden' });
+
     const rpNamespace = 'rp_' + cuid();
     const { userid } = req.user;
     const ip = req.ip;
 
     const busboy = new Busboy({ headers: req.headers });
 
-    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    busboy.on('file', (fieldname, file) => {
         if (fieldname !== 'file') return file.resume();
 
         const rpCode = generateRpCode(5);
@@ -85,7 +100,7 @@ router.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
     return req.pipe(busboy);
 }));
 
-router.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, next) => {
+router.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res) => {
     const info = importStatus.get(req.params.rpCode);
     if (!info) return res.status(404).json({ error: 'Import expired' })
     return res.status(200).json(info);
@@ -94,7 +109,7 @@ router.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, ne
 /**
  * Generate a new set of credentials for an anonymous user
  */
-router.post('/user', awrap(async (req, res, next) => {
+router.post('/user', awrap(async (req, res) => {
     const credentials = await generateAnonCredentials();
     res.status(200).json(credentials);
 }));
@@ -115,7 +130,7 @@ const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 /**
  * Get current state of a RP chatroom
  */
-router.get(`${rpGroup}`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}`, awrap(async (req, res) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
 
@@ -132,7 +147,7 @@ router.get(`${rpGroup}`, awrap(async (req, res, next) => {
 /**
  * Get updates on an RP since some prior state
  */
-router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/updates`, awrap(async (req, res) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const { since } = req.query;
@@ -149,7 +164,7 @@ router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
 /**
  * Count the pages in an RP's archive
  */
-router.get(`${rpGroup}/pages`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/pages`, awrap(async (req, res) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const lastEventId = await DB.lastEventId();
@@ -164,7 +179,7 @@ router.get(`${rpGroup}/pages`, awrap(async (req, res, next) => {
 /**
  * Get a page from an RP's archive
  */
-router.get(`${rpGroup}/pages/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/pages/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const skip = (req.params.pageNum - 1) * 20;
@@ -184,7 +199,7 @@ router.get(`${rpGroup}/pages/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, n
 /**
  * Get and download a .txt file for an entire RP
  */
-router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/download.txt`, awrap(async (req, res) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta');
@@ -201,7 +216,7 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
 /**
  * Get and download a .txt file for an entire RP
  */
-router.get(`${rpGroup}/export`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/export`, awrap(async (req, res) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const { title } = await DB.getDoc(rpNamespace, 'meta', 'meta');
 
@@ -213,7 +228,7 @@ router.get(`${rpGroup}/export`, awrap(async (req, res, next) => {
 /**
  * Create something in an RP (message, chara, etc)
  */
-router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, res, next) => {
+router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, res) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
@@ -231,7 +246,7 @@ router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, 
 /**
  * Update something in an RP (message, chara, etc)
  */
-router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, awrap(async (req, res, next) => {
+router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, awrap(async (req, res) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
@@ -252,7 +267,7 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, 
 /**
  * Get the history of something in an RP (message, chara, etc)
  */
-router.get(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)/history`, awrap(async (req, res, next) => {
+router.get(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)/history`, awrap(async (req, res) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
@@ -272,7 +287,7 @@ router.all('*', (req, res, next) => {
 /**
  * Error handling
  */
-router.use((err, req, res, next) => {
+router.use((err, req, res) => {
     debug(err);
     res.status(500).json({ error: err.toString() });
 });

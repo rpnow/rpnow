@@ -14,7 +14,7 @@ async function open(dataDir) {
         client: 'sqlite3',
         connection: (dataDir === ':memory:') ?
             ':memory:' :
-            { filename: path.join(dataDir, 'rpnow.sqlite3') },
+            { filename: path.resolve(dataDir, 'rpnow.sqlite3') },
         useNullAsDefault: true,
     });
     if (!(await knex.schema.hasTable('docs'))) {
@@ -51,7 +51,7 @@ function formatQueryResult (x, options = {}) {
     else return doc;
 }
 
-module.exports = {
+const DB = module.exports = {
     open,
 
     async addDoc(namespace, collection, _id, body, { userid = null, ip = null, revision = 0, timestamp = (new Date().toISOString()) } = {}) {
@@ -78,6 +78,15 @@ module.exports = {
         return { eventId, doc: formatQueryResult(doc) };
     },
 
+    async putDoc(namespace, collection, _id, body, { userid = null, ip = null, timestamp = (new Date().toISOString()) } = {}) {
+        const args = { userid, ip, timestamp }
+        if (await DB.hasDoc(namespace, collection, _id)) {
+            await DB.updateDoc(namespace, collection, _id, body, args)
+        } else {
+            await DB.addDoc(namespace, collection, _id, body, args);
+        }
+    },
+
     async addDocs(namespace, collection, docs) {
         await connected;
         debug(`add ${namespace}/${collection}/<${docs.length} docs>`)
@@ -91,7 +100,9 @@ module.exports = {
 
     getDocs(namespace, collection, { _id, since, snapshot, skip, limit, includeHistory, reverse, includeMeta } = {}) {
         const query = () => {
-            let q = knex('docs').where('docs.namespace', namespace)
+            const namespaceLike = namespace.replace(/\*/g, '%');
+
+            let q = knex('docs').where('docs.namespace', 'like', namespaceLike);
 
             if (collection != null) {
                 q = q.where('docs.collection', collection);
@@ -165,6 +176,12 @@ module.exports = {
                 const [{ count }] = await query().count('* as count');
                 return count;
             },
+            async purge() {
+                await connected;
+                debug(`***PURGE*** ${namespace}/${collection||'*'}/${_id||'*'}`)
+
+                return query().del();
+            },
         };
     },
 
@@ -173,7 +190,7 @@ module.exports = {
     },
 
     async hasDoc(namespace, collection, _id) {
-        return this.getDoc(namespace, collection, _id).then(_ => true, _ => false);
+        return this.getDoc(namespace, collection, _id).then(() => true, () => false);
     },
 
     async lastEventId() {

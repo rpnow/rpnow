@@ -1,22 +1,13 @@
-FROM node:8-alpine
+FROM debian:buster-slim
 
-RUN apk add --no-cache tini
+RUN apt-get update && apt-get install -y curl libcap2-bin tini
 
-WORKDIR /usr/src/app/
+COPY ./install.sh /tmp/
+RUN /tmp/install.sh
 
-COPY ./package.json ./package-lock.json ./
-RUN npm install --production
+EXPOSE 80 443
 
-COPY ./src/ ./src/
-
-ENV NODE_ENV 'production'
-ENV RPNOW_PORT ''
-ENV RPNOW_TRUST_PROXY ''
-
-RUN mkdir data
-VOLUME ./data
-
-EXPOSE 13000
-
+USER rpnow
+WORKDIR /usr/local/rpnow
 ENTRYPOINT ["tini", "--"]
-CMD ["node", "src/index.js"]
+CMD ["/usr/local/rpnow/rpnow"]

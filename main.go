@@ -45,6 +45,7 @@ func main() {
 	// api
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/health", health).Methods("GET")
+	api.HandleFunc("/dashboard", dashboard).Methods("POST")
 	api.HandleFunc("/rp", createRp).Methods("POST")
 	api.HandleFunc("/rp/import", todo).Methods("POST")
 	api.HandleFunc("/rp/import/{slug:[-0-9a-zA-Z]+}", todo).Methods("POST")
@@ -109,6 +110,10 @@ func main() {
 
 func health(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `{"rpnow":"ok"}`)
+}
+
+func dashboard(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, `{"canCreate":true,"canImport":true}`)
 }
 
 func createRp(w http.ResponseWriter, r *http.Request) {

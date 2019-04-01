@@ -1,5 +1,5 @@
 <template>
-  <div id="rp-chat">
+  <div id="app">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
@@ -64,7 +64,7 @@
       axios.get('/api/rp/' + this.readCode + '/pages')
         .then((function(res) {
           this.rp = res.data;
-          document.title = this.rp.title + ' | RPNow';
+          document.title = this.rp.title;
         }).bind(this))
         .catch((function() {
           this.loadError = 'Check the URL and try again.'
@@ -73,4 +73,3 @@
   };
 </script>
 
-<style src="./rp.css"></style>

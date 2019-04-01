@@ -1,5 +1,5 @@
 <template>
-  <div id="rp-chat" :class="{'dark-theme':nightMode}">
+  <div id="app" :class="{'dark-theme':nightMode}">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
@@ -22,7 +22,7 @@
 
         <div id="chat-header">
           <button class="icon-button" @click="openMainMenu">
-            <i class="material-icons" title="RPNow menu">menu</i>
+            <i class="material-icons" title="Site Menu">menu</i>
           </button>
           <span>
             {{ rp.title }}
@@ -31,7 +31,7 @@
 
         <div id="messages" @scroll="onScroll">
           <p id="archive-advice" v-if="rp.msgs.length >= 60">
-            To view older messages, <a :href="'/read/'+rp.readCode" target="_blank">visit the archive.</a>
+            To view older messages, <a @click="openArchive" :href="'/read/'+rp.readCode" target="_blank">visit the archive.</a>
           </p>
 
           <div id="welcome" v-if="isNewRp">
@@ -72,13 +72,13 @@
         <div class="overlay overlay-drawer" @click="showMainMenu=false"></div>
 
         <div class="drawer-header">
-          <span>RPNow</span>
+          <span>Site Menu</span>
           <button class="icon-button" @click="showMainMenu=false">
             <i class="material-icons" title="Close">close</i>
           </button>
         </div>
         <div class="drawer-body">
-          <a class="drawer-item" :href="'/read/'+rp.readCode" target="_blank">
+          <a class="drawer-item" @click="openArchive" :href="'/read/'+rp.readCode" target="_blank">
             <i class="material-icons">import_contacts</i>
             <span>Browse archive</span>
           </a>
@@ -115,10 +115,6 @@
           <a class="drawer-item" href="/" target="_blank">
             <i class="material-icons">meeting_room</i>
             <span>Return home</span>
-          </a>
-          <a class="drawer-item" href="/terms" target="_blank">
-            <i class="material-icons">account_balance</i>
-            <span>Terms of use</span>
           </a>
         </div>
       </div>
@@ -188,6 +184,8 @@
         // download dialog
         showDownloadDialog: false,
         downloadOOC: false,
+        // global list of recently visited rooms
+        recentRooms: [],
       }
     },
 
@@ -230,6 +228,7 @@
         msgBoxText: 'rpnow.'+this.rpCode+'.msgBoxContent',
         currentVoice: 'rpnow.'+this.rpCode+'.currentVoice',
         downloadOOC: 'rpnow.global.downloadOOC',
+        recentRooms: 'rpnow.global.recentRooms',
       };
 
       for (var prop in watchProps) {
@@ -252,8 +251,16 @@
         .then((function(res) {
           this.rp = res.data;
 
-          document.title = this.rp.title + ' | RPNow';
+          document.title = this.rp.title;
           this.isNewRp = this.rp.msgs.length === 0;
+
+          if (this.currentVoice.type === 'chara' && this.charasById[this.currentVoice.charaId] == null) {
+            this.currentVoice = { type: 'narrator', charaId: null };
+          }
+
+          if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
+            this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
+          }
 
           this.fetchUpdates();
         }).bind(this))
@@ -375,6 +382,14 @@
       openMainMenu: function() {
         this.showMainMenu = true;
       },
+      openArchive: function(evt) {
+        evt.preventDefault();
+        if (this.rp.readCode == null) {
+          alert('No reader URL; the admin must fix this.');
+          return;
+        }
+        window.open('/read/'+this.rp.readCode, '_blank').focus();
+      },
       onScroll: function() {
         var el = document.querySelector('#messages');
         var bottomDistance = el.scrollHeight - el.scrollTop - el.offsetHeight;
@@ -457,4 +472,3 @@
   };
 </script>
 
-<style src="./rp.css"></style>
