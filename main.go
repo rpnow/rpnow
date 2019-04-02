@@ -50,6 +50,7 @@ func main() {
 	roomAPI.HandleFunc("/download.txt", todo).Methods("GET")
 	roomAPI.HandleFunc("/export", todo).Methods("GET")
 	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
+	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
 	roomAPI.HandleFunc("/{collectionName:[a-z]+}/{docId:[0-9a-z]+}", todo).Methods("PUT")
 	roomAPI.HandleFunc("/{collectionName:[a-z]+}/history", todo).Methods("GET")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
@@ -116,7 +117,6 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println(header)
 	// generate slug
 	slug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
 	if err != nil {
@@ -170,11 +170,9 @@ func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func rpSendMsg(w http.ResponseWriter, r *http.Request) {
-	var msg RpMessage
-
+func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(*RP, Doc)) {
 	// generate key for new object
-	msg.ID = xid.New().String()
+	obj.Meta().ID = xid.New().String()
 
 	params := mux.Vars(r)
 
@@ -183,26 +181,38 @@ func rpSendMsg(w http.ResponseWriter, r *http.Request) {
 	// TODO if empty...
 
 	// populate received body
-	err := json.NewDecoder(r.Body).Decode(&msg.RpMessageBody)
+	err := obj.ParseBody(r.Body)
 	if err != nil {
 		panic(err)
 	}
 	// validate
-	err = msg.Validate()
+	err = obj.Validate()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// More
-	msg.Timestamp = time.Now()
-	msg.Userid = "nobody09c39024f1ef"
-	msg.Revision = 0
+	obj.Meta().Timestamp = time.Now()
+	obj.Meta().Userid = "nobody09c39024f1ef"
+	obj.Meta().Revision = 0
 
 	// put it in the db
-	rp.Messages = append(rp.Messages, msg)
+	doAppend(rp, obj)
 
 	// bounce it back and send
-	json.NewEncoder(w).Encode(msg)
+	json.NewEncoder(w).Encode(obj)
+}
+
+func rpSendMsg(w http.ResponseWriter, r *http.Request) {
+	rpSendThing(w, r, NewRpMessage(), func(rp *RP, obj Doc) {
+		rp.Messages = append(rp.Messages, obj.(RpMessage))
+	})
+}
+
+func rpSendChara(w http.ResponseWriter, r *http.Request) {
+	rpSendThing(w, r, NewRpChara(), func(rp *RP, obj Doc) {
+		rp.Charas = append(rp.Charas, obj.(RpChara))
+	})
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {

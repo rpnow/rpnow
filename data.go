@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"regexp"
 	"time"
 )
@@ -20,6 +22,12 @@ type SlugInfo struct {
 	Access string `json:"access"`
 }
 
+type Doc interface {
+	Meta() *DocMeta
+	ParseBody(io.ReadCloser) error
+	Validate() error
+}
+
 type DocMeta struct {
 	ID        string    `json:"_id"`
 	Revision  int       `json:"revision"`
@@ -34,8 +42,20 @@ type RpMessageBody struct {
 	CharaID string `json:"charaId,omitempty"`
 }
 type RpMessage struct {
-	RpMessageBody
-	DocMeta
+	*RpMessageBody
+	*DocMeta
+}
+
+func NewRpMessage() RpMessage {
+	return RpMessage{&RpMessageBody{}, &DocMeta{}}
+}
+
+func (x RpMessage) ParseBody(j io.ReadCloser) error {
+	return json.NewDecoder(j).Decode(x.RpMessageBody)
+}
+
+func (x RpMessage) Meta() *DocMeta {
+	return x.DocMeta
 }
 
 type RpCharaBody struct {
@@ -43,11 +63,23 @@ type RpCharaBody struct {
 	Color string `json:"color"`
 }
 type RpChara struct {
-	RpCharaBody
-	DocMeta
+	*RpCharaBody
+	*DocMeta
 }
 
-func (m *RpMessageBody) Validate() error {
+func NewRpChara() RpChara {
+	return RpChara{&RpCharaBody{}, &DocMeta{}}
+}
+
+func (x RpChara) ParseBody(j io.ReadCloser) error {
+	return json.NewDecoder(j).Decode(x.RpCharaBody)
+}
+
+func (x RpChara) Meta() *DocMeta {
+	return x.DocMeta
+}
+
+func (m RpMessageBody) Validate() error {
 	if m.Type == "image" {
 		if m.Content != "" {
 			return fmt.Errorf("Msg: image should not have 'content'")
@@ -86,7 +118,7 @@ func (m *RpMessageBody) Validate() error {
 	}
 }
 
-func (c *RpCharaBody) Validate() error {
+func (c RpCharaBody) Validate() error {
 	if len(c.Name) == 0 {
 		return fmt.Errorf("Chara: name is empty")
 	}
