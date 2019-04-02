@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,29 +15,21 @@ import (
 
 	"github.com/gorilla/mux"
 	gonanoid "github.com/matoous/go-nanoid"
-	"github.com/rpnow/rpnow/db"
 	"github.com/rs/xid"
 )
 
 var port = 13000
 var addr = fmt.Sprintf(":%d", port)
 
+var RPsByID map[string]*RP
+var SlugMap map[string]SlugInfo
+
 func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
 
-	// db
-	if err := db.Open("./data/rpnow.boltdb"); err != nil {
-		log.Fatal(err)
-	}
-	defer func() {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Println("Database stopped")
-	}()
-
+	RPsByID = make(map[string]*RP)
+	SlugMap = make(map[string]SlugInfo)
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -58,14 +49,14 @@ func main() {
 	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", todo).Methods("GET")
 	roomAPI.HandleFunc("/download.txt", todo).Methods("GET")
 	roomAPI.HandleFunc("/export", todo).Methods("GET")
-	roomAPI.HandleFunc("/{collectionName:[a-z]+}", rpSendThing).Methods("POST")
+	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
 	roomAPI.HandleFunc("/{collectionName:[a-z]+}/{docId:[0-9a-z]+}", todo).Methods("PUT")
 	roomAPI.HandleFunc("/{collectionName:[a-z]+}/history", todo).Methods("GET")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
 	router.HandleFunc("/", indexHTML).Methods("GET")
-	router.HandleFunc("/terms", indexHTML).Methods("GET")
+	router.HandleFunc("/import", indexHTML).Methods("GET")
 	router.HandleFunc("/format", indexHTML).Methods("GET")
 	router.HandleFunc("/rp/{rpCode}", indexHTML).Methods("GET")
 	router.HandleFunc("/read/{rpCode}", indexHTML).Methods("GET")
@@ -118,7 +109,9 @@ func dashboard(w http.ResponseWriter, r *http.Request) {
 
 func createRp(w http.ResponseWriter, r *http.Request) {
 	// parse rp header fields
-	var header RpHeader
+	var header struct {
+		Title string
+	}
 	err := json.NewDecoder(r.Body).Decode(&header)
 	if err != nil {
 		panic(err)
@@ -139,66 +132,24 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	rpid := "rp_" + xid.New().String()
 
 	// add to db
-	db.Add(&db.Doc{Namespace: rpid, Collection: "head", ID: "0", Value: &header})
-	db.Add(&db.Doc{Namespace: rpid, Collection: "readCode", ID: "0", Value: &ReadCodeInfo{ReadCode: readSlug}})
-	db.Add(&db.Doc{Namespace: "system", Collection: "slugs", ID: slug, Value: &SlugInfo{Rpid: rpid}})
-	db.Add(&db.Doc{Namespace: "system", Collection: "slugs", ID: readSlug, Value: &SlugInfo{Rpid: rpid}})
+	SlugMap[slug] = SlugInfo{rpid, "normal"}
+	SlugMap[readSlug] = SlugInfo{rpid, "read"}
+	RPsByID[rpid] = &RP{header.Title, readSlug, []RpMessage{}, []RpChara{}, 2}
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
 func rpChat(w http.ResponseWriter, r *http.Request) {
-	// data to be sent
-	data := struct {
-		*RpHeader
-		*ReadCodeInfo
-		Msgs    []json.RawMessage `json:"msgs"`
-		Charas  []json.RawMessage `json:"charas"`
-		LastSeq int               `json:"lastEventId"`
-	}{
-		Msgs:   make([]json.RawMessage, 0),
-		Charas: make([]json.RawMessage, 0),
-	}
-
 	// parse slug
 	params := mux.Vars(r)
+
 	// get rpid from slug
-	var slugInfo SlugInfo
-	err := db.One(&db.Doc{Namespace: "system", Collection: "slugs", ID: params["slug"], Value: &slugInfo})
-	if err != nil {
-		panic(err)
-	}
-	// get rp data
-	err = db.One(&db.Doc{Namespace: slugInfo.Rpid, Collection: "head", ID: "0", Value: &data.RpHeader})
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.One(&db.Doc{Namespace: slugInfo.Rpid, Collection: "readCode", ID: "0", Value: &data.ReadCodeInfo})
-	if err != nil {
-		panic(err)
-	}
-
-	msgs, err := db.Query([]byte(slugInfo.Rpid+"/msgs/"), db.Filters{})
-	if err != nil {
-		panic(err)
-	}
-	for _, v := range msgs {
-		data.Msgs = append(data.Msgs, v.PublicValue())
-	}
-
-	charas, err := db.Query([]byte(slugInfo.Rpid+"/charas/"), db.Filters{})
-	if err != nil {
-		panic(err)
-	}
-	for _, v := range charas {
-		data.Charas = append(data.Charas, v.PublicValue())
-	}
-
-	data.LastSeq = 2
+	slugInfo := SlugMap[params["slug"]]
+	rp := RPsByID[slugInfo.Rpid]
+	// TODO if empty...
 
 	// send data
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(rp)
 }
 
 func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
@@ -219,52 +170,39 @@ func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func rpSendThing(w http.ResponseWriter, r *http.Request) {
-	var doc db.Doc
+func rpSendMsg(w http.ResponseWriter, r *http.Request) {
+	var msg RpMessage
 
 	// generate key for new object
-	doc.ID = xid.New().String()
+	msg.ID = xid.New().String()
 
 	params := mux.Vars(r)
-	doc.Collection = params["collectionName"]
 
-	var slugInfo SlugInfo
-	err := db.One(&db.Doc{Namespace: "system", Collection: "slugs", ID: params["slug"], Value: &slugInfo})
+	slugInfo := SlugMap[params["slug"]]
+	rp := RPsByID[slugInfo.Rpid]
+	// TODO if empty...
+
+	// populate received body
+	err := json.NewDecoder(r.Body).Decode(&msg.RpMessageBody)
 	if err != nil {
 		panic(err)
 	}
-	doc.Namespace = slugInfo.Rpid
-
-	// validate value
-	if doc.Collection == "msgs" {
-		var body RpMessageBody
-		err := json.NewDecoder(r.Body).Decode(&body)
-		if err != nil {
-			panic(err)
-		}
-		doc.Value = body
-	} else if doc.Collection == "charas" {
-		var body RpCharaBody
-		err := json.NewDecoder(r.Body).Decode(&body)
-		if err != nil {
-			panic(err)
-		}
-		doc.Value = body
-	} else {
-		panic(fmt.Errorf("Invalid collection: %s", doc.Collection))
+	// validate
+	err = msg.Validate()
+	if err != nil {
+		panic(err)
 	}
 
 	// More
-	ipStr, _, _ := net.SplitHostPort(r.RemoteAddr)
-	doc.IP = net.ParseIP(ipStr)
-	doc.Timestamp = time.Now()
-	doc.Userid = "nobody09c39024f1ef"
+	msg.Timestamp = time.Now()
+	msg.Userid = "nobody09c39024f1ef"
+	msg.Revision = 0
 
 	// put it in the db
-	db.Add(&doc)
+	rp.Messages = append(rp.Messages, msg)
 
 	// bounce it back and send
-	json.NewEncoder(w).Encode(doc.PublicValue())
+	json.NewEncoder(w).Encode(msg)
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {

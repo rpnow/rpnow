@@ -3,20 +3,28 @@ package main
 import (
 	"fmt"
 	"regexp"
+	"time"
 )
+
+type RP struct {
+	Title    string      `json:"title"`
+	ReadCode string      `json:"readCode"`
+	Messages []RpMessage `json:"msgs"`
+	Charas   []RpChara   `json:"charas"`
+	LastSeq  int         `json:"lastEventId"`
+}
 
 // SlugInfo describes what URL corresponds to what RP
 type SlugInfo struct {
-	Rpid string `json:"rpid"`
+	Rpid   string `json:"rpid"`
+	Access string `json:"access"`
 }
 
-type ReadCodeInfo struct {
-	ReadCode string `json:"readCode"`
-}
-
-// RpHeader holds info about the RP's title, and (later?) other RP metadata
-type RpHeader struct {
-	Title string `json:"title"`
+type DocMeta struct {
+	ID        string    `json:"_id"`
+	Revision  int       `json:"revision"`
+	Timestamp time.Time `json:"timestamp"`
+	Userid    string    `json:"userid"`
 }
 
 type RpMessageBody struct {
@@ -25,10 +33,18 @@ type RpMessageBody struct {
 	URL     string `json:"url,omitempty"`
 	CharaID string `json:"charaId,omitempty"`
 }
+type RpMessage struct {
+	RpMessageBody
+	DocMeta
+}
 
 type RpCharaBody struct {
 	Name  string `json:"name"`
 	Color string `json:"color"`
+}
+type RpChara struct {
+	RpCharaBody
+	DocMeta
 }
 
 func (m *RpMessageBody) Validate() error {
