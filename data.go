@@ -9,6 +9,7 @@ import (
 )
 
 type RP struct {
+	Rpid     string      `json:"-"`
 	Title    string      `json:"title"`
 	ReadCode string      `json:"readCode"`
 	Messages []RpMessage `json:"msgs"`

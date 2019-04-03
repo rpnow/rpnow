@@ -24,6 +24,7 @@ var addr = fmt.Sprintf(":%d", port)
 
 var RPsByID map[string]*RP
 var SlugMap map[string]SlugInfo
+var Revisions map[string][]json.RawMessage
 
 func main() {
 	// Print "Goodbye" after all defer statements are done
@@ -31,6 +32,7 @@ func main() {
 
 	RPsByID = make(map[string]*RP)
 	SlugMap = make(map[string]SlugInfo)
+	Revisions = make(map[string][]json.RawMessage)
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -54,8 +56,8 @@ func main() {
 	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}", rpUpdateMsg).Methods("PUT")
 	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}", rpUpdateChara).Methods("PUT")
-	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", todo).Methods("GET")
-	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", todo).Methods("GET")
+	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", rpGetThingHistory).Methods("GET")
+	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", rpGetThingHistory).Methods("GET")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
@@ -137,7 +139,7 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	// add to db
 	SlugMap[slug] = SlugInfo{rpid, "normal"}
 	SlugMap[readSlug] = SlugInfo{rpid, "read"}
-	RPsByID[rpid] = &RP{header.Title, readSlug, []RpMessage{}, []RpChara{}, 2}
+	RPsByID[rpid] = &RP{rpid, header.Title, readSlug, []RpMessage{}, []RpChara{}, 2}
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
@@ -202,8 +204,13 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(
 	// put it in the db
 	doAppend(rp, obj)
 
+	// store revision as raw json?? meh
+	revid := fmt.Sprintf("%s/%s", rp.Rpid, obj.Meta().ID)
+	js, _ := json.Marshal(obj)
+	Revisions[revid] = append(Revisions[revid], js)
+
 	// bounce it back and send
-	json.NewEncoder(w).Encode(obj)
+	w.Write(js)
 }
 
 func rpSendMsg(w http.ResponseWriter, r *http.Request) {
@@ -247,8 +254,13 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, getOldDoc func(*RP, s
 	// put it in the db
 	doUpdate(rp, obj)
 
+	// store revision as raw json?? meh
+	revid := fmt.Sprintf("%s/%s", rp.Rpid, obj.Meta().ID)
+	js, _ := json.Marshal(obj)
+	Revisions[revid] = append(Revisions[revid], js)
+
 	// bounce it back and send
-	json.NewEncoder(w).Encode(obj)
+	w.Write(js)
 }
 
 func rpUpdateMsg(w http.ResponseWriter, r *http.Request) {
@@ -267,6 +279,21 @@ func rpUpdateChara(w http.ResponseWriter, r *http.Request) {
 	}, func(rp *RP, obj Doc) {
 		// rp.Charas = append(rp.Charas, obj.(RpChara))
 	})
+}
+
+func rpGetThingHistory(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	slugInfo := SlugMap[params["slug"]]
+	rp := RPsByID[slugInfo.Rpid]
+	// TODO if empty...
+
+	id := params["docId"]
+
+	revisions := Revisions[rp.Rpid+"/"+id]
+
+	// bounce it back and send
+	json.NewEncoder(w).Encode(revisions)
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
