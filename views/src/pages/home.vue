@@ -59,7 +59,7 @@
       initializeAuth: initializeAuth,
       createRp: function() {
         // this.title = prompt("What is this RP called?");
-        this.title = 'hi'
+        this.title = coolstory.title(20);
 
         if (this.title == null) return;
 
