@@ -39,7 +39,7 @@
     props: [
       'send',
     ],
-    data: function() {
+    data() {
       return {
         // image post dialog
         showImageDialog: false,
@@ -51,13 +51,13 @@
       };
     },
     computed: {
-      imageDialogIsWellFormed: function() {
-        var urlRegex = /^https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]+$/gi;
+      imageDialogIsWellFormed() {
+        const urlRegex = /^https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]+$/gi;
         return !!this.imageDialogUrl.match(urlRegex);
       },
     },
     methods: {
-      open: function(msg) {
+      open(msg) {
         if (msg != null) {
           this.imageDialogId = msg._id;
           this.imageDialogUrl = msg.url;
@@ -67,10 +67,10 @@
         }
         this.showImageDialog = true;
       },
-      submit: function() {
+      submit() {
         if (!this.imageDialogIsValid) return;
 
-        var data = {
+        const data = {
           type: 'image',
           url: this.imageDialogUrl,
         };
@@ -79,17 +79,17 @@
         this.isDialogSending = true;
 
         this.send(data, this.imageDialogId)
-          .then((function() {
+          .then(() => {
             this.isDialogSending = false;
-          }).bind(this))
-          .catch((function() {
+          })
+          .catch(() => {
             this.isDialogSending = false;
-          }).bind(this));
+          });
       }
     },
     watch: {
       // validate the image dialog to see if an image can actually be loaded
-      'imageDialogUrl': function(url) {
+      imageDialogUrl(url) {
         if (!this.imageDialogIsWellFormed) {
           this.imageDialogIsChecking = false;
           this.imageDialogIsValid = false;
@@ -99,22 +99,22 @@
         this.imageDialogIsChecking = true;
         this.imageDialogIsValid = false;
 
-        new Promise(function(resolve) {
-          var img = document.createElement('img');
+        new Promise((resolve) => {
+          const img = document.createElement('img');
 
-          img.addEventListener('load', function() { resolve(true) });
-          img.addEventListener('error', function() { resolve(false) });
-          img.addEventListener('abort', function() { resolve(false) });
-          setTimeout(function() { resolve(false) }, 45000);
+          img.addEventListener('load', () => resolve(true));
+          img.addEventListener('error', () => resolve(false));
+          img.addEventListener('abort', () => resolve(false));
+          setTimeout(() => resolve(false), 45000);
 
           img.src = url;
-        }).then((function(result) {
+        }).then((result) => {
           // ignore if another change has happened since this one
           if (this.imageDialogUrl !== url) return;
 
           this.imageDialogIsChecking = false;
           this.imageDialogIsValid = result;
-        }).bind(this));
+        });
       },
     }
   };

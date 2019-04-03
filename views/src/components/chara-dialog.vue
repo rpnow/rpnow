@@ -31,7 +31,7 @@
     props: [
       'send',
     ],
-    data: function() {
+    data() {
       return {
         showCharacterDialog: false,
         charaDialogId: null,
@@ -41,12 +41,12 @@
       };
     },
     computed: {
-      isValid: function() {
+      isValid() {
         return this.charaDialogName.trim().length > 0;
       },
     },
     methods: {
-      open: function(chara) {
+      open(chara) {
         if (chara != null) {
           this.charaDialogId = chara._id;
           this.charaDialogName = chara.name;
@@ -58,15 +58,15 @@
         }
         this.showCharacterDialog = true;
       },
-      close: function() {
+      close() {
         if (!this.isDialogSending) {
           this.showCharacterDialog = false;
         }
       },
-      submit: function() {
+      submit() {
         if (!this.isValid) return;
 
-        var data = {
+        const data = {
           name: this.charaDialogName,
           color: this.charaDialogColor,
         };
@@ -75,42 +75,36 @@
         this.isDialogSending = true;
 
         this.send(data, this.charaDialogId)
-          .then((function(res) {
+          .then(res => {
             if (this.charaDialogId) {
               this.$emit('edited', res);
             } else {
               this.$emit('created', res);
             }
             this.isDialogSending = false;
-          }).bind(this))
-          .catch((function() {
+          })
+          .catch(() => {
             this.isDialogSending = false;
-          }).bind(this));
+          });
       }
     },
     components: {
       'spectrum-colorpicker': {
         props: ['value'],
-        render: function(h) { return h('input', { ref: 'colorpicker' }) },
-        mounted: function() {
-          var vm = this;
+        render: h => h('input', { ref: 'colorpicker' }),
+        mounted() {
+          const emitInput = (color) => this.$emit('input', color.toHexString());
           jQuery(this.$refs['colorpicker']).spectrum({
             color: this.value,
             showInput: true,
             preferredFormat: "hex",
-            move: function(color) {
-              vm.$emit('input', color.toHexString());
-            },
-            change: function(color) {
-              vm.$emit('input', color.toHexString());
-            },
-            hide: function(color) {
-              vm.$emit('input', color.toHexString());
-            },
+            move: emitInput,
+            change: emitInput,
+            hide: emitInput,
           });
         },
         watch: {
-          value: function(value) {
+          value(value) {
             jQuery(this.$refs.el).spectrum('set', value);
           }
         }

@@ -8,12 +8,12 @@
 
 <script>
   module.exports = {
-    data: function() {
+    data() {
       return {
         route: ''
       };
     },
-    mounted: function() {
+    mounted() {
       this.route = location.pathname;
     }
   };

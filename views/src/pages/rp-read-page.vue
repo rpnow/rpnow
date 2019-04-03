@@ -68,7 +68,7 @@
     components: {
       RpMessage
     },
-    data: function() {
+    data() {
       return {
         pageNumber: null,
         readCode: null,
@@ -76,39 +76,39 @@
         loadError: null,
       };
     },
-    beforeMount: function() {
+    beforeMount() {
       // get rpCode from URL
       this.pageNumber = +(location.pathname.match(/\/page\/(\d+)/))[1];
       this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
     },
     computed: {
-      charasById: function() {
-        return this.rp.charas.reduce(function(map, chara) {
+      charasById() {
+        return this.rp.charas.reduce((map, chara) => {
           map[chara._id] = chara;
           return map;
         }, {});
       },
-      isFirstPage: function() {
+      isFirstPage() {
         return this.pageNumber === 1;
       },
-      isLastPage: function() {
+      isLastPage() {
         return this.rp.pageCount <= this.pageNumber;
       }
     },
     methods: {
-      changePage: function(pageNumber) {
+      changePage(pageNumber) {
         location.href = './'+pageNumber;
       }
     },
-    mounted: function() {
+    mounted() {
       axios.get('/api/rp/' + this.readCode + '/pages/' + this.pageNumber)
-        .then((function(res) {
+        .then(res => {
           this.rp = res.data;
           document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title;
-        }).bind(this))
-        .catch((function() {
+        })
+        .catch(() => {
           this.loadError = 'Check the URL and try again.'
-        }).bind(this));
+        });
     },
   };
 </script>

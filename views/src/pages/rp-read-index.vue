@@ -44,31 +44,31 @@
   import axios from 'axios';
 
   export default {
-    data: function() {
+    data() {
       return {
         readCode: null,
         rp: null,
         loadError: null,
       };
     },
-    beforeMount: function() {
+    beforeMount() {
       // get rpCode from URL
       this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
     },
     methods: {
-      changePage: function(pageNumber) {
+      changePage(pageNumber) {
         location.href = './'+pageNumber;
       }
     },
-    mounted: function() {
+    mounted() {
       axios.get('/api/rp/' + this.readCode + '/pages')
-        .then((function(res) {
+        .then(res => {
           this.rp = res.data;
           document.title = this.rp.title;
-        }).bind(this))
-        .catch((function() {
+        })
+        .catch(() => {
           this.loadError = 'Check the URL and try again.'
-        }).bind(this));
+        });
     },
   };
 </script>

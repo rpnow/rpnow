@@ -98,7 +98,7 @@
   import coolstory from 'coolstory.js';
 
   export default {
-    data: function() {
+    data() {
       return {
         recentRooms: [],
         loading: true,
@@ -106,7 +106,7 @@
         canImport: false,
       };
     },
-    beforeMount: function() {
+    beforeMount() {
       document.title = 'My RPs on ' + location.hostname;
       try {
         this.recentRooms = JSON.parse(localStorage.getItem('rpnow.global.recentRooms') || '[]')
@@ -114,15 +114,15 @@
         // no big deal
       }
       axios.post('/api/dashboard')
-        .then((function(res) {
+        .then(res => {
           this.canCreate = res.data.canCreate;
           this.canImport = res.data.canImport;
           this.loading = false;
-        }).bind(this))
+        });
     },
     methods: {
       initializeAuth: initializeAuth,
-      createRp: function() {
+      createRp() {
         // this.title = prompt("What is this RP called?");
         this.title = coolstory.title(20);
 
@@ -130,31 +130,25 @@
 
         this.submitRp();
       },
-      spinTitle: function() {
-        var millis = 10.0;
+      spinTitle() {
+        let millis = 10.0;
 
-        var changeTitle = (function() {
-          this.title = coolstory.title(20);
-        }).bind(this);
+        const changeTitle = () => this.title = coolstory.title(20);
 
         while ((millis *= 1.15) < 200.0 / .15) {
           setTimeout(changeTitle, millis);
         }
       },
-      submitRp: function() {
+      submitRp() {
         this.loading = true;
 
         this.initializeAuth()
-          .then((function() {
-            return axios.post('/api/rp', { title: this.title })
-          }).bind(this))
-          .then(function(res) {
-            window.location.href = '/rp/' + res.data.rpCode;
-          })
-          .catch((function(err) {
+          .then(() => axios.post('/api/rp', { title: this.title }))
+          .then(res => window.location.href = '/rp/' + res.data.rpCode)
+          .catch((err) => {
             this.loading = false;
             alert('Failed to create RP: (' + err + ')');
-          }).bind(this));
+          });
       },
     }
   };

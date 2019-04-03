@@ -53,16 +53,16 @@
       'currentVoice',
       'send',
     ],
-    data: function() {
+    data() {
       return {
         showCharacterMenu: false,
       }
     },
     methods: {
-      open: function() {
+      open() {
         this.showCharacterMenu = true;
       },
-      selectCharacter: function(type, charaId) {
+      selectCharacter(type, charaId) {
         this.$emit('select-voice', { type: type, charaId: charaId || null });
         if (window.matchMedia("(max-width: 1023px)").matches) {
           this.showCharacterMenu = false;

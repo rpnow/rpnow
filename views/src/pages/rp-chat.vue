@@ -160,7 +160,7 @@
       CharaDrawer
     },
 
-    data: function() {
+    data() {
       return {
         // rp data
         rpCode: null,
@@ -190,7 +190,7 @@
     },
 
     // localStorage reactivity
-    beforeMount: function() {
+    beforeMount() {
       // get rpCode from URL
       this.rpCode = location.pathname.match(/\/rp\/([^/]+)/)[1];
 
@@ -242,13 +242,13 @@
     },
 
     // when the page is loaded, load the rp
-    mounted: function() {
+    mounted() {
       this.initializeAuth()
-        .then((function(data) {
+        .then(data => {
           this.user = data;
           return axios.get('/api/rp/' + this.rpCode)
-        }).bind(this))
-        .then((function(res) {
+        })
+        .then(res => {
           this.rp = res.data;
 
           document.title = this.rp.title;
@@ -263,8 +263,8 @@
           }
 
           this.fetchUpdates();
-        }).bind(this))
-        .catch((function(err) {
+        })
+        .catch(err => {
           if (!err.response) {
             this.loadError = 'Failed to connect.';
           } else if (err.response.status === 403) {
@@ -272,18 +272,18 @@
           } else {
             this.loadError = 'Check the URL and try again.';
           }
-        }).bind(this));
+        });
 
       // also initialize the localStorage stuff
     },
 
     computed: {
-      linkToHere: function() {
+      linkToHere() {
         return location.href;
       },
       // rp charas grouped by id
-      charasById: function() {
-        return this.rp.charas.reduce(function(map, chara) {
+      charasById() {
+        return this.rp.charas.reduce((map, chara) => {
           map[chara._id] = chara;
           return map;
         }, {});
@@ -292,23 +292,19 @@
 
     methods: {
       initializeAuth: initializeAuth,
-      fetchUpdates: function() {
-        var scheduleNextUpdate = (function() {
-          setTimeout(this.fetchUpdates.bind(this), 5000);
-        }).bind(this);
+      fetchUpdates() {
+        const scheduleNextUpdate = () => setTimeout(() => this.fetchUpdates(), 5000);
 
         axios.get('/api/rp/' + this.rpCode + '/updates?since=' + this.rp.lastEventId)
-          .then((function(res) {
+          .then(res => {
             this.consecutiveNetworkFailures = 0;
             this.rp.lastEventId = res.data.lastEventId;
 
-            res.data.updates.forEach((function(update) {
-              this.updateState(update);
-            }).bind(this));
+            res.data.updates.forEach(update => this.updateState(update));
 
             scheduleNextUpdate();
-          }).bind(this))
-          .catch((function(err) {
+          })
+          .catch(err => {
             if (!err.response) {
               this.consecutiveNetworkFailures++;
               scheduleNextUpdate();
@@ -316,14 +312,14 @@
               this.rp = null;
               this.loadError = err.response;
             }
-          }).bind(this))
+          });
       },
-      updateState: function(update) {
+      updateState(update) {
         var arr = this.rp[update.type];
 
-        arr = arr.filter(function(item) { return item._id !== update.data._id });
+        arr = arr.filter(item => item._id !== update.data._id);
         arr.push(update.data);
-        arr.sort(function(a, b) { return a._id < b._id ? -1 : 1 });
+        arr.sort((a, b) => a._id < b._id ? -1 : 1);
 
         // keep no more than 60 messages
         if (update.type === 'msgs') {
@@ -332,57 +328,55 @@
 
         this.rp[update.type] = arr;
       },
-      sendUpdate: function(type, body, _id) {
+      sendUpdate(type, body, _id) {
         return axios.request({
           method: (_id ? 'put' : 'post'),
           url: '/api/rp/' + this.rpCode + '/' + type + (_id ? ('/' + _id) : ''),
           data: body
         })
-          .then((function(res) {
+          .then(res => {
             this.updateState({ type: type, data: res.data });
             return res.data;
-          }).bind(this))
-          .catch((function(err) {
+          })
+          .catch(err => {
             alert('Error! ' + err)
             throw err;
-          }).bind(this));
+          });
       },
-      sendMessage: function(data, _id) {
+      sendMessage(data, _id) {
         return this.sendUpdate('msgs', data, _id);
       },
-      sendChara: function(data, _id) {
+      sendChara(data, _id) {
         return this.sendUpdate('charas', data, _id);
       },
-      getHistory: function(type, _id) {
+      getHistory(type, _id) {
         return axios.get('/api/rp/' + this.rpCode + '/' + type + '/' + _id + '/history')
-          .then((function(res) {
-            return res.data;
-          }).bind(this))
-          .catch((function(err) {
+          .then(res => res.data)
+          .catch(err => {
             alert('Error! ' + err)
             throw err;
-          }).bind(this));
+          });
       },
-      getMessageHistory: function(_id) {
+      getMessageHistory(_id) {
         return this.getHistory.bind(this, 'msgs', _id);
       },
-      openDownloadDialog: function() {
+      openDownloadDialog() {
         this.showDownloadDialog = true;
       },
-      closeDownloadDialog: function() {
+      closeDownloadDialog() {
         this.showDownloadDialog = false;
       },
-      downloadTxt: function() {
+      downloadTxt() {
         if (this.downloadOOC) {
           window.open('/api/rp/'+this.rp.readCode+'/download.txt?includeOOC=true', '_blank').focus();
         } else {
           window.open('/api/rp/'+this.rp.readCode+'/download.txt', '_blank').focus();
         }
       },
-      openMainMenu: function() {
+      openMainMenu() {
         this.showMainMenu = true;
       },
-      openArchive: function(evt) {
+      openArchive(evt) {
         evt.preventDefault();
         if (this.rp.readCode == null) {
           alert('No reader URL; the admin must fix this.');
@@ -390,7 +384,7 @@
         }
         window.open('/read/'+this.rp.readCode, '_blank').focus();
       },
-      onScroll: function() {
+      onScroll() {
         var el = document.querySelector('#messages');
         var bottomDistance = el.scrollHeight - el.scrollTop - el.offsetHeight;
         this.isScrolledToBottom = bottomDistance < 31;
@@ -398,13 +392,13 @@
           this.unreadMessagesIndicator = false;
         }
       },
-      rescrollToBottom: function() {
+      rescrollToBottom() {
         if (!this.isScrolledToBottom) return;
 
-        this.$nextTick((function() {
-          var el = document.querySelector('#messages');
+        this.$nextTick(() => {
+          const el = document.querySelector('#messages');
           el.scrollTop = el.scrollHeight - el.offsetHeight;
-        }).bind(this));
+        });
       },
       doMessageAlert: (function() {
         var oldTitle = null;
@@ -448,9 +442,9 @@
           alert('Could not get notification permissions.')
         } else if (Notification.permission === 'default') {
           this.browserAlerts = false;
-          Notification.requestPermission().then((function(result) {
+          Notification.requestPermission().then(result => {
             if (result === 'granted') this.browserAlerts = true;
-          }).bind(this));
+          });
         }
       },
       // actions for when a new message comes in

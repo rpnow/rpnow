@@ -58,42 +58,42 @@
       'send',
       'voice',
     ],
-    data: function() {
+    data() {
       return {
         msgBoxText: '',
         isMsgBoxSending: false,
       };
     },
     computed: {
-      currentChara: function() {
+      currentChara() {
         if (this.voice.type !== 'chara') return undefined;
         return this.charasById[this.voice.charaId]
       },
-      currentVoiceName: function() {
+      currentVoiceName() {
         if (this.voice.type === 'narrator') return 'Narrator';
         if (this.voice.type === 'ooc') return 'Out of Character';
         return this.currentChara.name;
       },
-      currentCharaColor: function() {
+      currentCharaColor() {
         if (this.voice.type !== 'chara') return undefined;
         return this.currentChara.color;
       },
-      messageBoxClass: function() {
+      messageBoxClass() {
         return 'send-box-' + this.voice.type;
       },
-      messageBoxStyle: function() {
+      messageBoxStyle() {
         if (this.voice.type !== 'chara') return {};
         else return {
           'background-color': this.currentCharaColor,
           'color': tinycolor(this.currentCharaColor).isLight() ? 'black' : 'white',
         };
       },
-      msgBoxValid: function() {
+      msgBoxValid() {
         return this.msgBoxText.trim().length > 0;
       },
     },
     methods: {
-      applyShortcutsToMessage: function(msg) {
+      applyShortcutsToMessage(msg) {
         if (msg.type !== 'ooc') {
           var oocShortcuts = [
             /^\({2,}\s*(.*?[^\s])\s*\)*$/g, // (( message text ))
@@ -110,7 +110,7 @@
         }
         return msg;
       },
-      submit: function() {
+      submit() {
         if (!this.msgBoxValid) return;
 
         var wasFocused = (document.activeElement === document.querySelector('#typing-area textarea'));
@@ -126,16 +126,16 @@
         this.isMsgBoxSending = true;
 
         this.send(data)
-          .then((function() {
+          .then(() => {
             this.msgBoxText = '';
             this.isMsgBoxSending = false;
-            if (wasFocused) this.$nextTick(function() { document.querySelector('#typing-area textarea').focus() });
-          }).bind(this))
-          .catch((function() {
+            if (wasFocused) this.$nextTick(() => document.querySelector('#typing-area textarea').focus());
+          })
+          .catch(() => {
             this.isMsgBoxSending = false;
-          }).bind(this));
+          });
       },
-      resizeTextareaOnInput: function($event, minRows, maxRows) {
+      resizeTextareaOnInput($event, minRows, maxRows) {
         var el = $event.target;
         while (el.rows > minRows && el.scrollHeight <= el.offsetHeight) {
           el.rows = el.rows - 1;
@@ -144,7 +144,7 @@
           el.rows = el.rows + 1;
         }
       },
-      showFormatGuide: function() {
+      showFormatGuide() {
         window.open('/format', '_blank').focus();
       },
     }

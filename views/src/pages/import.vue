@@ -24,7 +24,7 @@
   import axios from 'axios';
 
   export default {
-    data: function() {
+    data() {
       return {
         submitted: false,
         importing: false,
@@ -32,32 +32,30 @@
     },
     methods: {
       initializeAuth: require('../components/user'),
-      uploadJson: function() {
+      uploadJson() {
         var file = this.$refs.fileInput.files[0];
         this.submitted = true;
 
         this.initializeAuth()
-          .then((function() {
+          .then(() => {
             var data = new FormData();
             data.append('file', file);
             return axios.post('/api/rp/import', data);
-          }).bind(this))
-          .then((function(res) {
+          })
+          .then(res => {
             this.importing = true;
             this.waitForImport(res.data.rpCode)
-          }).bind(this))
-          .catch((function(err) {
+          })
+          .catch(err => {
             this.submitted = false;
             alert('Failed to import RP: (' + err + ')');
-          }).bind(this));
+          });
       },
-      waitForImport: function(rpCode) {
-        var scheduleNextUpdate = (function() {
-          setTimeout(this.waitForImport.bind(this, rpCode), 5000);
-        }).bind(this);
+      waitForImport(rpCode) {
+        const scheduleNextUpdate = () => setTimeout(() => this.waitForImport(rpCode), 5000);
 
         axios.post('/api/rp/import/' + rpCode, {})
-          .then((function(res) {
+          .then(res => {
             if (res.data.status === 'pending') {
               scheduleNextUpdate();
             } else if (res.data.status === 'success') {
@@ -67,8 +65,8 @@
               this.importing = false;
               this.submitted = false;
             }
-          }).bind(this))
-          .catch((function(err) {
+          })
+          .catch(err => {
             if (!err.response) {
               scheduleNextUpdate();
             } else {
@@ -76,7 +74,7 @@
               this.importing = false;
               this.submitted = false;
             }
-          }).bind(this))
+          })
       },
     }
   };

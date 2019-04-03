@@ -103,7 +103,7 @@
       'send',
       'getHistory',
     ],
-    data: function() {
+    data() {
       return {
         editing: false,
         newContent: '',
@@ -115,48 +115,49 @@
       }
     },
     computed: {
-      isNarrator: function() { return this.type === 'narrator' },
-      isOOC: function() { return this.type === 'ooc' },
-      isChara: function() { return this.type === 'chara' },
-      isImage: function() { return this.type === 'image' },
-      charaColor: function() { return this.isChara ? this.chara.color : null },
-      charaName: function() { return this.isChara ? this.chara.name : null },
-      elementClasses: function() {
+      isNarrator() { return this.type === 'narrator' },
+      isOOC() { return this.type === 'ooc' },
+      isChara() { return this.type === 'chara' },
+      isImage() { return this.type === 'image' },
+      charaColor() { return this.isChara ? this.chara.color : null },
+      charaName() { return this.isChara ? this.chara.name : null },
+      elementClasses() {
         return [
           'message',
           'message-'+this.type,
           {'message-sending':this.sending},
         ];
       },
-      useridColors: function() {
+      useridColors() {
         // get the last 6 digits of the userid and turn it into colors
         // because these are the last 6 digits of a cuid, which are pseudorandom values,
         // they're good to use for a random color string
         return [-1, -3, -5]
-          .map(function(n) { return this.userid.substr(n, 2) }.bind(this))
-          .map(function(str) { return parseInt(str, 36) })
-          .map(function(n) { return '#'+[n, (n / 6 | 0), (n / 36 | 0)]
-            .map(function(n) { return ('0'+(n % 6 * 51).toString(16)).substr(-2) })
-            .join('')
+          .map(n => this.userid.substr(n, 2))
+          .map(str => parseInt(str, 36))
+          .map(n => {
+            return '#'+[n, (n / 6 | 0), (n / 36 | 0)]
+              .map(n => ('0'+(n % 6 * 51).toString(16)).substr(-2))
+              .join('')
           });
       },
-      useridVisibility: function() {
+      useridVisibility() {
         return (this.userid && !this.editing) ? 'visible' : 'hidden';
       },
-      validEdit: function() {
+      validEdit() {
         return this.newContent.trim() && this.newContent !== this.content;
       },
-      formattedContent: function() {
+      formattedContent() {
         return this.transformRpMessage(this.content, this.charaColor);
       },
-      charaColorBw: function() {
+      charaColorBw() {
         if (!this.isChara) return null;
         return tinycolor(this.charaColor).isLight() ? 'black' : 'white';
       },
-      wasEdited: function() {
+      wasEdited() {
         return this.revision > 0;
       },
-      timeAgoText: function() {
+      timeAgoText() {
         // close enough
         var periods = [
           {label: 's', div: 60},
@@ -176,7 +177,7 @@
         if (Math.round(t) <= 0) return 'now';
         else return Math.round(t) + label;
       },
-      timeAgoTitleText: function() {
+      timeAgoTitleText() {
         if (!this.timestamp) return '';
         else return (this.wasEdited) ?
           'Edited ' + new Date(this.timestamp).toLocaleString() :
@@ -184,7 +185,7 @@
       },
     },
     methods: {
-      beginEdit: function() {
+      beginEdit() {
         if (this.isImage) {
           this.$refs.imageDialog.open({ _id: this._id, url: this.url });
         } else {
@@ -192,10 +193,10 @@
           this.newContent = this.content;
         }
       },
-      cancelEdit: function() {
+      cancelEdit() {
         this.editing = false;
       },
-      confirmEdit: function() {
+      confirmEdit() {
         this.editing = false;
         var messageData = {
           type: this.type,
@@ -204,21 +205,17 @@
         }
         this.send(messageData, this._id);
       },
-      notifySizeChange: function() {
+      notifySizeChange() {
         this.$emit('resize');
       },
-      showHistory: function() {
+      showHistory() {
         this.historyOpen = true;
-        this.getHistory().then((function(data) {
-          this.history = data;
-        }).bind(this));
+        this.getHistory().then(data => this.history = data);
       },
       transformRpMessage: transformRpMessage,
     },
-    mounted: function() {
-      this.intervalHandle = setInterval((function() {
-        this.currentTime = Date.now();
-      }).bind(this), 15*1000);
+    mounted() {
+      this.intervalHandle = setInterval(() => this.currentTime = Date.now(), 15*1000);
 
       this.notifySizeChange();
     },
@@ -228,7 +225,7 @@
       url: 'notifySizeChange',
       editing: 'notifySizeChange',
     },
-    beforeDestroy: function() {
+    beforeDestroy() {
       clearInterval(this.intervalHandle);
     }
   }
