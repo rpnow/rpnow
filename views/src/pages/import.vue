@@ -3,7 +3,7 @@
     <h1>Import RP</h1>
 
     <template v-if="!submitted">
-      <label for="json-upload">Import from rpnow.net:</label><br/>
+      <label for="json-upload">Import from file:</label><br/>
       <input type="file" ref="fileInput" accept="application/json,.json"><br/><br/>
       <button @click="uploadJson">Upload</button>
     </template>

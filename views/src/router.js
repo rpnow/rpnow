@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 import Home from './pages/home.vue'
 import Format from './pages/format.vue'
+import Import from './pages/import.vue'
 
 Vue.use(Router)
 
@@ -13,6 +14,11 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/import',
+      name: 'import',
+      component: Import
     },
     {
       path: '/format',
