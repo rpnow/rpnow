@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -51,8 +52,10 @@ func main() {
 	roomAPI.HandleFunc("/export", todo).Methods("GET")
 	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
 	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
-	roomAPI.HandleFunc("/{collectionName:[a-z]+}/{docId:[0-9a-z]+}", todo).Methods("PUT")
-	roomAPI.HandleFunc("/{collectionName:[a-z]+}/history", todo).Methods("GET")
+	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}", rpUpdateMsg).Methods("PUT")
+	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}", rpUpdateChara).Methods("PUT")
+	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", todo).Methods("GET")
+	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", todo).Methods("GET")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
@@ -212,6 +215,57 @@ func rpSendMsg(w http.ResponseWriter, r *http.Request) {
 func rpSendChara(w http.ResponseWriter, r *http.Request) {
 	rpSendThing(w, r, NewRpChara(), func(rp *RP, obj Doc) {
 		rp.Charas = append(rp.Charas, obj.(RpChara))
+	})
+}
+
+func rpUpdateThing(w http.ResponseWriter, r *http.Request, getOldDoc func(*RP, string) Doc, doUpdate func(*RP, Doc)) {
+	params := mux.Vars(r)
+
+	slugInfo := SlugMap[params["slug"]]
+	rp := RPsByID[slugInfo.Rpid]
+	// TODO if empty...
+
+	id := params["docId"]
+	obj := getOldDoc(rp, id)
+
+	// populate received body
+	err := obj.ParseBody(r.Body)
+	if err != nil {
+		panic(err)
+	}
+	// validate
+	err = obj.Validate()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// More
+	obj.Meta().Timestamp = time.Now()
+	obj.Meta().Userid = "nobody09c39024f1ef"
+	obj.Meta().Revision++
+
+	// put it in the db
+	doUpdate(rp, obj)
+
+	// bounce it back and send
+	json.NewEncoder(w).Encode(obj)
+}
+
+func rpUpdateMsg(w http.ResponseWriter, r *http.Request) {
+	rpUpdateThing(w, r, func(rp *RP, id string) Doc {
+		i := sort.Search(len(rp.Messages), func(i int) bool { return id <= rp.Messages[i].ID })
+		return rp.Messages[i]
+	}, func(rp *RP, obj Doc) {
+		// rp.Messages = append(rp.Messages, obj.(RpMessage))
+	})
+}
+
+func rpUpdateChara(w http.ResponseWriter, r *http.Request) {
+	rpUpdateThing(w, r, func(rp *RP, id string) Doc {
+		i := sort.Search(len(rp.Charas), func(i int) bool { return id <= rp.Charas[i].ID })
+		return rp.Charas[i]
+	}, func(rp *RP, obj Doc) {
+		// rp.Charas = append(rp.Charas, obj.(RpChara))
 	})
 }
 
