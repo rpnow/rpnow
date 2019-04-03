@@ -58,7 +58,8 @@
     methods: {
       initializeAuth: initializeAuth,
       createRp: function() {
-        this.title = prompt("What is this RP called?");
+        // this.title = prompt("What is this RP called?");
+        this.title = 'hi'
 
         if (this.title == null) return;
 
