@@ -35,6 +35,7 @@ func main() {
 	RPsByID = make(map[string]*RP)
 	SlugMap = make(map[string]SlugInfo)
 	Revisions = make(map[string][]json.RawMessage)
+	rooms = make(map[string]*room)
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -151,8 +152,13 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 
 	// get rpid from slug
 	slugInfo := SlugMap[params["slug"]]
-	rp := RPsByID[slugInfo.Rpid]
 	// TODO if empty...
+	if slugInfo.Access != "normal" {
+		log.Println("No chat access on " + params["slug"])
+		w.WriteHeader(403)
+		return
+	}
+	rp := RPsByID[slugInfo.Rpid]
 
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -161,9 +167,14 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	if err := conn.WriteJSON(rp); err != nil {
+	if err := conn.WriteJSON(map[string]interface{}{
+		"type": "init",
+		"data": rp,
+	}); err != nil {
 		log.Fatal(err)
 	}
+
+	join(conn, rp.Rpid)
 }
 
 func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(*RP, Doc)) {
@@ -196,12 +207,13 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(
 	doAppend(rp, obj)
 
 	// store revision as raw json?? meh
-	revid := fmt.Sprintf("%s/%s", rp.Rpid, obj.Meta().ID)
+	revid := rp.Rpid + "/" + obj.Meta().ID
 	js, _ := json.Marshal(obj)
 	Revisions[revid] = append(Revisions[revid], js)
+	rooms[rp.Rpid].broadcast <- js
 
 	// bounce it back and send
-	w.Write(js)
+	w.WriteHeader(204)
 }
 
 func rpSendMsg(w http.ResponseWriter, r *http.Request) {
@@ -246,12 +258,13 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, getOldDoc func(*RP, s
 	doUpdate(rp, obj)
 
 	// store revision as raw json?? meh
-	revid := fmt.Sprintf("%s/%s", rp.Rpid, obj.Meta().ID)
+	revid := rp.Rpid + "/" + obj.Meta().ID
 	js, _ := json.Marshal(obj)
 	Revisions[revid] = append(Revisions[revid], js)
+	rooms[rp.Rpid].broadcast <- js
 
 	// bounce it back and send
-	w.Write(js)
+	w.WriteHeader(204)
 }
 
 func rpUpdateMsg(w http.ResponseWriter, r *http.Request) {

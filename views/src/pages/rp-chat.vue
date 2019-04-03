@@ -12,12 +12,9 @@
 
     <template v-if="rp != null">
       <div id="main-column">
-        <div id="connection-indicator" v-if="consecutiveNetworkFailures > 0">
-          <i class="material-icons">error</i>
-          Connection lost!
-          <template v-if="consecutiveNetworkFailures > 1">
-            (Failed to reconnect {{ consecutiveNetworkFailures }} times.)
-          </template>
+        <div id="connection-indicator" v-if="isDisconnected" :style="{backgroundColor:disconnectedColor}">
+          <i class="material-icons">{{disconnectedIcon}}</i>
+          {{disconnectedMessage}}
         </div>
 
         <div id="chat-header">
@@ -242,72 +239,12 @@
       }
     },
 
-    // when the page is loaded, load the rp
-    // mounted() {
-    //   this.initializeAuth()
-    //     .then(data => {
-    //       this.user = data;
-    //       return axios.get('/api/rp/' + this.rpCode)
-    //     })
-    //     .then(res => {
-    //       this.rp = res.data;
-
-    //       document.title = this.rp.title;
-    //       this.isNewRp = this.rp.msgs.length === 0;
-
-    //       if (this.currentVoice.type === 'chara' && this.charasById[this.currentVoice.charaId] == null) {
-    //         this.currentVoice = { type: 'narrator', charaId: null };
-    //       }
-
-    //       if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
-    //         this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
-    //       }
-
-    //       this.fetchUpdates();
-    //     })
-    //     .catch(err => {
-    //       if (!err.response) {
-    //         this.loadError = 'Failed to connect.';
-    //       } else if (err.response.status === 403) {
-    //         this.loadError = 'This code can only be used to view an RP, not to write one.'
-    //       } else {
-    //         this.loadError = 'Check the URL and try again.';
-    //       }
-    //     });
-
-    //   // also initialize the localStorage stuff
-    // },
     mounted() {
-      const createWs = () => {
-        const url = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:13000/api/rp/${this.rpCode}/chat`
-        const ws = new WebSocket(url);
-        ws.addEventListener('open', () => {
-          this.connection = (this.connection === 'connecting') ? 'loading' : 'reloading';
-        });
-        ws.addEventListener('message', (evt) => {
-          console.log(evt.data)
-          this.updateState(JSON.parse(evt.data));
-        });
-        ws.addEventListener('close', ({ code, wasClean, reason }) => {
-          if (code === 1000) {
-            this.connection = 'done';
-          } else if (code === 1006) {
-            this.connection = 'offline';
-            setTimeout(() => {
-              createWs();
-              this.connection = 'reconnecting';
-            }, 5000);
-          } else if (reason === 'RP_NOT_FOUND') {
-            this.connection = 'done';
-            this.loadError = { code, reason };
-          } else {
-            this.connection = 'done';
-            this.loadError = { code, wasClean, reason };
-          }
-        });
-        this.websocket = ws;
-      }
-      createWs();
+      this.initializeAuth()
+        .then(data => {
+          this.user = data;
+          this.fetchUpdates();
+        })
     },
     unmounted() {
       if (this.websocket) {
@@ -326,45 +263,94 @@
           return map;
         }, {});
       },
+      isDisconnected() {
+        return this.connection !== 'connected'
+      },
+      disconnectedMessage() {
+        if (this.connection === 'offline') return 'Connection lost. Retrying in 5 seconds.';
+        if (this.connection === 'reconnecting') return 'Attempting to reconnect...';
+        if (this.connection === 'reloading') return 'Synchronizing...';
+
+        return this.connection;
+      },
+      disconnectedIcon() {
+        if (this.connection === 'reconnecting') return 'loop';
+        if (this.connection === 'reloading') return 'loop';
+
+        return 'error';
+      },
+      disconnectedColor() {
+        if (this.connection === 'offline') return 'red';
+        if (this.connection === 'reconnecting') return 'orange';
+        if (this.connection === 'reloading') return 'orange';
+
+        return 'black';
+      }
     },
 
     methods: {
       initializeAuth: initializeAuth,
       fetchUpdates() {
-        const scheduleNextUpdate = () => setTimeout(() => this.fetchUpdates(), 5000);
-
-        axios.get('/api/rp/' + this.rpCode + '/updates?since=' + this.rp.lastEventId)
-          .then(res => {
-            this.consecutiveNetworkFailures = 0;
-            this.rp.lastEventId = res.data.lastEventId;
-
-            res.data.updates.forEach(update => this.updateState(update));
-
-            scheduleNextUpdate();
-          })
-          .catch(err => {
-            if (!err.response) {
-              this.consecutiveNetworkFailures++;
-              scheduleNextUpdate();
+        const createWs = () => {
+          const url = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:13000/api/rp/${this.rpCode}/chat`
+          const ws = new WebSocket(url);
+          ws.addEventListener('open', () => {
+            this.connection = (this.connection === 'connecting') ? 'loading' : 'reloading';
+          });
+          ws.addEventListener('message', (evt) => {
+            this.connection = 'connected';
+            this.updateState(JSON.parse(evt.data));
+          });
+          ws.addEventListener('close', ({ code, wasClean, reason }) => {
+            if (code === 1000) {
+              this.connection = 'done';
+            } else if (code === 1006) {
+              this.connection = 'offline';
+              setTimeout(() => {
+                createWs();
+                this.connection = 'reconnecting';
+              }, 5000);
+            } else if (reason === 'RP_NOT_FOUND') {
+              this.connection = 'done';
+              this.loadError = { code, reason };
             } else {
-              this.rp = null;
-              this.loadError = err.response;
+              this.connection = 'done';
+              this.loadError = { code, wasClean, reason };
             }
           });
+          this.websocket = ws;
+        }
+        createWs();
       },
       updateState(update) {
-        var arr = this.rp[update.type];
+        console.log(update);
+        if (update.type === 'init') {
+          this.rp = update.data;
 
-        arr = arr.filter(item => item._id !== update.data._id);
-        arr.push(update.data);
-        arr.sort((a, b) => a._id < b._id ? -1 : 1);
+          document.title = this.rp.title;
+          this.isNewRp = this.rp.msgs.length === 0 || this.isNewRp;
 
-        // keep no more than 60 messages
-        if (update.type === 'msgs') {
-          arr = arr.slice(-60);
+          if (this.currentVoice.type === 'chara' && this.charasById[this.currentVoice.charaId] == null) {
+            this.currentVoice = { type: 'narrator', charaId: null };
+          }
+
+    //       if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
+    //         this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
+    //       }
+        } else {
+          var arr = this.rp[update.type];
+
+          arr = arr.filter(item => item._id !== update.data._id);
+          arr.push(update.data);
+          arr.sort((a, b) => a._id < b._id ? -1 : 1);
+
+          // keep no more than 60 messages
+          if (update.type === 'msgs') {
+            arr = arr.slice(-60);
+          }
+
+          this.rp[update.type] = arr;
         }
-
-        this.rp[update.type] = arr;
       },
       sendUpdate(type, body, _id) {
         return axios.request({
@@ -372,10 +358,6 @@
           url: '/api/rp/' + this.rpCode + '/' + type + (_id ? ('/' + _id) : ''),
           data: body
         })
-          .then(res => {
-            this.updateState({ type: type, data: res.data });
-            return res.data;
-          })
           .catch(err => {
             alert('Error! ' + err)
             throw err;
