@@ -21,7 +21,9 @@
 </template>
 
 <script>
-  module.exports = {
+  import axios from 'axios';
+
+  export default {
     data: function() {
       return {
         submitted: false,
@@ -30,7 +32,7 @@
     },
     methods: {
       initializeAuth: require('../components/user'),
-      uploadJson: function(evt) {
+      uploadJson: function() {
         var file = this.$refs.fileInput.files[0];
         this.submitted = true;
 
