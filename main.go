@@ -10,17 +10,19 @@ import (
 	"os/signal"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	gonanoid "github.com/matoous/go-nanoid"
 	"github.com/rs/xid"
 )
 
 var port = 13000
 var addr = fmt.Sprintf(":%d", port)
+
+var wsUpgrader = websocket.Upgrader{}
 
 var RPsByID map[string]*RP
 var SlugMap map[string]SlugInfo
@@ -46,8 +48,7 @@ func main() {
 	api.HandleFunc("/user", createUser).Methods("POST")
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
-	roomAPI.HandleFunc("/", rpChat).Methods("GET")
-	roomAPI.HandleFunc("/updates", rpChatUpdates).Methods("GET").Queries("since", "{since:[1-9][0-9]*}")
+	roomAPI.HandleFunc("/chat", rpChatStream).Methods("GET")
 	roomAPI.HandleFunc("/pages", todo).Methods("GET")
 	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", todo).Methods("GET")
 	roomAPI.HandleFunc("/download.txt", todo).Methods("GET")
@@ -139,12 +140,12 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	// add to db
 	SlugMap[slug] = SlugInfo{rpid, "normal"}
 	SlugMap[readSlug] = SlugInfo{rpid, "read"}
-	RPsByID[rpid] = &RP{rpid, header.Title, readSlug, []RpMessage{}, []RpChara{}, 2}
+	RPsByID[rpid] = &RP{rpid, header.Title, readSlug, []RpMessage{}, []RpChara{}}
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
-func rpChat(w http.ResponseWriter, r *http.Request) {
+func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	// parse slug
 	params := mux.Vars(r)
 
@@ -153,26 +154,16 @@ func rpChat(w http.ResponseWriter, r *http.Request) {
 	rp := RPsByID[slugInfo.Rpid]
 	// TODO if empty...
 
-	// send data
-	json.NewEncoder(w).Encode(rp)
-}
-
-func rpChatUpdates(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		Updates []interface{} `json:"updates"`
-		LastSeq int           `json:"lastEventId"`
-	}
-
-	params := mux.Vars(r)
-	since, err := strconv.Atoi(params["since"])
+	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
+	defer conn.Close()
 
-	data.LastSeq = since
-	data.Updates = []interface{}{}
-
-	json.NewEncoder(w).Encode(data)
+	if err := conn.WriteJSON(rp); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(*RP, Doc)) {

@@ -173,7 +173,8 @@
         unreadMessagesIndicator: false,
         currentVoice: { type: 'narrator', charaId: null },
         // connection status
-        consecutiveNetworkFailures: 0,
+        websocket: null,
+        connection: 'connecting',
         // options
         pressEnterToSend: true,
         nightMode: false,
@@ -242,39 +243,76 @@
     },
 
     // when the page is loaded, load the rp
+    // mounted() {
+    //   this.initializeAuth()
+    //     .then(data => {
+    //       this.user = data;
+    //       return axios.get('/api/rp/' + this.rpCode)
+    //     })
+    //     .then(res => {
+    //       this.rp = res.data;
+
+    //       document.title = this.rp.title;
+    //       this.isNewRp = this.rp.msgs.length === 0;
+
+    //       if (this.currentVoice.type === 'chara' && this.charasById[this.currentVoice.charaId] == null) {
+    //         this.currentVoice = { type: 'narrator', charaId: null };
+    //       }
+
+    //       if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
+    //         this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
+    //       }
+
+    //       this.fetchUpdates();
+    //     })
+    //     .catch(err => {
+    //       if (!err.response) {
+    //         this.loadError = 'Failed to connect.';
+    //       } else if (err.response.status === 403) {
+    //         this.loadError = 'This code can only be used to view an RP, not to write one.'
+    //       } else {
+    //         this.loadError = 'Check the URL and try again.';
+    //       }
+    //     });
+
+    //   // also initialize the localStorage stuff
+    // },
     mounted() {
-      this.initializeAuth()
-        .then(data => {
-          this.user = data;
-          return axios.get('/api/rp/' + this.rpCode)
-        })
-        .then(res => {
-          this.rp = res.data;
-
-          document.title = this.rp.title;
-          this.isNewRp = this.rp.msgs.length === 0;
-
-          if (this.currentVoice.type === 'chara' && this.charasById[this.currentVoice.charaId] == null) {
-            this.currentVoice = { type: 'narrator', charaId: null };
-          }
-
-          if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
-            this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
-          }
-
-          this.fetchUpdates();
-        })
-        .catch(err => {
-          if (!err.response) {
-            this.loadError = 'Failed to connect.';
-          } else if (err.response.status === 403) {
-            this.loadError = 'This code can only be used to view an RP, not to write one.'
+      const createWs = () => {
+        const url = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:13000/api/rp/${this.rpCode}/chat`
+        const ws = new WebSocket(url);
+        ws.addEventListener('open', () => {
+          this.connection = (this.connection === 'connecting') ? 'loading' : 'reloading';
+        });
+        ws.addEventListener('message', (evt) => {
+          console.log(evt.data)
+          this.updateState(JSON.parse(evt.data));
+        });
+        ws.addEventListener('close', ({ code, wasClean, reason }) => {
+          if (code === 1000) {
+            this.connection = 'done';
+          } else if (code === 1006) {
+            this.connection = 'offline';
+            setTimeout(() => {
+              createWs();
+              this.connection = 'reconnecting';
+            }, 5000);
+          } else if (reason === 'RP_NOT_FOUND') {
+            this.connection = 'done';
+            this.loadError = { code, reason };
           } else {
-            this.loadError = 'Check the URL and try again.';
+            this.connection = 'done';
+            this.loadError = { code, wasClean, reason };
           }
         });
-
-      // also initialize the localStorage stuff
+        this.websocket = ws;
+      }
+      createWs();
+    },
+    unmounted() {
+      if (this.websocket) {
+        this.websocket.close(1000, 'SPA navigation');
+      }
     },
 
     computed: {

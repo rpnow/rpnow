@@ -14,7 +14,6 @@ type RP struct {
 	ReadCode string      `json:"readCode"`
 	Messages []RpMessage `json:"msgs"`
 	Charas   []RpChara   `json:"charas"`
-	LastSeq  int         `json:"lastEventId"`
 }
 
 // SlugInfo describes what URL corresponds to what RP
