@@ -22,6 +22,10 @@ const (
 
 var rooms map[string]*room
 
+func init() {
+	rooms = make(map[string]*room)
+}
+
 type room struct {
 	clients map[*client]bool
 
