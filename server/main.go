@@ -26,16 +26,6 @@ var adminAddr = fmt.Sprintf("127.0.0.1:%d", adminPort)
 
 var wsUpgrader = websocket.Upgrader{}
 
-var rpsByID map[string]*RP
-var slugMap map[string]SlugInfo
-var revisions map[string][]json.RawMessage
-
-func init() {
-	rpsByID = make(map[string]*RP)
-	slugMap = make(map[string]SlugInfo)
-	revisions = make(map[string][]json.RawMessage)
-}
-
 func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
