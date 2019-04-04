@@ -1,9 +1,30 @@
+Netflix-style user picker login, with (+ new user)
+Create new user
+
+Create New-RP Dialog (title, banner)
+Creating an RP adds the RP to your account
+"Invite people?" banner at top of RP
+Invite option in the side drawer
+Invite users to RP dialog (adds to their account)
+403 if you weren't invited yet
+
+Remove concept of rp slugs
+
 Pretty homepage
+Remove <a href>, switch to <router-link>
 Remove RP shortcuts
 Remake create RP area
 
 Enable/disable create&import: Admin API
 Enable/disable create&import: Admin CLI
+Enable/disable user registration: Admin API
+Enable/disable user registration: Admin CLI
+Disable user account: Admin API
+Disable user account: Admin CLI
+Change user password: Admin API
+Change user password: Admin CLI
+Kick user from RP: Admin API
+Kick user from RP: Admin CLI
 
 Import should give better feedback (ie upload progress, then how many msgs are processed)
 
