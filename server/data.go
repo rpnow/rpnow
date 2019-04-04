@@ -88,7 +88,7 @@ func (m RpMessageBody) Validate() error {
 			return fmt.Errorf("Msg: image should not have 'charaId'")
 		}
 		urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
-		if urlRegexp.MatchString(m.URL) {
+		if !urlRegexp.MatchString(m.URL) {
 			return fmt.Errorf("Msg: url is invalid")
 		}
 		return nil
