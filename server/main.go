@@ -24,17 +24,17 @@ var addr = fmt.Sprintf(":%d", port)
 
 var wsUpgrader = websocket.Upgrader{}
 
-var RPsByID map[string]*RP
-var SlugMap map[string]SlugInfo
-var Revisions map[string][]json.RawMessage
+var rpsByID map[string]*RP
+var slugMap map[string]SlugInfo
+var revisions map[string][]json.RawMessage
 
 func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
 
-	RPsByID = make(map[string]*RP)
-	SlugMap = make(map[string]SlugInfo)
-	Revisions = make(map[string][]json.RawMessage)
+	rpsByID = make(map[string]*RP)
+	slugMap = make(map[string]SlugInfo)
+	revisions = make(map[string][]json.RawMessage)
 	rooms = make(map[string]*room)
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
@@ -139,9 +139,9 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	rpid := "rp_" + xid.New().String()
 
 	// add to db
-	SlugMap[slug] = SlugInfo{rpid, "normal"}
-	SlugMap[readSlug] = SlugInfo{rpid, "read"}
-	RPsByID[rpid] = &RP{rpid, header.Title, readSlug, []RpMessage{}, []RpChara{}}
+	slugMap[slug] = SlugInfo{rpid, "normal"}
+	slugMap[readSlug] = SlugInfo{rpid, "read"}
+	rpsByID[rpid] = &RP{rpid, header.Title, readSlug, []RpMessage{}, []RpChara{}}
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
@@ -151,14 +151,14 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	// get rpid from slug
-	slugInfo := SlugMap[params["slug"]]
+	slugInfo := slugMap[params["slug"]]
 	// TODO if empty...
 	if slugInfo.Access != "normal" {
 		log.Println("No chat access on " + params["slug"])
 		w.WriteHeader(403)
 		return
 	}
-	rp := RPsByID[slugInfo.Rpid]
+	rp := rpsByID[slugInfo.Rpid]
 
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -183,8 +183,8 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(
 
 	params := mux.Vars(r)
 
-	slugInfo := SlugMap[params["slug"]]
-	rp := RPsByID[slugInfo.Rpid]
+	slugInfo := slugMap[params["slug"]]
+	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
 
 	// populate received body
@@ -209,7 +209,7 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(
 	// store revision as raw json?? meh
 	revid := rp.Rpid + "/" + obj.Meta().ID
 	js, _ := json.Marshal(obj)
-	Revisions[revid] = append(Revisions[revid], js)
+	revisions[revid] = append(revisions[revid], js)
 	rooms[rp.Rpid].broadcast <- js
 
 	// bounce it back and send
@@ -231,8 +231,8 @@ func rpSendChara(w http.ResponseWriter, r *http.Request) {
 func rpUpdateThing(w http.ResponseWriter, r *http.Request, getOldDoc func(*RP, string) Doc, doUpdate func(*RP, Doc)) {
 	params := mux.Vars(r)
 
-	slugInfo := SlugMap[params["slug"]]
-	rp := RPsByID[slugInfo.Rpid]
+	slugInfo := slugMap[params["slug"]]
+	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
 
 	id := params["docId"]
@@ -260,7 +260,7 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, getOldDoc func(*RP, s
 	// store revision as raw json?? meh
 	revid := rp.Rpid + "/" + obj.Meta().ID
 	js, _ := json.Marshal(obj)
-	Revisions[revid] = append(Revisions[revid], js)
+	revisions[revid] = append(revisions[revid], js)
 	rooms[rp.Rpid].broadcast <- js
 
 	// bounce it back and send
@@ -288,16 +288,16 @@ func rpUpdateChara(w http.ResponseWriter, r *http.Request) {
 func rpGetThingHistory(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	slugInfo := SlugMap[params["slug"]]
-	rp := RPsByID[slugInfo.Rpid]
+	slugInfo := slugMap[params["slug"]]
+	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
 
 	id := params["docId"]
 
-	revisions := Revisions[rp.Rpid+"/"+id]
+	docRevisions := revisions[rp.Rpid+"/"+id]
 
 	// bounce it back and send
-	json.NewEncoder(w).Encode(revisions)
+	json.NewEncoder(w).Encode(docRevisions)
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
