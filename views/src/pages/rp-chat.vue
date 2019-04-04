@@ -334,9 +334,9 @@
             this.currentVoice = { type: 'narrator', charaId: null };
           }
 
-    //       if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
-    //         this.recentRooms.push({ rpCode: this.rpCode, title: this.rp.title });
-    //       }
+          if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
+            this.recentRooms.unshift({ rpCode: this.rpCode, title: this.rp.title });
+          }
         } else {
           var arr = this.rp[update.type];
 
