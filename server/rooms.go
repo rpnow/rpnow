@@ -29,7 +29,7 @@ func init() {
 type room struct {
 	clients map[*client]bool
 
-	broadcast chan []byte
+	broadcast chan chatStreamMessage
 
 	register chan *client
 
@@ -38,12 +38,12 @@ type room struct {
 
 type client struct {
 	conn *websocket.Conn
-	send chan []byte
+	send chan chatStreamMessage
 }
 
 func newRoom() *room {
 	r := &room{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan chatStreamMessage),
 		register:   make(chan *client),
 		unregister: make(chan *client),
 		clients:    make(map[*client]bool),
@@ -55,7 +55,7 @@ func newRoom() *room {
 func newClient(conn *websocket.Conn) *client {
 	return &client{
 		conn: conn,
-		send: make(chan []byte),
+		send: make(chan chatStreamMessage),
 	}
 }
 
@@ -124,7 +124,7 @@ func (c *client) writePump() {
 				return
 			}
 
-			if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
+			if err := c.conn.WriteJSON(message); err != nil {
 				return
 			}
 		case <-ticker.C:

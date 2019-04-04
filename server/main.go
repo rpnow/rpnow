@@ -176,6 +176,11 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
+type chatStreamMessage struct {
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
+}
+
 func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	// parse slug
 	params := mux.Vars(r)
@@ -197,17 +202,15 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	if err := conn.WriteJSON(map[string]interface{}{
-		"type": "init",
-		"data": rp,
-	}); err != nil {
+	js, _ := json.Marshal(rp)
+	if err := conn.WriteJSON(chatStreamMessage{"init", js}); err != nil {
 		log.Fatal(err)
 	}
 
 	join(conn, rp.Rpid)
 }
 
-func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(*RP, Doc)) {
+func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj Doc, doAppend func(*RP, Doc)) {
 	// generate key for new object
 	obj.Meta().ID = xid.New().String()
 
@@ -240,25 +243,25 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, obj Doc, doAppend func(
 	revid := rp.Rpid + "/" + obj.Meta().ID
 	js, _ := json.Marshal(obj)
 	revisions[revid] = append(revisions[revid], js)
-	rooms[rp.Rpid].broadcast <- js
+	rooms[rp.Rpid].broadcast <- chatStreamMessage{updateType, js}
 
 	// bounce it back and send
 	w.WriteHeader(204)
 }
 
 func rpSendMsg(w http.ResponseWriter, r *http.Request) {
-	rpSendThing(w, r, NewRpMessage(), func(rp *RP, obj Doc) {
+	rpSendThing(w, r, "msgs", NewRpMessage(), func(rp *RP, obj Doc) {
 		rp.Messages = append(rp.Messages, obj.(RpMessage))
 	})
 }
 
 func rpSendChara(w http.ResponseWriter, r *http.Request) {
-	rpSendThing(w, r, NewRpChara(), func(rp *RP, obj Doc) {
+	rpSendThing(w, r, "charas", NewRpChara(), func(rp *RP, obj Doc) {
 		rp.Charas = append(rp.Charas, obj.(RpChara))
 	})
 }
 
-func rpUpdateThing(w http.ResponseWriter, r *http.Request, getOldDoc func(*RP, string) Doc, doUpdate func(*RP, Doc)) {
+func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, getOldDoc func(*RP, string) Doc, doUpdate func(*RP, Doc)) {
 	params := mux.Vars(r)
 
 	slugInfo := slugMap[params["slug"]]
@@ -291,14 +294,14 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, getOldDoc func(*RP, s
 	revid := rp.Rpid + "/" + obj.Meta().ID
 	js, _ := json.Marshal(obj)
 	revisions[revid] = append(revisions[revid], js)
-	rooms[rp.Rpid].broadcast <- js
+	rooms[rp.Rpid].broadcast <- chatStreamMessage{updateType, js}
 
 	// bounce it back and send
 	w.WriteHeader(204)
 }
 
 func rpUpdateMsg(w http.ResponseWriter, r *http.Request) {
-	rpUpdateThing(w, r, func(rp *RP, id string) Doc {
+	rpUpdateThing(w, r, "msgs", func(rp *RP, id string) Doc {
 		i := sort.Search(len(rp.Messages), func(i int) bool { return id <= rp.Messages[i].ID })
 		return rp.Messages[i]
 	}, func(rp *RP, obj Doc) {
@@ -307,7 +310,7 @@ func rpUpdateMsg(w http.ResponseWriter, r *http.Request) {
 }
 
 func rpUpdateChara(w http.ResponseWriter, r *http.Request) {
-	rpUpdateThing(w, r, func(rp *RP, id string) Doc {
+	rpUpdateThing(w, r, "charas", func(rp *RP, id string) Doc {
 		i := sort.Search(len(rp.Charas), func(i int) bool { return id <= rp.Charas[i].ID })
 		return rp.Charas[i]
 	}, func(rp *RP, obj Doc) {
