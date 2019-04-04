@@ -71,7 +71,7 @@ func main() {
 	router.HandleFunc("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
 
 	// assets
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("views/dist")))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("../views/dist")))
 
 	// listen
 	srv := &http.Server{
@@ -309,7 +309,7 @@ func verifyUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHTML(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "views/dist/index.html")
+	http.ServeFile(w, r, "../views/dist/index.html")
 }
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {

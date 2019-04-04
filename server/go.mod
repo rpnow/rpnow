@@ -1,4 +1,4 @@
-module github.com/rpnow/rpnow
+module github.com/rpnow/rpnow/server
 
 require (
 	github.com/boltdb/bolt v1.3.1
