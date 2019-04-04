@@ -21,6 +21,8 @@ import (
 
 var port = 13000
 var addr = fmt.Sprintf(":%d", port)
+var adminPort = 12789
+var adminAddr = fmt.Sprintf("127.0.0.1:%d", adminPort)
 
 var wsUpgrader = websocket.Upgrader{}
 
@@ -38,6 +40,22 @@ func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
 
+	// listen
+	closeAdminServer := serveRouter(adminRouter(), adminAddr)
+	defer closeAdminServer()
+	closeClientServer := serveRouter(clientRouter(), addr)
+	defer closeClientServer()
+
+	// server is ready
+	log.Printf("Listening on %s\n", addr)
+
+	// await kill signal
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+}
+
+func clientRouter() *mux.Router {
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -75,6 +93,24 @@ func main() {
 	// assets
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("../views/dist")))
 
+	return router
+}
+
+func adminRouter() *mux.Router {
+	// create router
+	router := mux.NewRouter().StrictSlash(true)
+
+	router.HandleFunc("/status", todo).Methods("GET")
+	router.HandleFunc("/rps", todo).Methods("GET")
+	router.HandleFunc("/rps/{slug:[-0-9a-zA-Z]+}", todo).Methods("GET")
+	router.HandleFunc("/rps/{slug:[-0-9a-zA-Z]+}", todo).Methods("DELETE")
+	router.HandleFunc("/url/{url}", todo).Methods("DELETE")
+	router.HandleFunc("/url/{url}", todo).Methods("PUT")
+
+	return router
+}
+
+func serveRouter(router *mux.Router, addr string) func() {
 	// listen
 	srv := &http.Server{
 		Addr: addr,
@@ -89,24 +125,16 @@ func main() {
 			log.Fatalf("listen and serve: %s", err)
 		}
 	}()
-	// defer gracefully closing the server
-	defer func() {
+	// return shutdown function
+	return func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Fatalf("http shutdown: %s", err)
 		}
-		log.Println("Http server stopped")
-	}()
-
-	// server is ready
-	log.Printf("Listening on %s\n", addr)
-
-	// await kill signal
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	<-c
+		log.Printf("Http server stopped: %s\n", addr)
+	}
 }
 
 func health(w http.ResponseWriter, r *http.Request) {
