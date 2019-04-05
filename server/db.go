@@ -56,24 +56,52 @@ func init() {
 	db = &database{boltdb}
 }
 
-func (db *database) getSlugInfo(rpid string, out interface{}) error {
-	return db.bolt.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte("slugs"))
-		js := bucket.Get([]byte(rpid))
+func (db *database) getDoc(bucketName string, key string, out interface{}) (found bool, err error) {
+	err = db.bolt.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(bucketName))
+		if bucket == nil {
+			found = false
+			return fmt.Errorf("Unknown bucket: %s", bucketName)
+		}
+		js := bucket.Get([]byte(key))
+		found = (js != nil)
 		if js == nil {
-			return fmt.Errorf("Could not find slug @ %s", rpid)
+			return nil
 		}
 		return json.Unmarshal(js, out)
 	})
+	return
 }
 
-func (db *database) addSlugInfo(rpid string, value interface{}) error {
+func (db *database) addDoc(bucketName string, key string, value interface{}) error {
 	return db.bolt.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte("slugs"))
+		bucket := tx.Bucket([]byte(bucketName))
+		if bucket == nil {
+			return fmt.Errorf("Unknown bucket: %s", bucketName)
+		}
 		js, err := json.Marshal(value)
 		if err != nil {
 			return err
 		}
-		return bucket.Put([]byte(rpid), js)
+		return bucket.Put([]byte(key), js)
 	})
+}
+
+func (db *database) getSlugInfo(slug string) *SlugInfo {
+	var slugInfo SlugInfo
+	found, err := db.getDoc("slugs", slug, &slugInfo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !found {
+		return nil
+	}
+	return &slugInfo
+}
+
+func (db *database) addSlugInfo(slug string, value *SlugInfo) {
+	err := db.addDoc("slugs", slug, value)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

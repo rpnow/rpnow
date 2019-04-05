@@ -159,8 +159,8 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	rpid := "rp_" + xid.New().String()
 
 	// add to db
-	db.addSlugInfo(slug, SlugInfo{rpid, "normal"})
-	db.addSlugInfo(readSlug, SlugInfo{rpid, "read"})
+	db.addSlugInfo(slug, &SlugInfo{rpid, "normal"})
+	db.addSlugInfo(readSlug, &SlugInfo{rpid, "read"})
 	rpsByID[rpid] = &RP{rpid, header.Title, readSlug, []RpMessage{}, []RpChara{}}
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
@@ -176,11 +176,7 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	// get rpid from slug
-	var slugInfo SlugInfo
-	err := db.getSlugInfo(params["slug"], &slugInfo)
-	if err != nil {
-		log.Fatal(err)
-	}
+	slugInfo := db.getSlugInfo(params["slug"])
 	// TODO if empty...
 	if slugInfo.Access != "normal" {
 		log.Println("No chat access on " + params["slug"])
@@ -210,16 +206,12 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 
 	params := mux.Vars(r)
 
-	var slugInfo SlugInfo
-	err := db.getSlugInfo(params["slug"], &slugInfo)
-	if err != nil {
-		log.Fatal(err)
-	}
+	slugInfo := db.getSlugInfo(params["slug"])
 	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
 
 	// populate received body
-	err = obj.ParseBody(r.Body)
+	err := obj.ParseBody(r.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -262,11 +254,7 @@ func rpSendChara(w http.ResponseWriter, r *http.Request) {
 func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, getOldDoc func(*RP, string) Doc, doUpdate func(*RP, Doc)) {
 	params := mux.Vars(r)
 
-	var slugInfo SlugInfo
-	err := db.getSlugInfo(params["slug"], &slugInfo)
-	if err != nil {
-		log.Fatal(err)
-	}
+	slugInfo := db.getSlugInfo(params["slug"])
 	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
 
@@ -274,7 +262,7 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	obj := getOldDoc(rp, id)
 
 	// populate received body
-	err = obj.ParseBody(r.Body)
+	err := obj.ParseBody(r.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -323,11 +311,7 @@ func rpUpdateChara(w http.ResponseWriter, r *http.Request) {
 func rpGetThingHistory(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	var slugInfo SlugInfo
-	err := db.getSlugInfo(params["slug"], &slugInfo)
-	if err != nil {
-		log.Fatal(err)
-	}
+	slugInfo := db.getSlugInfo(params["slug"])
 	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
 
