@@ -226,16 +226,17 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 	obj.Meta().Userid = "nobody09c39024f1ef"
 	obj.Meta().Revision = 0
 
-	// put it in the db
+	// Add to DB
 	doAppend(rp, obj)
 
-	// store revision as raw json?? meh
-	revid := rp.Rpid + "/" + obj.Meta().ID
+	// Store this revision
+	db.addRevision(rp.Rpid, obj)
+
+	// Broadcast
 	js, _ := json.Marshal(obj)
-	revisions[revid] = append(revisions[revid], js)
 	rooms[rp.Rpid].broadcast <- chatStreamMessage{updateType, js}
 
-	// bounce it back and send
+	// Done
 	w.WriteHeader(204)
 }
 
@@ -277,16 +278,17 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	obj.Meta().Userid = "nobody09c39024f1ef"
 	obj.Meta().Revision++
 
-	// put it in the db
+	// Update DB
 	doUpdate(rp, obj)
 
-	// store revision as raw json?? meh
-	revid := rp.Rpid + "/" + obj.Meta().ID
+	// Store this revision
+	db.addRevision(rp.Rpid, obj)
+
+	// Broadcast
 	js, _ := json.Marshal(obj)
-	revisions[revid] = append(revisions[revid], js)
 	rooms[rp.Rpid].broadcast <- chatStreamMessage{updateType, js}
 
-	// bounce it back and send
+	// Done
 	w.WriteHeader(204)
 }
 
@@ -317,7 +319,7 @@ func rpGetThingHistory(w http.ResponseWriter, r *http.Request) {
 
 	id := params["docId"]
 
-	docRevisions := revisions[rp.Rpid+"/"+id]
+	docRevisions := db.getRevisions(rp.Rpid, id)
 
 	// bounce it back and send
 	json.NewEncoder(w).Encode(docRevisions)

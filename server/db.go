@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,11 +10,9 @@ import (
 )
 
 var rpsByID map[string]*RP
-var revisions map[string][]json.RawMessage
 
 func init() {
 	rpsByID = make(map[string]*RP)
-	revisions = make(map[string][]json.RawMessage)
 }
 
 type database struct {
@@ -26,7 +25,7 @@ var db *database
 // MSGS: rpid/xid -> json
 // CHARAS: rpid/xid -> json
 // SLUGS: slug -> {rpid,access}
-// REVISIONS: (msg|chara)id -> []json
+// REVISIONS: rpid/(msg|chara)id -> []json
 
 func init() {
 	// path to boltdb file
@@ -73,6 +72,36 @@ func (db *database) getDoc(bucketName string, key string, out interface{}) (foun
 	return
 }
 
+func (db *database) getDocs(bucketName string, prefixStr string, parse func([]byte) (interface{}, error)) (outs chan interface{}, errs chan error) {
+	outs = make(chan interface{})
+	errs = make(chan error)
+
+	go func() {
+		err := db.bolt.View(func(tx *bolt.Tx) error {
+			bucket := tx.Bucket([]byte(bucketName))
+			if bucket == nil {
+				return fmt.Errorf("Unknown bucket: %s", bucketName)
+			}
+
+			c := bucket.Cursor()
+			prefix := []byte(prefixStr)
+			for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
+				out, err := parse(v)
+				if err != nil {
+					return err
+				}
+				outs <- out
+			}
+			return nil
+		})
+		close(outs)
+		errs <- err
+		close(errs)
+	}()
+
+	return
+}
+
 func (db *database) addDoc(bucketName string, key string, value interface{}) error {
 	return db.bolt.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
@@ -104,4 +133,28 @@ func (db *database) addSlugInfo(slug string, value *SlugInfo) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (db *database) addRevision(rpid string, obj Doc) {
+	revid := fmt.Sprintf("%s/%s/%d", rpid, obj.Meta().ID, obj.Meta().Revision)
+	err := db.addDoc("revisions", revid, obj)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (db *database) getRevisions(rpid string, id string) []map[string]interface{} {
+	revisions := []map[string]interface{}{}
+	outs, errs := db.getDocs("revisions", rpid+"/"+id, func(in []byte) (interface{}, error) {
+		out := make(map[string]interface{})
+		err := json.Unmarshal(in, &out)
+		return out, err
+	})
+	for rev := range outs {
+		revisions = append(revisions, rev.(map[string]interface{}))
+	}
+	if err := <-errs; err != nil {
+		log.Fatal(err)
+	}
+	return revisions
 }
