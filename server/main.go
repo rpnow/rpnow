@@ -190,8 +190,8 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 
 	rp.RoomInfo = db.getRoomInfo(slugInfo.Rpid)
 
-	rp.Messages = []RpMessage{}
-	rp.Charas = []RpChara{}
+	rp.Messages = db.getRecentMsgs(slugInfo.Rpid)
+	rp.Charas = db.getCharas(slugInfo.Rpid)
 
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {

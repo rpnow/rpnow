@@ -66,20 +66,29 @@ func (db *database) getDoc(bucketName string, key string, out interface{}) (foun
 	return
 }
 
-func (db *database) getDocs(bucketName string, prefixStr string, parse func([]byte) (interface{}, error)) (outs chan interface{}, errs chan error) {
+type query struct {
+	bucket  string
+	prefix  string
+	skipKey func([]byte) bool
+}
+
+func (db *database) getDocs(q query, parse func([]byte) (interface{}, error)) (outs chan interface{}, errs chan error) {
 	outs = make(chan interface{})
 	errs = make(chan error)
 
 	go func() {
 		err := db.bolt.View(func(tx *bolt.Tx) error {
-			bucket := tx.Bucket([]byte(bucketName))
+			bucket := tx.Bucket([]byte(q.bucket))
 			if bucket == nil {
-				return fmt.Errorf("Unknown bucket: %s", bucketName)
+				return fmt.Errorf("Unknown bucket: %s", q.bucket)
 			}
 
 			c := bucket.Cursor()
-			prefix := []byte(prefixStr)
+			prefix := []byte(q.prefix)
 			for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
+				if q.skipKey != nil && q.skipKey(k) {
+					continue
+				}
 				out, err := parse(v)
 				if err != nil {
 					return err
@@ -200,7 +209,11 @@ func (db *database) putMsgOrCharaRevision(bucket string, rpid string, obj Doc) {
 
 func (db *database) getMsgOrCharaRevisions(bucket string, rpid string, id string) []map[string]interface{} {
 	revisions := []map[string]interface{}{}
-	outs, errs := db.getDocs(bucket, rpid+"/"+id, func(in []byte) (interface{}, error) {
+	q := query{
+		bucket: bucket,
+		prefix: rpid + "/" + id,
+	}
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
 		out := make(map[string]interface{})
 		err := json.Unmarshal(in, &out)
 		return out, err
@@ -212,4 +225,46 @@ func (db *database) getMsgOrCharaRevisions(bucket string, rpid string, id string
 		log.Fatal(err)
 	}
 	return revisions
+}
+
+func (db *database) getRecentMsgs(rpid string) []RpMessage {
+	msgs := []RpMessage{}
+	q := query{
+		bucket:  "msgs",
+		prefix:  rpid,
+		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
+	}
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
+		out := NewRpMessage()
+		err := json.Unmarshal(in, &out)
+		return out, err
+	})
+	for out := range outs {
+		msgs = append(msgs, out.(RpMessage))
+	}
+	if err := <-errs; err != nil {
+		log.Fatal(err)
+	}
+	return msgs
+}
+
+func (db *database) getCharas(rpid string) []RpChara {
+	charas := []RpChara{}
+	q := query{
+		bucket:  "charas",
+		prefix:  rpid,
+		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
+	}
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
+		out := NewRpChara()
+		err := json.Unmarshal(in, &out)
+		return out, err
+	})
+	for out := range outs {
+		charas = append(charas, out.(RpChara))
+	}
+	if err := <-errs; err != nil {
+		log.Fatal(err)
+	}
+	return charas
 }
