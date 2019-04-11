@@ -49,23 +49,6 @@ func init() {
 	db = &database{boltdb}
 }
 
-func (db *database) getDoc(bucketName string, key string, out interface{}) (found bool, err error) {
-	err = db.bolt.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(bucketName))
-		if bucket == nil {
-			found = false
-			return fmt.Errorf("Unknown bucket: %s", bucketName)
-		}
-		js := bucket.Get([]byte(key))
-		found = (js != nil)
-		if js == nil {
-			return nil
-		}
-		return json.Unmarshal(js, out)
-	})
-	return
-}
-
 type query struct {
 	bucket  string
 	prefix  string
@@ -105,24 +88,33 @@ func (db *database) getDocs(q query, parse func([]byte) (interface{}, error)) (o
 	return
 }
 
+func (db *database) getDoc(bucketName string, key string, out interface{}) bool {
+	found := false
+	err := db.bolt.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(bucketName))
+		if bucket == nil {
+			return fmt.Errorf("Unknown bucket: %s", bucketName)
+		}
+		js := bucket.Get([]byte(key))
+		if js == nil {
+			return nil
+		}
+		found = true
+		return json.Unmarshal(js, out)
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return found
+}
+
 type kv struct {
 	key   string
 	value interface{}
 }
 
-func (db *database) putDoc(bucketName string, key string, value interface{}) error {
-	return db.putDocs(bucketName, []kv{{key, value}})
-}
-
-func (db *database) putDocOrCrash(bucketName string, key string, value interface{}) {
-	err := db.putDoc(bucketName, key, value)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (db *database) putDocs(bucketName string, pairs []kv) error {
-	return db.bolt.Update(func(tx *bolt.Tx) error {
+func (db *database) putDocsOrCrash(bucketName string, pairs []kv) {
+	err := db.bolt.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		if bucket == nil {
 			return fmt.Errorf("Unknown bucket: %s", bucketName)
@@ -139,14 +131,18 @@ func (db *database) putDocs(bucketName string, pairs []kv) error {
 		}
 		return nil
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (db *database) putDocOrCrash(bucketName string, key string, value interface{}) {
+	db.putDocsOrCrash(bucketName, []kv{{key, value}})
 }
 
 func (db *database) getSlugInfo(slug string) *SlugInfo {
 	var slugInfo SlugInfo
-	found, err := db.getDoc("slugs", slug, &slugInfo)
-	if err != nil {
-		log.Fatal(err)
-	}
+	found := db.getDoc("slugs", slug, &slugInfo)
 	if !found {
 		return nil
 	}
@@ -159,10 +155,7 @@ func (db *database) addSlugInfo(slug string, value *SlugInfo) {
 
 func (db *database) getRoomInfo(rpid string) *RoomInfo {
 	var room RoomInfo
-	found, err := db.getDoc("rooms", rpid, &room)
-	if err != nil {
-		log.Fatal(err)
-	}
+	found := db.getDoc("rooms", rpid, &room)
 	if !found {
 		log.Fatalf("RPID not found: %s", rpid)
 	}
@@ -175,10 +168,7 @@ func (db *database) addRoomInfo(rpid string, room *RoomInfo) {
 
 func (db *database) getMsg(rpid string, id string) *RpMessage {
 	var msg RpMessage
-	found, err := db.getDoc("msgs", rpid+"/"+id+"/latest", &msg)
-	if err != nil {
-		log.Fatal(err)
-	}
+	found := db.getDoc("msgs", rpid+"/"+id+"/latest", &msg)
 	if !found {
 		return nil
 	}
@@ -187,10 +177,7 @@ func (db *database) getMsg(rpid string, id string) *RpMessage {
 
 func (db *database) getChara(rpid string, id string) *RpChara {
 	var chara RpChara
-	found, err := db.getDoc("charas", rpid+"/"+id+"/latest", &chara)
-	if err != nil {
-		log.Fatal(err)
-	}
+	found := db.getDoc("charas", rpid+"/"+id+"/latest", &chara)
 	if !found {
 		return nil
 	}
