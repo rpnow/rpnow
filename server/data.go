@@ -8,12 +8,9 @@ import (
 	"time"
 )
 
-type RP struct {
-	Rpid     string      `json:"-"`
-	Title    string      `json:"title"`
-	ReadCode string      `json:"readCode"`
-	Messages []RpMessage `json:"msgs"`
-	Charas   []RpChara   `json:"charas"`
+type RoomInfo struct {
+	Title    string `json:"title"`
+	ReadCode string `json:"readCode"`
 }
 
 // SlugInfo describes what URL corresponds to what RP

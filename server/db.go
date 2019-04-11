@@ -9,12 +9,6 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-var rpsByID map[string]*RP
-
-func init() {
-	rpsByID = make(map[string]*RP)
-}
-
 type database struct {
 	bolt *bolt.DB
 }
@@ -39,7 +33,7 @@ func init() {
 
 	// initialize buckets
 	err = boltdb.Update(func(tx *bolt.Tx) (err error) {
-		for _, bucketName := range []string{"rooms", "slugs", "msgs", "charas", "revisions"} {
+		for _, bucketName := range []string{"rooms", "slugs", "msgs", "charas"} {
 			_, err = tx.CreateBucketIfNotExists([]byte(bucketName))
 			if err != nil {
 				return err
@@ -102,17 +96,39 @@ func (db *database) getDocs(bucketName string, prefixStr string, parse func([]by
 	return
 }
 
-func (db *database) addDoc(bucketName string, key string, value interface{}) error {
+type kv struct {
+	key   string
+	value interface{}
+}
+
+func (db *database) putDoc(bucketName string, key string, value interface{}) error {
+	return db.putDocs(bucketName, []kv{{key, value}})
+}
+
+func (db *database) putDocOrCrash(bucketName string, key string, value interface{}) {
+	err := db.putDoc(bucketName, key, value)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (db *database) putDocs(bucketName string, pairs []kv) error {
 	return db.bolt.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		if bucket == nil {
 			return fmt.Errorf("Unknown bucket: %s", bucketName)
 		}
-		js, err := json.Marshal(value)
-		if err != nil {
-			return err
+		for _, kv := range pairs {
+			js, err := json.Marshal(kv.value)
+			if err != nil {
+				return err
+			}
+			err = bucket.Put([]byte(kv.key), js)
+			if err != nil {
+				return err
+			}
 		}
-		return bucket.Put([]byte(key), js)
+		return nil
 	})
 }
 
@@ -129,23 +145,62 @@ func (db *database) getSlugInfo(slug string) *SlugInfo {
 }
 
 func (db *database) addSlugInfo(slug string, value *SlugInfo) {
-	err := db.addDoc("slugs", slug, value)
+	db.putDocOrCrash("slugs", slug, value)
+}
+
+func (db *database) getRoomInfo(rpid string) *RoomInfo {
+	var room RoomInfo
+	found, err := db.getDoc("rooms", rpid, &room)
 	if err != nil {
 		log.Fatal(err)
 	}
+	if !found {
+		log.Fatalf("RPID not found: %s", rpid)
+	}
+	return &room
 }
 
-func (db *database) addRevision(rpid string, obj Doc) {
-	revid := fmt.Sprintf("%s/%s/%d", rpid, obj.Meta().ID, obj.Meta().Revision)
-	err := db.addDoc("revisions", revid, obj)
+func (db *database) addRoomInfo(rpid string, room *RoomInfo) {
+	db.putDocOrCrash("rooms", rpid, room)
+}
+
+func (db *database) getMsg(rpid string, id string) *RpMessage {
+	var msg RpMessage
+	found, err := db.getDoc("msgs", rpid+"/"+id+"/latest", &msg)
 	if err != nil {
 		log.Fatal(err)
 	}
+	if !found {
+		return nil
+	}
+	return &msg
 }
 
-func (db *database) getRevisions(rpid string, id string) []map[string]interface{} {
+func (db *database) getChara(rpid string, id string) *RpChara {
+	var chara RpChara
+	found, err := db.getDoc("charas", rpid+"/"+id+"/latest", &chara)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !found {
+		return nil
+	}
+	return &chara
+}
+
+func (db *database) putMsgOrChara(bucket string, rpid string, obj Doc) {
+	key := fmt.Sprintf("%s/%s/latest", rpid, obj.Meta().ID)
+	db.putDocOrCrash(bucket, key, obj)
+}
+
+func (db *database) putMsgOrCharaRevision(bucket string, rpid string, obj Doc) {
+	key := fmt.Sprintf("%s/%s/%d", rpid, obj.Meta().ID, obj.Meta().Revision)
+	db.putDocOrCrash(bucket, key, obj)
+}
+
+func (db *database) getMsgOrCharaRevisions(bucket string, rpid string, id string) []map[string]interface{} {
 	revisions := []map[string]interface{}{}
-	outs, errs := db.getDocs("revisions", rpid+"/"+id, func(in []byte) (interface{}, error) {
+	outs, errs := db.getDocs(bucket, rpid+"/"+id, func(in []byte) (interface{}, error) {
 		out := make(map[string]interface{})
 		err := json.Unmarshal(in, &out)
 		return out, err

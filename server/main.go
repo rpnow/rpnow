@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
@@ -68,8 +67,8 @@ func clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}", rpUpdateMsg).Methods("PUT")
 	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}", rpUpdateChara).Methods("PUT")
-	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", rpGetThingHistory).Methods("GET")
-	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", rpGetThingHistory).Methods("GET")
+	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", rpGetMsgHistory).Methods("GET")
+	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", rpGetCharaHistory).Methods("GET")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
@@ -161,7 +160,7 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	// add to db
 	db.addSlugInfo(slug, &SlugInfo{rpid, "normal"})
 	db.addSlugInfo(readSlug, &SlugInfo{rpid, "read"})
-	rpsByID[rpid] = &RP{rpid, header.Title, readSlug, []RpMessage{}, []RpChara{}}
+	db.addRoomInfo(rpid, &RoomInfo{header.Title, readSlug})
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
@@ -172,6 +171,11 @@ type chatStreamMessage struct {
 }
 
 func rpChatStream(w http.ResponseWriter, r *http.Request) {
+	var rp struct {
+		*RoomInfo
+		Messages []RpMessage `json:"msgs"`
+		Charas   []RpChara   `json:"charas"`
+	}
 	// parse slug
 	params := mux.Vars(r)
 
@@ -183,7 +187,11 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-	rp := rpsByID[slugInfo.Rpid]
+
+	rp.RoomInfo = db.getRoomInfo(slugInfo.Rpid)
+
+	rp.Messages = []RpMessage{}
+	rp.Charas = []RpChara{}
 
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -197,18 +205,22 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	join(conn, rp.Rpid)
+	join(conn, slugInfo.Rpid)
 }
 
-func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj Doc, doAppend func(*RP, Doc)) {
+func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj Doc) {
 	// generate key for new object
 	obj.Meta().ID = xid.New().String()
 
 	params := mux.Vars(r)
 
 	slugInfo := db.getSlugInfo(params["slug"])
-	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
+	if slugInfo.Access != "normal" {
+		log.Println("No chat access on " + params["slug"])
+		w.WriteHeader(403)
+		return
+	}
 
 	// populate received body
 	err := obj.ParseBody(r.Body)
@@ -227,40 +239,44 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 	obj.Meta().Revision = 0
 
 	// Add to DB
-	doAppend(rp, obj)
-
-	// Store this revision
-	db.addRevision(rp.Rpid, obj)
+	db.putMsgOrChara(updateType, slugInfo.Rpid, obj)
 
 	// Broadcast
 	js, _ := json.Marshal(obj)
-	rooms[rp.Rpid].broadcast <- chatStreamMessage{updateType, js}
+	rooms[slugInfo.Rpid].broadcast <- chatStreamMessage{updateType, js}
 
 	// Done
 	w.WriteHeader(204)
 }
 
 func rpSendMsg(w http.ResponseWriter, r *http.Request) {
-	rpSendThing(w, r, "msgs", NewRpMessage(), func(rp *RP, obj Doc) {
-		rp.Messages = append(rp.Messages, obj.(RpMessage))
-	})
+	rpSendThing(w, r, "msgs", NewRpMessage())
 }
 
 func rpSendChara(w http.ResponseWriter, r *http.Request) {
-	rpSendThing(w, r, "charas", NewRpChara(), func(rp *RP, obj Doc) {
-		rp.Charas = append(rp.Charas, obj.(RpChara))
-	})
+	rpSendThing(w, r, "charas", NewRpChara())
 }
 
-func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, getOldDoc func(*RP, string) Doc, doUpdate func(*RP, Doc)) {
+func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, getOldDoc func(rpid string, id string) Doc) {
 	params := mux.Vars(r)
 
 	slugInfo := db.getSlugInfo(params["slug"])
-	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
+	if slugInfo.Access != "normal" {
+		log.Println("No chat access on " + params["slug"])
+		w.WriteHeader(403)
+		return
+	}
 
-	id := params["docId"]
-	obj := getOldDoc(rp, id)
+	obj := getOldDoc(slugInfo.Rpid, params["docId"])
+	if obj == nil {
+		log.Printf("No document to edit: %s/%s", slugInfo.Rpid, params["docId"])
+		w.WriteHeader(404)
+		return
+	}
+
+	// Store previous revision
+	db.putMsgOrCharaRevision(updateType, slugInfo.Rpid, obj)
 
 	// populate received body
 	err := obj.ParseBody(r.Body)
@@ -279,50 +295,48 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	obj.Meta().Revision++
 
 	// Update DB
-	doUpdate(rp, obj)
-
-	// Store this revision
-	db.addRevision(rp.Rpid, obj)
+	db.putMsgOrChara(updateType, slugInfo.Rpid, obj)
 
 	// Broadcast
 	js, _ := json.Marshal(obj)
-	rooms[rp.Rpid].broadcast <- chatStreamMessage{updateType, js}
+	rooms[slugInfo.Rpid].broadcast <- chatStreamMessage{updateType, js}
 
 	// Done
 	w.WriteHeader(204)
 }
 
 func rpUpdateMsg(w http.ResponseWriter, r *http.Request) {
-	rpUpdateThing(w, r, "msgs", func(rp *RP, id string) Doc {
-		i := sort.Search(len(rp.Messages), func(i int) bool { return id <= rp.Messages[i].ID })
-		return rp.Messages[i]
-	}, func(rp *RP, obj Doc) {
-		// rp.Messages = append(rp.Messages, obj.(RpMessage))
+	rpUpdateThing(w, r, "msgs", func(rpid string, id string) Doc {
+		return db.getMsg(rpid, id)
 	})
 }
 
 func rpUpdateChara(w http.ResponseWriter, r *http.Request) {
-	rpUpdateThing(w, r, "charas", func(rp *RP, id string) Doc {
-		i := sort.Search(len(rp.Charas), func(i int) bool { return id <= rp.Charas[i].ID })
-		return rp.Charas[i]
-	}, func(rp *RP, obj Doc) {
-		// rp.Charas = append(rp.Charas, obj.(RpChara))
+	rpUpdateThing(w, r, "charas", func(rpid string, id string) Doc {
+		return db.getChara(rpid, id)
 	})
 }
 
-func rpGetThingHistory(w http.ResponseWriter, r *http.Request) {
+func rpGetThingHistory(w http.ResponseWriter, r *http.Request, thingType string) {
 	params := mux.Vars(r)
 
 	slugInfo := db.getSlugInfo(params["slug"])
-	rp := rpsByID[slugInfo.Rpid]
 	// TODO if empty...
 
 	id := params["docId"]
 
-	docRevisions := db.getRevisions(rp.Rpid, id)
+	docRevisions := db.getMsgOrCharaRevisions(thingType, slugInfo.Rpid, id)
 
 	// bounce it back and send
 	json.NewEncoder(w).Encode(docRevisions)
+}
+
+func rpGetMsgHistory(w http.ResponseWriter, r *http.Request) {
+	rpGetThingHistory(w, r, "msgs")
+}
+
+func rpGetCharaHistory(w http.ResponseWriter, r *http.Request) {
+	rpGetThingHistory(w, r, "charas")
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
