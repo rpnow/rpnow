@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 
 	"github.com/boltdb/bolt"
 )
@@ -61,6 +62,9 @@ type query struct {
 	bucket  string
 	prefix  string
 	skipKey func([]byte) bool
+	skip    int
+	limit   int
+	reverse bool
 }
 
 func (db *database) getDocs(q query, parse func([]byte) (interface{}, error)) (outs chan interface{}, errs chan error) {
@@ -76,8 +80,26 @@ func (db *database) getDocs(q query, parse func([]byte) (interface{}, error)) (o
 
 			c := bucket.Cursor()
 			prefix := []byte(q.prefix)
-			for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
+
+			// decide how to iterate over the db
+			var k, v []byte
+			var next func() ([]byte, []byte)
+			if q.reverse {
+				afterPrefix := append(prefix, 0xFF)
+				c.Seek(afterPrefix)
+				k, v = c.Prev()
+				next = func() ([]byte, []byte) { return c.Prev() }
+			} else {
+				k, v = c.Seek(prefix)
+				next = func() ([]byte, []byte) { return c.Next() }
+			}
+			// iterate
+			for ; k != nil && bytes.HasPrefix(k, prefix); k, v = next() {
 				if q.skipKey != nil && q.skipKey(k) {
+					continue
+				}
+				if q.skip > 0 {
+					q.skip--
 					continue
 				}
 				out, err := parse(v)
@@ -85,6 +107,10 @@ func (db *database) getDocs(q query, parse func([]byte) (interface{}, error)) (o
 					return err
 				}
 				outs <- out
+				if q.limit == 1 {
+					return nil
+				}
+				q.limit--
 			}
 			return nil
 		})
@@ -94,6 +120,19 @@ func (db *database) getDocs(q query, parse func([]byte) (interface{}, error)) (o
 	}()
 
 	return
+}
+
+func (db *database) countDocs(q query) (count int) {
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
+		return true, nil
+	})
+	for range outs {
+		count++
+	}
+	if err := <-errs; err != nil {
+		log.Fatal(err)
+	}
+	return count
 }
 
 func (db *database) getDoc(bucketName string, key string, out interface{}) bool {
@@ -222,13 +261,10 @@ func (db *database) getMsgOrCharaRevisions(bucket string, rpid string, id string
 	return revisions
 }
 
-func (db *database) getRecentMsgs(rpid string) []RpMessage {
+func (db *database) queryMsgs(rpid string, q query) []RpMessage {
 	msgs := []RpMessage{}
-	q := query{
-		bucket:  "msgs",
-		prefix:  rpid,
-		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
-	}
+	q.bucket = "msgs"
+	q.prefix = rpid
 	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
 		out := NewRpMessage()
 		err := json.Unmarshal(in, &out)
@@ -241,6 +277,35 @@ func (db *database) getRecentMsgs(rpid string) []RpMessage {
 		log.Fatal(err)
 	}
 	return msgs
+}
+
+func (db *database) getRecentMsgs(rpid string) []RpMessage {
+	msgs := db.queryMsgs(rpid, query{
+		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
+		reverse: true,
+		limit:   60,
+	})
+	for left, right := 0, len(msgs)-1; left < right; left, right = left+1, right-1 {
+		msgs[left], msgs[right] = msgs[right], msgs[left]
+	}
+	return msgs
+}
+
+func (db *database) countRoomPages(rpid string) int {
+	numMsgs := db.countDocs(query{
+		bucket:  "msgs",
+		prefix:  rpid,
+		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
+	})
+	return int(math.Ceil(float64(numMsgs) / 20))
+}
+
+func (db *database) getPageMsgs(rpid string, pageNum int) []RpMessage {
+	return db.queryMsgs(rpid, query{
+		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
+		skip:    (pageNum - 1) * 20,
+		limit:   20,
+	})
 }
 
 func (db *database) getCharas(rpid string) []RpChara {

@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -68,8 +69,8 @@ func clientRouter() *mux.Router {
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
 	roomAPI.HandleFunc("/chat", rpChatStream).Methods("GET")
-	roomAPI.HandleFunc("/pages", todo).Methods("GET")
-	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", todo).Methods("GET")
+	roomAPI.HandleFunc("/pages", rpReadIndex).Methods("GET")
+	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", rpReadPage).Methods("GET")
 	roomAPI.HandleFunc("/download.txt", todo).Methods("GET")
 	roomAPI.HandleFunc("/export", todo).Methods("GET")
 	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
@@ -346,6 +347,58 @@ func rpGetMsgHistory(w http.ResponseWriter, r *http.Request) {
 
 func rpGetCharaHistory(w http.ResponseWriter, r *http.Request) {
 	rpGetThingHistory(w, r, "charas")
+}
+
+func rpReadIndex(w http.ResponseWriter, r *http.Request) {
+	var idx struct {
+		Title     string `json:"title"`
+		PageCount int    `json:"pageCount"`
+	}
+
+	// parse slug
+	params := mux.Vars(r)
+
+	// get rpid from slug
+	slugInfo := db.getSlugInfo(params["slug"])
+	// TODO if empty...
+
+	idx.Title = db.getRoomInfo(slugInfo.Rpid).Title
+	idx.PageCount = db.countRoomPages(slugInfo.Rpid)
+
+	// bounce it back and send
+	json.NewEncoder(w).Encode(idx)
+}
+
+func rpReadPage(w http.ResponseWriter, r *http.Request) {
+	var idx struct {
+		Title     string      `json:"title"`
+		PageCount int         `json:"pageCount"`
+		Messages  []RpMessage `json:"msgs"`
+		Charas    []RpChara   `json:"charas"`
+	}
+
+	// parse slug
+	params := mux.Vars(r)
+
+	// get rpid from slug
+	slugInfo := db.getSlugInfo(params["slug"])
+	// TODO if empty...
+
+	// validate page number
+	pageNum, err := strconv.ParseInt(params["pageNum"], 10, 64)
+	if err != nil {
+		log.Printf("Invalid page number: %s", params["pageNum"])
+		w.WriteHeader(400)
+		return
+	}
+
+	idx.Title = db.getRoomInfo(slugInfo.Rpid).Title
+	idx.PageCount = db.countRoomPages(slugInfo.Rpid)
+	idx.Messages = db.getPageMsgs(slugInfo.Rpid, int(pageNum))
+	idx.Charas = db.getCharas(slugInfo.Rpid)
+
+	// bounce it back and send
+	json.NewEncoder(w).Encode(idx)
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
