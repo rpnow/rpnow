@@ -22,6 +22,10 @@ var db *database
 // REVISIONS: rpid/(msg|chara)id -> []json
 
 func init() {
+	db = &database{}
+}
+
+func (db *database) open() {
 	// path to boltdb file
 	path := "../data/rpnow.boltdb"
 
@@ -46,7 +50,11 @@ func init() {
 	}
 
 	// now we can use it
-	db = &database{boltdb}
+	db.bolt = boltdb
+}
+
+func (db *database) close() error {
+	return db.bolt.Close()
 }
 
 type query struct {

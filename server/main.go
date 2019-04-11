@@ -29,6 +29,15 @@ func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
 
+	// db setup
+	db.open()
+	defer func() {
+		if err := db.close(); err != nil {
+			log.Fatalf("Error: db.close: %s", err)
+		}
+		log.Println("Database closed")
+	}()
+
 	// listen
 	closeAdminServer := serveRouter(adminRouter(), adminAddr)
 	defer closeAdminServer()
