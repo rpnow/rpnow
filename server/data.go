@@ -84,6 +84,9 @@ func (m RpMessageBody) Validate() error {
 		if m.CharaID != "" {
 			return fmt.Errorf("Msg: image should not have 'charaId'")
 		}
+		if len(m.URL) > 1000 {
+			return fmt.Errorf("Msg: url is too long (%d characters)", len(m.Content))
+		}
 		urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
 		if !urlRegexp.MatchString(m.URL) {
 			return fmt.Errorf("Msg: url is invalid")
