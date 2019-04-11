@@ -21,7 +21,7 @@ type SlugInfo struct {
 
 type Doc interface {
 	Meta() *DocMeta
-	ParseBody(io.ReadCloser) error
+	ParseBody(io.Reader) error
 	Validate() error
 }
 
@@ -47,7 +47,7 @@ func NewRpMessage() RpMessage {
 	return RpMessage{&RpMessageBody{}, &DocMeta{}}
 }
 
-func (x RpMessage) ParseBody(j io.ReadCloser) error {
+func (x RpMessage) ParseBody(j io.Reader) error {
 	return json.NewDecoder(j).Decode(x.RpMessageBody)
 }
 
@@ -68,7 +68,7 @@ func NewRpChara() RpChara {
 	return RpChara{&RpCharaBody{}, &DocMeta{}}
 }
 
-func (x RpChara) ParseBody(j io.ReadCloser) error {
+func (x RpChara) ParseBody(j io.Reader) error {
 	return json.NewDecoder(j).Decode(x.RpCharaBody)
 }
 
