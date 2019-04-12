@@ -73,7 +73,7 @@ func clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", rpReadPage).Methods("GET")
 	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET").Queries("includeOOC", "{includeOOC:true}")
 	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET")
-	roomAPI.HandleFunc("/export", todo).Methods("GET")
+	roomAPI.HandleFunc("/export", rpExportJson).Methods("GET")
 	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
 	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}", rpUpdateMsg).Methods("PUT")
@@ -442,6 +442,67 @@ func rpExportTxt(w http.ResponseWriter, r *http.Request) {
 	if err := <-errs; err != nil {
 		log.Fatal(err)
 	}
+}
+
+func rpExportJson(w http.ResponseWriter, r *http.Request) {
+	type exportChara struct {
+		Timestamp time.Time `json:"timestamp"`
+		Name      string    `json:"name"`
+		Color     string    `json:"color"`
+	}
+	var rpMeta struct {
+		Title  string        `json:"title"`
+		Charas []exportChara `json:"charas"`
+	}
+	// parse slug
+	params := mux.Vars(r)
+
+	// get rpid from slug
+	slugInfo := db.getSlugInfo(params["slug"])
+	// TODO if empty...
+
+	// Get title
+	title := db.getRoomInfo(slugInfo.Rpid).Title
+	rpMeta.Title = title
+
+	// map of charas by id
+	charas := db.getCharas(slugInfo.Rpid)
+	charaIDMap := map[string]int{}
+	for i, chara := range charas {
+		charaIDMap[chara.ID] = i
+		rpMeta.Charas = append(rpMeta.Charas, exportChara{chara.Timestamp, chara.Name, chara.Color})
+	}
+
+	// write out header block
+	firstBlock, _ := json.Marshal(rpMeta)
+	w.Header().Add("Content-Disposition", "attachment; filename=\""+strings.ToLower(title)+".json\"")
+	w.Write([]byte("[\n"))
+	w.Write(firstBlock)
+
+	// write out each message
+	msgs, errs := db.getAllMsgs(slugInfo.Rpid)
+	type exportMessage struct {
+		Timestamp time.Time `json:"timestamp"`
+		*RpMessageBody
+		CharaID *int `json:"charaId,omitempty"`
+	}
+	for msg := range msgs {
+		out := exportMessage{RpMessageBody: msg.RpMessageBody, Timestamp: msg.Timestamp}
+		if msg.Type == "chara" {
+			charaID := charaIDMap[msg.CharaID]
+			out.CharaID = &charaID
+		}
+		js, _ := json.Marshal(out)
+		w.Write([]byte(",\n"))
+		w.Write(js)
+	}
+	// die if error
+	if err := <-errs; err != nil {
+		log.Fatal(err)
+	}
+
+	// done
+	w.Write([]byte("\n]\n"))
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
