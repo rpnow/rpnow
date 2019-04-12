@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 	"time"
+
+	"github.com/mitchellh/go-wordwrap"
 )
 
 type RoomInfo struct {
@@ -130,4 +133,21 @@ func (c RpCharaBody) Validate() error {
 		return fmt.Errorf("Chara: color is invalid")
 	}
 	return nil
+}
+
+func (m RpMessage) ToTxt(chara *RpChara) string {
+	if m.Type == "chara" {
+		return strings.ToUpper(chara.Name) + ":\r\n  " + strings.Replace(wordwrap.WrapString(m.Content, 70), "\n", "\r\n  ", 0)
+	}
+	if m.Type == "ooc" {
+		return strings.Replace(wordwrap.WrapString("(( OOC: "+m.Content+" ))", 72), "\n", "\r\n", 0)
+	}
+	if m.Type == "narrator" {
+		return strings.Replace(wordwrap.WrapString(m.Content, 72), "\n", "\r\n", 0)
+	}
+	if m.Type == "image" {
+		return "--- IMAGE ---\r\n" + m.URL + "\r\n-------------"
+		return m.URL
+	}
+	panic("What kind of message is this?")
 }

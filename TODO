@@ -1,7 +1,6 @@
 jwt auth
 attach jwt id to sent msgs
 change slug nanoid format?
-txt export
 json export
 json import
 check charaId on msg{type:chara}

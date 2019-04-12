@@ -308,6 +308,27 @@ func (db *database) getPageMsgs(rpid string, pageNum int) []RpMessage {
 	})
 }
 
+func (db *database) getAllMsgs(rpid string) (chan RpMessage, chan error) {
+	msgs := make(chan RpMessage)
+	q := query{
+		bucket:  "msgs",
+		prefix:  rpid,
+		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
+	}
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
+		out := NewRpMessage()
+		err := json.Unmarshal(in, &out)
+		return out, err
+	})
+	go func() {
+		for out := range outs {
+			msgs <- out.(RpMessage)
+		}
+		close(msgs)
+	}()
+	return msgs, errs
+}
+
 func (db *database) getCharas(rpid string) []RpChara {
 	charas := []RpChara{}
 	q := query{

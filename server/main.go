@@ -71,7 +71,8 @@ func clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/chat", rpChatStream).Methods("GET")
 	roomAPI.HandleFunc("/pages", rpReadIndex).Methods("GET")
 	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", rpReadPage).Methods("GET")
-	roomAPI.HandleFunc("/download.txt", todo).Methods("GET")
+	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET").Queries("includeOOC", "{includeOOC:true}")
+	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET")
 	roomAPI.HandleFunc("/export", todo).Methods("GET")
 	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
 	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
@@ -399,6 +400,48 @@ func rpReadPage(w http.ResponseWriter, r *http.Request) {
 
 	// bounce it back and send
 	json.NewEncoder(w).Encode(idx)
+}
+
+func rpExportTxt(w http.ResponseWriter, r *http.Request) {
+	// parse slug
+	params := mux.Vars(r)
+
+	// get rpid from slug
+	slugInfo := db.getSlugInfo(params["slug"])
+	// TODO if empty...
+
+	// Write title
+	title := db.getRoomInfo(slugInfo.Rpid).Title
+	w.Header().Add("Content-Disposition", "attachment; filename=\""+strings.ToLower(title)+".txt\"")
+	w.Write([]byte(title + "\r\n\r\n----------\r\n\r\n"))
+
+	// map of charas by id
+	charas := db.getCharas(slugInfo.Rpid)
+	charasMap := map[string]*RpChara{}
+	for _, chara := range charas {
+		charasMap[chara.ID] = &chara
+	}
+
+	// include ooc messages?
+	includeOOCParam, includeOOCinMap := params["includeOOC"]
+	includeOOC := includeOOCinMap && includeOOCParam != "false"
+
+	// get msgs from db cursor
+	msgs, errs := db.getAllMsgs(slugInfo.Rpid)
+	for msg := range msgs {
+		if msg.Type == "ooc" && !includeOOC {
+			continue
+		}
+		var chara *RpChara
+		if msg.Type == "chara" {
+			chara = charasMap[msg.CharaID]
+		}
+		w.Write([]byte(msg.ToTxt(chara) + "\r\n\r\n"))
+	}
+	// die if error
+	if err := <-errs; err != nil {
+		log.Fatal(err)
+	}
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
