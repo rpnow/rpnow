@@ -2,6 +2,7 @@
   <div id="homepage">
     <div v-if="!loading">
       <h1>My RPs</h1>
+      <button @click="void $emit('logout')">LOGOUT</button>
       <div id="top-options">
         <button class="pane" id="new-rp" v-if="canCreate" @click="createRp">
           Create New RP

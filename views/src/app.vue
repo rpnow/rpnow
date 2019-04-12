@@ -1,6 +1,8 @@
 <template>
-  <router-view v-if="user"></router-view>
-  <div v-else>Loading...</div>
+  <router-view v-if="user" @logout="logout"></router-view>
+  <div v-else>
+    <button @click="login">LOG IN</button>
+  </div>
 </template>
 
 <script>
@@ -10,6 +12,7 @@
     data() {
       return {
         user: null,
+        loading: true,
       };
     },
     mounted() {
@@ -41,22 +44,31 @@
           });
 
       }).then((data) => {
-        // if we don't have a valid token, get one (and store it)
-        if (data != null) return data;
-
-        return axios.post('/api/user')
-          .then(function(res) {
-            try {
-              localStorage.setItem('rpnow.auth', JSON.stringify(res.data))
-            } catch (err) {/* it's ok */}
-            return res.data;
-          })
-
-      }).then((data) => {
-        // set token in headers for future requests
-        axios.defaults.headers.common.authorization = 'Bearer ' + data.token;
+        // this is the user
         this.user = data;
+        this.loading = false;
       });
+    },
+    methods: {
+      login() {
+        axios.post('/api/user').then((res) => {
+          try {
+            localStorage.setItem('rpnow.auth', JSON.stringify(res.data))
+          } catch (err) {/* it's ok */}
+          this.user = res.data;
+        });
+      },
+      logout() {
+        try {
+          localStorage.removeItem('rpnow.auth')
+        } catch (err) {/* it's ok */}
+        this.user = null;
+      }
+    },
+    watch: {
+      user(user) {
+        axios.defaults.headers.common.authorization = (user == null) ? '' : ('Bearer '+user.token)
+      },
     },
   };
 </script>
