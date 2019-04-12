@@ -31,17 +31,14 @@
       };
     },
     methods: {
-      initializeAuth: require('../components/user'),
       uploadJson() {
         var file = this.$refs.fileInput.files[0];
         this.submitted = true;
 
-        this.initializeAuth()
-          .then(() => {
-            var data = new FormData();
-            data.append('file', file);
-            return axios.post('/api/rp/import', data);
-          })
+        var data = new FormData();
+        data.append('file', file);
+
+        axios.post('/api/rp/import', data)
           .then(res => {
             this.importing = true;
             this.waitForImport(res.data.rpCode)

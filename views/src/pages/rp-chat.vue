@@ -148,7 +148,6 @@
   import RpMessage from '../components/rp-message.vue';
   import SendBox from '../components/send-box.vue';
   import CharaDrawer from '../components/chara-drawer.vue';
-  import initializeAuth from '../components/user.js';
 
   export default {
     components: {
@@ -163,7 +162,6 @@
         rpCode: null,
         rp: null,
         loadError: null,
-        user: {},
         // rp ui
         isNewRp: false,
         isScrolledToBottom: true,
@@ -240,11 +238,7 @@
     },
 
     mounted() {
-      this.initializeAuth()
-        .then(data => {
-          this.user = data;
-          this.fetchUpdates();
-        })
+      this.fetchUpdates();
     },
     unmounted() {
       if (this.websocket) {
@@ -289,7 +283,6 @@
     },
 
     methods: {
-      initializeAuth: initializeAuth,
       fetchUpdates() {
         const createWs = () => {
           const url = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:13000/api/rp/${this.rpCode}/chat`
@@ -323,7 +316,6 @@
         createWs();
       },
       updateState(update) {
-        console.log(update);
         if (update.type === 'init') {
           this.rp = update.data;
 

@@ -94,7 +94,6 @@
 
 <script>
   import axios from 'axios';
-  import initializeAuth from '../components/user';
   import coolstory from 'coolstory.js';
 
   export default {
@@ -121,7 +120,6 @@
         });
     },
     methods: {
-      initializeAuth: initializeAuth,
       createRp() {
         // this.title = prompt("What is this RP called?");
         this.title = coolstory.title(20);
@@ -142,8 +140,7 @@
       submitRp() {
         this.loading = true;
 
-        this.initializeAuth()
-          .then(() => axios.post('/api/rp', { title: this.title }))
+        axios.post('/api/rp', { title: this.title })
           .then(res => window.location.href = '/rp/' + res.data.rpCode)
           .catch((err) => {
             this.loading = false;
