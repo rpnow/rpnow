@@ -385,7 +385,7 @@ func rpReadPage(w http.ResponseWriter, r *http.Request) {
 	// TODO if empty...
 
 	// validate page number
-	pageNum, err := strconv.ParseInt(params["pageNum"], 10, 64)
+	pageNum, err := strconv.ParseInt(params["pageNum"], 10, 32)
 	if err != nil {
 		log.Printf("Invalid page number: %s", params["pageNum"])
 		w.WriteHeader(400)
