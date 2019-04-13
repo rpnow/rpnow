@@ -1,5 +1,5 @@
 {
     "signal": "SIGINT",
     "ext": "go",
-    "exec": "go run . || exit 1"
+    "exec": "go run -tags dev . || exit 1"
 }

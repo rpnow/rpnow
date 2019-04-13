@@ -1,5 +1,6 @@
 node_modules
 **/npm-debug.log
 dist
+server/assets_bundle.go
 
 data/*

@@ -1,3 +1,5 @@
+//go:generate go run -tags=dev assets_generate.go
+
 package main
 
 import (
@@ -92,7 +94,7 @@ func clientRouter() *mux.Router {
 	router.HandleFunc("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
 
 	// assets
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("../views/dist")))
+	router.PathPrefix("/").Handler(http.FileServer(StaticAssets))
 
 	return router
 }
@@ -636,7 +638,15 @@ func verifyUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHTML(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../views/dist/index.html")
+	file, err := StaticAssets.Open("index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	stat, err := file.Stat()
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.ServeContent(w, r, "index.html", stat.ModTime(), file)
 }
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
