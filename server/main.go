@@ -66,7 +66,6 @@ func clientRouter() *mux.Router {
 	api.HandleFunc("/dashboard", dashboard).Methods("POST")
 	api.HandleFunc("/rp", createRp).Methods("POST")
 	api.HandleFunc("/rp/import", rpImportJson).Methods("POST")
-	api.HandleFunc("/rp/import/{slug:[-0-9a-zA-Z]+}", rpImportJsonStatus).Methods("POST")
 	api.HandleFunc("/user", createUser).Methods("POST")
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
@@ -626,10 +625,6 @@ func rpImportJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("read")
 
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
-}
-
-func rpImportJsonStatus(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, `{"status":"success"}`)
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
