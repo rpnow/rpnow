@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -63,7 +64,7 @@ func clientRouter() *mux.Router {
 	api.HandleFunc("/health", health).Methods("GET")
 	api.HandleFunc("/dashboard", dashboard).Methods("POST")
 	api.HandleFunc("/rp", createRp).Methods("POST")
-	api.HandleFunc("/rp/import", todo).Methods("POST")
+	api.HandleFunc("/rp/import", rpImportJson).Methods("POST")
 	api.HandleFunc("/rp/import/{slug:[-0-9a-zA-Z]+}", todo).Methods("POST")
 	api.HandleFunc("/user", createUser).Methods("POST")
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
@@ -243,6 +244,10 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = obj.CheckRelations()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// More
 	obj.Meta().Timestamp = time.Now()
@@ -296,6 +301,10 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	}
 	// validate
 	err = obj.Validate()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = obj.CheckRelations()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -444,16 +453,24 @@ func rpExportTxt(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type exportFirstBlock struct {
+	Title  string        `json:"title"`
+	Charas []exportChara `json:"charas"`
+}
+type exportChara struct {
+	Timestamp time.Time `json:"timestamp"`
+	Name      string    `json:"name"`
+	Color     string    `json:"color"`
+}
+type exportMessage struct {
+	Timestamp time.Time `json:"timestamp"`
+	*RpMessageBody
+	CharaID *int `json:"charaId,omitempty"`
+}
+
 func rpExportJson(w http.ResponseWriter, r *http.Request) {
-	type exportChara struct {
-		Timestamp time.Time `json:"timestamp"`
-		Name      string    `json:"name"`
-		Color     string    `json:"color"`
-	}
-	var rpMeta struct {
-		Title  string        `json:"title"`
-		Charas []exportChara `json:"charas"`
-	}
+	var rpMeta exportFirstBlock
+
 	// parse slug
 	params := mux.Vars(r)
 
@@ -481,11 +498,6 @@ func rpExportJson(w http.ResponseWriter, r *http.Request) {
 
 	// write out each message
 	msgs, errs := db.getAllMsgs(slugInfo.Rpid)
-	type exportMessage struct {
-		Timestamp time.Time `json:"timestamp"`
-		*RpMessageBody
-		CharaID *int `json:"charaId,omitempty"`
-	}
 	for msg := range msgs {
 		out := exportMessage{RpMessageBody: msg.RpMessageBody, Timestamp: msg.Timestamp}
 		if msg.Type == "chara" {
@@ -503,6 +515,67 @@ func rpExportJson(w http.ResponseWriter, r *http.Request) {
 
 	// done
 	w.Write([]byte("\n]\n"))
+}
+
+func rpImportJson(w http.ResponseWriter, r *http.Request) {
+	// open file sent through "file" multiform param
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(400)
+		return
+	}
+	defer file.Close()
+
+	// decode json in file
+	dec := json.NewDecoder(file)
+
+	// read first json token, which should be "array start"
+	if t, err := dec.Token(); err != nil || t.(json.Delim) != '[' {
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+		} else {
+			http.Error(w, fmt.Sprintf("Starting delimiter is %s", t), 400)
+		}
+		return
+	}
+
+	// read non-message stuff from first el
+	var meta exportFirstBlock
+	if err := dec.Decode(&meta); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	fmt.Println(meta)
+
+	// read all remaining elements in the array as msgs
+	for i := 0; dec.More(); i++ {
+		var msg exportMessage
+
+		if err := dec.Decode(&msg); err != nil {
+			fmt.Println(err)
+			w.WriteHeader(500)
+			return
+		}
+
+		// fmt.Println(msg)
+		fmt.Println(i)
+		_ = msg
+	}
+
+	// read ending
+	if t, err := dec.Token(); err != nil || t.(json.Delim) != ']' {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	if _, err := dec.Token(); err != io.EOF {
+		http.Error(w, "Unexpected items after the array", 400)
+		return
+	}
+	fmt.Println("read")
+
+	slug := "where-are-u"
+	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {

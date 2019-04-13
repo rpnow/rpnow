@@ -26,6 +26,7 @@ type Doc interface {
 	Meta() *DocMeta
 	ParseBody(io.Reader) error
 	Validate() error
+	CheckRelations() error
 }
 
 type DocMeta struct {
@@ -109,7 +110,6 @@ func (m RpMessageBody) Validate() error {
 			if m.CharaID == "" {
 				return fmt.Errorf("Msg: charaId is empty")
 			}
-			// TODO check if the doc is in the db
 		} else {
 			if m.CharaID != "" {
 				return fmt.Errorf("Msg: non-chara msg should not have 'charaId'")
@@ -119,6 +119,13 @@ func (m RpMessageBody) Validate() error {
 	} else {
 		return fmt.Errorf("Msg: invalid type")
 	}
+}
+
+func (m RpMessageBody) CheckRelations() error {
+	if m.Type == "chara" {
+		// TODO check if the charaId is in the db
+	}
+	return nil
 }
 
 func (c RpCharaBody) Validate() error {
@@ -132,6 +139,10 @@ func (c RpCharaBody) Validate() error {
 	if !colorRegexp.MatchString(c.Color) {
 		return fmt.Errorf("Chara: color is invalid")
 	}
+	return nil
+}
+
+func (c RpCharaBody) CheckRelations() error {
 	return nil
 }
 
