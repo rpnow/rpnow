@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -577,7 +578,8 @@ func rpImportJson(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// read all remaining elements in the array as msgs
-	for i := 1; dec.More(); i++ {
+	var wg sync.WaitGroup
+	for dec.More() {
 		var rawMsg exportMessage
 
 		if err := dec.Decode(&rawMsg); err != nil {
@@ -604,12 +606,13 @@ func rpImportJson(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), 400)
 			return
 		}
-		db.putMsg(rpid, &msg)
-
-		if i%100 == 0 {
-			fmt.Println(i)
-		}
+		wg.Add(1)
+		go func(msg *RpMessage) {
+			db.putMsg(rpid, msg)
+			wg.Done()
+		}(&msg)
 	}
+	wg.Wait()
 
 	// read ending
 	if t, err := dec.Token(); err != nil || t.(json.Delim) != ']' {

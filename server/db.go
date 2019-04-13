@@ -161,7 +161,10 @@ type kv struct {
 }
 
 func (db *database) putDocsOrCrash(bucketName string, pairs []kv) {
-	err := db.bolt.Update(func(tx *bolt.Tx) error {
+	// because the operation of putting documents is idempotent,
+	// we can use Batch instead of Update, so many puts can be
+	// done concurrently in different goroutines. see bolt docs
+	err := db.bolt.Batch(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		if bucket == nil {
 			return fmt.Errorf("Unknown bucket: %s", bucketName)
