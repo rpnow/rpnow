@@ -5,7 +5,7 @@ default: rpnow-linux.tar.gz
 
 .PHONY: clean
 clean:
-	rm -r rpadmin rpnow server/assets_bundle.go views/dist views/node_modules
+	rm -rf rpnow-linux.tar.gz rpadmin rpnow server/assets_bundle.go views/dist views/node_modules
 
 rpnow-linux.tar.gz: rpadmin rpnow install.sh
 	tar -cvzf rpnow-linux.tar.gz rpnow rpadmin install.sh
