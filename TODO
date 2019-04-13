@@ -1,7 +1,6 @@
 jwt auth
 attach jwt id to sent msgs
 change slug nanoid format?
-json export
 json import
 check charaId on msg{type:chara}
 admin API
@@ -17,7 +16,6 @@ rpnow.ini ssl, sslPort, sslDomain, letsencryptAcceptTOS, letsencryptEmail
 env/argv configFile
 env/argv other vars
 
-embed html in go build
 Makefile
 update install.sh
 
