@@ -103,7 +103,7 @@ func (m RpMessageBody) Validate() error {
 		if m.Content == "" {
 			return fmt.Errorf("Msg: content is empty")
 		}
-		if len(m.Content) > 10000 {
+		if len(m.Content) > 50000 {
 			return fmt.Errorf("Msg: content is too long (%d characters)", len(m.Content))
 		}
 		if m.Type == "chara" {
