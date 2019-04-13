@@ -236,6 +236,14 @@ func (db *database) putMsgOrChara(bucket string, rpid string, obj Doc) {
 	db.putDocOrCrash(bucket, key, obj)
 }
 
+func (db *database) putMsg(rpid string, msg *RpMessage) {
+	db.putMsgOrChara("msgs", rpid, msg)
+}
+
+func (db *database) putChara(rpid string, chara *RpChara) {
+	db.putMsgOrChara("charas", rpid, chara)
+}
+
 func (db *database) putMsgOrCharaRevision(bucket string, rpid string, obj Doc) {
 	key := fmt.Sprintf("%s/%s/%d", rpid, obj.Meta().ID, obj.Meta().Revision)
 	db.putDocOrCrash(bucket, key, obj)

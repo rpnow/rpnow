@@ -65,7 +65,7 @@ func clientRouter() *mux.Router {
 	api.HandleFunc("/dashboard", dashboard).Methods("POST")
 	api.HandleFunc("/rp", createRp).Methods("POST")
 	api.HandleFunc("/rp/import", rpImportJson).Methods("POST")
-	api.HandleFunc("/rp/import/{slug:[-0-9a-zA-Z]+}", todo).Methods("POST")
+	api.HandleFunc("/rp/import/{slug:[-0-9a-zA-Z]+}", rpImportJsonStatus).Methods("POST")
 	api.HandleFunc("/user", createUser).Methods("POST")
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
@@ -146,6 +146,21 @@ func dashboard(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `{"canCreate":true,"canImport":true}`)
 }
 
+func generateRpid() string {
+	return "rp_" + xid.New().String()
+}
+func generateSlug(title string) string {
+	slug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
+	if err != nil {
+		panic(err)
+	}
+	if title == "" {
+		return slug
+	}
+	sluggedTitle := regexp.MustCompile("[^a-z0-9]+").ReplaceAllString(strings.ToLower(title), "-")
+	return sluggedTitle + "-" + slug
+}
+
 func createRp(w http.ResponseWriter, r *http.Request) {
 	// parse rp header fields
 	var header struct {
@@ -155,19 +170,10 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	// generate slug
-	slug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
-	if err != nil {
-		panic(err)
-	}
-	readSlug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
-	if err != nil {
-		panic(err)
-	}
-	readSlug = strings.ToLower(header.Title) + "-" + readSlug
-	readSlug = regexp.MustCompile("[^a-z0-9]+").ReplaceAllString(readSlug, "-")
-	// generate rpid
-	rpid := "rp_" + xid.New().String()
+
+	slug := generateSlug("")
+	readSlug := generateSlug(header.Title)
+	rpid := generateRpid()
 
 	// add to db
 	db.addSlugInfo(slug, &SlugInfo{rpid, "normal"})
@@ -459,8 +465,7 @@ type exportFirstBlock struct {
 }
 type exportChara struct {
 	Timestamp time.Time `json:"timestamp"`
-	Name      string    `json:"name"`
-	Color     string    `json:"color"`
+	*RpCharaBody
 }
 type exportMessage struct {
 	Timestamp time.Time `json:"timestamp"`
@@ -487,7 +492,7 @@ func rpExportJson(w http.ResponseWriter, r *http.Request) {
 	charaIDMap := map[string]int{}
 	for i, chara := range charas {
 		charaIDMap[chara.ID] = i
-		rpMeta.Charas = append(rpMeta.Charas, exportChara{chara.Timestamp, chara.Name, chara.Color})
+		rpMeta.Charas = append(rpMeta.Charas, exportChara{chara.Timestamp, chara.RpCharaBody})
 	}
 
 	// write out header block
@@ -546,21 +551,64 @@ func rpImportJson(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	fmt.Println(meta)
+
+	slug := generateSlug("")
+	readSlug := generateSlug(meta.Title)
+	rpid := generateRpid()
+
+	db.addSlugInfo(slug, &SlugInfo{rpid, "normal"})
+	db.addSlugInfo(readSlug, &SlugInfo{rpid, "read"})
+	db.addRoomInfo(rpid, &RoomInfo{meta.Title, readSlug})
+
+	charas := make([]RpChara, len(meta.Charas))
+	for i, rawChara := range meta.Charas {
+		chara := NewRpChara()
+		chara.RpCharaBody = rawChara.RpCharaBody
+		chara.Timestamp = rawChara.Timestamp
+		chara.ID = xid.New().String()
+		chara.Userid = "nobody09c39024f1ef"
+		chara.Revision = 0
+		charas[i] = chara
+		if err := chara.Validate(); err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+		db.putChara(rpid, &chara)
+	}
 
 	// read all remaining elements in the array as msgs
-	for i := 0; dec.More(); i++ {
-		var msg exportMessage
+	for i := 1; dec.More(); i++ {
+		var rawMsg exportMessage
 
-		if err := dec.Decode(&msg); err != nil {
+		if err := dec.Decode(&rawMsg); err != nil {
 			fmt.Println(err)
 			w.WriteHeader(500)
 			return
 		}
 
-		// fmt.Println(msg)
-		fmt.Println(i)
-		_ = msg
+		msg := NewRpMessage()
+		msg.RpMessageBody = rawMsg.RpMessageBody
+		if msg.Type == "chara" {
+			if rawMsg.CharaID == nil || *rawMsg.CharaID < 0 || *rawMsg.CharaID >= len(charas) {
+				http.Error(w, fmt.Sprintf("Invalid CharaID: %d", *rawMsg.CharaID), 400)
+				return
+			}
+			msg.CharaID = charas[*rawMsg.CharaID].ID
+		}
+		msg.Timestamp = rawMsg.Timestamp
+		msg.ID = xid.New().String()
+		msg.Userid = "nobody09c39024f1ef"
+		msg.Revision = 0
+
+		if err := msg.Validate(); err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+		db.putMsg(rpid, &msg)
+
+		if i%100 == 0 {
+			fmt.Println(i)
+		}
 	}
 
 	// read ending
@@ -574,8 +622,11 @@ func rpImportJson(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("read")
 
-	slug := "where-are-u"
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
+}
+
+func rpImportJsonStatus(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, `{"status":"success"}`)
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
