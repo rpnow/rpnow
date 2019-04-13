@@ -1,2 +1,11 @@
-**
-!install.sh
+.*
+Dockerfile
+
+**/node_modules
+**/npm-debug.log
+dist
+server/assets_bundle.go
+rpadmin
+rpnow
+
+data/*
