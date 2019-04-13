@@ -14,75 +14,13 @@ install_rpnow()
 {
 	trap 'echo -e "Aborted, error $? in command: $BASH_COMMAND"; trap ERR; exit 1' ERR
 
-	rpnow_os="unsupported"
-	rpnow_arch="unknown"
+	install_dir=$(dirname $0)
 
 	if ! [ $(id -u) = 0 ]; then
 		sudo_cmd="sudo"
 	else
 		sudo_cmd=""
 	fi
-
-	#########################
-	# Which OS and version? #
-	#########################
-
-	rpnow_version="v3.0-beta1"
-	rpnow_dl_ext=".tar.gz"
-
-	# NOTE: `uname -m` is more accurate and universal than `arch`
-	# See https://en.wikipedia.org/wiki/Uname
-	unamem="$(uname -m)"
-	if [[ $unamem == *64* ]]; then
-		rpnow_arch="amd64"
-	else
-		echo "Aborted, unsupported or unknown architecture: $unamem"
-		return 2
-	fi
-
-	unameu="$(tr '[:lower:]' '[:upper:]' <<<$(uname))"
-	if [[ $unameu == *LINUX* ]]; then
-		rpnow_os="linux"
-	else
-		echo "Aborted, unsupported or unknown os: $uname"
-		return 6
-	fi
-
-	########################
-	# Download and extract #
-	########################
-
-	echo "Downloading RPNow for ${rpnow_os}/${rpnow_arch}..."
-	rpnow_file="rpnow-${rpnow_os}-${rpnow_version}${rpnow_dl_ext}"
-	rpnow_url="https://github.com/rpnow/rpnow/releases/download/${rpnow_version}/rpnow-${rpnow_os}${rpnow_dl_ext}"
-	rpadmin_url="https://github.com/rpnow/rpnow/releases/download/${rpnow_version}/rpadmin"
-
-	dl="/tmp/$rpnow_file"
-	dladmin="/tmp/rpadmin"
-	rm -rf -- "$dl"
-
-	if type -p curl >/dev/null 2>&1; then
-		curl -fsSL "$rpnow_url" -o "$dl"
-		curl -fsSL "$rpadmin_url" -o "$dladmin"
-	elif type -p wget >/dev/null 2>&1; then
-		wget --quiet "$rpnow_url" -O "$dl"
-		wget --quiet "$rpadmin_url" -O "$dladmin"
-	else
-		echo "Aborted, could not find curl or wget"
-		return 7
-	fi
-
-	echo "Extracting..."
-
-	dl_unzip="/tmp/rpnow-${rpnow_os}-${rpnow_version}/"
-	rm -rf -- "$dl_unzip"
-	mkdir "$dl_unzip"
-
-	case "$rpnow_file" in
-		*.zip)    unzip -q "$dl" -d "$dl_unzip" ;;
-		*.tar.gz) tar -xzf "$dl" -C "$dl_unzip" ;;
-	esac
-	chmod +x "$dl_unzip/rpnow"
 
 	# TODO Back up existing rpnow, if any found in path
 	# if rpnow_path="$(type -p "rpnow")"; then
@@ -91,11 +29,16 @@ install_rpnow()
 	# 	echo "(Password may be required.)"
 	# 	sudo mv "$rpnow_path" "$rpnow_backup"
 	# fi
+	echo "Removing old rpnow server"
 	$sudo_cmd rm -rf "/usr/local/rpnow"
 
-	echo "Putting rpnow files in /usr/local/rpnow (may require password)"
-	$sudo_cmd mv "$dl_unzip" "/usr/local/rpnow"
-	$sudo_cmd rm -- "$dl"
+	echo "Installing rpnow server to /usr/local/rpnow (may require password)"
+	$sudo_cmd mkdir "/usr/local/rpnow"
+	$sudo_cmd mv "$install_dir/rpnow" "/usr/local/rpnow/"
+
+	echo "Installing rpadmin command in /usr/local/bin (may require password)"
+	$sudo_cmd mv "$install_dir/rpadmin" "/usr/local/bin/"
+	$sudo_cmd chmod +x "/usr/local/bin/rpadmin"
 
 	# Put /etc/rpnow.ini if not exists
 	if [ ! -f /etc/rpnow.ini ]; then
@@ -120,13 +63,6 @@ EOF'
 		echo "/etc/rpnow.ini already exists, skipping"
 	fi
 
-	echo "Putting rpadmin command in /usr/local/bin (may require password)"
-	$sudo_cmd mv "$dladmin" /usr/local/bin/
-	$sudo_cmd chmod +x /usr/local/bin/rpadmin
-
-	# TODO check installation
-	# rpadmin --version
-
 	echo "Creating RPNow system user"
 	$sudo_cmd useradd --system --shell /bin/false rpnow || true
 	# setgid for rpnow server, so it has access to its special directories
@@ -150,6 +86,9 @@ EOF'
 	$sudo_cmd mkdir -p /var/local/rpnow
 	$sudo_cmd chown rpnow:rpnow /var/local/rpnow
 	$sudo_cmd chmod 775 /var/local/rpnow
+
+	# TODO check installation
+	# rpadmin --version
 
 	echo "Successfully installed"
 	trap ERR

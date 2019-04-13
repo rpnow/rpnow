@@ -14,14 +14,18 @@ RUN make
 
 FROM alpine:3.9
 
-RUN apk add --no-cache tini
+RUN apk add --no-cache tini bash shadow libcap
 
-COPY --from=builder /usr/src/app/rpadmin /usr/local/bin/rpadmin
-COPY --from=builder /usr/src/app/rpnow /usr/local/rpnow/rpnow
+COPY --from=builder /usr/src/app/rpnow-linux.tar.gz /tmp/rpnow.tar.gz
+
+RUN mkdir /tmp/rpnow \
+    && tar -xvzf /tmp/rpnow.tar.gz -C /tmp/rpnow/ \
+    && /tmp/rpnow/install.sh \
+    && rm -r /tmp/rpnow /tmp/rpnow.tar.gz
 
 EXPOSE 80 443
 
-# USER rpnow
-# WORKDIR /usr/local/rpnow
+USER rpnow
+WORKDIR /usr/local/rpnow
 ENTRYPOINT ["tini", "--"]
 CMD ["/usr/local/rpnow/rpnow"]

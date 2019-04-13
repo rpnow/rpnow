@@ -1,11 +1,14 @@
 SHELL := /bin/bash # for pushd/popd
 
 .PHONY: default
-default: rpadmin rpnow
+default: rpnow-linux.tar.gz
 
 .PHONY: clean
 clean:
 	rm -r rpadmin rpnow server/assets_bundle.go views/dist views/node_modules
+
+rpnow-linux.tar.gz: rpadmin rpnow install.sh
+	tar -cvzf rpnow-linux.tar.gz rpnow rpadmin install.sh
 
 rpadmin:
 	pushd admin-cli >/dev/null && \
