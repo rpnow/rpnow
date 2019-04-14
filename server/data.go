@@ -147,18 +147,16 @@ func (c RpCharaBody) CheckRelations() error {
 }
 
 func (m RpMessage) ToTxt(chara *RpChara) string {
-	if m.Type == "chara" {
+	switch m.Type {
+	case "chara":
 		return strings.ToUpper(chara.Name) + ":\r\n  " + strings.Replace(wordwrap.WrapString(m.Content, 70), "\n", "\r\n  ", 0)
-	}
-	if m.Type == "ooc" {
+	case "ooc":
 		return strings.Replace(wordwrap.WrapString("(( OOC: "+m.Content+" ))", 72), "\n", "\r\n", 0)
-	}
-	if m.Type == "narrator" {
+	case "narrator":
 		return strings.Replace(wordwrap.WrapString(m.Content, 72), "\n", "\r\n", 0)
-	}
-	if m.Type == "image" {
+	case "image":
 		return "--- IMAGE ---\r\n" + m.URL + "\r\n-------------"
-		return m.URL
+	default:
+		panic("What kind of message is this?")
 	}
-	panic("What kind of message is this?")
 }

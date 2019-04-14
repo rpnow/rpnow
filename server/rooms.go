@@ -82,7 +82,7 @@ func (r *room) runRoom() {
 	}
 }
 
-func join(conn *websocket.Conn, rpid string) {
+func join(conn *websocket.Conn, rpid string, firstPacket chatStreamMessage) {
 	// create room object
 	if rooms[rpid] == nil {
 		rooms[rpid] = newRoom()
@@ -93,6 +93,11 @@ func join(conn *websocket.Conn, rpid string) {
 
 	// handle pong from client
 	client.handlePongs()
+
+	// deliver init messge
+	go func() {
+		client.send <- firstPacket
+	}()
 
 	// write messages to client
 	client.writePump()

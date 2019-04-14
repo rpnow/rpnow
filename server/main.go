@@ -38,7 +38,7 @@ func main() {
 	db.open()
 	defer func() {
 		if err := db.close(); err != nil {
-			log.Fatalf("Error: db.close: %s", err)
+			log.Fatalf("Error: db.close: %s\n", err)
 		}
 		log.Println("Database closed")
 	}()
@@ -67,7 +67,7 @@ func clientRouter() *mux.Router {
 	api.HandleFunc("/health", health).Methods("GET")
 	api.HandleFunc("/dashboard", dashboard).Methods("POST")
 	api.HandleFunc("/rp", createRp).Methods("POST")
-	api.HandleFunc("/rp/import", rpImportJson).Methods("POST")
+	api.HandleFunc("/rp/import", rpImportJSON).Methods("POST")
 	api.HandleFunc("/user", createUser).Methods("POST")
 	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
@@ -76,7 +76,7 @@ func clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/pages/{pageNum:[1-9][0-9]*}", rpReadPage).Methods("GET")
 	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET").Queries("includeOOC", "{includeOOC:true}")
 	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET")
-	roomAPI.HandleFunc("/export", rpExportJson).Methods("GET")
+	roomAPI.HandleFunc("/export", rpExportJSON).Methods("GET")
 	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
 	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}", rpUpdateMsg).Methods("PUT")
@@ -125,7 +125,7 @@ func serveRouter(router *mux.Router, addr string) func() {
 	}
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("listen and serve: %s", err)
+			log.Fatalf("listen and serve: %s\n", err)
 		}
 	}()
 	// return shutdown function
@@ -134,7 +134,7 @@ func serveRouter(router *mux.Router, addr string) func() {
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
-			log.Fatalf("http shutdown: %s", err)
+			log.Fatalf("http shutdown: %s\n", err)
 		}
 		log.Printf("Http server stopped: %s\n", addr)
 	}
@@ -170,7 +170,8 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 	}
 	err := json.NewDecoder(r.Body).Decode(&header)
 	if err != nil {
-		panic(err)
+		http.Error(w, err.Error(), 400)
+		return
 	}
 
 	slug := generateSlug("")
@@ -203,8 +204,7 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	slugInfo := db.getSlugInfo(params["slug"])
 	// TODO if empty...
 	if slugInfo.Access != "normal" {
-		log.Println("No chat access on " + params["slug"])
-		w.WriteHeader(403)
+		http.Error(w, "No chat access on "+params["slug"], 403)
 		return
 	}
 
@@ -215,17 +215,15 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		// wsUpgrader already sent an error to the client
 		return
 	}
 	defer conn.Close()
 
 	js, _ := json.Marshal(rp)
-	if err := conn.WriteJSON(chatStreamMessage{"init", js}); err != nil {
-		log.Fatal(err)
-	}
+	firstPacket := chatStreamMessage{"init", js}
 
-	join(conn, slugInfo.Rpid)
+	join(conn, slugInfo.Rpid, firstPacket)
 }
 
 func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj Doc) {
@@ -236,25 +234,21 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 
 	slugInfo := db.getSlugInfo(params["slug"])
 	// TODO if empty...
-	if slugInfo.Access != "normal" {
-		log.Println("No chat access on " + params["slug"])
-		w.WriteHeader(403)
-		return
-	}
 
 	// populate received body
-	err := obj.ParseBody(r.Body)
-	if err != nil {
-		panic(err)
+	if err := obj.ParseBody(r.Body); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
 	}
 	// validate
-	err = obj.Validate()
-	if err != nil {
-		log.Fatal(err)
+	if err := obj.Validate(); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
 	}
-	err = obj.CheckRelations()
-	if err != nil {
-		log.Fatal(err)
+	// check object's relationship to other objects
+	if err := obj.CheckRelations(); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
 	}
 
 	// More
@@ -287,15 +281,13 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	slugInfo := db.getSlugInfo(params["slug"])
 	// TODO if empty...
 	if slugInfo.Access != "normal" {
-		log.Println("No chat access on " + params["slug"])
-		w.WriteHeader(403)
+		http.Error(w, "No chat access on "+params["slug"], 403)
 		return
 	}
 
 	obj := getOldDoc(slugInfo.Rpid, params["docId"])
 	if obj == nil {
-		log.Printf("No document to edit: %s/%s", slugInfo.Rpid, params["docId"])
-		w.WriteHeader(404)
+		http.Error(w, fmt.Sprintf("No document to edit: %s/%s", slugInfo.Rpid, params["docId"]), 404)
 		return
 	}
 
@@ -303,18 +295,19 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	db.putMsgOrCharaRevision(updateType, slugInfo.Rpid, obj)
 
 	// populate received body
-	err := obj.ParseBody(r.Body)
-	if err != nil {
-		panic(err)
+	if err := obj.ParseBody(r.Body); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
 	}
 	// validate
-	err = obj.Validate()
-	if err != nil {
-		log.Fatal(err)
+	if err := obj.Validate(); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
 	}
-	err = obj.CheckRelations()
-	if err != nil {
-		log.Fatal(err)
+	// check object's relationship to other objects
+	if err := obj.CheckRelations(); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
 	}
 
 	// More
@@ -457,7 +450,7 @@ func rpExportTxt(w http.ResponseWriter, r *http.Request) {
 	}
 	// die if error
 	if err := <-errs; err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }
 
@@ -475,7 +468,7 @@ type exportMessage struct {
 	CharaID *int `json:"charaId,omitempty"`
 }
 
-func rpExportJson(w http.ResponseWriter, r *http.Request) {
+func rpExportJSON(w http.ResponseWriter, r *http.Request) {
 	var rpMeta exportFirstBlock
 
 	// parse slug
@@ -517,19 +510,18 @@ func rpExportJson(w http.ResponseWriter, r *http.Request) {
 	}
 	// die if error
 	if err := <-errs; err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	// done
 	w.Write([]byte("\n]\n"))
 }
 
-func rpImportJson(w http.ResponseWriter, r *http.Request) {
+func rpImportJSON(w http.ResponseWriter, r *http.Request) {
 	// open file sent through "file" multiform param
 	file, _, err := r.FormFile("file")
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(400)
+		http.Error(w, err.Error(), 400)
 		return
 	}
 	defer file.Close()
@@ -584,8 +576,7 @@ func rpImportJson(w http.ResponseWriter, r *http.Request) {
 		var rawMsg exportMessage
 
 		if err := dec.Decode(&rawMsg); err != nil {
-			fmt.Println(err)
-			w.WriteHeader(500)
+			http.Error(w, err.Error(), 400)
 			return
 		}
 
@@ -640,21 +631,19 @@ func verifyUser(w http.ResponseWriter, r *http.Request) {
 func indexHTML(w http.ResponseWriter, r *http.Request) {
 	file, err := StaticAssets.Open("index.html")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	stat, err := file.Stat()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	http.ServeContent(w, r, "index.html", stat.ModTime(), file)
 }
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprintln(w, "{\"error\":\"Malformed request\"}")
+	http.Error(w, "Malformed request", 400)
 }
 
 func todo(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-	fmt.Fprintln(w, "TODO")
+	http.Error(w, "TODO", http.StatusNotImplemented)
 }

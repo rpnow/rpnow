@@ -7,7 +7,6 @@ admin API
 autocert
 create RP: title entry
 404 if rp not found
-remove panics
 any other TODO
 
 rpnow.ini dataDir

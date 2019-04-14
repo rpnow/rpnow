@@ -33,7 +33,7 @@ func (db *database) open() {
 	// initialize boltdb
 	boltdb, err := bolt.Open(path, 0600, nil)
 	if err != nil {
-		log.Fatalf("Could not open bolt db at %s", path)
+		log.Fatalf("Could not open bolt db at %s\n", path)
 	}
 
 	// initialize buckets
@@ -47,7 +47,7 @@ func (db *database) open() {
 		return
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	// now we can use it
@@ -130,7 +130,7 @@ func (db *database) countDocs(q query) (count int) {
 		count++
 	}
 	if err := <-errs; err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	return count
 }
@@ -150,7 +150,7 @@ func (db *database) getDoc(bucketName string, key string, out interface{}) bool 
 		return json.Unmarshal(js, out)
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	return found
 }
@@ -182,7 +182,7 @@ func (db *database) putDocsOrCrash(bucketName string, pairs []kv) {
 		return nil
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }
 
@@ -207,7 +207,7 @@ func (db *database) getRoomInfo(rpid string) *RoomInfo {
 	var room RoomInfo
 	found := db.getDoc("rooms", rpid, &room)
 	if !found {
-		log.Fatalf("RPID not found: %s", rpid)
+		log.Fatalf("RPID not found: %s\n", rpid)
 	}
 	return &room
 }
@@ -267,7 +267,7 @@ func (db *database) getMsgOrCharaRevisions(bucket string, rpid string, id string
 		revisions = append(revisions, rev.(map[string]interface{}))
 	}
 	if err := <-errs; err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	return revisions
 }
@@ -285,7 +285,7 @@ func (db *database) queryMsgs(rpid string, q query) []RpMessage {
 		msgs = append(msgs, out.(RpMessage))
 	}
 	if err := <-errs; err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	return msgs
 }
@@ -356,7 +356,7 @@ func (db *database) getCharas(rpid string) []RpChara {
 		charas = append(charas, out.(RpChara))
 	}
 	if err := <-errs; err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	return charas
 }
