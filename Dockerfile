@@ -1,17 +1,14 @@
+# Builder image
 FROM alpine:3.9 AS builder
 
-RUN apk add --no-cache tini make bash go
-RUN apk add --no-cache git
-RUN apk add --no-cache linux-headers
-# TODO no alpine sdk please, reduce what's here?
-RUN apk add --no-cache alpine-sdk
-RUN apk add --no-cache nodejs npm
+RUN apk add --no-cache alpine-sdk bash go nodejs npm
 
 WORKDIR /usr/src/app
 
 COPY . .
 RUN make
 
+# Final image
 FROM alpine:3.9
 
 RUN apk add --no-cache tini bash shadow libcap
