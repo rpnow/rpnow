@@ -103,12 +103,13 @@ func adminRouter() *mux.Router {
 	// create router
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/status", todo).Methods("GET")
-	router.HandleFunc("/rps", todo).Methods("GET")
-	router.HandleFunc("/rps/{slug:[-0-9a-zA-Z]+}", todo).Methods("GET")
-	router.HandleFunc("/rps/{slug:[-0-9a-zA-Z]+}", todo).Methods("DELETE")
-	router.HandleFunc("/url/{url}", todo).Methods("DELETE")
-	router.HandleFunc("/url/{url}", todo).Methods("PUT")
+	router.HandleFunc("/status", adminStatus).Methods("GET")
+	router.HandleFunc("/rps", adminRPList).Methods("GET")
+	router.HandleFunc("/rps/{slug:[-0-9a-zA-Z]+}", adminRPInfo).Methods("GET")
+	router.HandleFunc("/rps/{slug:[-0-9a-zA-Z]+}", adminDeleteRP).Methods("DELETE")
+	router.HandleFunc("/url/{url}", adminDeleteLink).Methods("DELETE")
+	router.HandleFunc("/url/{url}", adminSetLink).Methods("PUT")
+	router.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	return router
 }
@@ -662,6 +663,30 @@ func indexHTML(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 	http.ServeContent(w, r, "index.html", stat.ModTime(), file)
+}
+
+func adminStatus(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, `{"rpnow":"ok","pid":%d}`, os.Getpid())
+}
+
+func adminRPList(w http.ResponseWriter, r *http.Request) {
+	todo(w, r)
+}
+
+func adminRPInfo(w http.ResponseWriter, r *http.Request) {
+	todo(w, r)
+}
+
+func adminDeleteRP(w http.ResponseWriter, r *http.Request) {
+	todo(w, r)
+}
+
+func adminDeleteLink(w http.ResponseWriter, r *http.Request) {
+	todo(w, r)
+}
+
+func adminSetLink(w http.ResponseWriter, r *http.Request) {
+	todo(w, r)
 }
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
