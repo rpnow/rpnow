@@ -152,11 +152,12 @@ func dashboard(w http.ResponseWriter, r *http.Request) {
 func generateRpid() string {
 	return "rp_" + xid.New().String()
 }
-func generateSlug(title string) string {
-	slug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", 20)
+func generateSlug(title string, len int) string {
+	slug, err := gonanoid.Generate("abcdefhjknpstxyz23456789", len)
 	if err != nil {
 		panic(err)
 	}
+	slug = strings.Join(regexp.MustCompile("....").FindAllString(slug, -1), "-")
 	if title == "" {
 		return slug
 	}
@@ -175,8 +176,8 @@ func createRp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slug := generateSlug("")
-	readSlug := generateSlug(header.Title)
+	slug := generateSlug("", 20)
+	readSlug := generateSlug(header.Title, 12)
 	rpid := generateRpid()
 
 	// add to db
@@ -570,8 +571,8 @@ func rpImportJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slug := generateSlug("")
-	readSlug := generateSlug(meta.Title)
+	slug := generateSlug("", 20)
+	readSlug := generateSlug(meta.Title, 12)
 	rpid := generateRpid()
 
 	db.addSlugInfo(slug, &SlugInfo{rpid, "normal"})
