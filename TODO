@@ -1,13 +1,8 @@
 jwt auth
 attach jwt id to sent msgs
-change slug nanoid format?
-json import
-check charaId on msg{type:chara}
 admin API
 autocert
 create RP: title entry
-404 if rp not found
-any other TODO
 
 rpnow.ini dataDir
 rpnow.ini port
@@ -15,8 +10,9 @@ rpnow.ini ssl, sslPort, sslDomain, letsencryptAcceptTOS, letsencryptEmail
 env/argv configFile
 env/argv other vars
 
-Makefile
-update install.sh
+Update guides to download .tar.gz, extract, and run install.sh
+
+Verify that JSON imports don't time out, even on huge RP's
 
 ---
 
