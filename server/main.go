@@ -202,9 +202,8 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 
 	// get rpid from slug
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
-	if slugInfo.Access != "normal" {
-		http.Error(w, "No chat access on "+params["slug"], 403)
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
 		return
 	}
 
@@ -233,7 +232,14 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 	params := mux.Vars(r)
 
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
+	if slugInfo.Access != "normal" {
+		http.Error(w, "No chat access on "+params["slug"], 403)
+		return
+	}
 
 	// populate received body
 	if err := obj.ParseBody(r.Body); err != nil {
@@ -279,7 +285,10 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	params := mux.Vars(r)
 
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
 	if slugInfo.Access != "normal" {
 		http.Error(w, "No chat access on "+params["slug"], 403)
 		return
@@ -342,7 +351,10 @@ func rpGetThingHistory(w http.ResponseWriter, r *http.Request, thingType string)
 	params := mux.Vars(r)
 
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
 
 	id := params["docId"]
 
@@ -371,7 +383,10 @@ func rpReadIndex(w http.ResponseWriter, r *http.Request) {
 
 	// get rpid from slug
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
 
 	idx.Title = db.getRoomInfo(slugInfo.Rpid).Title
 	idx.PageCount = db.countRoomPages(slugInfo.Rpid)
@@ -393,19 +408,21 @@ func rpReadPage(w http.ResponseWriter, r *http.Request) {
 
 	// get rpid from slug
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
 
 	// validate page number
-	pageNum, err := strconv.ParseInt(params["pageNum"], 10, 32)
+	pageNum, err := strconv.Atoi(params["pageNum"])
 	if err != nil {
-		log.Printf("Invalid page number: %s", params["pageNum"])
-		w.WriteHeader(400)
+		http.Error(w, fmt.Sprintf("Invalid page number: %s", params["pageNum"]), 400)
 		return
 	}
 
 	idx.Title = db.getRoomInfo(slugInfo.Rpid).Title
 	idx.PageCount = db.countRoomPages(slugInfo.Rpid)
-	idx.Messages = db.getPageMsgs(slugInfo.Rpid, int(pageNum))
+	idx.Messages = db.getPageMsgs(slugInfo.Rpid, pageNum)
 	idx.Charas = db.getCharas(slugInfo.Rpid)
 
 	// bounce it back and send
@@ -418,7 +435,10 @@ func rpExportTxt(w http.ResponseWriter, r *http.Request) {
 
 	// get rpid from slug
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
 
 	// Write title
 	title := db.getRoomInfo(slugInfo.Rpid).Title
@@ -476,7 +496,10 @@ func rpExportJSON(w http.ResponseWriter, r *http.Request) {
 
 	// get rpid from slug
 	slugInfo := db.getSlugInfo(params["slug"])
-	// TODO if empty...
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
 
 	// Get title
 	title := db.getRoomInfo(slugInfo.Rpid).Title
