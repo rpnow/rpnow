@@ -40,38 +40,12 @@
 
         axios.post('/api/rp/import', data)
           .then(res => {
-            this.importing = true;
-            this.waitForImport(res.data.rpCode)
+            window.location.href = '/rp/' + res.data.rpCode;
           })
           .catch(err => {
             this.submitted = false;
             alert('Failed to import RP: (' + err + ')');
           });
-      },
-      waitForImport(rpCode) {
-        const scheduleNextUpdate = () => setTimeout(() => this.waitForImport(rpCode), 5000);
-
-        axios.post('/api/rp/import/' + rpCode, {})
-          .then(res => {
-            if (res.data.status === 'pending') {
-              scheduleNextUpdate();
-            } else if (res.data.status === 'success') {
-              window.location.href = '/rp/' + rpCode;
-            } else if (res.data.status === 'error') {
-              alert('Failed to import RP: (' + res.data.error + ')');
-              this.importing = false;
-              this.submitted = false;
-            }
-          })
-          .catch(err => {
-            if (!err.response) {
-              scheduleNextUpdate();
-            } else {
-              alert('Failed to import RP: (' + err + ')');
-              this.importing = false;
-              this.submitted = false;
-            }
-          })
       },
     }
   };
