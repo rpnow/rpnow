@@ -670,29 +670,36 @@ func adminStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func adminRPList(w http.ResponseWriter, r *http.Request) {
-	todo(w, r)
+	type admRP struct {
+		Title     string    `json:"title"`
+		RPID      string    `json:"rpid"`
+		Timestamp time.Time `json:"timestamp"`
+	}
+	res := []admRP{}
+	json.NewEncoder(w).Encode(res)
 }
 
 func adminRPInfo(w http.ResponseWriter, r *http.Request) {
-	todo(w, r)
+	type urlInfo struct {
+		URL    string `json:"url"`
+		Access string `json:"access"`
+	}
+	res := []urlInfo{}
+	json.NewEncoder(w).Encode(res)
 }
 
 func adminDeleteRP(w http.ResponseWriter, r *http.Request) {
-	todo(w, r)
+	w.WriteHeader(204)
 }
 
 func adminDeleteLink(w http.ResponseWriter, r *http.Request) {
-	todo(w, r)
+	w.WriteHeader(204)
 }
 
 func adminSetLink(w http.ResponseWriter, r *http.Request) {
-	todo(w, r)
+	w.WriteHeader(204)
 }
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Malformed request", 400)
-}
-
-func todo(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "TODO", http.StatusNotImplemented)
 }
