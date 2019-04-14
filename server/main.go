@@ -254,7 +254,7 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 		return
 	}
 	// check object's relationship to other objects
-	if err := obj.CheckRelations(); err != nil {
+	if err := obj.CheckRelations(slugInfo.Rpid); err != nil {
 		http.Error(w, err.Error(), 400)
 		return
 	}
@@ -316,7 +316,7 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 		return
 	}
 	// check object's relationship to other objects
-	if err := obj.CheckRelations(); err != nil {
+	if err := obj.CheckRelations(slugInfo.Rpid); err != nil {
 		http.Error(w, err.Error(), 400)
 		return
 	}
