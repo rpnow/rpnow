@@ -38,7 +38,7 @@ func (db *database) open() {
 
 	// initialize buckets
 	err = boltdb.Update(func(tx *bolt.Tx) (err error) {
-		for _, bucketName := range []string{"rooms", "slugs", "msgs", "charas"} {
+		for _, bucketName := range []string{"rooms", "slugs", "msgs", "charas", "system"} {
 			_, err = tx.CreateBucketIfNotExists([]byte(bucketName))
 			if err != nil {
 				return err
@@ -188,6 +188,28 @@ func (db *database) putDocsOrCrash(bucketName string, pairs []kv) {
 
 func (db *database) putDocOrCrash(bucketName string, key string, value interface{}) {
 	db.putDocsOrCrash(bucketName, []kv{{key, value}})
+}
+
+func (db *database) getJWTSecret() []byte {
+	var out []byte
+	db.bolt.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("system"))
+		bytes := bucket.Get([]byte("jwtSecret"))
+		if bytes == nil {
+			return nil
+		}
+		out = make([]byte, len(bytes))
+		copy(out, bytes)
+		return nil
+	})
+	return out
+}
+
+func (db *database) putJWTSecret(secret []byte) {
+	db.bolt.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("system"))
+		return bucket.Put([]byte("jwtSecret"), secret)
+	})
 }
 
 func (db *database) getSlugInfo(slug string) *SlugInfo {

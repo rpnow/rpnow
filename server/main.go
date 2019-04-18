@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,6 +32,8 @@ var adminAddr = fmt.Sprintf("127.0.0.1:%d", adminPort)
 
 var wsUpgrader = websocket.Upgrader{}
 
+var jwtSecret []byte
+
 func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
@@ -43,6 +46,9 @@ func main() {
 		}
 		log.Println("Database closed")
 	}()
+
+	// get jwt secret
+	jwtSecret = getJWTSecret()
 
 	// listen
 	closeAdminServer := serveRouter(adminRouter(), adminAddr)
@@ -57,6 +63,18 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
+}
+
+func getJWTSecret() []byte {
+	if secret := db.getJWTSecret(); secret != nil {
+		return secret
+	}
+	secret := make([]byte, 256/8)
+	if _, err := rand.Read(secret); err != nil {
+		log.Fatalf("Failed to generate JWT secret")
+	}
+	db.putJWTSecret(secret)
+	return secret
 }
 
 func clientRouter() *mux.Router {
@@ -646,8 +664,6 @@ func rpImportJSON(w http.ResponseWriter, r *http.Request, userid string) {
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
-var hmacSampleSecret = []byte("SAMPLE_SECRET")
-
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var res struct {
 		UserID string `json:"userid"`
@@ -662,7 +678,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		"iat": time.Now().Unix(),
 	})
 
-	tokenString, err := token.SignedString(hmacSampleSecret)
+	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -691,7 +707,7 @@ func auth(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc 
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
-			return hmacSampleSecret, nil
+			return jwtSecret, nil
 		})
 		if err != nil {
 			http.Error(w, err.Error(), 400)
