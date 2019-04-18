@@ -81,6 +81,26 @@
   import tinycolor from 'tinycolor2';
   import ImageDialog from './image-dialog.vue';
   import transformRpMessage from './rp-message-format';
+
+  function colorFromId(id) {
+    // hash id into 32-bit integer
+    var hash = 0, i, chr;
+    for (i = 0; i < id.length; i++) {
+      chr   = id.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+
+    // take 3 groups of 3 rgb components of 3 bits (27 bits total) and make colors
+    return [0, 9, 18]
+      .map(n => hash >> n & ((1<<9)-1))
+      .map(n => {
+        return '#'+[n, (n / 8 | 0), (n / 64 | 0)]
+          .map(n => ('0'+(n % 8 * 31).toString(16)).substr(-2))
+          .join('')
+      });
+  }
+
   export default {
     components: {
       ImageDialog
@@ -129,17 +149,7 @@
         ];
       },
       useridColors() {
-        // get the last 6 digits of the userid and turn it into colors
-        // because these are the last 6 digits of a cuid, which are pseudorandom values,
-        // they're good to use for a random color string
-        return [-1, -3, -5]
-          .map(n => this.userid.substr(n, 2))
-          .map(str => parseInt(str, 36))
-          .map(n => {
-            return '#'+[n, (n / 6 | 0), (n / 36 | 0)]
-              .map(n => ('0'+(n % 6 * 51).toString(16)).substr(-2))
-              .join('')
-          });
+        return colorFromId(this.userid);
       },
       useridVisibility() {
         return (this.userid && !this.editing) ? 'visible' : 'hidden';
