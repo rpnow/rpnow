@@ -1,5 +1,5 @@
-jwt auth
-attach jwt id to sent msgs
+store jwt secret
+fix usercolor interpretation
 admin API
 autocert
 create RP: title entry

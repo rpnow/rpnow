@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	gonanoid "github.com/matoous/go-nanoid"
@@ -66,10 +67,10 @@ func clientRouter() *mux.Router {
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/health", health).Methods("GET")
 	api.HandleFunc("/dashboard", dashboard).Methods("POST")
-	api.HandleFunc("/rp", createRp).Methods("POST")
-	api.HandleFunc("/rp/import", rpImportJSON).Methods("POST")
+	api.HandleFunc("/rp", auth(createRp)).Methods("POST")
+	api.HandleFunc("/rp/import", auth(rpImportJSON)).Methods("POST")
 	api.HandleFunc("/user", createUser).Methods("POST")
-	api.HandleFunc("/user/verify", verifyUser).Methods("GET")
+	api.HandleFunc("/user/verify", auth(verifyUser)).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
 	roomAPI.HandleFunc("/chat", rpChatStream).Methods("GET")
 	roomAPI.HandleFunc("/pages", rpReadIndex).Methods("GET")
@@ -77,10 +78,10 @@ func clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET").Queries("includeOOC", "{includeOOC:true}")
 	roomAPI.HandleFunc("/download.txt", rpExportTxt).Methods("GET")
 	roomAPI.HandleFunc("/export", rpExportJSON).Methods("GET")
-	roomAPI.HandleFunc("/msgs", rpSendMsg).Methods("POST")
-	roomAPI.HandleFunc("/charas", rpSendChara).Methods("POST")
-	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}", rpUpdateMsg).Methods("PUT")
-	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}", rpUpdateChara).Methods("PUT")
+	roomAPI.HandleFunc("/msgs", auth(rpSendMsg)).Methods("POST")
+	roomAPI.HandleFunc("/charas", auth(rpSendChara)).Methods("POST")
+	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}", auth(rpUpdateMsg)).Methods("PUT")
+	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}", auth(rpUpdateChara)).Methods("PUT")
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", rpGetMsgHistory).Methods("GET")
 	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", rpGetCharaHistory).Methods("GET")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
@@ -165,7 +166,7 @@ func generateSlug(title string, len int) string {
 	return sluggedTitle + "-" + slug
 }
 
-func createRp(w http.ResponseWriter, r *http.Request) {
+func createRp(w http.ResponseWriter, r *http.Request, userid string) {
 	// parse rp header fields
 	var header struct {
 		Title string
@@ -227,7 +228,7 @@ func rpChatStream(w http.ResponseWriter, r *http.Request) {
 	join(conn, slugInfo.Rpid, firstPacket)
 }
 
-func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj Doc) {
+func rpSendThing(w http.ResponseWriter, r *http.Request, userid string, updateType string, obj Doc) {
 	// generate key for new object
 	obj.Meta().ID = xid.New().String()
 
@@ -261,7 +262,7 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 
 	// More
 	obj.Meta().Timestamp = time.Now()
-	obj.Meta().Userid = "nobody09c39024f1ef"
+	obj.Meta().Userid = userid
 	obj.Meta().Revision = 0
 
 	// Add to DB
@@ -275,15 +276,15 @@ func rpSendThing(w http.ResponseWriter, r *http.Request, updateType string, obj 
 	w.WriteHeader(204)
 }
 
-func rpSendMsg(w http.ResponseWriter, r *http.Request) {
-	rpSendThing(w, r, "msgs", NewRpMessage())
+func rpSendMsg(w http.ResponseWriter, r *http.Request, userid string) {
+	rpSendThing(w, r, userid, "msgs", NewRpMessage())
 }
 
-func rpSendChara(w http.ResponseWriter, r *http.Request) {
-	rpSendThing(w, r, "charas", NewRpChara())
+func rpSendChara(w http.ResponseWriter, r *http.Request, userid string) {
+	rpSendThing(w, r, userid, "charas", NewRpChara())
 }
 
-func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, getOldDoc func(rpid string, id string) Doc) {
+func rpUpdateThing(w http.ResponseWriter, r *http.Request, userid string, updateType string, getOldDoc func(rpid string, id string) Doc) {
 	params := mux.Vars(r)
 
 	slugInfo := db.getSlugInfo(params["slug"])
@@ -323,7 +324,7 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 
 	// More
 	obj.Meta().Timestamp = time.Now()
-	obj.Meta().Userid = "nobody09c39024f1ef"
+	obj.Meta().Userid = userid
 	obj.Meta().Revision++
 
 	// Update DB
@@ -337,14 +338,14 @@ func rpUpdateThing(w http.ResponseWriter, r *http.Request, updateType string, ge
 	w.WriteHeader(204)
 }
 
-func rpUpdateMsg(w http.ResponseWriter, r *http.Request) {
-	rpUpdateThing(w, r, "msgs", func(rpid string, id string) Doc {
+func rpUpdateMsg(w http.ResponseWriter, r *http.Request, userid string) {
+	rpUpdateThing(w, r, userid, "msgs", func(rpid string, id string) Doc {
 		return db.getMsg(rpid, id)
 	})
 }
 
-func rpUpdateChara(w http.ResponseWriter, r *http.Request) {
-	rpUpdateThing(w, r, "charas", func(rpid string, id string) Doc {
+func rpUpdateChara(w http.ResponseWriter, r *http.Request, userid string) {
+	rpUpdateThing(w, r, userid, "charas", func(rpid string, id string) Doc {
 		return db.getChara(rpid, id)
 	})
 }
@@ -542,7 +543,7 @@ func rpExportJSON(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("\n]\n"))
 }
 
-func rpImportJSON(w http.ResponseWriter, r *http.Request) {
+func rpImportJSON(w http.ResponseWriter, r *http.Request, userid string) {
 	// open file sent through "file" multiform param
 	file, _, err := r.FormFile("file")
 	if err != nil {
@@ -585,7 +586,7 @@ func rpImportJSON(w http.ResponseWriter, r *http.Request) {
 		chara.RpCharaBody = rawChara.RpCharaBody
 		chara.Timestamp = rawChara.Timestamp
 		chara.ID = xid.New().String()
-		chara.Userid = "nobody09c39024f1ef"
+		chara.Userid = userid
 		chara.Revision = 0
 		charas[i] = chara
 		if err := chara.Validate(); err != nil {
@@ -616,7 +617,7 @@ func rpImportJSON(w http.ResponseWriter, r *http.Request) {
 		}
 		msg.Timestamp = rawMsg.Timestamp
 		msg.ID = xid.New().String()
-		msg.Userid = "nobody09c39024f1ef"
+		msg.Userid = userid
 		msg.Revision = 0
 
 		if err := msg.Validate(); err != nil {
@@ -645,11 +646,70 @@ func rpImportJSON(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
+var hmacSampleSecret = []byte("SAMPLE_SECRET")
+
 func createUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, `{"userid":"nobody09c39024f1ef","token":"x"}`)
+	var res struct {
+		UserID string `json:"userid"`
+		Token  string `json:"token"`
+	}
+
+	res.UserID = "anon:" + xid.New().String()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": res.UserID,
+		"jti": xid.New().String(),
+		"iat": time.Now().Unix(),
+	})
+
+	tokenString, err := token.SignedString(hmacSampleSecret)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	res.Token = tokenString
+
+	json.NewEncoder(w).Encode(res)
 }
 
-func verifyUser(w http.ResponseWriter, r *http.Request) {
+func auth(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Missing Authorization header", 401)
+			return
+		}
+
+		authHeaderParts := strings.Split(authHeader, " ")
+		if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
+			http.Error(w, "Authorization header format must be Bearer {token}", 400)
+			return
+		}
+
+		tokenString := authHeaderParts[1]
+
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
+			return hmacSampleSecret, nil
+		})
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+
+		if !token.Valid {
+			http.Error(w, "Token expired", 401)
+			return
+		}
+
+		userid := token.Claims.(jwt.MapClaims)["sub"].(string)
+
+		fn(w, r, userid)
+	}
+}
+
+func verifyUser(w http.ResponseWriter, r *http.Request, _ string) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
