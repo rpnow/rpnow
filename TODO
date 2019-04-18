@@ -60,6 +60,8 @@ expose rp.css & favicons
 
 ---
 
+Move away from XID, which is vulnerable to Y2038 problem
+
 Error message: New rp
 Error message: 404
 Error message: 403
