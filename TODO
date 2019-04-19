@@ -2,7 +2,6 @@ admin API
 autocert
 create RP: title entry
 
-get configFile location from argv
 get settings from env
 
 Update guides to download .tar.gz, extract, and run install.sh
