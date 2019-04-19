@@ -14,19 +14,7 @@ type database struct {
 	bolt *bolt.DB
 }
 
-var db *database
-
-// ROOMS: rpid -> json
-// MSGS: rpid/xid -> json
-// CHARAS: rpid/xid -> json
-// SLUGS: slug -> {rpid,access}
-// REVISIONS: rpid/(msg|chara)id -> []json
-
-func init() {
-	db = &database{}
-}
-
-func (db *database) open(path string) {
+func openDB(path string) *database {
 	// initialize boltdb
 	boltdb, err := bolt.Open(path, 0600, nil)
 	if err != nil {
@@ -48,7 +36,7 @@ func (db *database) open(path string) {
 	}
 
 	// now we can use it
-	db.bolt = boltdb
+	return &database{boltdb}
 }
 
 func (db *database) close() error {

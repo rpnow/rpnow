@@ -26,7 +26,7 @@ type Doc interface {
 	Meta() *DocMeta
 	ParseBody(io.Reader) error
 	Validate() error
-	CheckRelations(rpid string) error
+	CheckRelations(rpid string, db *database) error
 }
 
 type DocMeta struct {
@@ -121,7 +121,7 @@ func (m RpMessageBody) Validate() error {
 	}
 }
 
-func (m RpMessageBody) CheckRelations(rpid string) error {
+func (m RpMessageBody) CheckRelations(rpid string, db *database) error {
 	if m.Type == "chara" {
 		if db.getChara(rpid, m.CharaID) == nil {
 			return fmt.Errorf("Msg with invalid chara id: %s", m.CharaID)
@@ -144,7 +144,7 @@ func (c RpCharaBody) Validate() error {
 	return nil
 }
 
-func (c RpCharaBody) CheckRelations(rpid string) error {
+func (c RpCharaBody) CheckRelations(rpid string, db *database) error {
 	return nil
 }
 

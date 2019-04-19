@@ -3,11 +3,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"path"
 )
 
 func main() {
@@ -15,32 +13,15 @@ func main() {
 	defer log.Println("Goodbye!")
 
 	// load config
-	settings := defaultServerSettings()
-	settings.loadFromINI("/etc/rpnow.ini")
-	settings.dataDir = "../data"
-	settings.port = 13000
+	conf := defaultServerConf()
+	conf.loadFromINI("/etc/rpnow.ini")
+	conf.dataDir = "../data"
+	conf.port = 13000
 
-	// db setup
-	db.open(path.Join(settings.dataDir, "rpnow.boltdb"))
-	defer func() {
-		if err := db.close(); err != nil {
-			log.Fatalf("Error: db.close: %s\n", err)
-		}
-		log.Println("Database closed")
-	}()
-
-	// get jwt secret
-	jwtSecret = getJWTSecret()
-
-	// listen
-	addr := fmt.Sprintf(":%d", settings.port)
-	closeAdminServer := serveRouter(adminRouter(), adminAddr)
-	defer closeAdminServer()
-	closeClientServer := serveRouter(clientRouter(), addr)
-	defer closeClientServer()
-
-	// server is ready
-	log.Printf("Listening on %s\n", addr)
+	// run server
+	server := &Server{conf: conf}
+	stop := server.run()
+	defer stop()
 
 	// await kill signal
 	c := make(chan os.Signal, 1)
