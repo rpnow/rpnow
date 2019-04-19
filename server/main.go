@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,10 +24,9 @@ import (
 	"github.com/gorilla/websocket"
 	gonanoid "github.com/matoous/go-nanoid"
 	"github.com/rs/xid"
+	"github.com/zieckey/goini"
 )
 
-var port = 13000
-var addr = fmt.Sprintf(":%d", port)
 var adminPort = 12789
 var adminAddr = fmt.Sprintf("127.0.0.1:%d", adminPort)
 
@@ -34,12 +34,72 @@ var wsUpgrader = websocket.Upgrader{}
 
 var jwtSecret []byte
 
+type serverSettings struct {
+	dataDir              string
+	port                 int
+	ssl                  bool
+	sslPort              int
+	sslDomain            string
+	letsencryptAcceptTOS bool
+	letsencryptEmail     string
+}
+
+func defaultServerSettings() *serverSettings {
+	return &serverSettings{
+		dataDir: "/var/local/rpnow",
+		port:    80,
+		ssl:     false,
+		sslPort: 443,
+	}
+}
+
+func (s *serverSettings) loadFromINI(filename string) {
+	ini := goini.New()
+	if err := ini.ParseFile(filename); err != nil {
+		log.Fatalf("parse INI file %v failed : %v\n", filename, err.Error())
+	}
+
+	if dataDir, ok := ini.Get("dataDir"); ok {
+		s.dataDir = dataDir
+	}
+
+	if port, ok := ini.GetInt("port"); ok {
+		s.port = port
+	}
+
+	if ssl, ok := ini.GetBool("ssl"); ok {
+		s.ssl = ssl
+	}
+
+	if sslPort, ok := ini.GetInt("sslPort"); ok {
+		s.sslPort = sslPort
+	}
+
+	if sslDomain, ok := ini.Get("sslDomain"); ok {
+		s.sslDomain = sslDomain
+	}
+
+	if letsencryptAcceptTOS, ok := ini.GetBool("letsencryptAcceptTOS"); ok {
+		s.letsencryptAcceptTOS = letsencryptAcceptTOS
+	}
+
+	if letsencryptEmail, ok := ini.Get("letsencryptEmail"); ok {
+		s.letsencryptEmail = letsencryptEmail
+	}
+}
+
 func main() {
 	// Print "Goodbye" after all defer statements are done
 	defer log.Println("Goodbye!")
 
+	// load config
+	settings := defaultServerSettings()
+	settings.loadFromINI("/etc/rpnow.ini")
+	settings.dataDir = "../data"
+	settings.port = 13000
+
 	// db setup
-	db.open()
+	db.open(path.Join(settings.dataDir, "rpnow.boltdb"))
 	defer func() {
 		if err := db.close(); err != nil {
 			log.Fatalf("Error: db.close: %s\n", err)
@@ -51,6 +111,7 @@ func main() {
 	jwtSecret = getJWTSecret()
 
 	// listen
+	addr := fmt.Sprintf(":%d", settings.port)
 	closeAdminServer := serveRouter(adminRouter(), adminAddr)
 	defer closeAdminServer()
 	closeClientServer := serveRouter(clientRouter(), addr)

@@ -2,11 +2,8 @@ admin API
 autocert
 create RP: title entry
 
-rpnow.ini dataDir
-rpnow.ini port
-rpnow.ini ssl, sslPort, sslDomain, letsencryptAcceptTOS, letsencryptEmail
-env/argv configFile
-env/argv other vars
+get configFile location from argv
+get settings from env
 
 Update guides to download .tar.gz, extract, and run install.sh
     export RPINSTALL=$(mktemp -d) && tar -zxvf <(wget -qO- https://github.com/rpnow/rpnow/releases/download/VERSION_NUM_HERE/rpnow-linux.tar.gz) -C $RPINSTALL && $RPINSTALL/install.sh && rm $RPINSTALL

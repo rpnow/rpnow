@@ -26,10 +26,7 @@ func init() {
 	db = &database{}
 }
 
-func (db *database) open() {
-	// path to boltdb file
-	path := "../data/rpnow.boltdb"
-
+func (db *database) open(path string) {
 	// initialize boltdb
 	boltdb, err := bolt.Open(path, 0600, nil)
 	if err != nil {
