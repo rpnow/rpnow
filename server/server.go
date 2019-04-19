@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"path"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -41,32 +44,62 @@ func (s *serverConf) loadFromINI(filename string) {
 		log.Fatalf("parse INI file %v failed : %v\n", filename, err.Error())
 	}
 
-	if dataDir, ok := ini.Get("dataDir"); ok {
-		s.dataDir = dataDir
+	if val, ok := ini.Get("dataDir"); ok {
+		s.dataDir = val
 	}
 
-	if port, ok := ini.GetInt("port"); ok {
-		s.port = port
+	if val, ok := ini.GetInt("port"); ok {
+		s.port = val
 	}
 
-	if ssl, ok := ini.GetBool("ssl"); ok {
-		s.ssl = ssl
+	if val, ok := ini.GetBool("ssl"); ok {
+		s.ssl = val
 	}
 
-	if sslPort, ok := ini.GetInt("sslPort"); ok {
-		s.sslPort = sslPort
+	if val, ok := ini.GetInt("sslPort"); ok {
+		s.sslPort = val
 	}
 
-	if sslDomain, ok := ini.Get("sslDomain"); ok {
-		s.sslDomain = sslDomain
+	if val, ok := ini.Get("sslDomain"); ok {
+		s.sslDomain = val
 	}
 
-	if letsencryptAcceptTOS, ok := ini.GetBool("letsencryptAcceptTOS"); ok {
-		s.letsencryptAcceptTOS = letsencryptAcceptTOS
+	if val, ok := ini.GetBool("letsencryptAcceptTOS"); ok {
+		s.letsencryptAcceptTOS = val
 	}
 
-	if letsencryptEmail, ok := ini.Get("letsencryptEmail"); ok {
-		s.letsencryptEmail = letsencryptEmail
+	if val, ok := ini.Get("letsencryptEmail"); ok {
+		s.letsencryptEmail = val
+	}
+}
+
+func (s *serverConf) loadFromEnv() {
+	if val := os.Getenv("RPNOW_DATA_DIR"); val != "" {
+		s.dataDir = val
+	}
+
+	if val, err := strconv.Atoi(os.Getenv("RPNOW_PORT")); err == nil {
+		s.port = val
+	}
+
+	if val := strings.ToLower(os.Getenv("RPNOW_SSL")); val == "true" || val == "false" {
+		s.ssl = (val == "true")
+	}
+
+	if val, err := strconv.Atoi(os.Getenv("RPNOW_SSL_PORT")); err == nil {
+		s.sslPort = val
+	}
+
+	if val := os.Getenv("RPNOW_SSL_DOMAIN"); val != "" {
+		s.sslDomain = val
+	}
+
+	if val := strings.ToLower(os.Getenv("RPNOW_LETSENCRYPT_ACCEPT_TOS")); val == "true" || val == "false" {
+		s.letsencryptAcceptTOS = (val == "true")
+	}
+
+	if val := os.Getenv("RPNOW_LETSENCRYPT_EMAIL"); val != "" {
+		s.letsencryptEmail = val
 	}
 }
 

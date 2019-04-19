@@ -17,6 +17,7 @@ func main() {
 	// load config
 	conf := defaultServerConf()
 	conf.loadFromINI(*configPath)
+	conf.loadFromEnv()
 	conf.dataDir = "../data"
 	conf.port = 13000
 
