@@ -110,11 +110,6 @@ func (s *Server) handleCreateRP(w http.ResponseWriter, r *http.Request, userid s
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
 
-type chatStreamMessage struct {
-	Type string          `json:"type"`
-	Data json.RawMessage `json:"data"`
-}
-
 func (s *Server) handleRPChatStream(w http.ResponseWriter, r *http.Request) {
 	var rp struct {
 		*RoomInfo
@@ -396,20 +391,6 @@ func (s *Server) handleRPExportTxt(w http.ResponseWriter, r *http.Request) {
 	if err := <-errs; err != nil {
 		log.Fatalln(err)
 	}
-}
-
-type exportFirstBlock struct {
-	Title  string        `json:"title"`
-	Charas []exportChara `json:"charas"`
-}
-type exportChara struct {
-	Timestamp time.Time `json:"timestamp"`
-	*RpCharaBody
-}
-type exportMessage struct {
-	Timestamp time.Time `json:"timestamp"`
-	*RpMessageBody
-	CharaID *int `json:"charaId,omitempty"`
 }
 
 func (s *Server) handleRPExportJSON(w http.ResponseWriter, r *http.Request) {

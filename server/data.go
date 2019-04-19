@@ -162,3 +162,22 @@ func (m RpMessage) ToTxt(chara *RpChara) string {
 		panic("What kind of message is this?")
 	}
 }
+
+type chatStreamMessage struct {
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
+}
+
+type exportFirstBlock struct {
+	Title  string        `json:"title"`
+	Charas []exportChara `json:"charas"`
+}
+type exportChara struct {
+	Timestamp time.Time `json:"timestamp"`
+	*RpCharaBody
+}
+type exportMessage struct {
+	Timestamp time.Time `json:"timestamp"`
+	*RpMessageBody
+	CharaID *int `json:"charaId,omitempty"`
+}
