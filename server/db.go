@@ -175,6 +175,40 @@ func (db *database) putDocOrCrash(bucketName string, key string, value interface
 	db.putDocsOrCrash(bucketName, []kv{{key, value}})
 }
 
+func (db *database) deleteDocOrCrash(bucketName string, key string) {
+	err := db.bolt.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(bucketName))
+		if bucket == nil {
+			return fmt.Errorf("Unknown bucket: %s", bucketName)
+		}
+		return bucket.Delete([]byte(key))
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func (db *database) deleteDocsWithPrefixOrCrash(bucketName string, prefixStr string) {
+	err := db.bolt.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(bucketName))
+		if bucket == nil {
+			return fmt.Errorf("Unknown bucket: %s", bucketName)
+		}
+		c := bucket.Cursor()
+		prefix := []byte(prefixStr)
+		for k, _ := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, _ = c.Next() {
+			err := bucket.Delete(k)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
 func (db *database) getJWTSecret() []byte {
 	var out []byte
 	db.bolt.View(func(tx *bolt.Tx) error {
@@ -210,6 +244,10 @@ func (db *database) addSlugInfo(value *SlugInfo) {
 	db.putDocOrCrash("slugs", value.Slug, value)
 }
 
+func (db *database) removeSlugInfo(slug string) {
+	db.deleteDocOrCrash("slugs", slug)
+}
+
 func (db *database) getRoomInfo(rpid string) *RoomInfo {
 	var room RoomInfo
 	found := db.getDoc("rooms", rpid, &room)
@@ -221,6 +259,10 @@ func (db *database) getRoomInfo(rpid string) *RoomInfo {
 
 func (db *database) addRoomInfo(room *RoomInfo) {
 	db.putDocOrCrash("rooms", room.RPID, room)
+}
+
+func (db *database) removeRoomInfo(rpid string) {
+	db.deleteDocOrCrash("rooms", rpid)
 }
 
 func (db *database) getMsg(rpid string, id string) *RpMessage {
@@ -366,4 +408,50 @@ func (db *database) getCharas(rpid string) []RpChara {
 		log.Fatalln(err)
 	}
 	return charas
+}
+
+func (db *database) purgeRoomMsgs(rpid string) {
+	db.deleteDocsWithPrefixOrCrash("msgs", rpid)
+}
+
+func (db *database) purgeRoomCharas(rpid string) {
+	db.deleteDocsWithPrefixOrCrash("charas", rpid)
+}
+
+func (db *database) listAllRooms() []RoomInfo {
+	rooms := []RoomInfo{}
+	q := query{
+		bucket: "rooms",
+	}
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
+		out := RoomInfo{}
+		err := json.Unmarshal(in, &out)
+		return out, err
+	})
+	for out := range outs {
+		rooms = append(rooms, out.(RoomInfo))
+	}
+	if err := <-errs; err != nil {
+		log.Fatalln(err)
+	}
+	return rooms
+}
+
+func (db *database) listAllLinks() []SlugInfo {
+	slugs := []SlugInfo{}
+	q := query{
+		bucket: "slugs",
+	}
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
+		out := SlugInfo{}
+		err := json.Unmarshal(in, &out)
+		return out, err
+	})
+	for out := range outs {
+		slugs = append(slugs, out.(SlugInfo))
+	}
+	if err := <-errs; err != nil {
+		log.Fatalln(err)
+	}
+	return slugs
 }

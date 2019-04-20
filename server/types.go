@@ -10,9 +10,10 @@ import (
 )
 
 type RoomInfo struct {
-	RPID     string `json:"rpid"`
-	Title    string `json:"title"`
-	ReadCode string `json:"readCode"`
+	RPID      string    `json:"rpid"`
+	Title     string    `json:"title"`
+	ReadCode  string    `json:"readCode"`
+	StartTime time.Time `json:"createdAt"`
 }
 
 // SlugInfo describes what URL corresponds to what RP

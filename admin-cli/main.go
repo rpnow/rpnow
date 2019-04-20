@@ -284,7 +284,7 @@ func pickRp(rpsListWithoutBackOption []*rpInfo) *rpInfo {
 type rpInfo struct {
 	Title     string    `json:"title"`
 	RPID      string    `json:"rpid"`
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp time.Time `json:"createdAt"`
 }
 
 func (r *rpInfo) String() string {
@@ -309,7 +309,7 @@ func getRpList() ([]*rpInfo, error) {
 }
 
 type rpURL struct {
-	URL     string `json:"url"`
+	URL     string `json:"slug"`
 	Access  string `json:"access"`
 	Deleted bool   `json:"deleted,omitempty"`
 }
@@ -340,7 +340,7 @@ func getRpUrls(rpid string) ([]rpURL, error) {
 
 func putURL(rpid string, url rpURL) error {
 	reqBody := struct {
-		RPID   string `json:"rpNamespace"`
+		RPID   string `json:"rpid"`
 		Access string `json:"access"`
 	}{rpid, url.Access}
 	reqBodyJSON, err := json.Marshal(reqBody)
