@@ -1,18 +1,19 @@
 autocert
-create RP: title entry
 
 Update guides to download .tar.gz, extract, and run install.sh
-    export RPINSTALL=$(mktemp -d) && tar -zxvf <(wget -qO- https://github.com/rpnow/rpnow/releases/download/VERSION_NUM_HERE/rpnow-linux.tar.gz) -C $RPINSTALL && $RPINSTALL/install.sh && rm $RPINSTALL
+    export RPINSTALL=$(mktemp -d) && tar -zxvf <(wget -qO- https://github.com/rpnow/rpnow/releases/download/VERSION_NUM_HERE/rpnow-linux.tar.gz) -C $RPINSTALL && $RPINSTALL/install.sh && rm -r $RPINSTALL
 Update guide to recommend Google's standard network tier over premium
 
 Verify that JSON imports don't time out, even on huge RP's
 
 ---
 
-Netflix-style user picker login, with (+ new user)
 Create new user
+Login user
+Logout user
 
-Create New-RP Dialog (title, banner)
+Edit RP title from dashboard
+Edit RP banner from dashboard
 Creating an RP adds the RP to your account
 "Invite people?" banner at top of RP
 Invite option in the side drawer
@@ -30,9 +31,9 @@ Enable/disable create&import: Admin API
 Enable/disable create&import: Admin CLI
 Enable/disable user registration: Admin API
 Enable/disable user registration: Admin CLI
-Disable user account: Admin API
+Disable user account: Admin API (should kill WS connections)
 Disable user account: Admin CLI
-Change user password: Admin API
+Change user password: Admin API (should kill WS connections)
 Change user password: Admin CLI
 Kick user from RP: Admin API (should kill WS connections)
 Kick user from RP: Admin CLI
@@ -40,8 +41,6 @@ Kick user from RP: Admin CLI
 Verify user can create
 Verify user can import
 Verify user can register
-
-Import should give better feedback (ie upload progress, then how many msgs are processed)
 
 Error message: Import rp start
 Error message: Import rp progress
