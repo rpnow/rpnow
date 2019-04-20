@@ -103,9 +103,9 @@ func (s *Server) handleCreateRP(w http.ResponseWriter, r *http.Request, userid s
 	rpid := generateRpid()
 
 	// add to db
-	s.db.addSlugInfo(slug, &SlugInfo{rpid, "normal"})
-	s.db.addSlugInfo(readSlug, &SlugInfo{rpid, "read"})
-	s.db.addRoomInfo(rpid, &RoomInfo{header.Title, readSlug})
+	s.db.addSlugInfo(&SlugInfo{slug, rpid, "normal"})
+	s.db.addSlugInfo(&SlugInfo{readSlug, rpid, "read"})
+	s.db.addRoomInfo(&RoomInfo{rpid, header.Title, readSlug})
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
 }
@@ -478,9 +478,9 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid
 	readSlug := generateSlug(meta.Title, 12)
 	rpid := generateRpid()
 
-	s.db.addSlugInfo(slug, &SlugInfo{rpid, "normal"})
-	s.db.addSlugInfo(readSlug, &SlugInfo{rpid, "read"})
-	s.db.addRoomInfo(rpid, &RoomInfo{meta.Title, readSlug})
+	s.db.addSlugInfo(&SlugInfo{slug, rpid, "normal"})
+	s.db.addSlugInfo(&SlugInfo{readSlug, rpid, "read"})
+	s.db.addRoomInfo(&RoomInfo{rpid, meta.Title, readSlug})
 
 	charas := make([]RpChara, len(meta.Charas))
 	for i, rawChara := range meta.Charas {

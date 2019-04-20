@@ -206,8 +206,8 @@ func (db *database) getSlugInfo(slug string) *SlugInfo {
 	return &slugInfo
 }
 
-func (db *database) addSlugInfo(slug string, value *SlugInfo) {
-	db.putDocOrCrash("slugs", slug, value)
+func (db *database) addSlugInfo(value *SlugInfo) {
+	db.putDocOrCrash("slugs", value.Slug, value)
 }
 
 func (db *database) getRoomInfo(rpid string) *RoomInfo {
@@ -219,8 +219,8 @@ func (db *database) getRoomInfo(rpid string) *RoomInfo {
 	return &room
 }
 
-func (db *database) addRoomInfo(rpid string, room *RoomInfo) {
-	db.putDocOrCrash("rooms", rpid, room)
+func (db *database) addRoomInfo(room *RoomInfo) {
+	db.putDocOrCrash("rooms", room.RPID, room)
 }
 
 func (db *database) getMsg(rpid string, id string) *RpMessage {

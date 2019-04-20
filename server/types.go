@@ -10,12 +10,14 @@ import (
 )
 
 type RoomInfo struct {
+	RPID     string `json:"rpid"`
 	Title    string `json:"title"`
 	ReadCode string `json:"readCode"`
 }
 
 // SlugInfo describes what URL corresponds to what RP
 type SlugInfo struct {
+	Slug   string `json:"slug"`
 	Rpid   string `json:"rpid"`
 	Access string `json:"access"`
 }
