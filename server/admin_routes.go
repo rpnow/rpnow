@@ -73,7 +73,6 @@ func (s *Server) handleAdminSetLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	slugInfo.Slug = mux.Vars(r)["slug"]
-	fmt.Printf("%+v\n", slugInfo)
 
 	s.db.addSlugInfo(&slugInfo)
 
