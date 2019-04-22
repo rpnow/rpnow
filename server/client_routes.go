@@ -32,6 +32,7 @@ func (s *Server) clientRouter() *mux.Router {
 	api.HandleFunc("/rp", s.auth(s.handleCreateRP)).Methods("POST")
 	api.HandleFunc("/rp/import", s.auth(s.handleImportJSON)).Methods("POST")
 	api.HandleFunc("/user", s.handleCreateUser).Methods("POST")
+	api.HandleFunc("/user/login", s.handleLogin).Methods("POST")
 	api.HandleFunc("/user/verify", s.auth(s.handleVerifyUser)).Methods("GET")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
 	roomAPI.HandleFunc("/chat", s.handleRPChatStream).Methods("GET")
@@ -50,6 +51,7 @@ func (s *Server) clientRouter() *mux.Router {
 
 	// routes
 	router.HandleFunc("/", indexHTML).Methods("GET")
+	router.HandleFunc("/login", indexHTML).Methods("GET")
 	router.HandleFunc("/import", indexHTML).Methods("GET")
 	router.HandleFunc("/format", indexHTML).Methods("GET")
 	router.HandleFunc("/rp/{rpCode}", indexHTML).Methods("GET")
@@ -549,12 +551,44 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid
 }
 
 func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
+	// parse user registration
+	var header struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&header)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	// TODO insert into DB
+
+	// Now we just login with the same values
+	s.handleLogin(w, r)
+}
+
+func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
+	// parse user login
+	var header struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&header)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	// TODO verify
+
+	// create response with userid and token
 	var res struct {
 		UserID string `json:"userid"`
 		Token  string `json:"token"`
 	}
 
-	res.UserID = "anon:" + xid.New().String()
+	res.UserID = header.Username
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": res.UserID,

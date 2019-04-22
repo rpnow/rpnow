@@ -1,8 +1,8 @@
 <template>
-  <router-view v-if="user" @logout="logout"></router-view>
-  <div v-else>
-    <button @click="login">LOG IN</button>
+  <div v-if="!user">
+    Loading...
   </div>
+  <router-view v-else-if="user" @logout="logout"></router-view>
 </template>
 
 <script>
@@ -12,7 +12,6 @@
     data() {
       return {
         user: null,
-        loading: true,
       };
     },
     mounted() {
@@ -46,18 +45,13 @@
       }).then((data) => {
         // this is the user
         this.user = data;
-        this.loading = false;
+
+        if (!this.user) {
+          this.$router.replace({ name: 'login', query: { prev: this.$route.path } })
+        }
       });
     },
     methods: {
-      login() {
-        axios.post('/api/user').then((res) => {
-          try {
-            localStorage.setItem('rpnow.auth', JSON.stringify(res.data))
-          } catch (err) {/* it's ok */}
-          this.user = res.data;
-        });
-      },
       logout() {
         try {
           localStorage.removeItem('rpnow.auth')
@@ -68,6 +62,9 @@
     watch: {
       user(user) {
         axios.defaults.headers.common.authorization = (user == null) ? '' : ('Bearer '+user.token)
+        if (user == null) {
+          this.$router.replace({ name: 'login', query: { prev: this.$route.path } })
+        }
       },
     },
   };
