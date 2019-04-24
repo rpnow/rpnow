@@ -8,8 +8,8 @@ Verify that JSON imports don't time out, even on huge RP's
 
 ---
 
-Create new user
-Login user
+Create new user (/user/create ?)
+Login user (/user ?)
 Logout user
 Disallow login if no SSL
 
@@ -32,10 +32,10 @@ Verify user can create on API
 Verify user can import on API
 
 Color homepage RP BG by slug
-Different homepage for no-create/no-RP's (with login button)
-/user route for login OR view details/logout?
-/user/create route for registration
+Different homepage for no-create/no-RP's (with login button, if not logged in)
 Remake create RP area
+CAPTCHA on login, create-user, and create-rp (when not auth'd)
+
 Remove <a href>, switch to <router-link>
 Extract some css into a public .css file
 Expose rp.css & favicons
