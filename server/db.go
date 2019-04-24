@@ -175,17 +175,26 @@ func (db *database) putDocOrCrash(bucketName string, key string, value interface
 	db.putDocsOrCrash(bucketName, []kv{{key, value}})
 }
 
-func (db *database) deleteDocOrCrash(bucketName string, key string) {
+func (db *database) deleteDocsOrCrash(bucketName string, keys []string) {
 	err := db.bolt.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		if bucket == nil {
 			return fmt.Errorf("Unknown bucket: %s", bucketName)
 		}
-		return bucket.Delete([]byte(key))
+		for _, key := range keys {
+			if err := bucket.Delete([]byte(key)); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func (db *database) deleteDocOrCrash(bucketName string, key string) {
+	db.deleteDocsOrCrash(bucketName, []string{key})
 }
 
 func (db *database) deleteDocsWithPrefixOrCrash(bucketName string, prefixStr string) {
