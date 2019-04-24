@@ -11,42 +11,34 @@ Verify that JSON imports don't time out, even on huge RP's
 Create new user
 Login user
 Logout user
+Disallow login if no SSL
 
-Edit RP title from dashboard
-Edit RP banner from dashboard
-Creating an RP adds the RP to your account
-"Invite people?" banner at top of RP
-Invite option in the side drawer
-Invite users to RP dialog (adds to their account)
-403 if you weren't invited yet
+Visiting an RP adds the RP to your account
 
-Remove concept of rp slugs
-
-Pretty homepage
-Remove <a href>, switch to <router-link>
-Remove RP shortcuts
-Remake create RP area
-
-Enable/disable create&import: Admin API
-Enable/disable create&import: Admin CLI
-Enable/disable user registration: Admin API
-Enable/disable user registration: Admin CLI
-Disable user account: Admin API (should kill WS connections)
-Disable user account: Admin CLI
+Enable/disable anonymous create RP: Admin API
+Enable/disable anonymous create RP: Admin CLI
+Promote user to create RPs: Admin API
+Promote user to create RPs: Admin CLI
+Delete user: Admin API (should kill WS connections)
+Delete user: Admin CLI
 Change user password: Admin API (should kill WS connections)
 Change user password: Admin CLI
-Kick user from RP: Admin API (should kill WS connections)
-Kick user from RP: Admin CLI
+Change max number of users per server: Admin API
+Change max number of users per server: Admin CLI
+Create RP: Admin API
+Create RP: Admin CLI
 
-Verify user can create
-Verify user can import
-Verify user can register
+Verify user can create on API
+Verify user can import on API
 
-Error message: Import rp start
-Error message: Import rp progress
-
-extract some css into a public .css file
-expose rp.css & favicons
+Color homepage RP BG by slug
+Different homepage for no-create/no-RP's (with login button)
+/user route for login OR view details/logout?
+/user/create route for registration
+Remake create RP area
+Remove <a href>, switch to <router-link>
+Extract some css into a public .css file
+Expose rp.css & favicons
 
 ---
 
