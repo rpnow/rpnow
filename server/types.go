@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"strings"
 	"time"
 
 	"github.com/mitchellh/go-wordwrap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type RoomInfo struct {
@@ -21,6 +23,29 @@ type SlugInfo struct {
 	Slug   string `json:"slug"`
 	Rpid   string `json:"rpid"`
 	Access string `json:"access"`
+}
+
+type User struct {
+	Userid           string
+	PassHash         []byte
+	Salt             string
+	RoomSlugs        []string
+	CanCreate        bool
+	DenyLoginsBefore time.Time
+}
+
+func (u *User) SetPassword(pass string) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	u.PassHash = hash
+	u.DenyLoginsBefore = time.Now()
+}
+
+func (u *User) CheckPassword(maybePass string) error {
+	return bcrypt.CompareHashAndPassword(u.PassHash, []byte(maybePass))
 }
 
 type Doc interface {
