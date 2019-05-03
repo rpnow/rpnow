@@ -8,12 +8,47 @@ Verify that JSON imports don't time out, even on huge RP's
 
 ---
 
-Create new user (/user/create ?)
-Login user (/user ?)
-Logout user
-Disallow login if no SSL
+route / -> Dashboard
+* Header: if logged in, "<username>'s RPs" otherwise "Recently visited RPs"
+* If logged in, show "logout" button under header
+* If not logged in, and there are RPs, and can login (SSL), show "login to sync"
+* If you can create an RP, ("anon create" is set, or logged in with privileges) show "create" button
+* If no RPs, show "No recent RPs."
+* If no RPs and cannot create one, "To join an RP, ask your friend for a link. (Or, if you're the admin, create an RP using rpadmin.)"
+* If no RPs, not logged in, but can login (SSL), show "You might need to [log in]"
+* If there are RP's, list them
 
-Visiting an RP adds the RP to your account
+route /login -> Login
+* Forbid if no SSL
+* "Login to friend.xyz"
+* [user] [password] [CAPTCHA] [OK]
+* "new user? [register]"
+* "forgot password? ask admin to change it for you"
+* Error: invalid credentials
+
+route /register -> Register
+* Forbid if no SSL
+* [user] [password] [password again] [CAPTCHA] [ok]
+* Error: Too many users
+* Error: Password too short?
+* Error: Username/Password too long
+* Error: Username already taken
+
+route /(login|register) -> Logout
+* "You are <username>"
+* Logout button
+* Home button
+
+create RP dialog
+* Name your story: [____[rand]][->]
+* Or, [import a .JSON file]
+* Error: Too many RP's
+
+When logging in, sync localstorage to account
+When logging out, clear localstorage
+Visiting an RP adds the RP to your account OR to localstorage
+
+Change password
 
 Enable/disable anonymous create RP: Admin API
 Enable/disable anonymous create RP: Admin CLI
@@ -32,11 +67,7 @@ Verify user can create on API
 Verify user can import on API
 
 Color homepage RP BG by slug
-Different homepage for no-create/no-RP's (with login button, if not logged in)
-Remake create RP area
-CAPTCHA on login, create-user, and create-rp (when not auth'd)
 
-Remove <a href>, switch to <router-link>
 Extract some css into a public .css file
 Expose rp.css & favicons
 
@@ -57,6 +88,7 @@ Error message: Chara dialog
 Error message: Image dialog
 Error message: Message box
 
+Remove <a href>, switch to <router-link>
 Cache invalidation
 Dynamic archives
 Drawer animation
