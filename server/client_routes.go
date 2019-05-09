@@ -34,6 +34,7 @@ func (s *Server) clientRouter() *mux.Router {
 	api.HandleFunc("/user", s.handleCreateUser).Methods("POST")
 	api.HandleFunc("/user/login", s.handleLogin).Methods("POST")
 	api.HandleFunc("/user/verify", s.auth(s.handleVerifyUser)).Methods("GET")
+	api.HandleFunc("/user/anon", s.handleGenerateAnonLogin).Methods("POST")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
 	roomAPI.HandleFunc("/chat", s.handleRPChatStream).Methods("GET")
 	roomAPI.HandleFunc("/pages", s.handleRPReadIndex).Methods("GET")
@@ -601,6 +602,32 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 	res.Token = tokenString
+
+	json.NewEncoder(w).Encode(res)
+}
+
+func (s *Server) handleGenerateAnonLogin(w http.ResponseWriter, r *http.Request) {
+	var res struct {
+		UserID string `json:"userid"`
+		Token  string `json:"token"`
+		Anon   bool   `json:"anon"`
+	}
+
+	res.UserID = "anon:" + xid.New().String()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": res.UserID,
+		"jti": xid.New().String(),
+		"iat": time.Now().Unix(),
+	})
+
+	tokenString, err := token.SignedString(s.jwtSecret)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	res.Token = tokenString
+
+	res.Anon = true
 
 	json.NewEncoder(w).Encode(res)
 }

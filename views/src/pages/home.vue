@@ -2,13 +2,13 @@
   <div id="homepage">
     <div v-if="!loading">
       <!-- Header: if logged in, "<username>'s RPs" otherwise "Recently visited RPs" -->
-      <h1>{{ user ? user.name + "'s RPs" : 'Recently visited RPs' }}</h1>
+      <h1>{{ user.anon ? 'Recently visited RPs' : user.userid + "'s RPs" }}</h1>
 
       <!-- If logged in, show "logout" button under header -->
-      <button v-if="user" @click="void $emit('logout')">LOGOUT</button>
+      <button v-if="!user.anon" @click="void $emit('logout')">LOGOUT</button>
 
       <!-- If not logged in, and there are RPs, and can login (SSL), show "login to sync" -->
-      <a v-if="!user && recentRooms.length > 0 && canLogin" href="/login">Login to sync</a>
+      <a v-if="user.anon && recentRooms.length > 0 && canLogin" href="/login">Login to sync</a>
 
       <!-- If you can create an RP, ("anon create" is set, or logged in with privileges) show "create" button -->
       <div v-if="canCreate" id="top-options">
@@ -29,7 +29,7 @@
       </p>
 
       <!-- If no RPs, not logged in, but can login (SSL), suggest logging in -->
-      <p v-if="recentRooms.length === 0 && !user && canLogin">
+      <p v-if="recentRooms.length === 0 && user.anon && canLogin">
         You might need to <a href="/login">log in.</a>
       </p>
 

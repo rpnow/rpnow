@@ -1,7 +1,7 @@
 <template>
-  <div id="login" v-if="user">
+  <div id="login" v-if="!user.anon">
     <p>
-      You are already logged in as {{ user.name }}.
+      You are already logged in as {{ user.userid }}.
     </p>
     <p>
       <a href="/">Back to dashboard</a>
@@ -56,8 +56,8 @@
           try {
             localStorage.setItem('rpnow.auth', JSON.stringify(res.data))
           } catch (err) {/* it's ok */}
-          axios.defaults.headers.common.authorization = 'Bearer '+res.data.token;
-          this.$router.replace(this.$route.query.prev)
+          this.$emit('change-user', res.data);
+          this.$router.push('/');
         });
       },
       register() {
