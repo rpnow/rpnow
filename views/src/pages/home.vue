@@ -1,16 +1,39 @@
 <template>
   <div id="homepage">
     <div v-if="!loading">
-      <h1>My RPs</h1>
-      <button @click="void $emit('logout')">LOGOUT</button>
-      <div id="top-options">
-        <button class="pane" id="new-rp" v-if="canCreate" @click="createRp">
+      <!-- Header: if logged in, "<username>'s RPs" otherwise "Recently visited RPs" -->
+      <h1>{{ user ? user.name + "'s RPs" : 'Recently visited RPs' }}</h1>
+
+      <!-- If logged in, show "logout" button under header -->
+      <button v-if="user" @click="void $emit('logout')">LOGOUT</button>
+
+      <!-- If not logged in, and there are RPs, and can login (SSL), show "login to sync" -->
+      <a v-if="!user && recentRooms.length > 0 && canLogin" href="/login">Login to sync</a>
+
+      <!-- If you can create an RP, ("anon create" is set, or logged in with privileges) show "create" button -->
+      <div v-if="canCreate" id="top-options">
+        <button class="pane" id="new-rp" @click="createRp">
           Create New RP
         </button>
-        <a class="pane" id="import-rp" v-if="canImport" href="/import">
+        <a class="pane" id="import-rp" href="/import">
           Import RP
         </a>
       </div>
+
+      <!-- If no RPs, show "No recent RPs." -->
+      <p v-if="recentRooms.length === 0">No recent RPs.</p>
+
+      <!-- If no RPs and cannot create one, inform about how to get into an RP -->
+      <p v-if="recentRooms.length === 0 && !canCreate">
+        To join an RP, ask your friend for a link. (Or, if you're the admin of this site, create an RP using rpadmin.) 
+      </p>
+
+      <!-- If no RPs, not logged in, but can login (SSL), suggest logging in -->
+      <p v-if="recentRooms.length === 0 && !user && canLogin">
+        You might need to <a href="/login">log in.</a>
+      </p>
+
+      <!-- If there are RPs, list them -->
       <template v-for="room of recentRooms">
         <a :key="'room'+room.rpCode" class="pane recent-rp" :href="'/rp/'+room.rpCode">
           <div class="pretty-block">
@@ -98,12 +121,16 @@
   import coolstory from 'coolstory.js';
 
   export default {
+    name: 'Dashboard',
+    props: {
+      user: Object,
+    },
     data() {
       return {
         recentRooms: [],
         loading: true,
+        canLogin: (location.protocol === 'https:' || location.hostname === 'localhost'),
         canCreate: false,
-        canImport: false,
       };
     },
     beforeMount() {

@@ -1,8 +1,8 @@
 <template>
-  <div v-if="!user">
+  <div v-if="loading">
     Loading...
   </div>
-  <router-view v-else-if="user" @logout="logout"></router-view>
+  <router-view v-else :user="user" @logout="logout"></router-view>
 </template>
 
 <script>
@@ -11,6 +11,7 @@
   export default {
     data() {
       return {
+        loading: true,
         user: null,
       };
     },
@@ -45,10 +46,7 @@
       }).then((data) => {
         // this is the user
         this.user = data;
-
-        if (!this.user) {
-          this.$router.replace({ name: 'login', query: { prev: this.$route.path } })
-        }
+        this.loading = false;
       });
     },
     methods: {
@@ -62,9 +60,6 @@
     watch: {
       user(user) {
         axios.defaults.headers.common.authorization = (user == null) ? '' : ('Bearer '+user.token)
-        if (user == null) {
-          this.$router.replace({ name: 'login', query: { prev: this.$route.path } })
-        }
       },
     },
   };

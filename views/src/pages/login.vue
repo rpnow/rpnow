@@ -1,6 +1,22 @@
 <template>
-  <div id="login">
-    <h1>Who are you?</h1>
+  <div id="login" v-if="user">
+    <p>
+      You are already logged in as {{ user.name }}.
+    </p>
+    <p>
+      <a href="/">Back to dashboard</a>
+    </p>
+    <button @click="void $emit('logout')">Log out</button>
+  </div>
+
+  <!-- Forbid login without SSL -->
+  <div v-else-if="!canLogin" id="forbidden">
+    Cannot login without HTTPS enabled
+  </div>
+
+  <div v-else id="login">
+    <h1>Log in</h1>
+
     <form @submit.prevent="login">
       <input type="text" name="username" v-model="username" placeholder="Username"/>
       <br>
@@ -11,6 +27,10 @@
 
       <button type="submit">LOG IN</button>
     </form>
+
+    <p>
+      New user? <a href="/register">Create an account</a>
+    </p>
   </div>
 </template>
 
@@ -18,8 +38,13 @@
   import axios from 'axios';
 
   export default {
+    name: 'Login',
+    props: {
+      user: Object,
+    },
     data() {
       return {
+        canLogin: (location.protocol === 'https:' || location.hostname === 'localhost'),
         username: '',
         password: '',
       }
