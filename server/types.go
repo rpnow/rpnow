@@ -26,9 +26,8 @@ type SlugInfo struct {
 }
 
 type User struct {
-	Userid           string
+	Userid           string `json:"userid"`
 	PassHash         []byte
-	Salt             string
 	RoomSlugs        []string
 	CanCreate        bool
 	DenyLoginsBefore time.Time
@@ -46,6 +45,10 @@ func (u *User) SetPassword(pass string) {
 
 func (u *User) CheckPassword(maybePass string) error {
 	return bcrypt.CompareHashAndPassword(u.PassHash, []byte(maybePass))
+}
+
+func DummyCheckPassword(maybePass string) {
+	// TODO dummy hash comparison to mitigate timing attacks
 }
 
 type Doc interface {

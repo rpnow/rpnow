@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -552,6 +554,12 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid
 }
 
 func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
+	// TODO get actual user limit
+	if s.db.countUsers() >= 3 {
+		http.Error(w, "Too many registered users! The admin should delete some users or increase the registration limit.", 400)
+		return
+	}
+
 	// parse user registration
 	var header struct {
 		Username string `json:"username"`
@@ -563,10 +571,38 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO insert into DB
+	// Validate
+	// TODO decide on username regex
+	if !regexp.MustCompile(`^\w{1,30}$`).MatchString(header.Username) {
+		http.Error(w, "Invalid username", 400)
+		return
+	}
+	if strings.TrimSpace(header.Username) != header.Username {
+		http.Error(w, "Username must not have leading or trailing whitespace", 400)
+		return
+	}
+	if len(header.Password) < 6 {
+		http.Error(w, "Password must be at least 6 characters", 400)
+		return
+	}
+	if len(header.Password) > 100 {
+		http.Error(w, "Password must be 100 characters or less", 400)
+		return
+	}
+
+	// Check if username is taken
+	if s.db.getUser(header.Username) != nil {
+		http.Error(w, "Username already taken", 400)
+		return
+	}
+
+	// Insert into DB
+	user := User{Userid: header.Username, CanCreate: false}
+	user.SetPassword(header.Password)
+	s.db.putUser(&user)
 
 	// Now we just login with the same values
-	s.handleLogin(w, r)
+	s.handleLoginCommon(w, header.Username, header.Password)
 }
 
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -581,7 +617,28 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO verify
+	s.handleLoginCommon(w, header.Username, header.Password)
+}
+
+func (s *Server) handleLoginCommon(w http.ResponseWriter, username string, password string) {
+	// get user
+	user := s.db.getUser(username)
+
+	// fail if user doesn't exist
+	if user == nil {
+		DummyCheckPassword(password) // timing attacks may reveal that this user doesn't exist
+		http.Error(w, "Invalid credentials", 400)
+		return
+	}
+
+	// fail if bad password
+	if err := user.CheckPassword(password); err != nil {
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			http.Error(w, "Invalid credentials", 400)
+			return
+		}
+		log.Fatalln(err)
+	}
 
 	// create response with userid and token
 	var res struct {
@@ -589,7 +646,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		Token  string `json:"token"`
 	}
 
-	res.UserID = header.Username
+	res.UserID = username
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": res.UserID,

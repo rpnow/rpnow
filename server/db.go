@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 
 	"github.com/boltdb/bolt"
 )
@@ -23,7 +24,7 @@ func openDB(path string) *database {
 
 	// initialize buckets
 	err = boltdb.Update(func(tx *bolt.Tx) (err error) {
-		for _, bucketName := range []string{"rooms", "slugs", "msgs", "charas", "system"} {
+		for _, bucketName := range []string{"rooms", "slugs", "msgs", "charas", "users", "system"} {
 			_, err = tx.CreateBucketIfNotExists([]byte(bucketName))
 			if err != nil {
 				return err
@@ -255,6 +256,7 @@ func (db *database) addSlugInfo(value *SlugInfo) {
 
 func (db *database) removeSlugInfo(slug string) {
 	db.deleteDocOrCrash("slugs", slug)
+	// TODO delete from all users' room lists
 }
 
 func (db *database) getRoomInfo(rpid string) *RoomInfo {
@@ -272,6 +274,27 @@ func (db *database) addRoomInfo(room *RoomInfo) {
 
 func (db *database) removeRoomInfo(rpid string) {
 	db.deleteDocOrCrash("rooms", rpid)
+}
+
+func (db *database) getUser(userid string) *User {
+	var user User
+	found := db.getDoc("users", strings.ToLower(userid), &user)
+	if !found {
+		return nil
+	}
+	return &user
+}
+
+func (db *database) putUser(value *User) {
+	db.putDocOrCrash("users", strings.ToLower(value.Userid), value)
+}
+
+func (db *database) removeUser(userid string) {
+	db.deleteDocOrCrash("users", strings.ToLower(userid))
+}
+
+func (db *database) countUsers() int {
+	return db.countDocs(query{bucket: "users"})
 }
 
 func (db *database) getMsg(rpid string, id string) *RpMessage {
@@ -463,4 +486,23 @@ func (db *database) listAllLinks() []SlugInfo {
 		log.Fatalln(err)
 	}
 	return slugs
+}
+
+func (db *database) listAllUsers() []User {
+	users := []User{}
+	q := query{
+		bucket: "users",
+	}
+	outs, errs := db.getDocs(q, func(in []byte) (interface{}, error) {
+		out := User{}
+		err := json.Unmarshal(in, &out)
+		return out, err
+	})
+	for out := range outs {
+		users = append(users, out.(User))
+	}
+	if err := <-errs; err != nil {
+		log.Fatalln(err)
+	}
+	return users
 }

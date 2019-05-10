@@ -12,17 +12,6 @@ Determine if user can create/import an RP (in create/import routes)
 Determine if user can create/import an RP (on dashboard/import pages)
 Investigate captcha library for login/register/anonymousCreateRP
 
-route /login -> Login
-* "forgot password? ask admin to change it for you"
-* Error: invalid credentials
-
-route /register -> Register
-* [user] [password] [password again] [CAPTCHA] [ok]
-* Error: Too many users
-* Error: Password too short?
-* Error: Username/Password too long
-* Error: Username already taken
-
 create RP dialog
 * Name your story: [____[rand]][->]
 * Or, [import a .JSON file]
@@ -32,12 +21,10 @@ When logging in, sync localstorage to account
 When logging out, clear localstorage
 Visiting an RP adds the RP to your account OR to localstorage
 
-Change password
+User can change password
+User can force-logout everywhere
 
 rpadmin > create room
-* api
-* cli
-rpadmin > manage users > [list]
 * api
 * cli
 rpadmin > manage users > [list] > allow to create RPs
@@ -56,12 +43,21 @@ rpadmin > site security > User registration quota: 50
 * api
 * cli
 
+Kill WS connections when:
+* Deleting room
+* Deleting room's URL
+* Deleting user?
+* Changing user password? (from admin or from web)
+* Logging user out everywhere?
+
 Color homepage RP BG by slug
 
 Extract some css into a public .css file
 Expose rp.css & favicons
 
 WEBHOOKS
+
+Resolve TODOs in code
 
 ---
 

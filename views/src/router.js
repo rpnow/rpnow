@@ -19,7 +19,14 @@ export default new Router({
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: Login,
+      props: { isRegister: false }
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: Login,
+      props: { isRegister: true }
     },
     {
       path: '/import',

@@ -19,6 +19,7 @@ func (s *Server) adminRouter() *mux.Router {
 	router.HandleFunc("/rps/{rpid}", s.handleAdminDeleteRP).Methods("DELETE")
 	router.HandleFunc("/url/{slug}", s.handleAdminDeleteLink).Methods("DELETE")
 	router.HandleFunc("/url/{slug}", s.handleAdminSetLink).Methods("PUT")
+	router.HandleFunc("/users", s.handleAdminListUsers).Methods("GET")
 	router.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	return router
@@ -31,6 +32,14 @@ func (s *Server) handleAdminStatus(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleAdminListRooms(w http.ResponseWriter, r *http.Request) {
 	rooms := s.db.listAllRooms()
 	json.NewEncoder(w).Encode(rooms)
+}
+
+func (s *Server) handleAdminListUsers(w http.ResponseWriter, r *http.Request) {
+	users := s.db.listAllUsers()
+	for i := range users {
+		users[i].PassHash = nil
+	}
+	json.NewEncoder(w).Encode(users)
 }
 
 func (s *Server) handleAdminListRoomLinks(w http.ResponseWriter, r *http.Request) {

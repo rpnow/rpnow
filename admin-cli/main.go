@@ -310,8 +310,38 @@ func pickRp(rpsListWithoutBackOption []*rpInfo) *rpInfo {
 	return rps[idx]
 }
 
+func pickUser(usersListWithoutBackOption []*userInfo) *userInfo {
+	fmt.Println()
+	users := append([]*userInfo{nil}, usersListWithoutBackOption...)
+
+	prompt := promptui.Select{
+		Label: "Choose a user",
+		Items: users,
+		Searcher: func(input string, index int) bool {
+			return strings.Contains(strings.ToLower(users[index].Userid), strings.ToLower(input))
+		},
+	}
+	idx, _, err := prompt.Run()
+	if err != nil {
+		return nil
+	}
+
+	return users[idx]
+}
+
 func editUsers() {
-	panic("not yet")
+	for {
+		// Select an RP from the list
+		users, err := getUserList()
+		if err != nil {
+			panic(err)
+		}
+
+		user := pickUser(users)
+		if user == nil {
+			return
+		}
+	}
 }
 
 func securityMenu() {
@@ -344,6 +374,17 @@ func (r *rpInfo) String() string {
 	return fmt.Sprintf("%-30s (%s)", r.Title, r.Timestamp.Format("02 Jan 2006"))
 }
 
+type userInfo struct {
+	Userid string `json:"userid"`
+}
+
+func (u *userInfo) String() string {
+	if u == nil {
+		return "(main menu)"
+	}
+	return "User: " + u.Userid
+}
+
 func getRpList() ([]*rpInfo, error) {
 	res, err := http.Get("http://127.0.0.1:12789/rps")
 	if err != nil {
@@ -356,6 +397,20 @@ func getRpList() ([]*rpInfo, error) {
 		return nil, err
 	}
 	return rps, nil
+}
+
+func getUserList() ([]*userInfo, error) {
+	res, err := http.Get("http://127.0.0.1:12789/users")
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var users []*userInfo
+	err = json.NewDecoder(res.Body).Decode(&users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 type rpURL struct {
