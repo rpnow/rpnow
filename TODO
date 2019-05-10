@@ -15,10 +15,8 @@ Investigate captcha library for login/register/anonymousCreateRP
 create RP dialog
 * Name your story: [____[rand]][->]
 * Or, [import a .JSON file]
-* Error: Too many RP's
 
-When logging in, sync localstorage to account
-When logging out, clear localstorage
+When logging in, ask user if they want to add [n] localStorage RP's to account. If so, clear that localStorage
 Visiting an RP adds the RP to your account OR to localstorage
 
 User can change password
