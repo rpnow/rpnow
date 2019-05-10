@@ -39,80 +39,11 @@ func main() {
 		}
 		switch action {
 		case "start server":
-			cmd := exec.Command("/usr/local/rpnow/rpnow")
-			cmd.Dir = "/usr/local/rpnow"
-
-			if err := cmd.Start(); err != nil {
-				fmt.Printf("Error starting server: %s\n", err)
-			}
-
-			exited := make(chan error)
-			online := make(chan bool)
-
-			go func() {
-				exited <- cmd.Wait()
-			}()
-
-			go func() {
-				for i := 0; i < 10; i++ {
-					time.Sleep(time.Duration(250) * time.Millisecond)
-					if rpnowStatus, _ := isServerUp(); rpnowStatus {
-						online <- true
-						return
-					}
-				}
-				online <- false
-			}()
-
-			select {
-			case err := <-exited:
-				fmt.Printf("Server exited! %s\n", err)
-			case isOnline := <-online:
-				if isOnline {
-					fmt.Println("Server ready")
-				} else {
-					fmt.Println("Server is running, but admin interface is not working")
-				}
-			}
+			startServer()
 		case "test server":
-			fmt.Printf("########################\n TESTING RPNOW SERVER\n (Press CTRL+C to stop)\n########################\n")
-			cmd := exec.Command("/usr/local/rpnow/rpnow")
-			cmd.Dir = "/usr/local/rpnow"
-
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stdout
-
-			if err := cmd.Start(); err != nil {
-				fmt.Printf("Error starting server: %s\n", err)
-			}
-
-			if err := cmd.Wait(); err != nil {
-				fmt.Printf("Server exited on error: %s\n", err)
-			} else {
-				fmt.Println("Server exited cleanly")
-			}
+			testServer()
 		case "stop server":
-			prompt := promptui.Prompt{
-				Label:     "Stop RPNow server?",
-				IsConfirm: true,
-			}
-			_, err := prompt.Run()
-
-			if err != nil {
-				break
-			}
-
-			process, err := os.FindProcess(pid)
-			if err != nil {
-				fmt.Printf("Error finding process with pid %d: %s\n", pid, err)
-				continue
-			}
-			err = process.Kill()
-			if err != nil {
-				fmt.Printf("Error killing server process: %s\n", err)
-				continue
-			}
-			fmt.Println("Server stopped")
+			stopServer(pid)
 		case "create room":
 			createRp()
 		case "manage rooms":
@@ -125,6 +56,87 @@ func main() {
 			return
 		}
 	}
+}
+
+func startServer() {
+	cmd := exec.Command("/usr/local/rpnow/rpnow")
+	cmd.Dir = "/usr/local/rpnow"
+
+	if err := cmd.Start(); err != nil {
+		fmt.Printf("Error starting server: %s\n", err)
+	}
+
+	exited := make(chan error)
+	online := make(chan bool)
+
+	go func() {
+		exited <- cmd.Wait()
+	}()
+
+	go func() {
+		for i := 0; i < 10; i++ {
+			time.Sleep(time.Duration(250) * time.Millisecond)
+			if rpnowStatus, _ := isServerUp(); rpnowStatus {
+				online <- true
+				return
+			}
+		}
+		online <- false
+	}()
+
+	select {
+	case err := <-exited:
+		fmt.Printf("Server exited! %s\n", err)
+	case isOnline := <-online:
+		if isOnline {
+			fmt.Println("Server ready")
+		} else {
+			fmt.Println("Server is running, but admin interface is not working")
+		}
+	}
+}
+
+func testServer() {
+	fmt.Printf("########################\n TESTING RPNOW SERVER\n (Press CTRL+C to stop)\n########################\n")
+	cmd := exec.Command("/usr/local/rpnow/rpnow")
+	cmd.Dir = "/usr/local/rpnow"
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
+
+	if err := cmd.Start(); err != nil {
+		fmt.Printf("Error starting server: %s\n", err)
+	}
+
+	if err := cmd.Wait(); err != nil {
+		fmt.Printf("Server exited on error: %s\n", err)
+	} else {
+		fmt.Println("Server exited cleanly")
+	}
+}
+
+func stopServer(pid int) {
+	prompt := promptui.Prompt{
+		Label:     "Stop RPNow server?",
+		IsConfirm: true,
+	}
+	_, err := prompt.Run()
+
+	if err != nil {
+		return
+	}
+
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		fmt.Printf("Error finding process with pid %d: %s\n", pid, err)
+		return
+	}
+	err = process.Kill()
+	if err != nil {
+		fmt.Printf("Error killing server process: %s\n", err)
+		return
+	}
+	fmt.Println("Server stopped")
 }
 
 func createRp() {
@@ -142,7 +154,7 @@ func createRp() {
 func editRps() {
 	for {
 		// Select an RP from the list
-		rps, err := getRpList()
+		rps, err := apiGetRpList()
 		if err != nil {
 			panic(err)
 		}
@@ -151,48 +163,57 @@ func editRps() {
 		if rp == nil {
 			return
 		}
-		for {
-			// Expand & edit the selected RP
-			urls, err := getRpUrls(rp.RPID)
-			if err != nil {
-				panic(err)
-			}
+		editRp(rp)
+	}
+}
 
-			fmt.Println()
-			fmt.Println(rp.Title)
-			for _, url := range urls {
-				fmt.Printf("*  %s\n", url.String())
-			}
+func editRp(rp *rpInfo) {
+	for {
+		// Expand & edit the selected RP
+		urls, err := apiGetRpUrls(rp.RPID)
+		if err != nil {
+			panic(err)
+		}
 
-			prompt := promptui.Select{
-				Label: fmt.Sprintf("Modify %q", rp.Title),
-				Items: []string{"go back", "edit urls", "destroy rp"},
-			}
-			_, action, err := prompt.Run()
-			if err != nil {
-				panic(err)
-			}
-			if action == "go back" {
-				break
-			} else if action == "edit urls" {
-				editRpUrls(rp)
-			} else if action == "destroy rp" {
-				killswitch := strings.ToUpper(fmt.Sprintf("destroy %s", rp.Title))
-				prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
-				result, _ := prompt.Run()
-				if result == killswitch {
-					err := destroyRp(rp.RPID)
-					if err != nil {
-						panic(err)
-					}
-					fmt.Printf("BOOM! %q is no more.\n", rp.Title)
-					break
-				} else {
-					fmt.Println("Incorrect. Will not delete.")
-				}
-			}
+		fmt.Println()
+		fmt.Println(rp.Title)
+		for _, url := range urls {
+			fmt.Printf("*  %s\n", url.String())
+		}
+
+		prompt := promptui.Select{
+			Label: fmt.Sprintf("Modify %q", rp.Title),
+			Items: []string{"go back", "edit urls", "destroy rp"},
+		}
+		_, action, err := prompt.Run()
+		if err != nil {
+			panic(err)
+		}
+		if action == "go back" {
+			break
+		} else if action == "edit urls" {
+			editRpUrls(rp)
+		} else if action == "destroy rp" {
+			confirmDestroyRp(rp)
 		}
 	}
+}
+
+func confirmDestroyRp(rp *rpInfo) bool {
+	killswitch := strings.ToUpper(fmt.Sprintf("destroy %s", rp.Title))
+	prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
+	result, _ := prompt.Run()
+	if result != killswitch {
+		fmt.Println("Incorrect. Will not delete.")
+		return false
+	}
+
+	err := apiDestroyRp(rp.RPID)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("BOOM! %q is no more.\n", rp.Title)
+	return true
 }
 
 type urlEditOpt struct {
@@ -213,7 +234,7 @@ func (x urlEditOpt) String() string {
 
 func editRpUrls(rp *rpInfo) {
 	for {
-		urls, err := getRpUrls(rp.RPID)
+		urls, err := apiGetRpUrls(rp.RPID)
 		if err != nil {
 			panic(err)
 		}
@@ -245,7 +266,7 @@ func editRpUrls(rp *rpInfo) {
 				panic(err)
 			}
 			urlAction.URL = urlSlug
-			err = putURL(rp.RPID, urlAction.rpURL)
+			err = apiPutURL(rp.RPID, urlAction.rpURL)
 			if err != nil {
 				panic(err)
 			}
@@ -259,7 +280,7 @@ func editRpUrls(rp *rpInfo) {
 			_, err := prompt.Run()
 
 			if err == nil {
-				err = deactivateURL(urlAction.rpURL)
+				err = apiDeactivateURL(urlAction.rpURL)
 				if err != nil {
 					panic(err)
 				}
@@ -332,7 +353,7 @@ func pickUser(usersListWithoutBackOption []*userInfo) *userInfo {
 func editUsers() {
 	for {
 		// Select an RP from the list
-		users, err := getUserList()
+		users, err := apiGetUserList()
 		if err != nil {
 			panic(err)
 		}
@@ -385,7 +406,7 @@ func (u *userInfo) String() string {
 	return "User: " + u.Userid
 }
 
-func getRpList() ([]*rpInfo, error) {
+func apiGetRpList() ([]*rpInfo, error) {
 	res, err := http.Get("http://127.0.0.1:12789/rps")
 	if err != nil {
 		return nil, err
@@ -399,7 +420,7 @@ func getRpList() ([]*rpInfo, error) {
 	return rps, nil
 }
 
-func getUserList() ([]*userInfo, error) {
+func apiGetUserList() ([]*userInfo, error) {
 	res, err := http.Get("http://127.0.0.1:12789/users")
 	if err != nil {
 		return nil, err
@@ -429,7 +450,7 @@ func (u *rpURL) String() string {
 	}
 }
 
-func getRpUrls(rpid string) ([]rpURL, error) {
+func apiGetRpUrls(rpid string) ([]rpURL, error) {
 	res, err := http.Get("http://127.0.0.1:12789/rps/" + rpid)
 	if err != nil {
 		return nil, err
@@ -443,7 +464,7 @@ func getRpUrls(rpid string) ([]rpURL, error) {
 	return urls, nil
 }
 
-func putURL(rpid string, url rpURL) error {
+func apiPutURL(rpid string, url rpURL) error {
 	reqBody := struct {
 		RPID   string `json:"rpid"`
 		Access string `json:"access"`
@@ -466,7 +487,7 @@ func putURL(rpid string, url rpURL) error {
 	return nil
 }
 
-func deactivateURL(url rpURL) error {
+func apiDeactivateURL(url rpURL) error {
 	req, err := http.NewRequest("DELETE", "http://127.0.0.1:12789/url/"+url.URL, nil)
 	if err != nil {
 		return err
@@ -480,7 +501,7 @@ func deactivateURL(url rpURL) error {
 	return nil
 }
 
-func destroyRp(rpid string) error {
+func apiDestroyRp(rpid string) error {
 	req, err := http.NewRequest("DELETE", "http://127.0.0.1:12789/rps/"+rpid, nil)
 	if err != nil {
 		return err
