@@ -34,18 +34,27 @@ Visiting an RP adds the RP to your account OR to localstorage
 
 Change password
 
-Enable/disable anonymous create RP: Admin API
-Enable/disable anonymous create RP: Admin CLI
-Promote user to create RPs: Admin API
-Promote user to create RPs: Admin CLI
-Delete user: Admin API (should kill WS connections)
-Delete user: Admin CLI
-Change user password: Admin API (should kill WS connections)
-Change user password: Admin CLI
-Change max number of users per server: Admin API
-Change max number of users per server: Admin CLI
-Create RP: Admin API
-Create RP: Admin CLI
+rpadmin > create room
+* api
+* cli
+rpadmin > manage users > [list]
+* api
+* cli
+rpadmin > manage users > [list] > allow to create RPs
+* api
+* cli
+rpadmin > manage users > [list] > change password
+* api
+* cli
+rpadmin > manage users > [list] > delete user
+* api
+* cli
+rpadmin > site security > Allow everyone to create RPs: ON/OFF
+* api
+* cli
+rpadmin > site security > User registration quota: 50
+* api
+* cli
 
 Color homepage RP BG by slug
 

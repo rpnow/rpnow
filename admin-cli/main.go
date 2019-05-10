@@ -22,7 +22,7 @@ func main() {
 
 		var options []string
 		if up {
-			options = []string{"manage rooms", "stop server", "exit"}
+			options = []string{"create room", "manage rooms", "manage users", "site security", "stop server", "exit"}
 		} else {
 			options = []string{"start server", "test server", "exit"}
 		}
@@ -30,6 +30,7 @@ func main() {
 		prompt := promptui.Select{
 			Label: "RP Admin",
 			Items: options,
+			Size:  len(options),
 		}
 		_, action, err := prompt.Run()
 
@@ -91,6 +92,16 @@ func main() {
 				fmt.Println("Server exited cleanly")
 			}
 		case "stop server":
+			prompt := promptui.Prompt{
+				Label:     "Stop RPNow server?",
+				IsConfirm: true,
+			}
+			_, err := prompt.Run()
+
+			if err != nil {
+				break
+			}
+
 			process, err := os.FindProcess(pid)
 			if err != nil {
 				fmt.Printf("Error finding process with pid %d: %s\n", pid, err)
@@ -102,12 +113,30 @@ func main() {
 				continue
 			}
 			fmt.Println("Server stopped")
+		case "create room":
+			createRp()
 		case "manage rooms":
 			editRps()
+		case "manage users":
+			editUsers()
+		case "site security":
+			securityMenu()
 		case "exit":
 			return
 		}
 	}
+}
+
+func createRp() {
+	prompt := promptui.Prompt{Label: "Enter a title for this RP (leave blank to cancel)"}
+	title, err := prompt.Run()
+	if err != nil {
+		panic(err)
+	}
+	if len(title) == 0 {
+		return
+	}
+	panic("not yet")
 }
 
 func editRps() {
@@ -279,6 +308,27 @@ func pickRp(rpsListWithoutBackOption []*rpInfo) *rpInfo {
 	}
 
 	return rps[idx]
+}
+
+func editUsers() {
+	panic("not yet")
+}
+
+func securityMenu() {
+	prompt := promptui.Select{
+		Label: "What?",
+		Items: []string{
+			"(main menu)",
+			"Allow everyone to create RPs: OFF",
+			"User registration quota: 100",
+		},
+	}
+	idx, action, err := prompt.Run()
+	if err != nil {
+		return
+	}
+	_, _ = idx, action
+	panic("not yet")
 }
 
 type rpInfo struct {
