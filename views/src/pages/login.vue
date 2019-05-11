@@ -54,6 +54,7 @@
   export default {
     name: 'Login',
     props: {
+      user: Object,
       isRegister: Boolean
     },
     data() {
