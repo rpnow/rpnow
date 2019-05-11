@@ -15,6 +15,7 @@ func (s *Server) adminRouter() *mux.Router {
 
 	router.HandleFunc("/status", s.handleAdminStatus).Methods("GET")
 	router.HandleFunc("/rps", s.handleAdminListRooms).Methods("GET")
+	router.HandleFunc("/rp", s.authAdmin(s.handleCreateRP)).Methods("POST")
 	router.HandleFunc("/rps/{rpid}", s.handleAdminListRoomLinks).Methods("GET")
 	router.HandleFunc("/rps/{rpid}", s.handleAdminDeleteRP).Methods("DELETE")
 	router.HandleFunc("/url/{slug}", s.handleAdminDeleteLink).Methods("DELETE")
@@ -23,6 +24,12 @@ func (s *Server) adminRouter() *mux.Router {
 	router.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	return router
+}
+
+func (s *Server) authAdmin(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fn(w, r, "admin:admin")
+	}
 }
 
 func (s *Server) handleAdminStatus(w http.ResponseWriter, r *http.Request) {

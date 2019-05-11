@@ -22,9 +22,6 @@ Visiting an RP adds the RP to your account OR to localstorage
 User can change password
 User can force-logout everywhere
 
-rpadmin > create room
-* api
-* cli
 rpadmin > manage users > [list] > allow to create RPs
 * api
 * cli

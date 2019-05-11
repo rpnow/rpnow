@@ -143,12 +143,16 @@ func createRp() {
 	prompt := promptui.Prompt{Label: "Enter a title for this RP (leave blank to cancel)"}
 	title, err := prompt.Run()
 	if err != nil {
-		panic(err)
+		return
 	}
 	if len(title) == 0 {
 		return
 	}
-	panic("not yet")
+	rpCode, err := apiCreateRp(title)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("RP Created: /rp/%s\n", rpCode)
 }
 
 func editRps() {
@@ -513,4 +517,29 @@ func apiDestroyRp(rpid string) error {
 	}
 	defer res.Body.Close()
 	return nil
+}
+
+func apiCreateRp(title string) (string, error) {
+	reqBody := map[string]string{"title": title}
+	reqBodyJSON, err := json.Marshal(reqBody)
+	if err != nil {
+		panic(err)
+	}
+	req, err := http.NewRequest("POST", "http://127.0.0.1:12789/rp", bytes.NewBuffer(reqBodyJSON))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return "", err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+	out := make(map[string]string)
+	if err := json.NewDecoder(res.Body).Decode(&out); err != nil {
+		return "", err
+	}
+
+	return out["rpCode"], nil
 }
