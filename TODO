@@ -16,8 +16,8 @@ create RP dialog
 * Name your story: [____[rand]][->]
 * Or, [import a .JSON file]
 
-When logging in, ask user if they want to add [n] localStorage RP's to account. If so, clear that localStorage
-Visiting an RP adds the RP to your account OR to localstorage
+Don't store RP list in localStorage
+Visiting an RP adds the RP to your account
 
 User can change password
 User can force-logout everywhere
@@ -52,7 +52,10 @@ Resolve TODOs in code
 
 ---
 
-Move away from XID, which is vulnerable to Y2038 problem
+Consistent terminology: rpCode, URL, Slug
+Consistent terminology: msg, message
+Consistent terminology: chara, character
+Consistent terminology: RP, Room
 
 Error message: New rp
 Error message: 404
