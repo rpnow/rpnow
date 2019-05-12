@@ -55,6 +55,7 @@ func (s *Server) clientRouter() *mux.Router {
 	// routes
 	router.HandleFunc("/", indexHTML).Methods("GET")
 	router.HandleFunc("/login", indexHTML).Methods("GET")
+	router.HandleFunc("/register", indexHTML).Methods("GET")
 	router.HandleFunc("/import", indexHTML).Methods("GET")
 	router.HandleFunc("/format", indexHTML).Methods("GET")
 	router.HandleFunc("/rp/{rpCode}", indexHTML).Methods("GET")
