@@ -683,7 +683,7 @@ func (s *Server) handleLoginCommon(w http.ResponseWriter, username string, passw
 		Token  string `json:"token"`
 	}
 
-	res.UserID = "user:" + username
+	res.UserID = "user:" + user.Username
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": res.UserID,
