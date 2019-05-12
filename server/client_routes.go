@@ -633,7 +633,7 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert into DB
-	user := User{Userid: header.Username, CanCreate: false}
+	user := User{Username: header.Username, CanCreate: false}
 	user.SetPassword(header.Password)
 	s.db.putUser(&user)
 

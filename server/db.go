@@ -284,9 +284,9 @@ func (db *database) removeRoomInfo(rpid string) {
 	db.deleteDocOrCrash("rooms", rpid)
 }
 
-func (db *database) getUser(userid string) *User {
+func (db *database) getUser(username string) *User {
 	var user User
-	found := db.getDoc("users", strings.ToLower(userid), &user)
+	found := db.getDoc("users", strings.ToLower(username), &user)
 	if !found {
 		return nil
 	}
@@ -294,11 +294,11 @@ func (db *database) getUser(userid string) *User {
 }
 
 func (db *database) putUser(value *User) {
-	db.putDocOrCrash("users", strings.ToLower(value.Userid), value)
+	db.putDocOrCrash("users", strings.ToLower(value.Username), value)
 }
 
-func (db *database) removeUser(userid string) {
-	db.deleteDocOrCrash("users", strings.ToLower(userid))
+func (db *database) removeUser(username string) {
+	db.deleteDocOrCrash("users", strings.ToLower(username))
 }
 
 func (db *database) countUsers() int {

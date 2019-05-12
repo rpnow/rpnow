@@ -26,7 +26,7 @@ type SlugInfo struct {
 }
 
 type User struct {
-	Userid           string `json:"userid"`
+	Username         string `json:"username"`
 	PassHash         []byte
 	RoomSlugs        []string
 	CanCreate        bool

@@ -343,7 +343,7 @@ func pickUser(usersListWithoutBackOption []*userInfo) *userInfo {
 		Label: "Choose a user",
 		Items: users,
 		Searcher: func(input string, index int) bool {
-			return strings.Contains(strings.ToLower(users[index].Userid), strings.ToLower(input))
+			return strings.Contains(strings.ToLower(users[index].Username), strings.ToLower(input))
 		},
 	}
 	idx, _, err := prompt.Run()
@@ -400,14 +400,14 @@ func (r *rpInfo) String() string {
 }
 
 type userInfo struct {
-	Userid string `json:"userid"`
+	Username string `json:"username"`
 }
 
 func (u *userInfo) String() string {
 	if u == nil {
 		return "(main menu)"
 	}
-	return "User: " + u.Userid
+	return "User: " + u.Username
 }
 
 func apiGetRpList() ([]*rpInfo, error) {
