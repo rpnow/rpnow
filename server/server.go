@@ -104,21 +104,22 @@ func (s *serverConf) loadFromEnv() {
 }
 
 type Server struct {
-	conf      *serverConf
-	db        *database
-	jwtSecret []byte
+	conf              *serverConf
+	db                *database
+	_securitySettings *SecurityPolicy
+	_jwtSecret        []byte
 }
 
 func (s *Server) getJWTSecret() []byte {
-	if s.jwtSecret != nil {
+	if s._jwtSecret == nil {
 		s.initJWTSecret()
 	}
-	return s.jwtSecret
+	return s._jwtSecret
 }
 
 func (s *Server) initJWTSecret() {
 	if secret := s.db.getJWTSecret(); secret != nil {
-		s.jwtSecret = secret
+		s._jwtSecret = secret
 		return
 	}
 	secret := make([]byte, 256/8)
@@ -126,7 +127,29 @@ func (s *Server) initJWTSecret() {
 		log.Fatalf("Failed to generate JWT secret")
 	}
 	s.db.putJWTSecret(secret)
-	s.jwtSecret = secret
+	s._jwtSecret = secret
+}
+
+func (s *Server) getSecurityPolicy() SecurityPolicy {
+	if s._securitySettings == nil {
+		s.initSecurityPolicy()
+	}
+	return *s._securitySettings
+}
+
+func (s *Server) initSecurityPolicy() {
+	if settings := s.db.getSecurityPolicy(); settings != nil {
+		s._securitySettings = settings
+		return
+	}
+	settings := &SecurityPolicy{RestrictCreate: true, UserQuota: 3}
+	s.db.putSecurityPolicy(settings)
+	s._securitySettings = settings
+}
+
+func (s *Server) updateSecurityPolicy(settings SecurityPolicy) {
+	s.db.putSecurityPolicy(&settings)
+	s._securitySettings = &settings
 }
 
 func (s *Server) run() func() {

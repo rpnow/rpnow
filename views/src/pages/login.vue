@@ -1,7 +1,7 @@
 <template>
   <div id="login" v-if="!user.anon">
     <p>
-      You are already logged in as {{ user.userid }}.
+      You are already logged in as {{ myUsername }}.
     </p>
     <p>
       <a href="/">Back to dashboard</a>
@@ -55,6 +55,7 @@
     name: 'Login',
     props: {
       user: Object,
+      myUsername: String,
       isRegister: Boolean
     },
     data() {

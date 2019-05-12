@@ -2,7 +2,7 @@
   <div v-if="loading">
     Loading...
   </div>
-  <router-view v-else :user="user" @logout="logout" @change-user="setUser"></router-view>
+  <router-view v-else :user="user" :myUsername="myUsername" @logout="logout" @change-user="setUser"></router-view>
 </template>
 
 <script>
@@ -14,6 +14,11 @@
         loading: true,
         user: null,
       };
+    },
+    computed: {
+      myUsername() {
+        return this.user && this.user.userid.substr(this.user.userid.indexOf(':') + 1);
+      }
     },
     mounted() {
       this.initAuth();

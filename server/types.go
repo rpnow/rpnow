@@ -51,6 +51,11 @@ func DummyCheckPassword(maybePass string) {
 	// TODO dummy hash comparison to mitigate timing attacks
 }
 
+type SecurityPolicy struct {
+	RestrictCreate bool `json:"restrictCreate"`
+	UserQuota      int  `json:"userQuota"`
+}
+
 type Doc interface {
 	Meta() *DocMeta
 	ParseBody(io.Reader) error

@@ -30,7 +30,7 @@ func (s *Server) clientRouter() *mux.Router {
 	// api
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/health", health).Methods("GET")
-	api.HandleFunc("/dashboard", s.handleDashboard).Methods("POST")
+	api.HandleFunc("/dashboard", s.auth(s.handleDashboard)).Methods("POST")
 	api.HandleFunc("/rp", s.auth(s.handleCreateRP)).Methods("POST")
 	api.HandleFunc("/rp/import", s.auth(s.handleImportJSON)).Methods("POST")
 	api.HandleFunc("/user", s.handleCreateUser).Methods("POST")
@@ -71,8 +71,40 @@ func health(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `{"rpnow":"ok"}`)
 }
 
-func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, `{"canCreate":true,"canImport":true}`)
+func getUserInfoFromID(userid string) (userType string, username string) {
+	segments := strings.SplitN(userid, ":", 2)
+	userType = segments[0]
+	username = segments[1]
+	return
+}
+
+func (s *Server) canCreateRP(userid string) bool {
+	userType, _ := getUserInfoFromID(userid)
+	switch userType {
+	case "admin":
+		return true
+	case "anon":
+		return !s.getSecurityPolicy().RestrictCreate
+	case "user":
+		user := s.db.getUser(userid)
+		return (user != nil && user.CanCreate) || !s.getSecurityPolicy().RestrictCreate
+	default:
+		log.Fatalf("Unknown user type: %s\n", userType)
+		return false
+	}
+}
+
+func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request, userid string) {
+	var res struct {
+		CanCreate bool     `json:"canCreate"`
+		Rooms     []string `json:"rpCodes,omitempty"`
+	}
+
+	res.CanCreate = s.canCreateRP(userid)
+
+	// TODO add rooms list
+
+	json.NewEncoder(w).Encode(res)
 }
 
 func generateRpid() string {
@@ -93,6 +125,11 @@ func generateSlug(title string, len int) string {
 }
 
 func (s *Server) handleCreateRP(w http.ResponseWriter, r *http.Request, userid string) {
+	if !s.canCreateRP(userid) {
+		http.Error(w, "Insufficient privileges to create an RP", 403)
+		return
+	}
+
 	// parse rp header fields
 	var header struct {
 		Title string
@@ -554,8 +591,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid
 }
 
 func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
-	// TODO get actual user limit
-	if s.db.countUsers() >= 3 {
+	if s.db.countUsers() >= s.getSecurityPolicy().UserQuota {
 		http.Error(w, "Too many registered users! The admin should delete some users or increase the registration limit.", 400)
 		return
 	}
@@ -646,7 +682,7 @@ func (s *Server) handleLoginCommon(w http.ResponseWriter, username string, passw
 		Token  string `json:"token"`
 	}
 
-	res.UserID = username
+	res.UserID = "user:" + username
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": res.UserID,
@@ -654,7 +690,7 @@ func (s *Server) handleLoginCommon(w http.ResponseWriter, username string, passw
 		"iat": time.Now().Unix(),
 	})
 
-	tokenString, err := token.SignedString(s.jwtSecret)
+	tokenString, err := token.SignedString(s.getJWTSecret())
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -678,7 +714,7 @@ func (s *Server) handleGenerateAnonLogin(w http.ResponseWriter, r *http.Request)
 		"iat": time.Now().Unix(),
 	})
 
-	tokenString, err := token.SignedString(s.jwtSecret)
+	tokenString, err := token.SignedString(s.getJWTSecret())
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -709,7 +745,7 @@ func (s *Server) auth(fn func(http.ResponseWriter, *http.Request, string)) http.
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
-			return s.jwtSecret, nil
+			return s.getJWTSecret(), nil
 		})
 		if err != nil {
 			http.Error(w, err.Error(), 400)

@@ -21,6 +21,8 @@ func (s *Server) adminRouter() *mux.Router {
 	router.HandleFunc("/url/{slug}", s.handleAdminDeleteLink).Methods("DELETE")
 	router.HandleFunc("/url/{slug}", s.handleAdminSetLink).Methods("PUT")
 	router.HandleFunc("/users", s.handleAdminListUsers).Methods("GET")
+	router.HandleFunc("/security", s.handleAdminGetSecurityPolicy).Methods("GET")
+	router.HandleFunc("/security", s.handleAdminPutSecurityPolicy).Methods("PUT")
 	router.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	return router
@@ -91,6 +93,24 @@ func (s *Server) handleAdminSetLink(w http.ResponseWriter, r *http.Request) {
 	slugInfo.Slug = mux.Vars(r)["slug"]
 
 	s.db.addSlugInfo(&slugInfo)
+
+	w.WriteHeader(204)
+}
+
+func (s *Server) handleAdminGetSecurityPolicy(w http.ResponseWriter, r *http.Request) {
+	policy := s.getSecurityPolicy()
+	json.NewEncoder(w).Encode(policy)
+}
+
+func (s *Server) handleAdminPutSecurityPolicy(w http.ResponseWriter, r *http.Request) {
+	policy := SecurityPolicy{}
+	err := json.NewDecoder(r.Body).Decode(&policy)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	s.updateSecurityPolicy(policy)
 
 	w.WriteHeader(204)
 }

@@ -2,7 +2,7 @@
   <div id="homepage">
     <div v-if="!loading">
       <!-- Header: if logged in, "<username>'s RPs" otherwise "Recently visited RPs" -->
-      <h1>{{ user.anon ? 'Recently visited RPs' : user.userid + "'s RPs" }}</h1>
+      <h1>{{ user.anon ? 'Recently visited RPs' : myUsername + "'s RPs" }}</h1>
 
       <!-- If logged in, show "logout" button under header -->
       <button v-if="!user.anon" @click="void $emit('logout')">LOGOUT</button>
@@ -124,6 +124,7 @@
     name: 'Dashboard',
     props: {
       user: Object,
+      myUsername: String,
     },
     data() {
       return {
@@ -143,7 +144,6 @@
       axios.post('/api/dashboard')
         .then(res => {
           this.canCreate = res.data.canCreate;
-          this.canImport = res.data.canImport;
           this.loading = false;
         });
     },

@@ -219,11 +219,11 @@ func (db *database) deleteDocsWithPrefixOrCrash(bucketName string, prefixStr str
 	}
 }
 
-func (db *database) getJWTSecret() []byte {
+func (db *database) getBytes(bucketName string, key string) []byte {
 	var out []byte
 	db.bolt.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte("system"))
-		bytes := bucket.Get([]byte("jwtSecret"))
+		bucket := tx.Bucket([]byte(bucketName))
+		bytes := bucket.Get([]byte(key))
 		if bytes == nil {
 			return nil
 		}
@@ -234,11 +234,19 @@ func (db *database) getJWTSecret() []byte {
 	return out
 }
 
-func (db *database) putJWTSecret(secret []byte) {
+func (db *database) putBytes(bucketName string, key string, value []byte) {
 	db.bolt.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte("system"))
-		return bucket.Put([]byte("jwtSecret"), secret)
+		bucket := tx.Bucket([]byte(bucketName))
+		return bucket.Put([]byte(key), value)
 	})
+}
+
+func (db *database) getJWTSecret() []byte {
+	return db.getBytes("system", "jwtSecret")
+}
+
+func (db *database) putJWTSecret(secret []byte) {
+	db.putBytes("system", "jwtSecret", secret)
 }
 
 func (db *database) getSlugInfo(slug string) *SlugInfo {
@@ -295,6 +303,19 @@ func (db *database) removeUser(userid string) {
 
 func (db *database) countUsers() int {
 	return db.countDocs(query{bucket: "users"})
+}
+
+func (db *database) getSecurityPolicy() *SecurityPolicy {
+	var settings SecurityPolicy
+	found := db.getDoc("system", "security", &settings)
+	if !found {
+		return nil
+	}
+	return &settings
+}
+
+func (db *database) putSecurityPolicy(value *SecurityPolicy) {
+	db.putDocOrCrash("system", "security", value)
 }
 
 func (db *database) getMsg(rpid string, id string) *RpMessage {
