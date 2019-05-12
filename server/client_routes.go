@@ -749,7 +749,7 @@ func (s *Server) auth(fn func(http.ResponseWriter, *http.Request, string)) http.
 			return s.getJWTSecret(), nil
 		})
 		if err != nil {
-			http.Error(w, err.Error(), 400)
+			http.Error(w, err.Error(), 401)
 			return
 		}
 
