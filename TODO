@@ -16,7 +16,6 @@ create RP dialog
 * Name your story: [____[rand]][->]
 * Or, [import a .JSON file]
 
-Don't store RP list in localStorage
 Visiting an RP adds the RP to your account
 
 User can change password

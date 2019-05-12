@@ -156,6 +156,10 @@
       CharaDrawer
     },
 
+    props: {
+      user: Object,
+    },
+
     data() {
       return {
         // rp data
@@ -180,8 +184,6 @@
         // download dialog
         showDownloadDialog: false,
         downloadOOC: false,
-        // global list of recently visited rooms
-        recentRooms: [],
       }
     },
 
@@ -224,7 +226,6 @@
         msgBoxText: 'rpnow.'+this.rpCode+'.msgBoxContent',
         currentVoice: 'rpnow.'+this.rpCode+'.currentVoice',
         downloadOOC: 'rpnow.global.downloadOOC',
-        recentRooms: 'rpnow.global.recentRooms',
       };
 
       for (var prop in watchProps) {
@@ -326,8 +327,8 @@
             this.currentVoice = { type: 'narrator', charaId: null };
           }
 
-          if (this.recentRooms.filter(x => x.rpCode === this.rpCode).length === 0) {
-            this.recentRooms.unshift({ rpCode: this.rpCode, title: this.rp.title });
+          if (!this.user.anon) {
+            // TODO add room to account
           }
         } else {
           var arr = this.rp[update.type];

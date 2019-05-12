@@ -1,14 +1,16 @@
 <template>
   <div id="homepage">
-    <div v-if="!loading">
-      <!-- Header: if logged in, "<username>'s RPs" otherwise "Recently visited RPs" -->
-      <h1>{{ user.anon ? 'Recently visited RPs' : myUsername + "'s RPs" }}</h1>
+    <div v-if="loading" id="loading">
+      <i class="material-icons">hourglass_full</i>
+      Loading...
+    </div>
+
+    <div v-else>
+      <!-- Header: if logged in, "<username>'s RPs" otherwise "Welcome, stranger" -->
+      <h1>{{ user.anon ? 'Welcome, stranger' : myUsername + "'s RPs" }}</h1>
 
       <!-- If logged in, show "logout" button under header -->
       <button v-if="!user.anon" @click="void $emit('logout')">LOGOUT</button>
-
-      <!-- If not logged in, and there are RPs, and can login (SSL), show "login to sync" -->
-      <a v-if="user.anon && recentRooms.length > 0 && canLogin" href="/login">Login to sync</a>
 
       <!-- If you can create an RP, ("anon create" is set, or logged in with privileges) show "create" button -->
       <div v-if="canCreate" id="top-options">
@@ -21,20 +23,20 @@
       </div>
 
       <!-- If no RPs, show "No recent RPs." -->
-      <p v-if="recentRooms.length === 0">No recent RPs.</p>
+      <p v-if="!user.anon && rooms.length === 0">No recent RPs.</p>
 
       <!-- If no RPs and cannot create one, inform about how to get into an RP -->
-      <p v-if="recentRooms.length === 0 && !canCreate">
-        To join an RP, ask your friend for a link. (Or, if you're the admin of this site, create an RP using rpadmin.) 
+      <p v-if="rooms.length === 0 && !canCreate">
+        To join an RP, ask the host for a link. (Or, if you're the admin of this site, create an RP using rpadmin.) 
       </p>
 
       <!-- If no RPs, not logged in, but can login (SSL), suggest logging in -->
-      <p v-if="recentRooms.length === 0 && user.anon && canLogin">
-        You might need to <a href="/login">log in.</a>
+      <p v-if="user.anon && canLogin">
+        <a href="/register">Create an account</a> or <a href="/login">log in</a> to keep track of all your RPs.
       </p>
 
       <!-- If there are RPs, list them -->
-      <template v-for="room of recentRooms">
+      <template v-for="room of rooms">
         <a :key="'room'+room.rpCode" class="pane recent-rp" :href="'/rp/'+room.rpCode">
           <div class="pretty-block">
             <span class="rp-date">3/27/09</span>
@@ -44,11 +46,6 @@
           </div>
         </a>
       </template>
-    </div>
-
-    <div id="loading" v-else>
-      <i class="material-icons">hourglass_full</i>
-      Loading...
     </div>
 
   </div>
@@ -128,22 +125,18 @@
     },
     data() {
       return {
-        recentRooms: [],
         loading: true,
         canLogin: (location.protocol === 'https:' || location.hostname === 'localhost'),
         canCreate: false,
+        rooms: []
       };
     },
     beforeMount() {
       document.title = 'My RPs on ' + location.hostname;
-      try {
-        this.recentRooms = JSON.parse(localStorage.getItem('rpnow.global.recentRooms') || '[]')
-      } catch (err) {
-        // no big deal
-      }
       axios.post('/api/dashboard')
         .then(res => {
           this.canCreate = res.data.canCreate;
+          this.rooms = res.data.rooms;
           this.loading = false;
         });
     },

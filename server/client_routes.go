@@ -98,12 +98,13 @@ func (s *Server) canCreateRP(userid string) bool {
 func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request, userid string) {
 	var res struct {
 		CanCreate bool     `json:"canCreate"`
-		Rooms     []string `json:"rpCodes,omitempty"`
+		Rooms     []string `json:"rooms"`
 	}
 
 	res.CanCreate = s.canCreateRP(userid)
 
 	// TODO add rooms list
+	res.Rooms = make([]string, 0)
 
 	json.NewEncoder(w).Encode(res)
 }
