@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -370,20 +372,106 @@ func editUsers() {
 }
 
 func securityMenu() {
-	prompt := promptui.Select{
-		Label: "What?",
-		Items: []string{
-			"(main menu)",
-			"Allow everyone to create RPs: OFF",
-			"User registration quota: 100",
-		},
+	policy, err := apiGetSecurityPolicy()
+	if err != nil {
+		panic(err)
 	}
-	idx, action, err := prompt.Run()
+	fmt.Println("Current security policy:")
+	printPolicyDetails(policy)
+	fmt.Println()
+	prompt := promptui.Prompt{
+		Label:     "Change this policy?",
+		IsConfirm: true,
+	}
+	_, err = prompt.Run()
+
 	if err != nil {
 		return
 	}
-	_, _ = idx, action
-	panic("not yet")
+
+	fmt.Println("")
+	fmt.Println("Restrict creating new RPs?")
+	fmt.Println("")
+	fmt.Println("Restricting is the safer option. It means that you must")
+	fmt.Println("individually grant users permission to create a new RP.")
+	fmt.Println("")
+	fmt.Println("By allowing anyone to create an RP, you expose your server")
+	fmt.Println("to spam, and to being used without your consent.")
+	fmt.Println("")
+
+	choice := promptui.Select{
+		Label: "Choose RP creation policy",
+		Items: []string{
+			"Restrict RP creation",
+			"Allow any visitor to create an RP (dangerous!)",
+		},
+	}
+	idx, _, err := choice.Run()
+	if err != nil {
+		return
+	}
+	policy.RestrictCreate = (idx == 0)
+
+	fmt.Println("")
+	fmt.Println("Choose the user registration quota.")
+	fmt.Println("")
+	fmt.Println("This is the maximum number of users who can be registered")
+	fmt.Println("on your site. It prevents spam registrations from cluttering")
+	fmt.Println("your list of users.")
+	fmt.Println("")
+	fmt.Println("If you don't anticipate any new users joining your server,")
+	fmt.Println("you may set this to 0. It will not delete any existing users.")
+	fmt.Println("")
+
+	prompt = promptui.Prompt{
+		Label: "Enter the max number of registered users",
+		Validate: func(input string) error {
+			num, err := strconv.Atoi(input)
+			if err != nil {
+				return errors.New("Invalid number")
+			}
+			if num < 0 {
+				return errors.New("Must be >= 0")
+			}
+			return nil
+		},
+		Default: strconv.Itoa(policy.UserQuota),
+	}
+	quota, err := prompt.Run()
+	if err != nil {
+		return
+	}
+	policy.UserQuota, _ = strconv.Atoi(quota)
+
+	fmt.Println("New policy:")
+	printPolicyDetails(policy)
+	fmt.Println("")
+
+	prompt = promptui.Prompt{
+		Label:     "Is this correct?",
+		IsConfirm: true,
+	}
+	_, err = prompt.Run()
+
+	if err != nil {
+		fmt.Println("Policy not changed")
+		return
+	}
+
+	if err := apiPutSecurityPolicy(*policy); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Security policy has been updated successfully")
+}
+
+func printPolicyDetails(policy *SecurityPolicy) {
+	if policy.RestrictCreate {
+		fmt.Println("  Creating RPs: RESTRICTED")
+	} else {
+		fmt.Println("  Creating RPs: UNRESTRICTED")
+	}
+	fmt.Printf("  Registered user quota: %d\n", policy.UserQuota)
 }
 
 type rpInfo struct {
@@ -542,4 +630,42 @@ func apiCreateRp(title string) (string, error) {
 	}
 
 	return out["rpCode"], nil
+}
+
+type SecurityPolicy struct {
+	RestrictCreate bool `json:"restrictCreate"`
+	UserQuota      int  `json:"userQuota"`
+}
+
+func apiGetSecurityPolicy() (*SecurityPolicy, error) {
+	res, err := http.Get("http://127.0.0.1:12789/security")
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var policy SecurityPolicy
+	err = json.NewDecoder(res.Body).Decode(&policy)
+	if err != nil {
+		return nil, err
+	}
+	return &policy, nil
+}
+
+func apiPutSecurityPolicy(policy SecurityPolicy) error {
+	reqBodyJSON, err := json.Marshal(&policy)
+	if err != nil {
+		panic(err)
+	}
+	req, err := http.NewRequest("PUT", "http://127.0.0.1:12789/security", bytes.NewBuffer(reqBodyJSON))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
 }

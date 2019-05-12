@@ -31,12 +31,6 @@ rpadmin > manage users > [list] > change password
 rpadmin > manage users > [list] > delete user
 * api
 * cli
-rpadmin > site security > Allow everyone to create RPs: ON/OFF
-* api
-* cli
-rpadmin > site security > User registration quota: 50
-* api
-* cli
 
 Kill WS connections when:
 * Deleting room
@@ -51,6 +45,8 @@ Extract some css into a public .css file
 Expose rp.css & favicons
 
 WEBHOOKS
+
+Merge admin CLI and web server
 
 Resolve TODOs in code
 
