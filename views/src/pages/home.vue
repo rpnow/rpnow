@@ -38,8 +38,8 @@
       <!-- If there are RPs, list them -->
       <template v-for="room of rooms">
         <a :key="'room'+room.rpCode" class="pane recent-rp" :href="'/rp/'+room.rpCode">
-          <div class="pretty-block">
-            <span class="rp-date">3/27/09</span>
+          <div class="pretty-block" :style="blockStyles(room)">
+            <span class="rp-date">{{ timeAgoText(room.updated) }}</span>
           </div>
           <div class="rp-title">
             {{ room.title }}
@@ -141,6 +141,32 @@
         });
     },
     methods: {
+      blockStyles(room) {
+        const id = room.rpCode;
+        // hash id into 32-bit integer
+        var hash = 0, i, chr;
+        for (i = 0; i < id.length; i++) {
+          chr   = id.charCodeAt(i);
+          hash  = ((hash << 5) - hash) + chr;
+          hash |= 0; // Convert to 32bit integer
+        }
+
+        const [r, g, b] = [0,8,16].map(sh => hash >> sh & 255)
+        const light = (r*299)+(g*587)+(b*114) > 128000;
+
+        return {
+          backgroundColor: `rgb(${r}, ${g}, ${b})`,
+          color: light? 'black':'white'
+        }
+      },
+      timeAgoText(timestamp) {
+        const ago = Date.now() - new Date(timestamp).getTime();
+        if (ago < 1000 * 60*60*24) {
+          return new Date(timestamp).toLocaleTimeString();
+        } else {
+          return new Date(timestamp).toLocaleDateString();
+        }
+      },
       createRp() {
         // this.title = prompt("What is this RP called?");
         this.title = coolstory.title(20);

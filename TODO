@@ -14,8 +14,6 @@ create RP dialog
 * Name your story: [____[rand]][->]
 * Or, [import a .JSON file]
 
-Visiting an RP adds the RP to your account
-
 User can change password
 User can force-logout everywhere
 
@@ -32,8 +30,6 @@ Kill WS connections when:
 * Deleting user?
 * Changing user password? (from admin or from web)
 * Logging user out everywhere?
-
-Color homepage RP BG by slug
 
 Extract some css into a public .css file
 Expose rp.css & favicons

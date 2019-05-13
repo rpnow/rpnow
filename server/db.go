@@ -404,6 +404,18 @@ func (db *database) getRecentMsgs(rpid string) []RpMessage {
 	return msgs
 }
 
+func (db *database) getLastMsg(rpid string) *RpMessage {
+	msgs := db.queryMsgs(rpid, query{
+		skipKey: func(key []byte) bool { return !bytes.HasSuffix(key, []byte("/latest")) },
+		reverse: true,
+		limit:   1,
+	})
+	if len(msgs) == 0 {
+		return nil
+	}
+	return &msgs[0]
+}
+
 func (db *database) countRoomPages(rpid string) int {
 	numMsgs := db.countDocs(query{
 		bucket:  "msgs",

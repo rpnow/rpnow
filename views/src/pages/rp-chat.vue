@@ -328,7 +328,7 @@
           }
 
           if (!this.user.anon) {
-            // TODO add room to account
+            axios.post('/api/user/rp/' + this.rpCode);
           }
         } else {
           var arr = this.rp[update.type];

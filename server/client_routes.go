@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -37,6 +38,7 @@ func (s *Server) clientRouter() *mux.Router {
 	api.HandleFunc("/user/login", s.handleLogin).Methods("POST")
 	api.HandleFunc("/user/verify", s.auth(s.handleVerifyUser)).Methods("GET")
 	api.HandleFunc("/user/anon", s.handleGenerateAnonLogin).Methods("POST")
+	api.HandleFunc("/user/rp/{slug:[-0-9a-zA-Z]+}", s.auth(s.handleAddRpToUser)).Methods("POST")
 	roomAPI := api.PathPrefix("/rp/{slug:[-0-9a-zA-Z]+}").Subrouter()
 	roomAPI.HandleFunc("/chat", s.handleRPChatStream).Methods("GET")
 	roomAPI.HandleFunc("/pages", s.handleRPReadIndex).Methods("GET")
@@ -96,15 +98,36 @@ func (s *Server) canCreateRP(userid string) bool {
 }
 
 func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request, userid string) {
+	type dashboardRoom struct {
+		Slug    string    `json:"rpCode"`
+		Title   string    `json:"title"`
+		Updated time.Time `json:"updated"`
+	}
 	var res struct {
-		CanCreate bool     `json:"canCreate"`
-		Rooms     []string `json:"rooms"`
+		CanCreate bool            `json:"canCreate"`
+		Rooms     []dashboardRoom `json:"rooms"`
 	}
 
 	res.CanCreate = s.canCreateRP(userid)
 
-	// TODO add rooms list
-	res.Rooms = make([]string, 0)
+	res.Rooms = []dashboardRoom{}
+	if userType, username := getUserInfoFromID(userid); userType == "user" {
+		if user := s.db.getUser(username); user != nil {
+			for _, slug := range user.RoomSlugs {
+				slugInfo := s.db.getSlugInfo(slug)
+				roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
+				lastMsg := s.db.getLastMsg(roomInfo.RPID)
+				if lastMsg == nil {
+					res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, roomInfo.StartTime})
+				} else {
+					res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, lastMsg.Timestamp})
+				}
+			}
+			sort.Slice(res.Rooms, func(i, j int) bool {
+				return res.Rooms[i].Updated.After(res.Rooms[j].Updated)
+			})
+		}
+	}
 
 	json.NewEncoder(w).Encode(res)
 }
@@ -772,6 +795,46 @@ func (s *Server) auth(fn func(http.ResponseWriter, *http.Request, string)) http.
 
 func (s *Server) handleVerifyUser(w http.ResponseWriter, r *http.Request, _ string) {
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) handleAddRpToUser(w http.ResponseWriter, r *http.Request, userid string) {
+	userType, username := getUserInfoFromID(userid)
+
+	// verify user is logged in
+	if userType != "user" {
+		http.Error(w, "Can only add RP to logged-in user account", 403)
+		return
+	}
+
+	// verify slug points to a real room
+	slug := mux.Vars(r)["slug"]
+	slugInfo := s.db.getSlugInfo(slug)
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", slug), 404)
+		return
+	}
+
+	// verify user is in the database
+	user := s.db.getUser(username)
+	if user == nil {
+		http.Error(w, "User not found: "+username, 404)
+		return
+	}
+
+	// make sure slug isn't already attached to user
+	for _, existingSlug := range user.RoomSlugs {
+		if slug == existingSlug {
+			w.WriteHeader(204)
+			return
+		}
+	}
+
+	// add slug to user
+	user.RoomSlugs = append(user.RoomSlugs, slug)
+	s.db.putUser(user)
+
+	// done
+	w.WriteHeader(204)
 }
 
 func indexHTML(w http.ResponseWriter, r *http.Request) {
