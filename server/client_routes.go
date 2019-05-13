@@ -80,14 +80,14 @@ func getUserInfoFromID(userid string) (userType string, username string) {
 }
 
 func (s *Server) canCreateRP(userid string) bool {
-	userType, _ := getUserInfoFromID(userid)
+	userType, username := getUserInfoFromID(userid)
 	switch userType {
 	case "admin":
 		return true
 	case "anon":
 		return !s.getSecurityPolicy().RestrictCreate
 	case "user":
-		user := s.db.getUser(userid)
+		user := s.db.getUser(username)
 		return (user != nil && user.CanCreate) || !s.getSecurityPolicy().RestrictCreate
 	default:
 		log.Fatalf("Unknown user type: %s\n", userType)
@@ -490,6 +490,11 @@ func (s *Server) handleRPExportJSON(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid string) {
+	if !s.canCreateRP(userid) {
+		http.Error(w, "Insufficient privileges to create an RP", 403)
+		return
+	}
+
 	// open file sent through "file" multiform param
 	file, _, err := r.FormFile("file")
 	if err != nil {

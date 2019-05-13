@@ -8,8 +8,6 @@ Verify that JSON imports don't time out, even on huge RP's
 
 ---
 
-Determine if user can create/import an RP (in create/import routes)
-Determine if user can create/import an RP (on dashboard/import pages)
 Investigate captcha library for login/register/anonymousCreateRP
 
 create RP dialog
