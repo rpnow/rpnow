@@ -16,6 +16,7 @@ type RoomInfo struct {
 	Title     string    `json:"title"`
 	ReadCode  string    `json:"readCode"`
 	StartTime time.Time `json:"createdAt"`
+	Userid    string    `json:"creator"`
 }
 
 // SlugInfo describes what URL corresponds to what RP
