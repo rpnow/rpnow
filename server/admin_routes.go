@@ -69,7 +69,7 @@ func (s *Server) handleAdminDeleteRP(w http.ResponseWriter, r *http.Request) {
 	s.db.purgeRoomCharas(rpid)
 	for _, slugInfo := range s.db.listAllLinks() {
 		if slugInfo.Rpid == rpid {
-			s.db.deleteDocOrCrash("slugs", slugInfo.Slug)
+			s.db.removeSlugInfo(slugInfo.Slug)
 		}
 	}
 	s.db.removeRoomInfo(rpid)
