@@ -29,9 +29,9 @@ func (s *Server) adminRouter() *mux.Router {
 	return router
 }
 
-func (s *Server) authAdmin(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+func (s *Server) authAdmin(fn func(http.ResponseWriter, *http.Request, authContext)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fn(w, r, "admin:admin")
+		fn(w, r, authContext{userType: "admin", username: "admin"})
 	}
 }
 

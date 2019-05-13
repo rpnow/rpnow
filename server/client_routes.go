@@ -74,30 +74,21 @@ func health(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `{"rpnow":"ok"}`)
 }
 
-func getUserInfoFromID(userid string) (userType string, username string) {
-	segments := strings.SplitN(userid, ":", 2)
-	userType = segments[0]
-	username = segments[1]
-	return
-}
-
-func (s *Server) canCreateRP(userid string) bool {
-	userType, username := getUserInfoFromID(userid)
-	switch userType {
+func (s *Server) canCreateRP(auth authContext) bool {
+	switch auth.userType {
 	case "admin":
 		return true
 	case "anon":
 		return !s.getSecurityPolicy().RestrictCreate
 	case "user":
-		user := s.db.getUser(username)
-		return (user != nil && user.CanCreate) || !s.getSecurityPolicy().RestrictCreate
+		return auth.user.CanCreate || !s.getSecurityPolicy().RestrictCreate
 	default:
-		log.Fatalf("Unknown user type: %s\n", userType)
+		log.Fatalf("Unknown user type: %s\n", auth.userType)
 		return false
 	}
 }
 
-func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request, userid string) {
+func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request, auth authContext) {
 	type dashboardRoom struct {
 		Slug    string    `json:"rpCode"`
 		Title   string    `json:"title"`
@@ -108,25 +99,23 @@ func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request, userid 
 		Rooms     []dashboardRoom `json:"rooms"`
 	}
 
-	res.CanCreate = s.canCreateRP(userid)
+	res.CanCreate = s.canCreateRP(auth)
 
 	res.Rooms = []dashboardRoom{}
-	if userType, username := getUserInfoFromID(userid); userType == "user" {
-		if user := s.db.getUser(username); user != nil {
-			for _, slug := range user.RoomSlugs {
-				slugInfo := s.db.getSlugInfo(slug)
-				roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
-				lastMsg := s.db.getLastMsg(roomInfo.RPID)
-				if lastMsg == nil {
-					res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, roomInfo.StartTime})
-				} else {
-					res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, lastMsg.Timestamp})
-				}
+	if auth.userType == "user" {
+		for _, slug := range auth.user.RoomSlugs {
+			slugInfo := s.db.getSlugInfo(slug)
+			roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
+			lastMsg := s.db.getLastMsg(roomInfo.RPID)
+			if lastMsg == nil {
+				res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, roomInfo.StartTime})
+			} else {
+				res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, lastMsg.Timestamp})
 			}
-			sort.Slice(res.Rooms, func(i, j int) bool {
-				return res.Rooms[i].Updated.After(res.Rooms[j].Updated)
-			})
 		}
+		sort.Slice(res.Rooms, func(i, j int) bool {
+			return res.Rooms[i].Updated.After(res.Rooms[j].Updated)
+		})
 	}
 
 	json.NewEncoder(w).Encode(res)
@@ -149,8 +138,8 @@ func generateSlug(title string, len int) string {
 	return sluggedTitle + "-" + slug
 }
 
-func (s *Server) handleCreateRP(w http.ResponseWriter, r *http.Request, userid string) {
-	if !s.canCreateRP(userid) {
+func (s *Server) handleCreateRP(w http.ResponseWriter, r *http.Request, auth authContext) {
+	if !s.canCreateRP(auth) {
 		http.Error(w, "Insufficient privileges to create an RP", 403)
 		return
 	}
@@ -259,12 +248,12 @@ func (s *Server) handleRPSendThing(w http.ResponseWriter, r *http.Request, useri
 	w.WriteHeader(204)
 }
 
-func (s *Server) handleRPSendMsg(w http.ResponseWriter, r *http.Request, userid string) {
-	s.handleRPSendThing(w, r, userid, "msgs", NewRpMessage())
+func (s *Server) handleRPSendMsg(w http.ResponseWriter, r *http.Request, auth authContext) {
+	s.handleRPSendThing(w, r, auth.userid(), "msgs", NewRpMessage())
 }
 
-func (s *Server) handleRPSendChara(w http.ResponseWriter, r *http.Request, userid string) {
-	s.handleRPSendThing(w, r, userid, "charas", NewRpChara())
+func (s *Server) handleRPSendChara(w http.ResponseWriter, r *http.Request, auth authContext) {
+	s.handleRPSendThing(w, r, auth.userid(), "charas", NewRpChara())
 }
 
 func (s *Server) handleRPUpdateThing(w http.ResponseWriter, r *http.Request, userid string, updateType string, getOldDoc func(rpid string, id string) Doc) {
@@ -321,14 +310,14 @@ func (s *Server) handleRPUpdateThing(w http.ResponseWriter, r *http.Request, use
 	w.WriteHeader(204)
 }
 
-func (s *Server) handleRPUpdateMsg(w http.ResponseWriter, r *http.Request, userid string) {
-	s.handleRPUpdateThing(w, r, userid, "msgs", func(rpid string, id string) Doc {
+func (s *Server) handleRPUpdateMsg(w http.ResponseWriter, r *http.Request, auth authContext) {
+	s.handleRPUpdateThing(w, r, auth.userid(), "msgs", func(rpid string, id string) Doc {
 		return s.db.getMsg(rpid, id)
 	})
 }
 
-func (s *Server) handleRPUpdateChara(w http.ResponseWriter, r *http.Request, userid string) {
-	s.handleRPUpdateThing(w, r, userid, "charas", func(rpid string, id string) Doc {
+func (s *Server) handleRPUpdateChara(w http.ResponseWriter, r *http.Request, auth authContext) {
+	s.handleRPUpdateThing(w, r, auth.userid(), "charas", func(rpid string, id string) Doc {
 		return s.db.getChara(rpid, id)
 	})
 }
@@ -512,8 +501,8 @@ func (s *Server) handleRPExportJSON(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("\n]\n"))
 }
 
-func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid string) {
-	if !s.canCreateRP(userid) {
+func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth authContext) {
+	if !s.canCreateRP(auth) {
 		http.Error(w, "Insufficient privileges to create an RP", 403)
 		return
 	}
@@ -560,7 +549,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid
 		chara.RpCharaBody = rawChara.RpCharaBody
 		chara.Timestamp = rawChara.Timestamp
 		chara.ID = xid.New().String()
-		chara.Userid = userid
+		chara.Userid = auth.userid()
 		chara.Revision = 0
 		charas[i] = chara
 		if err := chara.Validate(); err != nil {
@@ -591,7 +580,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, userid
 		}
 		msg.Timestamp = rawMsg.Timestamp
 		msg.ID = xid.New().String()
-		msg.Userid = userid
+		msg.Userid = auth.userid()
 		msg.Revision = 0
 
 		if err := msg.Validate(); err != nil {
@@ -755,7 +744,17 @@ func (s *Server) handleGenerateAnonLogin(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(res)
 }
 
-func (s *Server) auth(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+type authContext struct {
+	userType string
+	username string
+	user     *User
+}
+
+func (auth authContext) userid() string {
+	return auth.userType + ":" + auth.username
+}
+
+func (s *Server) auth(fn func(http.ResponseWriter, *http.Request, authContext)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
@@ -789,19 +788,28 @@ func (s *Server) auth(fn func(http.ResponseWriter, *http.Request, string)) http.
 
 		userid := token.Claims.(jwt.MapClaims)["sub"].(string)
 
-		fn(w, r, userid)
+		var authContext authContext
+		useridSegments := strings.SplitN(userid, ":", 2)
+		authContext.userType = useridSegments[0]
+		authContext.username = useridSegments[1]
+		if authContext.userType == "user" {
+			authContext.user = s.db.getUser(authContext.username)
+			if authContext.user == nil {
+				http.Error(w, "User does not exist", 401)
+			}
+		}
+
+		fn(w, r, authContext)
 	}
 }
 
-func (s *Server) handleVerifyUser(w http.ResponseWriter, r *http.Request, _ string) {
+func (s *Server) handleVerifyUser(w http.ResponseWriter, r *http.Request, _ authContext) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *Server) handleAddRpToUser(w http.ResponseWriter, r *http.Request, userid string) {
-	userType, username := getUserInfoFromID(userid)
-
+func (s *Server) handleAddRpToUser(w http.ResponseWriter, r *http.Request, auth authContext) {
 	// verify user is logged in
-	if userType != "user" {
+	if auth.userType != "user" {
 		http.Error(w, "Can only add RP to logged-in user account", 403)
 		return
 	}
@@ -814,12 +822,7 @@ func (s *Server) handleAddRpToUser(w http.ResponseWriter, r *http.Request, useri
 		return
 	}
 
-	// verify user is in the database
-	user := s.db.getUser(username)
-	if user == nil {
-		http.Error(w, "User not found: "+username, 404)
-		return
-	}
+	user := auth.user
 
 	// make sure slug isn't already attached to user
 	for _, existingSlug := range user.RoomSlugs {
