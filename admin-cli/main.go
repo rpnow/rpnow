@@ -368,7 +368,34 @@ func editUsers() {
 		if user == nil {
 			return
 		}
+		editUser(user)
 	}
+}
+
+func editUser(user *userInfo) {
+	if user.CanCreate {
+		fmt.Println(user.Username + " is currently ALLOWED to create new RPs.")
+	} else {
+		fmt.Println(user.Username + " is currently UNABLE to create new RPs.")
+	}
+
+	prompt := promptui.Prompt{
+		Label:     "Change this setting?",
+		IsConfirm: true,
+	}
+	_, err := prompt.Run()
+
+	if err != nil {
+		fmt.Println("Permissions not changed")
+		return
+	}
+
+	fmt.Println(user.CanCreate)
+	if err := apiPostUserCreatorSetting(user.Username, !user.CanCreate); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("User settings changed")
 }
 
 func securityMenu() {
@@ -488,12 +515,16 @@ func (r *rpInfo) String() string {
 }
 
 type userInfo struct {
-	Username string `json:"username"`
+	Username  string `json:"username"`
+	CanCreate bool   `json:"canCreate"`
 }
 
 func (u *userInfo) String() string {
 	if u == nil {
 		return "(main menu)"
+	}
+	if u.CanCreate {
+		return "User [RP Creator]: " + u.Username
 	}
 	return "User: " + u.Username
 }
@@ -657,6 +688,25 @@ func apiPutSecurityPolicy(policy SecurityPolicy) error {
 		panic(err)
 	}
 	req, err := http.NewRequest("PUT", "http://127.0.0.1:12789/security", bytes.NewBuffer(reqBodyJSON))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
+}
+
+func apiPostUserCreatorSetting(username string, canCreate bool) error {
+	reqBodyJSON, err := json.Marshal(&canCreate)
+	if err != nil {
+		panic(err)
+	}
+	req, err := http.NewRequest("POST", "http://127.0.0.1:12789/users/"+username+"/creator", bytes.NewBuffer(reqBodyJSON))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return err

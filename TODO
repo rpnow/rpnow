@@ -21,9 +21,6 @@ Visiting an RP adds the RP to your account
 User can change password
 User can force-logout everywhere
 
-rpadmin > manage users > [list] > allow to create RPs
-* api
-* cli
 rpadmin > manage users > [list] > change password
 * api
 * cli

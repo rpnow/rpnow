@@ -29,7 +29,7 @@ type User struct {
 	Username         string `json:"username"`
 	PassHash         []byte
 	RoomSlugs        []string
-	CanCreate        bool
+	CanCreate        bool `json:"canCreate"`
 	DenyLoginsBefore time.Time
 }
 
