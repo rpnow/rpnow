@@ -20,16 +20,10 @@ User can force-logout everywhere
 rpadmin > manage users > [list] > change password
 * api
 * cli
-rpadmin > manage users > [list] > delete user
-* api
-* cli
 
 Kill WS connections when:
 * Deleting room
 * Deleting room's URL
-* Deleting user?
-* Changing user password? (from admin or from web)
-* Logging user out everywhere?
 
 Extract some css into a public .css file
 Expose rp.css & favicons

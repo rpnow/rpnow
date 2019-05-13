@@ -373,6 +373,41 @@ func editUsers() {
 }
 
 func editUser(user *userInfo) {
+	prompt := promptui.Select{
+		Label: fmt.Sprintf("Modify user: %s", user.Username),
+		Items: []string{"go back", "change permissions", "delete user"},
+	}
+	_, action, err := prompt.Run()
+	if err != nil {
+		panic(err)
+	}
+	if action == "go back" {
+		return
+	} else if action == "change permissions" {
+		editUserPermissions(user)
+	} else if action == "delete user" {
+		confirmDeleteUser(user)
+	}
+}
+
+func confirmDeleteUser(user *userInfo) bool {
+	killswitch := strings.ToUpper(fmt.Sprintf("delete %s", user.Username))
+	prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
+	result, _ := prompt.Run()
+	if result != killswitch {
+		fmt.Println("Incorrect. Will not delete.")
+		return false
+	}
+
+	err := apiDeleteUser(user.Username)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Goodbye! User %q is no more.\n", user.Username)
+	return true
+}
+
+func editUserPermissions(user *userInfo) {
 	if user.CanCreate {
 		fmt.Println(user.Username + " is currently ALLOWED to create new RPs.")
 	} else {
@@ -390,7 +425,6 @@ func editUser(user *userInfo) {
 		return
 	}
 
-	fmt.Println(user.CanCreate)
 	if err := apiPostUserCreatorSetting(user.Username, !user.CanCreate); err != nil {
 		panic(err)
 	}
@@ -708,6 +742,20 @@ func apiPostUserCreatorSetting(username string, canCreate bool) error {
 	}
 	req, err := http.NewRequest("POST", "http://127.0.0.1:12789/users/"+username+"/creator", bytes.NewBuffer(reqBodyJSON))
 	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
+}
+
+func apiDeleteUser(username string) error {
+	req, err := http.NewRequest("DELETE", "http://127.0.0.1:12789/users/"+username, nil)
 	if err != nil {
 		return err
 	}

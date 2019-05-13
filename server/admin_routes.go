@@ -21,6 +21,7 @@ func (s *Server) adminRouter() *mux.Router {
 	router.HandleFunc("/url/{slug}", s.handleAdminDeleteLink).Methods("DELETE")
 	router.HandleFunc("/url/{slug}", s.handleAdminSetLink).Methods("PUT")
 	router.HandleFunc("/users", s.handleAdminListUsers).Methods("GET")
+	router.HandleFunc("/users/{username}", s.handleAdminDeleteUser).Methods("DELETE")
 	router.HandleFunc("/users/{username}/creator", s.handleAdminUpdateUserCanCreate).Methods("POST")
 	router.HandleFunc("/security", s.handleAdminGetSecurityPolicy).Methods("GET")
 	router.HandleFunc("/security", s.handleAdminPutSecurityPolicy).Methods("PUT")
@@ -80,6 +81,13 @@ func (s *Server) handleAdminDeleteRP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleAdminDeleteLink(w http.ResponseWriter, r *http.Request) {
 	slug := mux.Vars(r)["slug"]
 	s.db.removeSlugInfo(slug)
+
+	w.WriteHeader(204)
+}
+
+func (s *Server) handleAdminDeleteUser(w http.ResponseWriter, r *http.Request) {
+	username := mux.Vars(r)["username"]
+	s.db.removeUser(username)
 
 	w.WriteHeader(204)
 }
