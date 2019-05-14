@@ -286,7 +286,7 @@
     methods: {
       fetchUpdates() {
         const createWs = () => {
-          const url = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:13000/api/rp/${this.rpCode}/chat`
+          const url = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/api/rp/${this.rpCode}/chat`
           const ws = new WebSocket(url);
           ws.addEventListener('open', () => {
             this.connection = (this.connection === 'connecting') ? 'loading' : 'reloading';
