@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
+
 	"github.com/zieckey/goini"
 )
 
@@ -23,18 +25,14 @@ type serverConf struct {
 	dataDir              string
 	port                 int
 	ssl                  bool
-	sslPort              int
 	sslDomain            string
 	letsencryptAcceptTOS bool
-	letsencryptEmail     string
 }
 
 func defaultServerConf() *serverConf {
 	return &serverConf{
 		dataDir: "/var/local/rpnow",
-		port:    80,
 		ssl:     false,
-		sslPort: 443,
 	}
 }
 
@@ -56,20 +54,12 @@ func (s *serverConf) loadFromINI(filename string) {
 		s.ssl = val
 	}
 
-	if val, ok := ini.GetInt("sslPort"); ok {
-		s.sslPort = val
-	}
-
 	if val, ok := ini.Get("sslDomain"); ok {
 		s.sslDomain = val
 	}
 
 	if val, ok := ini.GetBool("letsencryptAcceptTOS"); ok {
 		s.letsencryptAcceptTOS = val
-	}
-
-	if val, ok := ini.Get("letsencryptEmail"); ok {
-		s.letsencryptEmail = val
 	}
 }
 
@@ -86,20 +76,12 @@ func (s *serverConf) loadFromEnv() {
 		s.ssl = (val == "true")
 	}
 
-	if val, err := strconv.Atoi(os.Getenv("RPNOW_SSL_PORT")); err == nil {
-		s.sslPort = val
-	}
-
 	if val := os.Getenv("RPNOW_SSL_DOMAIN"); val != "" {
 		s.sslDomain = val
 	}
 
 	if val := strings.ToLower(os.Getenv("RPNOW_LETSENCRYPT_ACCEPT_TOS")); val == "true" || val == "false" {
 		s.letsencryptAcceptTOS = (val == "true")
-	}
-
-	if val := os.Getenv("RPNOW_LETSENCRYPT_EMAIL"); val != "" {
-		s.letsencryptEmail = val
 	}
 }
 
@@ -157,6 +139,38 @@ func (s *Server) run() func() {
 	stopped := make(chan bool)
 	done := make(chan bool)
 
+	// interpret config
+	port := s.conf.port
+	if port == 0 {
+		if s.conf.ssl {
+			port = 443
+		} else {
+			port = 80
+		}
+	}
+	addr := fmt.Sprintf(":%d", port)
+
+	var autocertManager *autocert.Manager
+
+	if s.conf.ssl {
+		if !s.conf.letsencryptAcceptTOS {
+			log.Fatalf("Error: must accept letsencrypt TOS")
+		}
+
+		certDir := path.Join(s.conf.dataDir, "autocert")
+		if err := os.Mkdir(certDir, 0755); err != nil && !os.IsExist(err) {
+			log.Fatalf("Failed to create autocert cache directory")
+		}
+
+		autocertManager = &autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(s.conf.sslDomain),
+			Cache:      autocert.DirCache(certDir),
+		}
+
+	}
+
+	// run server
 	go func() {
 		defer func() {
 			stopped <- true
@@ -171,12 +185,20 @@ func (s *Server) run() func() {
 			log.Println("Database closed")
 		}()
 
-		// listen
-		addr := fmt.Sprintf(":%d", s.conf.port)
-		closeAdminServer := serveRouter(s.adminRouter(), adminAddr)
+		// internal server: listen
+		closeAdminServer := serveRouter(s.adminRouter(), adminAddr, nil)
 		defer closeAdminServer()
-		closeClientServer := serveRouter(s.clientRouter(), addr)
-		defer closeClientServer()
+
+		// public server: listen
+		if s.conf.ssl {
+			closeAcmeHandler := serveRouter(autocertManager.HTTPHandler(nil), ":80", nil)
+			defer closeAcmeHandler()
+			closeClientServer := serveRouter(s.clientRouter(), addr, autocertManager.TLSConfig())
+			defer closeClientServer()
+		} else {
+			closeClientServer := serveRouter(s.clientRouter(), addr, nil)
+			defer closeClientServer()
+		}
 
 		// server is ready
 		log.Printf("Listening on %s\n", addr)
@@ -197,29 +219,44 @@ func (s *Server) run() func() {
 	}
 }
 
-func serveRouter(router *mux.Router, addr string) func() {
+func serveRouter(router http.Handler, addr string, tlsConfig *tls.Config) func() {
 	// listen
 	srv := &http.Server{
-		Addr: addr,
+		Addr:      addr,
+		TLSConfig: tlsConfig,
+		// Pass our instance of gorilla/mux in
+		Handler: router,
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout:      time.Second * 15,
 		ReadHeaderTimeout: time.Second * 15,
 		IdleTimeout:       time.Second * 60,
-		Handler:           router, // Pass our instance of gorilla/mux in.
 	}
+
 	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("listen and serve: %s\n", err)
+		if tlsConfig != nil {
+			if err := srv.ListenAndServeTLS("", ""); err != http.ErrServerClosed {
+				log.Fatalf("listen and serve (TLS): %s\n", err)
+			}
+		} else {
+			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+				log.Fatalf("listen and serve: %s\n", err)
+			}
 		}
 	}()
+
 	// return shutdown function
 	return func() {
+		logHTTPString := "HTTP"
+		if tlsConfig != nil {
+			logHTTPString = "TLS"
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
-			log.Fatalf("http shutdown: %s\n", err)
+			log.Fatalf("%s shutdown: %s\n", logHTTPString, err)
 		}
-		log.Printf("Http server stopped: %s\n", addr)
+		log.Printf("%s server stopped: %s\n", logHTTPString, addr)
 	}
 }
