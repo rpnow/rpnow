@@ -62,12 +62,12 @@ EOF'
 	echo "Creating RPNow system user"
 	$sudo_cmd useradd --system --shell /bin/false rpnow || true
 	# setgid for rpnow server, so it has access to its special directories
-	$sudo_cmd chown rpnow:rpnow /usr/local/rpnow/rpnow
-	$sudo_cmd chmod g+s /usr/local/rpnow/rpnow
+	$sudo_cmd chown rpnow:rpnow /usr/local/bin/rpnow
+	$sudo_cmd chmod g+s /usr/local/bin/rpnow
 
 	echo "Adding network capabilities for rpnow program"
 	if setcap_cmd=$(PATH+=$PATH:/sbin type -p setcap); then
-		$sudo_cmd $setcap_cmd cap_net_bind_service=+ep "/usr/local/rpnow/rpnow"
+		$sudo_cmd $setcap_cmd cap_net_bind_service=+ep "/usr/local/bin/rpnow"
 	else
 		echo ""
 		echo "***WARNING: setcap not installed!***"
