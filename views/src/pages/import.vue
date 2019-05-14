@@ -55,10 +55,10 @@
   #import-page {
     padding: 20px;
   }
-  h1 {
+  #import-page h1 {
     margin: 0 0 20px;
   }
-  i.material-icons {
+  #import-page i.material-icons {
     font-size: 32px;
     height: 32px;
     width: 32px;
