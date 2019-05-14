@@ -88,6 +88,10 @@
             <i class="material-icons">edit</i>
             <span>Change title</span>
           </button>
+          <button class="drawer-item" @click="openWebhookDialog">
+            <i class="material-icons">memory</i>
+            <span>Set up webhooks</span>
+          </button>
           <a class="drawer-item" :href="'/api/rp/'+rpCode+'/export'" target="_blank">
             <i class="material-icons">archive</i>
             <span>Export data</span>
@@ -389,6 +393,17 @@
           .then(() => this.rp.title =  title)
           .catch(err => {
             alert('Error! ' + err)
+            throw err;
+          });
+        }
+      },
+      openWebhookDialog() {
+        const webhook = prompt('Webhook URL, please:');
+        if (webhook) {
+          axios.put('/api/rp/' + this.rpCode + '/webhook', { webhook })
+          .then(() => alert('Webhook updated successfully'))
+          .catch(err => {
+            alert('Error! ' + (err && err.response && JSON.stringify(err.response.data) || err))
             throw err;
           });
         }

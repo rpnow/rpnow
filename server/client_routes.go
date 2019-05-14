@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -53,6 +54,7 @@ func (s *Server) clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", s.handleRPGetMsgHistory).Methods("GET")
 	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", s.handleRPGetCharaHistory).Methods("GET")
 	roomAPI.HandleFunc("/title", s.handleRPSetTitle).Methods("PUT")
+	roomAPI.HandleFunc("/webhook", s.handleRPSetWebhook).Methods("PUT")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
@@ -220,6 +222,34 @@ func (s *Server) handleRPSetTitle(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *Server) handleRPSetWebhook(w http.ResponseWriter, r *http.Request) {
+	// parse request
+	var header struct {
+		Webhook string
+	}
+	err := json.NewDecoder(r.Body).Decode(&header)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	// test webhook
+	webhookTestBody := bytes.NewReader([]byte(`{"content":"Webhook test successful"}`))
+	resp, err := http.Post(header.Webhook, "application/json", webhookTestBody)
+	if err != nil {
+		http.Error(w, "Webhook test failed: "+err.Error(), 400)
+		return
+	}
+	if resp.StatusCode >= 400 {
+		http.Error(w, fmt.Sprintf("Webhook test failed: Got status code %d", resp.StatusCode), 400)
+		return
+	}
+
+	s.handleRPSetInfo(w, r, func(roomInfo *RoomInfo) {
+		roomInfo.Webhook = header.Webhook
+	})
+}
+
 func (s *Server) handleRPChatStream(w http.ResponseWriter, r *http.Request) {
 	var rp struct {
 		*RoomInfo
@@ -254,7 +284,7 @@ func (s *Server) handleRPChatStream(w http.ResponseWriter, r *http.Request) {
 	join(conn, slugInfo.Rpid, firstPacket)
 }
 
-func (s *Server) handleRPSendThing(w http.ResponseWriter, r *http.Request, userid string, updateType string, obj Doc) {
+func (s *Server) handleRPSendThing(w http.ResponseWriter, r *http.Request, userid string, updateType string, obj Doc, next func()) {
 	// generate key for new object
 	obj.Meta().ID = xid.New().String()
 
@@ -300,14 +330,40 @@ func (s *Server) handleRPSendThing(w http.ResponseWriter, r *http.Request, useri
 
 	// Done
 	w.Write(js)
+
+	// Anything to execute afterwards
+	next()
 }
 
 func (s *Server) handleRPSendMsg(w http.ResponseWriter, r *http.Request, auth authContext) {
-	s.handleRPSendThing(w, r, auth.userid(), "msgs", NewRpMessage())
+	msg := NewRpMessage()
+	s.handleRPSendThing(w, r, auth.userid(), "msgs", &msg, func() {
+		slugInfo := s.db.getSlugInfo(mux.Vars(r)["slug"])
+		roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
+
+		body := map[string]string{
+			"username": "RP: " + roomInfo.Title,
+		}
+		if auth.userType == "user" {
+			body["content"] += "[" + auth.username + "] New " + msg.Type + " message: "
+		} else {
+			body["content"] = "New " + msg.Type + " message: "
+		}
+		if msg.Type == "image" {
+			body["content"] += msg.URL
+		} else if len(msg.Content) > 20 {
+			body["content"] += msg.Content[:20] + "..."
+		} else {
+			body["content"] += msg.Content
+		}
+
+		bodyBytes, _ := json.Marshal(body)
+		http.Post(roomInfo.Webhook, "application/json", bytes.NewReader(bodyBytes))
+	})
 }
 
 func (s *Server) handleRPSendChara(w http.ResponseWriter, r *http.Request, auth authContext) {
-	s.handleRPSendThing(w, r, auth.userid(), "charas", NewRpChara())
+	s.handleRPSendThing(w, r, auth.userid(), "charas", NewRpChara(), func() {})
 }
 
 func (s *Server) handleRPUpdateThing(w http.ResponseWriter, r *http.Request, userid string, updateType string, getOldDoc func(rpid string, id string) Doc) {
