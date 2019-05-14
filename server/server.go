@@ -124,7 +124,7 @@ func (s *Server) initSecurityPolicy() {
 		s._securitySettings = settings
 		return
 	}
-	settings := &SecurityPolicy{RestrictCreate: true, UserQuota: 3}
+	settings := &SecurityPolicy{RestrictCreate: true, UserQuota: 20}
 	s.db.putSecurityPolicy(settings)
 	s._securitySettings = settings
 }

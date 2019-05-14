@@ -10,13 +10,21 @@ import (
 )
 
 func main() {
-	// get path to config file from cmd args
 	configPath := flag.String("config", "/etc/rpnow.ini", "path to the server config file")
 	flag.Parse()
+	if flag.Arg(0) == "server" {
+		runServer(*configPath)
+	} else {
+		runShell()
+	}
+}
+
+func runServer(configPath string) {
+	// get path to config file from cmd args
 
 	// load config
 	conf := defaultServerConf()
-	conf.loadFromINI(*configPath)
+	conf.loadFromINI(configPath)
 	conf.loadFromEnv()
 
 	// run server

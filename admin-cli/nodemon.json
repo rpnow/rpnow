@@ -1,5 +1,0 @@
-{
-    "signal": "SIGINT",
-    "ext": "go",
-    "exec": "go run . || exit 1"
-}

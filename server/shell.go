@@ -15,7 +15,7 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func main() {
+func runShell() {
 	fmt.Println("RPNow Admin Console")
 
 	for {
@@ -61,47 +61,49 @@ func main() {
 }
 
 func startServer() {
-	cmd := exec.Command("/usr/local/rpnow/rpnow")
-	cmd.Dir = "/usr/local/rpnow"
+	cmdFile, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	cmd := exec.Command(cmdFile, "server")
 
 	if err := cmd.Start(); err != nil {
 		fmt.Printf("Error starting server: %s\n", err)
 	}
 
 	exited := make(chan error)
-	online := make(chan bool)
 
 	go func() {
 		exited <- cmd.Wait()
 	}()
 
-	go func() {
-		for i := 0; i < 10; i++ {
-			time.Sleep(time.Duration(250) * time.Millisecond)
+	for i := 0; i < 10; i++ {
+		select {
+		case err := <-exited:
+			if err != nil {
+				fmt.Printf("Server exited! %s\n", err)
+			} else {
+				fmt.Println("Server exited cleanly!")
+			}
+			return
+		default:
 			if rpnowStatus, _ := isServerUp(); rpnowStatus {
-				online <- true
+				fmt.Println("Server ready")
 				return
 			}
-		}
-		online <- false
-	}()
-
-	select {
-	case err := <-exited:
-		fmt.Printf("Server exited! %s\n", err)
-	case isOnline := <-online:
-		if isOnline {
-			fmt.Println("Server ready")
-		} else {
-			fmt.Println("Server is running, but admin interface is not working")
+			time.Sleep(time.Duration(250) * time.Millisecond)
 		}
 	}
+	fmt.Println("Server not responding?")
 }
 
 func testServer() {
 	fmt.Printf("########################\n TESTING RPNOW SERVER\n (Press CTRL+C to stop)\n########################\n")
-	cmd := exec.Command("/usr/local/rpnow/rpnow")
-	cmd.Dir = "/usr/local/rpnow"
+	cmdFile, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	cmd := exec.Command(cmdFile, "server")
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
@@ -695,11 +697,6 @@ func apiCreateRp(title string) (string, error) {
 	}
 
 	return out["rpCode"], nil
-}
-
-type SecurityPolicy struct {
-	RestrictCreate bool `json:"restrictCreate"`
-	UserQuota      int  `json:"userQuota"`
 }
 
 func apiGetSecurityPolicy() (*SecurityPolicy, error) {

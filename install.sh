@@ -32,13 +32,9 @@ install_rpnow()
 	echo "Removing old rpnow server"
 	$sudo_cmd rm -rf "/usr/local/rpnow"
 
-	echo "Installing rpnow server to /usr/local/rpnow (may require password)"
-	$sudo_cmd mkdir "/usr/local/rpnow"
-	$sudo_cmd mv "$install_dir/rpnow" "/usr/local/rpnow/"
-
-	echo "Installing rpadmin command in /usr/local/bin (may require password)"
-	$sudo_cmd mv "$install_dir/rpadmin" "/usr/local/bin/"
-	$sudo_cmd chmod +x "/usr/local/bin/rpadmin"
+	echo "Installing rpnow to /usr/local/bin (may require password)"
+	$sudo_cmd mv "$install_dir/rpnow" "/usr/local/bin/"
+	$sudo_cmd chmod +x "/usr/local/bin/rpnow"
 
 	# Put /etc/rpnow.ini if not exists
 	if [ ! -f /etc/rpnow.ini ]; then

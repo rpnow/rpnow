@@ -24,4 +24,4 @@ USER rpnow
 WORKDIR /usr/local/rpnow
 EXPOSE 80 443
 ENTRYPOINT ["tini", "--"]
-CMD ["/usr/local/rpnow/rpnow"]
+CMD ["/usr/local/bin/rpnow", "server"]
