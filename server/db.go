@@ -264,7 +264,15 @@ func (db *database) addSlugInfo(value *SlugInfo) {
 
 func (db *database) removeSlugInfo(slug string) {
 	db.deleteDocOrCrash("slugs", slug)
-	// TODO delete from all users' room lists
+	for _, user := range db.listAllUsers() {
+		for i, mySlug := range user.RoomSlugs {
+			if mySlug == slug {
+				user.RoomSlugs = append(user.RoomSlugs[:i], user.RoomSlugs[i+1:]...)
+				db.putUser(&user)
+				break
+			}
+		}
+	}
 }
 
 func (db *database) getRoomInfo(rpid string) *RoomInfo {
