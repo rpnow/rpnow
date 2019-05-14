@@ -20,7 +20,15 @@ func runShell() {
 
 	for {
 		fmt.Println()
-		up, pid := isServerUp()
+		fmt.Print("server status... ")
+		up, pid, err := isServerUp()
+		if !up {
+			fmt.Println("(server not running)")
+		} else if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println("ok")
+		}
 
 		var options []string
 		if up {
@@ -87,9 +95,11 @@ func startServer() {
 			}
 			return
 		default:
-			if rpnowStatus, _ := isServerUp(); rpnowStatus {
+			if rpnowStatus, _, err := isServerUp(); rpnowStatus {
 				fmt.Println("Server ready")
 				return
+			} else if err != nil {
+				fmt.Printf("Server error: %s\n", err)
 			}
 			time.Sleep(time.Duration(250) * time.Millisecond)
 		}
@@ -298,13 +308,11 @@ func editRpUrls(rp *rpInfo) {
 	}
 }
 
-func isServerUp() (bool, int) {
-	fmt.Print("server status... ")
+func isServerUp() (bool, int, error) {
 
 	res, err := http.Get("http://127.0.0.1:12789/status")
 	if err != nil {
-		fmt.Println("(server not running)")
-		return false, 0
+		return false, 0, nil
 	}
 	defer res.Body.Close()
 	var status struct {
@@ -313,11 +321,9 @@ func isServerUp() (bool, int) {
 	}
 	err = json.NewDecoder(res.Body).Decode(&status)
 	if err != nil {
-		fmt.Println("(bad response)")
-		return false, 0
+		return false, 0, errors.New("Bad response from admin API")
 	}
-	fmt.Println(status.RPNowLine)
-	return status.RPNowLine == "ok", status.PID
+	return status.RPNowLine == "ok", status.PID, nil
 }
 
 func pickRp(rpsListWithoutBackOption []*rpInfo) *rpInfo {

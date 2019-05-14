@@ -19,7 +19,7 @@ func openDB(path string) *database {
 	// initialize boltdb
 	boltdb, err := bolt.Open(path, 0600, nil)
 	if err != nil {
-		log.Fatalf("Could not open bolt db at %s\n", path)
+		log.Fatalf("Failed to open database: %s\n", err)
 	}
 
 	// initialize buckets

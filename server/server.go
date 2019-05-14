@@ -135,6 +135,13 @@ func (s *Server) updateSecurityPolicy(settings SecurityPolicy) {
 }
 
 func (s *Server) run() func() {
+	// test if we're already running
+	if up, pid, err := isServerUp(); up {
+		log.Fatalf("RPNow is already running (PID %d)\n", pid)
+	} else if err != nil {
+		log.Fatalf("RPNow seems to be running (PID %d) but is not responding correctly\n", pid)
+	}
+
 	started := make(chan bool)
 	stopped := make(chan bool)
 	done := make(chan bool)
