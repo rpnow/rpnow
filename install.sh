@@ -31,6 +31,7 @@ install_rpnow()
 	# fi
 	echo "Removing old rpnow server"
 	$sudo_cmd rm -rf "/usr/local/rpnow"
+	$sudo_cmd rm "/usr/local/bin/rpadmin"
 
 	echo "Installing rpnow to /usr/local/bin (may require password)"
 	$sudo_cmd mv "$install_dir/rpnow" "/usr/local/bin/"
@@ -47,13 +48,10 @@ ssl=false
 sslDomain=
 
 ; SSL certificates are generated automatically by letsencrypt.org
-; By changing this from 'false' to 'true', you accept their
+; By changing this from "false" to "true", you accept their
 ; terms of service, which can currently be found at:
 ; https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf
 letsencryptAcceptTOS=false
-
-; You must also provide an e-mail address to use letsencrypt
-letsencryptEmail=
 EOF'
 	else
 		echo "/etc/rpnow.ini already exists, skipping"
