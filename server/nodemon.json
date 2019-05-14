@@ -1,5 +1,5 @@
 {
     "signal": "SIGINT",
     "ext": "go",
-    "exec": "go build -tags dev -o ../rpnow && RPNOW_DATA_DIR=../data RPNOW_PORT=13000 ../rpnow server || exit 1"
+    "exec": "RPNOW_DATA_DIR=../data RPNOW_PORT=13000 go run -tags dev . -- server || exit 1"
 }
