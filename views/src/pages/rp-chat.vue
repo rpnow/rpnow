@@ -19,7 +19,7 @@
 
         <div id="chat-header">
           <button class="icon-button" @click="openMainMenu">
-            <i class="material-icons" title="Site Menu">menu</i>
+            <i class="material-icons" title="Menu">menu</i>
           </button>
           <span>
             {{ rp.title }}
@@ -69,7 +69,7 @@
         <div class="overlay overlay-drawer" @click="showMainMenu=false"></div>
 
         <div class="drawer-header">
-          <span>Site Menu</span>
+          <span>Menu</span>
           <button class="icon-button" @click="showMainMenu=false">
             <i class="material-icons" title="Close">close</i>
           </button>
@@ -82,6 +82,11 @@
           <button class="drawer-item" @click="openDownloadDialog()">
             <i class="material-icons">cloud_download</i>
             <span>Download .TXT</span>
+          </button>
+          <div class="drawer-divider"></div>
+          <button class="drawer-item" @click="changeTitle">
+            <i class="material-icons">edit</i>
+            <span>Change title</span>
           </button>
           <a class="drawer-item" :href="'/api/rp/'+rpCode+'/export'" target="_blank">
             <i class="material-icons">archive</i>
@@ -376,6 +381,17 @@
       },
       getMessageHistory(_id) {
         return this.getHistory.bind(this, 'msgs', _id);
+      },
+      changeTitle() {
+        const title = prompt('Enter the title for this RP:', this.rp.title);
+        if (title != null) {
+          axios.put('/api/rp/' + this.rpCode + '/title', { title })
+          .then(() => this.rp.title =  title)
+          .catch(err => {
+            alert('Error! ' + err)
+            throw err;
+          });
+        }
       },
       openDownloadDialog() {
         this.showDownloadDialog = true;

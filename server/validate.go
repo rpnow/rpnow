@@ -5,6 +5,13 @@ import (
 	"regexp"
 )
 
+func (r RoomInfo) Validate() error {
+	if len(r.Title) > 30 {
+		return fmt.Errorf("RoomInfo: title is too long")
+	}
+	return nil
+}
+
 func (m RpMessageBody) Validate() error {
 	if m.Type == "image" {
 		if m.Content != "" {

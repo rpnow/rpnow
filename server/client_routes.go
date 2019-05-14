@@ -52,6 +52,7 @@ func (s *Server) clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}", s.auth(s.handleRPUpdateChara)).Methods("PUT")
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", s.handleRPGetMsgHistory).Methods("GET")
 	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", s.handleRPGetCharaHistory).Methods("GET")
+	roomAPI.HandleFunc("/title", s.handleRPSetTitle).Methods("PUT")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
@@ -158,12 +159,65 @@ func (s *Server) handleCreateRP(w http.ResponseWriter, r *http.Request, auth aut
 	readSlug := generateSlug(header.Title, 12)
 	rpid := generateRpid()
 
+	roomInfo := &RoomInfo{
+		RPID:      rpid,
+		Title:     header.Title,
+		ReadCode:  readSlug,
+		StartTime: time.Now(),
+		Userid:    auth.userid(),
+	}
+
+	if err := roomInfo.Validate(); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
 	// add to db
 	s.db.addSlugInfo(&SlugInfo{slug, rpid, "normal"})
 	s.db.addSlugInfo(&SlugInfo{readSlug, rpid, "read"})
-	s.db.addRoomInfo(&RoomInfo{rpid, header.Title, readSlug, time.Now(), auth.userid()})
+	s.db.addRoomInfo(roomInfo)
 	// tell user the created response slug
 	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
+}
+
+func (s *Server) handleRPSetInfo(w http.ResponseWriter, r *http.Request, modify func(*RoomInfo)) {
+	// parse slug
+	params := mux.Vars(r)
+
+	// get rpid from slug
+	slugInfo := s.db.getSlugInfo(params["slug"])
+	if slugInfo == nil {
+		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		return
+	}
+
+	// update room info
+	roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
+	modify(roomInfo)
+	if err := roomInfo.Validate(); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	s.db.addRoomInfo(roomInfo)
+
+	// done
+	w.WriteHeader(204)
+}
+
+func (s *Server) handleRPSetTitle(w http.ResponseWriter, r *http.Request) {
+	// parse request
+	var header struct {
+		Title string
+	}
+	err := json.NewDecoder(r.Body).Decode(&header)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	s.handleRPSetInfo(w, r, func(roomInfo *RoomInfo) {
+		roomInfo.Title = header.Title
+	})
 }
 
 func (s *Server) handleRPChatStream(w http.ResponseWriter, r *http.Request) {
@@ -539,9 +593,22 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth a
 	readSlug := generateSlug(meta.Title, 12)
 	rpid := generateRpid()
 
+	roomInfo := &RoomInfo{
+		RPID:      rpid,
+		Title:     meta.Title,
+		ReadCode:  readSlug,
+		StartTime: time.Now(),
+		Userid:    auth.userid(),
+	}
+
+	if err := roomInfo.Validate(); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
 	s.db.addSlugInfo(&SlugInfo{slug, rpid, "normal"})
 	s.db.addSlugInfo(&SlugInfo{readSlug, rpid, "read"})
-	s.db.addRoomInfo(&RoomInfo{rpid, meta.Title, readSlug, time.Now(), auth.userid()})
+	s.db.addRoomInfo(roomInfo)
 
 	charas := make([]RpChara, len(meta.Charas))
 	for i, rawChara := range meta.Charas {
