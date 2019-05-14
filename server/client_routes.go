@@ -245,7 +245,7 @@ func (s *Server) handleRPSendThing(w http.ResponseWriter, r *http.Request, useri
 	rooms[slugInfo.Rpid].broadcast <- chatStreamMessage{updateType, js}
 
 	// Done
-	w.WriteHeader(204)
+	w.Write(js)
 }
 
 func (s *Server) handleRPSendMsg(w http.ResponseWriter, r *http.Request, auth authContext) {

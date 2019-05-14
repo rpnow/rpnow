@@ -351,6 +351,10 @@
           url: '/api/rp/' + this.rpCode + '/' + type + (_id ? ('/' + _id) : ''),
           data: body
         })
+          .then(res => {
+            this.updateState({ data: res.data, type })
+            return res.data;
+          })
           .catch(err => {
             alert('Error! ' + err)
             throw err;
