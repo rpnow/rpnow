@@ -8,12 +8,10 @@ Verify that JSON imports don't time out, even on huge RP's
 
 Investigate captcha library for login/register/anonymousCreateRP
 
-create RP dialog
-* Name your story: [____[rand]][->]
-* Or, [import a .JSON file]
-
 User can change password
 User can force-logout everywhere
+
+User can remove RP from their dashboard
 
 rpadmin > manage users > [list] > change password
 * api
@@ -25,8 +23,6 @@ Kill WS connections when:
 
 Extract some css into a public .css file
 Expose rp.css & favicons
-
-WEBHOOKS
 
 Resolve TODOs in code
 
