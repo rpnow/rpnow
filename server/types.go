@@ -15,8 +15,8 @@ type RoomInfo struct {
 	RPID      string    `json:"rpid"`
 	Title     string    `json:"title"`
 	ReadCode  string    `json:"readCode"`
-	StartTime time.Time `json:"createdAt"`
-	Userid    string    `json:"creator"`
+	CreatedAt time.Time `json:"createdAt"`
+	Userid    string    `json:"userid"`
 	Webhook   string    `json:"webhook"`
 }
 
@@ -28,11 +28,10 @@ type SlugInfo struct {
 }
 
 type User struct {
-	Username         string `json:"username"`
-	PassHash         []byte
-	RoomSlugs        []string
-	CanCreate        bool `json:"canCreate"`
-	DenyLoginsBefore time.Time
+	Username  string   `json:"username"`
+	PassHash  []byte   `json:"passHash"`
+	RoomSlugs []string `json:"roomSlugs"`
+	CanCreate bool     `json:"canCreate"`
 }
 
 func (u *User) SetPassword(pass string) {
@@ -42,7 +41,6 @@ func (u *User) SetPassword(pass string) {
 	}
 
 	u.PassHash = hash
-	u.DenyLoginsBefore = time.Now()
 }
 
 func (u *User) CheckPassword(maybePass string) error {

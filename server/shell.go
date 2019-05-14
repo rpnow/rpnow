@@ -185,7 +185,7 @@ func editRps() {
 	}
 }
 
-func editRp(rp *rpInfo) {
+func editRp(rp *RoomInfo) {
 	for {
 		// Expand & edit the selected RP
 		urls, err := apiGetRpUrls(rp.RPID)
@@ -213,11 +213,12 @@ func editRp(rp *rpInfo) {
 			editRpUrls(rp)
 		} else if action == "destroy rp" {
 			confirmDestroyRp(rp)
+			return
 		}
 	}
 }
 
-func confirmDestroyRp(rp *rpInfo) bool {
+func confirmDestroyRp(rp *RoomInfo) bool {
 	killswitch := strings.ToUpper(fmt.Sprintf("destroy %s", rp.Title))
 	prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
 	result, _ := prompt.Run()
@@ -250,7 +251,7 @@ func (x urlEditOpt) String() string {
 	}
 }
 
-func editRpUrls(rp *rpInfo) {
+func editRpUrls(rp *RoomInfo) {
 	for {
 		urls, err := apiGetRpUrls(rp.RPID)
 		if err != nil {
@@ -326,9 +327,9 @@ func isServerUp() (bool, int, error) {
 	return status.RPNowLine == "ok", status.PID, nil
 }
 
-func pickRp(rpsListWithoutBackOption []*rpInfo) *rpInfo {
+func pickRp(rpsListWithoutBackOption []*RoomInfo) *RoomInfo {
 	fmt.Println()
-	rps := append([]*rpInfo{nil}, rpsListWithoutBackOption...)
+	rps := append([]*RoomInfo{nil}, rpsListWithoutBackOption...)
 
 	prompt := promptui.Select{
 		Label: "Choose an RP",
@@ -345,9 +346,9 @@ func pickRp(rpsListWithoutBackOption []*rpInfo) *rpInfo {
 	return rps[idx]
 }
 
-func pickUser(usersListWithoutBackOption []*userInfo) *userInfo {
+func pickUser(usersListWithoutBackOption []*User) *User {
 	fmt.Println()
-	users := append([]*userInfo{nil}, usersListWithoutBackOption...)
+	users := append([]*User{nil}, usersListWithoutBackOption...)
 
 	prompt := promptui.Select{
 		Label: "Choose a user",
@@ -380,7 +381,7 @@ func editUsers() {
 	}
 }
 
-func editUser(user *userInfo) {
+func editUser(user *User) {
 	prompt := promptui.Select{
 		Label: fmt.Sprintf("Modify user: %s", user.Username),
 		Items: []string{"go back", "change permissions", "delete user"},
@@ -398,7 +399,7 @@ func editUser(user *userInfo) {
 	}
 }
 
-func confirmDeleteUser(user *userInfo) bool {
+func confirmDeleteUser(user *User) bool {
 	killswitch := strings.ToUpper(fmt.Sprintf("delete %s", user.Username))
 	prompt := promptui.Prompt{Label: fmt.Sprintf("Type %q", killswitch)}
 	result, _ := prompt.Run()
@@ -415,7 +416,7 @@ func confirmDeleteUser(user *userInfo) bool {
 	return true
 }
 
-func editUserPermissions(user *userInfo) {
+func editUserPermissions(user *User) {
 	if user.CanCreate {
 		fmt.Println(user.Username + " is currently ALLOWED to create new RPs.")
 	} else {
@@ -543,25 +544,14 @@ func printPolicyDetails(policy *SecurityPolicy) {
 	fmt.Printf("  Registered user quota: %d\n", policy.UserQuota)
 }
 
-type rpInfo struct {
-	Title     string    `json:"title"`
-	RPID      string    `json:"rpid"`
-	Timestamp time.Time `json:"createdAt"`
-}
-
-func (r *rpInfo) String() string {
+func (r *RoomInfo) String() string {
 	if r == nil {
 		return "(main menu)"
 	}
-	return fmt.Sprintf("%-30s (%s)", r.Title, r.Timestamp.Format("02 Jan 2006"))
+	return fmt.Sprintf("%-30s (%s)", r.Title, r.CreatedAt.Format("02 Jan 2006"))
 }
 
-type userInfo struct {
-	Username  string `json:"username"`
-	CanCreate bool   `json:"canCreate"`
-}
-
-func (u *userInfo) String() string {
+func (u *User) String() string {
 	if u == nil {
 		return "(main menu)"
 	}
@@ -571,13 +561,13 @@ func (u *userInfo) String() string {
 	return "User: " + u.Username
 }
 
-func apiGetRpList() ([]*rpInfo, error) {
+func apiGetRpList() ([]*RoomInfo, error) {
 	res, err := http.Get("http://127.0.0.1:12789/rps")
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
-	var rps []*rpInfo
+	var rps []*RoomInfo
 	err = json.NewDecoder(res.Body).Decode(&rps)
 	if err != nil {
 		return nil, err
@@ -585,13 +575,13 @@ func apiGetRpList() ([]*rpInfo, error) {
 	return rps, nil
 }
 
-func apiGetUserList() ([]*userInfo, error) {
+func apiGetUserList() ([]*User, error) {
 	res, err := http.Get("http://127.0.0.1:12789/users")
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
-	var users []*userInfo
+	var users []*User
 	err = json.NewDecoder(res.Body).Decode(&users)
 	if err != nil {
 		return nil, err

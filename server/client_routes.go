@@ -111,7 +111,7 @@ func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request, auth au
 			roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
 			lastMsg := s.db.getLastMsg(roomInfo.RPID)
 			if lastMsg == nil {
-				res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, roomInfo.StartTime})
+				res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, roomInfo.CreatedAt})
 			} else {
 				res.Rooms = append(res.Rooms, dashboardRoom{slug, roomInfo.Title, lastMsg.Timestamp})
 			}
@@ -165,7 +165,7 @@ func (s *Server) handleCreateRP(w http.ResponseWriter, r *http.Request, auth aut
 		RPID:      rpid,
 		Title:     header.Title,
 		ReadCode:  readSlug,
-		StartTime: time.Now(),
+		CreatedAt: time.Now(),
 		Userid:    auth.userid(),
 	}
 
@@ -653,7 +653,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth a
 		RPID:      rpid,
 		Title:     meta.Title,
 		ReadCode:  readSlug,
-		StartTime: time.Now(),
+		CreatedAt: time.Now(),
 		Userid:    auth.userid(),
 	}
 
