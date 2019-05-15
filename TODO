@@ -22,6 +22,8 @@ Kill WS connections when:
 * Deleting room
 * Deleting room's URL
 
+Night mode for archive
+
 Extract some css into a public .css file
 Expose rp.css & favicons
 
