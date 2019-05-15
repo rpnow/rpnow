@@ -22,6 +22,13 @@ install_rpnow()
 		sudo_cmd=""
 	fi
 
+	if [ -x "$(command -v rpadmin)" ]; then
+		echo "An incompatible version of RPNow is already installed."
+		echo "Export all of your RPs, then completely remove the old version"
+		echo "before installing RPNow."
+		exit 1
+	fi
+
 	# TODO Back up existing rpnow, if any found in path
 	# if rpnow_path="$(type -p "rpnow")"; then
 	# 	rpnow_backup="${rpnow_path}_old"
@@ -29,9 +36,6 @@ install_rpnow()
 	# 	echo "(Password may be required.)"
 	# 	sudo mv "$rpnow_path" "$rpnow_backup"
 	# fi
-	echo "Removing old rpnow server"
-	$sudo_cmd rm -rf "/usr/local/rpnow"
-	$sudo_cmd rm "/usr/local/bin/rpadmin"
 
 	echo "Installing rpnow to /usr/local/bin (may require password)"
 	$sudo_cmd mv "$install_dir/rpnow" "/usr/local/bin/"
