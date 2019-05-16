@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{'dark-theme':nightMode}">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
@@ -63,6 +63,7 @@
 <script>
   import axios from 'axios';
   import RpMessage from '../components/rp-message.vue';
+  import { syncToLocalStorage } from '../components/sync-to-localstorage'
 
   export default {
     components: {
@@ -74,12 +75,18 @@
         readCode: null,
         rp: null,
         loadError: null,
+        nightMode: false,
       };
     },
     beforeMount() {
       // get rpCode from URL
       this.pageNumber = +(location.pathname.match(/\/page\/(\d+)/))[1];
       this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
+
+      // sync certain properties on this component with values in localStorage
+      syncToLocalStorage(this, {
+        nightMode: 'rpnow.global.nightMode',
+      });
     },
     computed: {
       charasById() {

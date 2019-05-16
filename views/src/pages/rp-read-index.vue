@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{'dark-theme':nightMode}">
     <div id="loading" v-if="rp == null && loadError == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
@@ -13,6 +13,9 @@
     <template v-if="rp != null">
       <div id="main-column">
         <div id="chat-header">
+          <button class="icon-button" @click="nightMode = !nightMode">
+            <i class="material-icons" title="Toggle night mode">brightness_4</i>
+          </button>
           <span>
             {{ rp.title }}
           </span>
@@ -42,6 +45,7 @@
 
 <script>
   import axios from 'axios';
+  import { syncToLocalStorage } from '../components/sync-to-localstorage'
 
   export default {
     data() {
@@ -49,11 +53,17 @@
         readCode: null,
         rp: null,
         loadError: null,
+        nightMode: false,
       };
     },
     beforeMount() {
       // get rpCode from URL
       this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
+
+      // sync certain properties on this component with values in localStorage
+      syncToLocalStorage(this, {
+        nightMode: 'rpnow.global.nightMode',
+      });
     },
     methods: {
       changePage(pageNumber) {

@@ -157,6 +157,7 @@
   import RpMessage from '../components/rp-message.vue';
   import SendBox from '../components/send-box.vue';
   import CharaDrawer from '../components/chara-drawer.vue';
+  import { syncToLocalStorage } from '../components/sync-to-localstorage'
 
   export default {
     components: {
@@ -201,33 +202,8 @@
       // get rpCode from URL
       this.rpCode = location.pathname.match(/\/rp\/([^/]+)/)[1];
 
-      // store and retrieve json as objects in localStorage
-      // (or memory if localStorage doesn't work)
-      var fakeStorage = {};
-
-      function getJson(key) {
-        var str;
-        try {
-          str = localStorage.getItem(key);
-        } catch (ex) {
-          str = fakeStorage[key];
-        }
-        if (str == null) return null;
-        return JSON.parse(str);
-      }
-      function saveJsonFn(key) {
-        return function setter(obj) {
-          var str = JSON.stringify(obj);
-          try {
-            localStorage.setItem(key, str);
-          } catch (ex) {
-            fakeStorage[key] = str;
-          }
-        }
-      }
-
-      // now, initialize these props from localStorage, and watch them
-      var watchProps = {
+      // sync certain properties on this component with values in localStorage
+      syncToLocalStorage(this, {
         pressEnterToSend: 'rpnow.global.pressEnterToSend',
         nightMode: 'rpnow.global.nightMode',
         showMessageDetails: 'rpnow.global.showMessageDetails',
@@ -235,16 +211,7 @@
         msgBoxText: 'rpnow.'+this.rpCode+'.msgBoxContent',
         currentVoice: 'rpnow.'+this.rpCode+'.currentVoice',
         downloadOOC: 'rpnow.global.downloadOOC',
-      };
-
-      for (var prop in watchProps) {
-        var key = watchProps[prop];
-
-        var savedValue = getJson(key);
-        if (savedValue != null) this[prop] = savedValue;
-
-        this.$watch(prop, saveJsonFn(key));
-      }
+      });
     },
 
     mounted() {
