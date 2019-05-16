@@ -39,8 +39,14 @@ func defaultServerConf() *serverConf {
 func (s *serverConf) loadFromINI(filename string) {
 	ini := goini.New()
 	if err := ini.ParseFile(filename); err != nil {
-		log.Fatalf("parse INI file %v failed : %v\n", filename, err.Error())
+		if os.IsNotExist(err) {
+			return
+		} else {
+			log.Fatalf("parse INI file %v failed : %v\n", filename, err.Error())
+		}
 	}
+
+	log.Println("Loaded config at "+filename)
 
 	if val, ok := ini.Get("dataDir"); ok {
 		s.dataDir = val
@@ -64,24 +70,35 @@ func (s *serverConf) loadFromINI(filename string) {
 }
 
 func (s *serverConf) loadFromEnv() {
+	loadedAny := false
+
 	if val := os.Getenv("RPNOW_DATA_DIR"); val != "" {
 		s.dataDir = val
+		loadedAny = true
 	}
 
 	if val, err := strconv.Atoi(os.Getenv("RPNOW_PORT")); err == nil {
 		s.port = val
+		loadedAny = true
 	}
 
 	if val := strings.ToLower(os.Getenv("RPNOW_SSL")); val == "true" || val == "false" {
 		s.ssl = (val == "true")
+		loadedAny = true
 	}
 
 	if val := os.Getenv("RPNOW_SSL_DOMAIN"); val != "" {
 		s.sslDomain = val
+		loadedAny = true
 	}
 
 	if val := strings.ToLower(os.Getenv("RPNOW_LETSENCRYPT_ACCEPT_TOS")); val == "true" || val == "false" {
 		s.letsencryptAcceptTOS = (val == "true")
+		loadedAny = true
+	}
+
+	if loadedAny {
+		log.Println("Loaded some environment values")
 	}
 }
 
