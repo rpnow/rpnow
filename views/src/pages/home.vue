@@ -5,12 +5,12 @@
       Loading...
     </div>
 
-    <div v-else>
+    <template v-else>
       <!-- Header: if logged in, "<username>'s RPs" otherwise "Welcome, stranger" -->
       <h1>{{ user.anon ? 'Welcome, stranger' : myUsername + "'s RPs" }}</h1>
 
       <!-- If logged in, show "logout" button under header -->
-      <button v-if="!user.anon" @click="void $emit('logout')">LOGOUT</button>
+      <button id="logout-button" v-if="!user.anon" @click="void $emit('logout')">Log out</button>
 
       <!-- If you can create an RP, ("anon create" is set, or logged in with privileges) show "create" button -->
       <div v-if="canCreate" id="top-options">
@@ -46,7 +46,7 @@
           </div>
         </router-link>
       </template>
-    </div>
+    </template>
 
   </div>
 </template>
@@ -60,11 +60,20 @@
     box-sizing: border-box;
   }
   h1 {
-    margin-top: 30px;
+    margin: 30px auto 0;
     text-align: center;
     font-weight: normal;
   }
+  #logout-button {
+    margin: 7px auto 0;
+    background: none;
+    border: solid 1px rgba(0,0,0,0.5);
+    padding: 5px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
   #top-options {
+    margin-top: 30px;
     display: flex;
     width: 300px;
   }
@@ -85,6 +94,7 @@
   .recent-rp {
     display: flex;
     flex-direction: column;
+    width: 290px;
   }
   .pretty-block {
     flex: 1;
