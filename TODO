@@ -1,4 +1,6 @@
 Make sure everything can link back to home
+Fix stupid logout button
+Make sure every page has a title
 Night mode for archive
 
 Update guides to download .tar.gz, extract, and run install.sh
