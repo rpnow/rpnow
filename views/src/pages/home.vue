@@ -10,7 +10,7 @@
       <h1>{{ user.anon ? 'Welcome, stranger' : myUsername + "'s RPs" }}</h1>
 
       <!-- If logged in, show "logout" button under header -->
-      <button id="logout-button" v-if="!user.anon" @click="void $emit('logout')">Log out</button>
+      <button id="logout-button" v-if="!user.anon" @click="confirmLogout">Log out</button>
 
       <!-- If you can create an RP, ("anon create" is set, or logged in with privileges) show "create" button -->
       <div v-if="canCreate" id="top-options">
@@ -204,6 +204,11 @@
             alert('Failed to create RP: (' + err + ')');
           });
       },
+      confirmLogout() {
+        if (confirm('Log out?')) {
+          this.$emit('logout')
+        }
+      }
     }
   };
 </script>
