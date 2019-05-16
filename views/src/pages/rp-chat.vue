@@ -271,7 +271,7 @@
         return this.connection !== 'connected'
       },
       disconnectedMessage() {
-        if (this.connection === 'offline') return 'Connection lost. Retrying in 5 seconds.';
+        if (this.connection === 'offline') return 'Connection lost. Retrying...';
         if (this.connection === 'reconnecting') return 'Attempting to reconnect...';
         if (this.connection === 'reloading') return 'Synchronizing...';
 
@@ -312,7 +312,7 @@
               setTimeout(() => {
                 createWs();
                 this.connection = 'reconnecting';
-              }, 5000);
+              }, 1000);
             } else if (reason === 'RP_NOT_FOUND') {
               this.connection = 'done';
               this.loadError = { code, reason };
