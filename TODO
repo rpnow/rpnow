@@ -1,13 +1,24 @@
+Fix bug where discord message previews have runes sliced in half. https://stackoverflow.com/questions/28718682/how-to-get-a-substring-from-a-string-of-runes-in-golang
+Add URL to webhook message?
+iOS app mode
+iOS app favicons
+Make sure everything can link back to home
+Don't use target=blank for most links anymore
+Night mode for archive
+
 Update guides to download .tar.gz, extract, and run install.sh
     export RPINSTALL=$(mktemp -d) && tar -zxvf <(wget -qO- https://github.com/rpnow/rpnow/releases/download/VERSION_NUM_HERE/rpnow-linux.tar.gz) -C $RPINSTALL && $RPINSTALL/install.sh && rm -r $RPINSTALL
 Update guide to recommend Google's standard network tier over premium
 Update guide to recommend less frequent backups, or less far back
+Update guide to talk about new administration features
 
 Verify that JSON imports don't time out, even on huge RP's
 
 ---
 
 Investigate captcha library for login/register/anonymousCreateRP
+2-factor with TOTP
+Automatic lockout after N failed logins
 
 User can change password
 User can force-logout everywhere
@@ -21,8 +32,6 @@ rpadmin > manage users > [list] > change password
 Kill WS connections when:
 * Deleting room
 * Deleting room's URL
-
-Night mode for archive
 
 Extract some css into a public .css file
 Expose rp.css & favicons
