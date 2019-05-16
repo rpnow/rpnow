@@ -250,7 +250,7 @@
     mounted() {
       this.fetchUpdates();
     },
-    unmounted() {
+    beforeDestroy() {
       if (this.websocket) {
         this.websocket.close(1000, 'SPA navigation');
       }
