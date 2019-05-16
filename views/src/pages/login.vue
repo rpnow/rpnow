@@ -4,7 +4,7 @@
       You are already logged in as {{ myUsername }}.
     </p>
     <p>
-      <a href="/">Back to dashboard</a>
+      <router-link to="/">Back to dashboard</router-link>
     </p>
     <button @click="void $emit('logout')">Log out</button>
   </div>
@@ -35,15 +35,15 @@
     </form>
 
     <p v-if="!isRegister">
-      New user? <a href="/register">Create an account</a>
+      New user? <router-link to="/register">Create an account</router-link>
     </p>
 
     <p v-if="isRegister">
-      Already registered? <a href="/login">Log in</a>
+      Already registered? <router-link to="/login">Log in</router-link>
     </p>
 
     <p>
-      Or, <a href="/">go back home</a>
+      Or, <router-link to="/">go back home</router-link>
     </p>
   </div>
 </template>
@@ -65,6 +65,9 @@
         password: '',
         passwordAgain: '',
       }
+    },
+    mounted() {
+      document.title = this.isRegister ? 'Create Account' : 'Log in'
     },
     methods: {
       checkPasswordMatch() {

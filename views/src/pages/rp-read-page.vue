@@ -13,9 +13,9 @@
     <template v-if="rp != null">
       <div id="main-column">
         <div id="chat-header">
-          <a class="icon-button" :href="'/read/'+readCode">
+          <router-link class="icon-button" :to="'/read/'+readCode">
             <i class="material-icons" title="Back to index">arrow_back</i>
-          </a>
+          </router-link>
           <span>
             {{ rp.title }}
           </span>
@@ -97,7 +97,7 @@
     },
     methods: {
       changePage(pageNumber) {
-        location.href = './'+pageNumber;
+        this.$router.push('./'+pageNumber);
       }
     },
     mounted() {

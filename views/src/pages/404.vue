@@ -2,7 +2,7 @@
   <div id="not-found">
     <h1>Page not found: <code>{{ route }}</code></h1>
 
-    <p>Sorry, there's no page at this address. Make sure you've spelled the URL correctly, or <a href="/">return to the dashboard.</a></p>
+    <p>Sorry, there's no page at this address. Make sure you've spelled the URL correctly, or <router-link to="/">return to the dashboard.</router-link></p>
   </div>
 </template>
 

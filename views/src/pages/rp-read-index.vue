@@ -29,9 +29,9 @@
 
           <div id="archive-index">
             <template v-for="n of rp.pageCount">
-              <a class="page-number-link" :href="'/read/'+readCode+'/page/'+n" :key="n">
+              <router-link class="page-number-link" :to="'/read/'+readCode+'/page/'+n" :key="n">
                 {{ n }}
-              </a>
+              </router-link>
             </template>
           </div>
         </div>
@@ -57,7 +57,7 @@
     },
     methods: {
       changePage(pageNumber) {
-        location.href = './'+pageNumber;
+        this.$router.push('./'+pageNumber);
       }
     },
     mounted() {

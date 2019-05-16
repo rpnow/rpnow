@@ -2,7 +2,7 @@
   <div v-if="loading">
     Loading...
   </div>
-  <router-view v-else :user="user" :myUsername="myUsername" @logout="logout" @change-user="setUser"></router-view>
+  <router-view v-else :key="$route.fullPath" :user="user" :myUsername="myUsername" @logout="logout" @change-user="setUser"></router-view>
 </template>
 
 <script>

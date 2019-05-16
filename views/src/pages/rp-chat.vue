@@ -92,10 +92,10 @@
             <i class="material-icons">memory</i>
             <span>Set up webhooks</span>
           </button>
-          <a class="drawer-item" :href="'/api/rp/'+rpCode+'/export'" target="_blank">
+          <router-link class="drawer-item" :to="'/api/rp/'+rpCode+'/export'" target="_blank">
             <i class="material-icons">archive</i>
             <span>Export data</span>
-          </a>
+          </router-link>
           <div class="drawer-divider"></div>
           <button class="drawer-item" @click="nightMode = !nightMode">
             <i class="material-icons">brightness_4</i>
@@ -118,10 +118,10 @@
             <i class="material-icons" v-html="showMessageDetails?'check_box':'check_box_outline_blank'"></i>
           </button>
           <div class="drawer-divider"></div>
-          <a class="drawer-item" href="/">
+          <router-link class="drawer-item" to="/">
             <i class="material-icons">meeting_room</i>
             <span>Return home</span>
-          </a>
+          </router-link>
         </div>
       </div>
 

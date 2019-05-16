@@ -17,9 +17,9 @@
         <button class="pane" id="new-rp" @click="createRp">
           Create New RP
         </button>
-        <a class="pane" id="import-rp" href="/import">
+        <router-link class="pane" id="import-rp" to="/import">
           Import RP
-        </a>
+        </router-link>
       </div>
 
       <!-- If no RPs, show "No recent RPs." -->
@@ -32,19 +32,19 @@
 
       <!-- If no RPs, not logged in, but can login (SSL), suggest logging in -->
       <p v-if="user.anon && canLogin">
-        <a href="/register">Create an account</a> or <a href="/login">log in</a> to keep track of all your RPs.
+        <router-link to="/register">Create an account</router-link> or <router-link to="/login">log in</router-link> to keep track of all your RPs.
       </p>
 
       <!-- If there are RPs, list them -->
       <template v-for="room of rooms">
-        <a :key="'room'+room.rpCode" class="pane recent-rp" :href="'/rp/'+room.rpCode">
+        <router-link :key="'room'+room.rpCode" class="pane recent-rp" :to="'/rp/'+room.rpCode">
           <div class="pretty-block" :style="blockStyles(room)">
             <span class="rp-date">{{ timeAgoText(room.updated) }}</span>
           </div>
           <div class="rp-title">
             {{ room.title }}
           </div>
-        </a>
+        </router-link>
       </template>
     </div>
 
@@ -188,7 +188,7 @@
         this.loading = true;
 
         axios.post('/api/rp', { title: this.title })
-          .then(res => window.location.href = '/rp/' + res.data.rpCode)
+          .then(res => this.$router.push('/rp/' + res.data.rpCode))
           .catch((err) => {
             this.loading = false;
             alert('Failed to create RP: (' + err + ')');

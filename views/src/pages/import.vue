@@ -6,6 +6,10 @@
       <label for="json-upload">Import from file:</label><br/>
       <input type="file" ref="fileInput" accept="application/json,.json"><br/><br/>
       <button @click="uploadJson">Upload</button>
+
+      <p>
+        Or, <router-link to="/">go back home</router-link>
+      </p>
     </template>
 
     <div id="loading" v-else-if="importing">
@@ -30,6 +34,9 @@
         importing: false,
       };
     },
+    mounted() {
+      document.title = 'Import RP';
+    },
     methods: {
       uploadJson() {
         var file = this.$refs.fileInput.files[0];
@@ -40,7 +47,7 @@
 
         axios.post('/api/rp/import', data)
           .then(res => {
-            window.location.href = '/rp/' + res.data.rpCode;
+            this.$router.push('/rp/' + res.data.rpCode);
           })
           .catch(err => {
             this.submitted = false;
