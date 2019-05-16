@@ -1,5 +1,3 @@
-Fix bug where discord message previews have runes sliced in half. https://stackoverflow.com/questions/28718682/how-to-get-a-substring-from-a-string-of-runes-in-golang
-Add URL to webhook message?
 Make sure everything can link back to home
 Night mode for archive
 

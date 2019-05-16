@@ -341,21 +341,28 @@ func (s *Server) handleRPSendMsg(w http.ResponseWriter, r *http.Request, auth au
 		slugInfo := s.db.getSlugInfo(mux.Vars(r)["slug"])
 		roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
 
-		body := map[string]string{
-			"username": "RP: " + roomInfo.Title,
-		}
+		bodyText := ""
 		if auth.userType == "user" {
-			body["content"] += "[" + auth.username + "] New " + msg.Type + " message: "
+			bodyText = "[" + auth.username + "] New " + msg.Type + " message! "
 		} else {
-			body["content"] = "New " + msg.Type + " message: "
+			bodyText = "New " + msg.Type + " message: "
 		}
-		if msg.Type == "image" {
-			body["content"] += msg.URL
-		} else if len(msg.Content) > 20 {
-			body["content"] += msg.Content[:20] + "..."
-		} else {
-			body["content"] += msg.Content
+		if msg.Type != "image" {
+			contentRunes := []rune(msg.Content)
+			if len(contentRunes) > 20 {
+				bodyText += string(contentRunes[:20]) + "..."
+			} else {
+				bodyText += msg.Content
+			}
 		}
+
+		embed := map[string]string {
+			"title": bodyText,
+		}
+		if s.conf.ssl {
+			embed["url"] = "https://"+s.conf.sslDomain+"/rp/"+slugInfo.Slug
+		}
+		body := map[string]interface{}{"embeds":[]map[string]string{embed}}
 
 		bodyBytes, _ := json.Marshal(body)
 		http.Post(roomInfo.Webhook, "application/json", bytes.NewReader(bodyBytes))
