@@ -1,7 +1,5 @@
 Fix bug where discord message previews have runes sliced in half. https://stackoverflow.com/questions/28718682/how-to-get-a-substring-from-a-string-of-runes-in-golang
 Add URL to webhook message?
-iOS app mode
-iOS app favicons
 Make sure everything can link back to home
 Don't use target=blank for most links anymore
 Night mode for archive
