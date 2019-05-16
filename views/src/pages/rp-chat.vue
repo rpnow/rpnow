@@ -118,7 +118,7 @@
             <i class="material-icons" v-html="showMessageDetails?'check_box':'check_box_outline_blank'"></i>
           </button>
           <div class="drawer-divider"></div>
-          <a class="drawer-item" href="/" target="_blank">
+          <a class="drawer-item" href="/">
             <i class="material-icons">meeting_room</i>
             <span>Return home</span>
           </a>
