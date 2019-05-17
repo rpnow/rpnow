@@ -25,7 +25,7 @@ views/dist: views/node_modules $(shell find views/src) $(shell find views/public
 	npm run build && \
 	popd >/dev/null
 
-views/node_modules: views/package.json views/package-lock.json
+views/node_modules: views/package.json
 	pushd views >/dev/null && \
 	npm install && \
 	popd >/dev/null
