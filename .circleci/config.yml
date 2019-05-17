@@ -9,19 +9,22 @@ jobs:
     steps:
       - checkout
 
-      # npm install
       - restore_cache:
-          key: dependency-cache-{{ checksum "views/package.json" }}
-      - run: make views/node_modules
-      - save_cache:
-          key: dependency-cache-{{ checksum "views/package.json" }}
-          paths:
-            - ./views/node_modules
+          key: node_modules-{{ checksum "views/package.json" }}
+      - restore_cache:
+          key: go-pkg-mod
 
-      # make the rest
       - run: make
 
-      # done. store build
+      - save_cache:
+          key: node_modules-{{ checksum "views/package.json" }}
+          paths:
+            - ./views/node_modules
+      - save_cache:
+          key: go-pkg-mod
+          paths:
+            - /go/pkg
+
       - store_artifacts:
           path: rpnow-linux.tar.gz
           destination: rpnow-linux.tar.gz
