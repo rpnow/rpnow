@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.12.5-node
+
+    working_directory: ~/rpnow
+
+    steps:
+      - checkout
+      - run: make
+      - store_artifacts:
+          path: rpnow-linux.tar.gz
