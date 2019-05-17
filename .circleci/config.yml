@@ -24,4 +24,4 @@ jobs:
       # done. store build
       - store_artifacts:
           path: rpnow-linux.tar.gz
-          destination: builds
+          destination: rpnow-linux.tar.gz
