@@ -192,6 +192,10 @@ func (s *Server) handleRPSetInfo(w http.ResponseWriter, r *http.Request, modify 
 		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
 		return
 	}
+	if slugInfo.Access != "normal" {
+		http.Error(w, "No chat access on "+params["slug"], 403)
+		return
+	}
 
 	// update room info
 	roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
