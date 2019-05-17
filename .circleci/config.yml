@@ -8,6 +8,28 @@ jobs:
 
     steps:
       - checkout
+
+      # npm install
+      - restore_cache:
+          key: dependency-cache-{{ checksum "views/package-lock.json" }}
+      - run: make views/node_modules
+      - save_cache:
+          key: dependency-cache-{{ checksum "views/package-lock.json" }}
+          paths:
+            - ./views/node_modules
+
+      # build web
+      - restore_cache:
+          key: dependency-cache-{{ checksum "server/assetes_bundle.go" }}
+      - run: make server/assets_bundle.go
+      - save_cache:
+          key: dependency-cache-{{ checksum "server/assets_bundle.go" }}
+          paths:
+            - ./server/assets_bundle.go
+
+      # make the rest
       - run: make
+
+      # done. store build
       - store_artifacts:
           path: rpnow-linux.tar.gz
