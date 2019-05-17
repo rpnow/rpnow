@@ -10,7 +10,7 @@ clean:
 rpnow-linux.tar.gz: rpnow install.sh
 	tar -cvzf rpnow-linux.tar.gz rpnow install.sh
 
-rpnow: server/assets_bundle.go
+rpnow: server/assets_bundle.go $(shell find server)
 	pushd server >/dev/null && \
 	go build -o ../rpnow && \
 	popd >/dev/null
