@@ -17,7 +17,7 @@ type RoomInfo struct {
 	ReadCode  string    `json:"readCode"`
 	CreatedAt time.Time `json:"createdAt"`
 	Userid    string    `json:"userid"`
-	Webhook   string    `json:"webhook"`
+	Webhooks  []string  `json:"webhooks"`
 }
 
 // SlugInfo describes what URL corresponds to what RP

@@ -368,7 +368,7 @@
         const webhook = prompt('Webhook URL, please:');
         if (webhook) {
           axios.put('/api/rp/' + this.rpCode + '/webhook', { webhook })
-          .then(() => alert('Webhook updated successfully'))
+          .then(() => alert('Webhook added successfully'))
           .catch(err => {
             alert('Error! ' + (err && err.response && JSON.stringify(err.response.data) || err))
             throw err;

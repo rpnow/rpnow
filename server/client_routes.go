@@ -54,7 +54,7 @@ func (s *Server) clientRouter() *mux.Router {
 	roomAPI.HandleFunc("/msgs/{docId:[0-9a-z]+}/history", s.handleRPGetMsgHistory).Methods("GET")
 	roomAPI.HandleFunc("/charas/{docId:[0-9a-z]+}/history", s.handleRPGetCharaHistory).Methods("GET")
 	roomAPI.HandleFunc("/title", s.handleRPSetTitle).Methods("PUT")
-	roomAPI.HandleFunc("/webhook", s.handleRPSetWebhook).Methods("PUT")
+	roomAPI.HandleFunc("/webhook", s.handleRPAddWebhook).Methods("PUT")
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
@@ -222,7 +222,7 @@ func (s *Server) handleRPSetTitle(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *Server) handleRPSetWebhook(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleRPAddWebhook(w http.ResponseWriter, r *http.Request) {
 	// parse request
 	var header struct {
 		Webhook string
@@ -230,6 +230,11 @@ func (s *Server) handleRPSetWebhook(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&header)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
+		return
+	}
+	urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
+	if !urlRegexp.MatchString(header.Webhook) {
+		http.Error(w, "Webhook does not appear to be a valid URL", 400)
 		return
 	}
 
@@ -246,7 +251,12 @@ func (s *Server) handleRPSetWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.handleRPSetInfo(w, r, func(roomInfo *RoomInfo) {
-		roomInfo.Webhook = header.Webhook
+		for _, webhook := range roomInfo.Webhooks {
+			if webhook == header.Webhook {
+				return
+			}
+		}
+		roomInfo.Webhooks = append(roomInfo.Webhooks, header.Webhook)
 	})
 }
 
@@ -356,16 +366,18 @@ func (s *Server) handleRPSendMsg(w http.ResponseWriter, r *http.Request, auth au
 			}
 		}
 
-		embed := map[string]string {
+		embed := map[string]string{
 			"title": bodyText,
 		}
 		if s.conf.ssl {
-			embed["url"] = "https://"+s.conf.sslDomain+"/rp/"+slugInfo.Slug
+			embed["url"] = "https://" + s.conf.sslDomain + "/rp/" + slugInfo.Slug
 		}
-		body := map[string]interface{}{"embeds":[]map[string]string{embed}}
+		body := map[string]interface{}{"embeds": []map[string]string{embed}}
 
 		bodyBytes, _ := json.Marshal(body)
-		http.Post(roomInfo.Webhook, "application/json", bytes.NewReader(bodyBytes))
+		for _, webhook := range roomInfo.Webhooks {
+			go http.Post(webhook, "application/json", bytes.NewReader(bodyBytes))
+		}
 	})
 }
 

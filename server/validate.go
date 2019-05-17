@@ -9,12 +9,6 @@ func (r RoomInfo) Validate() error {
 	if len(r.Title) > 30 {
 		return fmt.Errorf("RoomInfo: title is too long")
 	}
-	if r.Webhook != "" {
-		urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
-		if !urlRegexp.MatchString(r.Webhook) {
-			return fmt.Errorf("RoomInfo: webhook is invalid")
-		}
-	}
 	return nil
 }
 
