@@ -27,7 +27,7 @@
 
       <!-- If no RPs and cannot create one, inform about how to get into an RP -->
       <p v-if="rooms.length === 0 && !canCreate">
-        To join an RP, ask the host for a link. (Or, if you're the admin of this site, create an RP using rpadmin.) 
+        To join an RP, ask the host for a link. (Or, if you're the admin of this site, create an RP using the server admin tool.) 
       </p>
 
       <!-- If no RPs, not logged in, but can login (SSL), suggest logging in -->

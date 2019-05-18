@@ -3,7 +3,6 @@ node_modules
 npm-debug.log*
 dist
 server/assets_bundle.go
-rpadmin
 rpnow
 rpnow-linux.tar.gz
 

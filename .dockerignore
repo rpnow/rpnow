@@ -5,7 +5,6 @@ Dockerfile
 **/npm-debug.log
 dist
 server/assets_bundle.go
-rpadmin
 rpnow
 
 data/*
