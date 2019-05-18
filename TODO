@@ -1,59 +1,35 @@
+Automatic cooldown & lockout after N failed logins
+Let the admin unlock a locked-out user account
+
+Verify that JSON imports don't time out, even on huge RP's
+
+Resolve TODOs in code
+
 Update guides to download .tar.gz, extract, and run install.sh
     export RPINSTALL=$(mktemp -d) && tar -zxvf <(wget -qO- https://github.com/rpnow/rpnow/releases/download/VERSION_NUM_HERE/rpnow-linux.tar.gz) -C $RPINSTALL && $RPINSTALL/install.sh && rm -r $RPINSTALL
 Update guide to recommend Google's standard network tier over premium
 Update guide to recommend less frequent backups, or less far back
 Update guide to talk about new administration features
 
-Verify that JSON imports don't time out, even on huge RP's
-
 ---
 
-Investigate captcha library for login/register/anonymousCreateRP
-2-factor with TOTP
-Automatic lockout after N failed logins
-
-User can change password
-User can force-logout everywhere
-
-User can remove RP from their dashboard
-
-rpadmin > manage users > [list] > change password
-* api
-* cli
-
-Kill WS connections when:
-* Deleting room
-* Deleting room's URL
-
-Extract some css into a public .css file
-Expose rp.css & favicons
-
-Resolve TODOs in code
-
----
+Character faces
+Audio/embed messages
+Frontend cache invalidation
+Drawer animations
+See if anything can be done about notification noises
+API unit tests
+Let users add 2-factor auth, using TOTP
+Let users change their passwords
+Let users force log-out from everywhere (add a minimum "issued" date for JWT's that gets updated)
+Let users remove an RP from their dashboard
+Let the admin change a user's password
+Improve error message alert box text for all REST endpoints
+Kill websocket connections when deleting the URL for a room (or by extension, the room itself)
+Customize CSS
+Customize Favicons
 
 Consistent terminology: rpCode, URL, Slug
 Consistent terminology: msg, message
 Consistent terminology: chara, character
 Consistent terminology: RP, Room
-
-Error message: New rp
-Error message: 404
-Error message: 403
-Error message: 410 gone
-Error message: Update fetch 404
-Error message: Update fetch 403
-Error message: Update fetch 410 gone
-Error message: Chara dialog
-Error message: Image dialog
-Error message: Message box
-
-Cache invalidation
-Dynamic archives
-Drawer animation
-Options: note noise (+persistence)
-Put the 'desc' on the page somewhere?
-API unit tests
-Chara drawer organization
-Recent charas (+persistence)
-Logging
