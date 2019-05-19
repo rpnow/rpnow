@@ -24,3 +24,9 @@ For more information on how the project works, see the [project wiki](https://gi
 # License
 
 [See LICENSE](LICENSE)
+
+
+# Acknowledgments
+
+![Browserstack](https://i.imgur.com/qPZZGBC.png)  
+Cross-browser testing provided by [Browserstack](https://www.browserstack.com/).
