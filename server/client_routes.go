@@ -355,30 +355,52 @@ func (s *Server) handleRPSendMsg(w http.ResponseWriter, r *http.Request, auth au
 		slugInfo := s.db.getSlugInfo(mux.Vars(r)["slug"])
 		roomInfo := s.db.getRoomInfo(slugInfo.Rpid)
 
-		bodyText := ""
-		if auth.userType == "user" {
-			bodyText = "[" + auth.username + "] New " + msg.Type + " message! "
-		} else {
-			bodyText = "New " + msg.Type + " message: "
+		type Embed struct {
+			Title  string `json:"title"`
+			Footer struct {
+				Text string `json:"text"`
+			} `json:"footer"`
+			Color uint64 `json:"color,omitempty"`
+			URL   string `json:"url,omitempty"`
 		}
-		if msg.Type != "image" {
+		var embed Embed
+
+		embed.Footer.Text = roomInfo.Title
+
+		if auth.userType == "user" {
+			embed.Footer.Text += " (Posted by " + auth.username + ")"
+		}
+
+		if msg.Type == "image" {
+			embed.Title = "New image post"
+		} else {
+			bodyText := ""
+			if msg.Type == "chara" {
+				chara := s.db.getChara(slugInfo.Rpid, msg.CharaID)
+				bodyText += chara.Name + ": "
+				color, _ := strconv.ParseUint(chara.Color[1:], 16, 24)
+				embed.Color = color
+			} else if msg.Type == "narrator" {
+				bodyText += "Narrator: "
+			} else if msg.Type == "ooc" {
+				bodyText += "OOC: "
+			}
 			contentRunes := []rune(msg.Content)
 			if len(contentRunes) > 20 {
 				bodyText += string(contentRunes[:20]) + "..."
 			} else {
 				bodyText += msg.Content
 			}
+			embed.Title = bodyText
 		}
 
-		embed := map[string]string{
-			"title": bodyText,
-		}
 		if s.conf.ssl {
-			embed["url"] = "https://" + s.conf.sslDomain + "/rp/" + slugInfo.Slug
+			embed.URL = "https://" + s.conf.sslDomain + "/rp/" + slugInfo.Slug
 		}
-		body := map[string]interface{}{"embeds": []map[string]string{embed}}
 
+		body := map[string][]Embed{"embeds": []Embed{embed}}
 		bodyBytes, _ := json.Marshal(body)
+
 		for _, webhook := range roomInfo.Webhooks {
 			go http.Post(webhook, "application/json", bytes.NewReader(bodyBytes))
 		}
