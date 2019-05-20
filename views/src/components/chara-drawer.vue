@@ -1,4 +1,5 @@
 <template>
+  <transition>
   <div id="character-menu" class="drawer drawer-right drawer-dock-1024" v-show="showCharacterMenu">
     <div class="overlay overlay-drawer" @click="showCharacterMenu=false"></div>
 
@@ -39,6 +40,7 @@
       @created="selectCharacter('chara', $event._id)"
     ></chara-dialog>
   </div>
+  </transition>
 </template>
 
 <script>

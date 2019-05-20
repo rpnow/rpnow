@@ -10,6 +10,7 @@ html, body {
   font-family: 'Alice';
   background-color: #fafafa;
   color: black;
+  overflow-x: hidden;
 }
 #app.dark-theme {
   background-color: #303030;
@@ -418,6 +419,20 @@ html, body {
     order: -1;
   }
 }
+.v-enter-active.drawer, .v-leave-active.drawer {
+  transition: transform 0.2s cubic-bezier(.25,.8,.25,1);
+}
+@media (max-width: 400px) {
+  .v-enter-active.drawer, .v-leave-active.drawer {
+    transition: transform 0.4s cubic-bezier(.25,.8,.25,1);
+  }
+}
+.v-enter.drawer.drawer-right, .v-leave-to.drawer.drawer-right {
+  transform: translate(320px, 0px)
+}
+.v-enter.drawer.drawer-left, .v-leave-to.drawer.drawer-left {
+  transform: translate(-320px, 0px)
+}
 .drawer .drawer-header {
   padding: 0 16px;
   height: 64px;
@@ -516,6 +531,13 @@ html, body {
   align-items: center;
   color: white;
 }
+.v-enter-active .overlay, .v-leave-active .overlay {
+  transition: opacity 0.2s cubic-bezier(.25,.8,.25,1);
+}
+.v-enter .overlay, .v-leave-to .overlay {
+  opacity: 0;
+}
+
 .dark-theme .overlay {
   background-color: rgba(189,189,189,.6);
   color: black;
@@ -526,10 +548,12 @@ html, body {
   }
 }
 .drawer-right .overlay.overlay-drawer {
+  left: -99999px;
   right: 320px;
 }
 .drawer-left .overlay.overlay-drawer {
   left: 320px;
+  right: -99999px;
 }
 @media (max-width: 400px) {
   .drawer-right .overlay.overlay-drawer {

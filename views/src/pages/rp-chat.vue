@@ -65,6 +65,7 @@
         ></send-box>
       </div>
 
+      <transition>
       <div id="main-menu" class="drawer drawer-left" v-show="showMainMenu">
         <div class="overlay overlay-drawer" @click="showMainMenu=false"></div>
 
@@ -124,6 +125,7 @@
           </router-link>
         </div>
       </div>
+      </transition>
 
       <chara-drawer ref="charaDrawer"
         :current-voice="currentVoice"

@@ -16,7 +16,7 @@ Update guide to talk about new administration features
 Character faces
 Audio/embed messages
 Frontend cache invalidation
-Drawer animations
+Dialog animations
 See if anything can be done about notification noises
 API unit tests
 Let users add 2-factor auth, using TOTP
