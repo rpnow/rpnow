@@ -24,6 +24,9 @@
           <span>
             {{ rp.title }}
           </span>
+          <button class="icon-button" v-if="nowPlayingAudio" @click="nowPlayingAudio=null">
+            <i class="material-icons" title="Stop audio">headset</i>
+          </button>
         </div>
 
         <div id="messages" @scroll="onScroll">
@@ -52,6 +55,7 @@
               :getHistory="getMessageHistory(msg._id)"
               :can-edit="true"
               @resize="rescrollToBottom"
+              @play-audio="nowPlayingAudio = msg"
             ></rp-message>
           </template>
         </div>
@@ -150,6 +154,13 @@
         </div>
       </div>
 
+      <iframe
+        v-if="nowPlayingAudio"
+        v-show="false"
+        sandbox="allow-scripts allow-same-origin"
+        allow="autoplay; encrypted-media"
+        :src="nowPlayingAudio.url">
+      </iframe>
     </template>
   </div>
 </template>
@@ -183,6 +194,7 @@
         isScrolledToBottom: true,
         unreadMessagesIndicator: false,
         currentVoice: { type: 'narrator', charaId: null },
+        nowPlayingAudio: null,
         // connection status
         websocket: null,
         connection: 'connecting',

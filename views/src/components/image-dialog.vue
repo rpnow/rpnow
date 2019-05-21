@@ -3,7 +3,7 @@
 
     <div id="image-dialog" class="dialog" @click.stop v-show="showImageDialog">
       <div>
-        <input placeholder="Enter a URL" type="text" v-model="imageDialogUrl" @keydown.enter="sendImage">
+        <input placeholder="Enter a URL" type="text" v-model="imageDialogUrl">
       </div>
 
       <div class="preview-container preview-container-busted" v-if="imageDialogIsChecking">

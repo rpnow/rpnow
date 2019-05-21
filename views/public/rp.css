@@ -661,6 +661,21 @@ i.chara-icon-shadow {
   flex: 1 1;
 }
 
+/***** Audio dialog *****/
+#audio-dialog {
+  max-width: 300px;
+}
+#audio-dialog > div {
+  display: flex;
+  justify-content: flex-start;
+}
+#audio-dialog > div:not(:first-child) {
+  margin-top: 5px;
+}
+#audio-dialog input[type="text"] {
+  flex: 1 1;
+}
+
 /***** "Preview Container" is used in the image/audio dialogs to preview embedded content *****/
 .preview-container {
   background-image:

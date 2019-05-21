@@ -55,7 +55,17 @@
       </div>
     </template>
 
+    <template v-if="isAudio">
+      <div class="player">
+        <button @click="playAudio">
+          Play content from {{urlOrigin}}
+        </button>
+      </div>
+    </template>
+
     <image-dialog ref="imageDialog" :send="send"></image-dialog>
+
+    <audio-dialog ref="audioDialog" :send="send"></audio-dialog>
 
     <div class="dialog-container overlay" @click="historyOpen=false" v-if="historyOpen">
       <div id="history-dialog" class="dialog" @click.stop v-if="history">
@@ -80,6 +90,7 @@
 <script>
   import tinycolor from 'tinycolor2';
   import ImageDialog from './image-dialog.vue';
+  import AudioDialog from './audio-dialog.vue';
   import transformRpMessage from './rp-message-format';
 
   function colorFromId(id) {
@@ -103,7 +114,8 @@
 
   export default {
     components: {
-      ImageDialog
+      ImageDialog,
+      AudioDialog,
     },
     props: [
       '_id',
@@ -139,6 +151,7 @@
       isOOC() { return this.type === 'ooc' },
       isChara() { return this.type === 'chara' },
       isImage() { return this.type === 'image' },
+      isAudio() { return this.type === 'audio' },
       charaColor() { return this.isChara ? this.chara.color : null },
       charaName() { return this.isChara ? this.chara.name : null },
       elementClasses() {
@@ -193,11 +206,17 @@
           'Edited ' + new Date(this.timestamp).toLocaleString() :
           'Posted ' + new Date(this.timestamp).toLocaleString();
       },
+      urlOrigin() {
+        if (!this.url) return this.url;
+        return this.url.split('/')[2];
+      },
     },
     methods: {
       beginEdit() {
         if (this.isImage) {
           this.$refs.imageDialog.open({ _id: this._id, url: this.url });
+        } else if (this.isAudio) {
+          this.$refs.audioDialog.open({ _id: this._id, url: this.url });
         } else {
           this.editing = true;
           this.newContent = this.content;
@@ -223,6 +242,9 @@
         this.getHistory().then(data => this.history = data);
       },
       transformRpMessage: transformRpMessage,
+      playAudio() {
+        this.$emit('play-audio');
+      },
     },
     mounted() {
       this.intervalHandle = setInterval(() => this.currentTime = Date.now(), 15*1000);

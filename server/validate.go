@@ -13,12 +13,12 @@ func (r RoomInfo) Validate() error {
 }
 
 func (m RpMessageBody) Validate() error {
-	if m.Type == "image" {
+	if m.Type == "image" || m.Type == "audio" {
 		if m.Content != "" {
-			return fmt.Errorf("Msg: image should not have 'content'")
+			return fmt.Errorf("Msg: image/audio should not have 'content'")
 		}
 		if m.CharaID != "" {
-			return fmt.Errorf("Msg: image should not have 'charaId'")
+			return fmt.Errorf("Msg: image/audio should not have 'charaId'")
 		}
 		if len(m.URL) > 1000 {
 			return fmt.Errorf("Msg: url is too long (%d characters)", len(m.Content))

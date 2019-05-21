@@ -11,6 +11,9 @@
       <button class="icon-button" @click="$refs.imageDialog.open(null)">
         <i class="material-icons" title="Post image">image</i>
       </button>
+      <button class="icon-button" @click="$refs.audioDialog.open(null)">
+        <i class="material-icons" title="Embed audio">headset</i>
+      </button>
       <button class="icon-button" @click="showFormatGuide">
         <i class="material-icons" title="Formatting info">text_fields</i>
       </button>
@@ -41,16 +44,20 @@
 
     <image-dialog ref="imageDialog" :send="send"></image-dialog>
 
+    <audio-dialog ref="audioDialog" :send="send"></audio-dialog>
+
   </div>
 </template>
 
 <script>
   import tinycolor from 'tinycolor2';
   import ImageDialog from './image-dialog.vue';
+  import AudioDialog from './audio-dialog.vue';
 
   export default  {
     components: {
-      ImageDialog
+      ImageDialog,
+      AudioDialog,
     },
     props: [
       'charasById',
