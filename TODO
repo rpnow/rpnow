@@ -1,7 +1,5 @@
 Verify that JSON imports don't time out, even on huge RP's
 
-Resolve TODOs in code
-
 Update guides to download .tar.gz, extract, and run install.sh
     export RPINSTALL=$(mktemp -d) && tar -zxvf <(wget -qO- https://github.com/rpnow/rpnow/releases/download/VERSION_NUM_HERE/rpnow-linux.tar.gz) -C $RPINSTALL && $RPINSTALL/install.sh && rm -r $RPINSTALL
 Update guide to recommend Google's standard network tier over premium

@@ -77,9 +77,6 @@ EOF'
 	$sudo_cmd chown rpnow:rpnow /var/local/rpnow
 	$sudo_cmd chmod 775 /var/local/rpnow
 
-	# TODO check installation
-	# rpadmin --version
-
 	echo "Successfully installed"
 	trap ERR
 	return 0
