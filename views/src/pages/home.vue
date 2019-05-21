@@ -178,8 +178,7 @@
         }
       },
       createRp() {
-        // this.title = prompt("What is this RP called?");
-        this.title = coolstory.title(20);
+        this.title = prompt("What is this RP called?");
 
         if (this.title == null) return;
 
