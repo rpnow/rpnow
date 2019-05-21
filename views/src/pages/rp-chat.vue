@@ -220,6 +220,7 @@
       this.fetchUpdates();
     },
     beforeDestroy() {
+      this.connection = 'done';
       if (this.websocket) {
         this.websocket.close(1000, 'SPA navigation');
       }
@@ -274,7 +275,9 @@
             this.updateState(JSON.parse(evt.data));
           });
           ws.addEventListener('close', ({ code, wasClean, reason }) => {
-            if (code === 1000) {
+            if (this.connection === 'done') {
+              return;
+            } else if (code === 1000) {
               this.connection = 'done';
             } else if (code === 1006) {
               this.connection = 'offline';
