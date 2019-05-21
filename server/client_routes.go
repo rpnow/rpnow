@@ -795,7 +795,6 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate
-	// TODO decide on username regex
 	if !regexp.MustCompile(`^\w{1,30}$`).MatchString(header.Username) {
 		http.Error(w, "Invalid username", 400)
 		return
@@ -849,7 +848,6 @@ func (s *Server) handleLoginCommon(w http.ResponseWriter, username string, passw
 
 	// fail if user doesn't exist
 	if user == nil {
-		DummyCheckPassword(password) // timing attacks may reveal that this user doesn't exist
 		http.Error(w, "Invalid credentials", 400)
 		return
 	}

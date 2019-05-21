@@ -29,14 +29,6 @@ install_rpnow()
 		exit 1
 	fi
 
-	# TODO Back up existing rpnow, if any found in path
-	# if rpnow_path="$(type -p "rpnow")"; then
-	# 	rpnow_backup="${rpnow_path}_old"
-	# 	echo "Backing up $rpnow_path to $rpnow_backup"
-	# 	echo "(Password may be required.)"
-	# 	sudo mv "$rpnow_path" "$rpnow_backup"
-	# fi
-
 	echo "Installing rpnow to /usr/local/bin (may require password)"
 	$sudo_cmd mv "$install_dir/rpnow" "/usr/local/bin/"
 	$sudo_cmd chmod +x "/usr/local/bin/rpnow"

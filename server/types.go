@@ -52,10 +52,6 @@ func (u *User) IsLocked() bool {
 	return u.FailedLogins >= 10
 }
 
-func DummyCheckPassword(maybePass string) {
-	// TODO dummy hash comparison to mitigate timing attacks
-}
-
 type SecurityPolicy struct {
 	RestrictCreate bool `json:"restrictCreate"`
 	UserQuota      int  `json:"userQuota"`
