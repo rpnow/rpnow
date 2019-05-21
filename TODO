@@ -1,6 +1,3 @@
-Automatic cooldown & lockout after N failed logins
-Let the admin unlock a locked-out user account
-
 Verify that JSON imports don't time out, even on huge RP's
 
 Resolve TODOs in code

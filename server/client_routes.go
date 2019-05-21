@@ -854,13 +854,34 @@ func (s *Server) handleLoginCommon(w http.ResponseWriter, username string, passw
 		return
 	}
 
+	// fail if too many failed attempts
+	if user.IsLocked() {
+		http.Error(w, "Account locked after too many failed attempts. Please contact the admin to unlock it.", 400)
+		return
+	}
+
 	// fail if bad password
 	if err := user.CheckPassword(password); err != nil {
 		if err == bcrypt.ErrMismatchedHashAndPassword {
-			http.Error(w, "Invalid credentials", 400)
+			// record failed login
+			user.FailedLogins++
+			s.db.putUser(user)
+			fmt.Println(user.FailedLogins)
+
+			if user.IsLocked() {
+				http.Error(w, "Too many failed attempts - account is now locked.", 400)
+			} else {
+				http.Error(w, "Invalid credentials", 400)
+			}
 			return
 		}
 		log.Fatalln(err)
+	}
+
+	// it's ok! reset failed attempts if there are any
+	if user.FailedLogins > 0 {
+		user.FailedLogins = 0
+		s.db.putUser(user)
 	}
 
 	// create response with userid and token

@@ -382,9 +382,17 @@ func editUsers() {
 }
 
 func editUser(user *User) {
+	options := []string{"go back"}
+
+	if user.IsLocked() {
+		options = append(options, "unlock account")
+	}
+
+	options = append(options, "change permissions", "delete user")
+
 	prompt := promptui.Select{
 		Label: fmt.Sprintf("Modify user: %s", user.Username),
-		Items: []string{"go back", "change permissions", "delete user"},
+		Items: options,
 	}
 	_, action, err := prompt.Run()
 	if err != nil {
@@ -394,6 +402,8 @@ func editUser(user *User) {
 		return
 	} else if action == "change permissions" {
 		editUserPermissions(user)
+	} else if action == "unlock account" {
+		unlockUser(user)
 	} else if action == "delete user" {
 		confirmDeleteUser(user)
 	}
@@ -439,6 +449,14 @@ func editUserPermissions(user *User) {
 	}
 
 	fmt.Println("User settings changed")
+}
+
+func unlockUser(user *User) {
+	if err := apiUnlockUser(user.Username); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("User account unlocked")
 }
 
 func securityMenu() {
@@ -554,6 +572,9 @@ func (r *RoomInfo) String() string {
 func (u *User) String() string {
 	if u == nil {
 		return "(main menu)"
+	}
+	if u.IsLocked() {
+		return "**LOCKED** User: " + u.Username
 	}
 	if u.CanCreate {
 		return "User [RP Creator]: " + u.Username
@@ -735,6 +756,20 @@ func apiPostUserCreatorSetting(username string, canCreate bool) error {
 	}
 	req, err := http.NewRequest("POST", "http://127.0.0.1:12789/users/"+username+"/creator", bytes.NewBuffer(reqBodyJSON))
 	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return err
+	}
+	var client http.Client
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
+}
+
+func apiUnlockUser(username string) error {
+	req, err := http.NewRequest("POST", "http://127.0.0.1:12789/users/"+username+"/unlock", nil)
 	if err != nil {
 		return err
 	}

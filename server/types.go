@@ -28,10 +28,11 @@ type SlugInfo struct {
 }
 
 type User struct {
-	Username  string   `json:"username"`
-	PassHash  []byte   `json:"passHash"`
-	RoomSlugs []string `json:"roomSlugs"`
-	CanCreate bool     `json:"canCreate"`
+	Username     string   `json:"username"`
+	PassHash     []byte   `json:"passHash"`
+	RoomSlugs    []string `json:"roomSlugs"`
+	CanCreate    bool     `json:"canCreate"`
+	FailedLogins uint     `json:"failedLogins"`
 }
 
 func (u *User) SetPassword(pass string) {
@@ -45,6 +46,10 @@ func (u *User) SetPassword(pass string) {
 
 func (u *User) CheckPassword(maybePass string) error {
 	return bcrypt.CompareHashAndPassword(u.PassHash, []byte(maybePass))
+}
+
+func (u *User) IsLocked() bool {
+	return u.FailedLogins >= 10
 }
 
 func DummyCheckPassword(maybePass string) {

@@ -23,6 +23,7 @@ func (s *Server) adminRouter() *mux.Router {
 	router.HandleFunc("/users", s.handleAdminListUsers).Methods("GET")
 	router.HandleFunc("/users/{username}", s.handleAdminDeleteUser).Methods("DELETE")
 	router.HandleFunc("/users/{username}/creator", s.handleAdminUpdateUserCanCreate).Methods("POST")
+	router.HandleFunc("/users/{username}/unlock", s.handleAdminUnlockUser).Methods("POST")
 	router.HandleFunc("/security", s.handleAdminGetSecurityPolicy).Methods("GET")
 	router.HandleFunc("/security", s.handleAdminPutSecurityPolicy).Methods("PUT")
 	router.PathPrefix("/").HandlerFunc(apiMalformed)
@@ -140,6 +141,21 @@ func (s *Server) handleAdminUpdateUserCanCreate(w http.ResponseWriter, r *http.R
 	}
 
 	user.CanCreate = canCreate
+
+	s.db.putUser(user)
+
+	w.WriteHeader(204)
+}
+
+func (s *Server) handleAdminUnlockUser(w http.ResponseWriter, r *http.Request) {
+	username := mux.Vars(r)["username"]
+	user := s.db.getUser(username)
+	if user == nil {
+		http.Error(w, "User not found: "+username, 400)
+		return
+	}
+
+	user.FailedLogins = 0
 
 	s.db.putUser(user)
 
