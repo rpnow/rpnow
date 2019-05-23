@@ -1,13 +1,4 @@
 Verify that JSON imports don't time out, even on huge RP's
-
-Update guides to download .tar.gz, extract, and run install.sh
-    export RPINSTALL=$(mktemp -d) && tar -zxvf <(wget -qO- https://github.com/rpnow/rpnow/releases/download/VERSION_NUM_HERE/rpnow-linux.tar.gz) -C $RPINSTALL && $RPINSTALL/install.sh && rm -r $RPINSTALL
-Update guide to recommend Google's standard network tier over premium
-Update guide to recommend less frequent backups, or less far back
-Update guide to talk about new administration features
-
----
-
 Character faces
 Audio/embed messages
 Frontend cache invalidation
