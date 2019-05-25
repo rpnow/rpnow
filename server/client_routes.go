@@ -578,8 +578,8 @@ func (s *Server) handleRPExportTxt(w http.ResponseWriter, r *http.Request) {
 	// map of charas by id
 	charas := s.db.getCharas(slugInfo.Rpid)
 	charasMap := map[string]*RpChara{}
-	for _, chara := range charas {
-		charasMap[chara.ID] = &chara
+	for i, chara := range charas {
+		charasMap[chara.ID] = &charas[i]
 	}
 
 	// include ooc messages?
