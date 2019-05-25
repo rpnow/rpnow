@@ -1,6 +1,7 @@
 Verify that JSON imports don't time out, even on huge RP's
 Character faces
 Audio/embed messages
+Dice roller
 Frontend cache invalidation
 Dialog animations
 See if anything can be done about notification noises
