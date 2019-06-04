@@ -6,7 +6,7 @@ import { Component, ChangeDetectionStrategy, Input, EventEmitter, Output } from 
     <div *ngIf="showShutdown" id="shutdown">
 
       <span class="generated-links-contrast">
-        <strong>Rpnow.net will permanently shut down on June 30.</strong> <br/><a class="link" target="_blank" href="https://blog.rpnow.net/post/179967000616/whats-happening-to-rpnownet">More info here.</a>
+        <strong>Rpnow.net will permanently shut down on July 31.</strong> <br/><a class="link" target="_blank" href="https://blog.rpnow.net/post/185370236376/rpnownet-will-permanently-shut-down-on-july-31">More info here.</a>
       </span>
 
       <button mat-icon-button (click)="showShutdown = false">
