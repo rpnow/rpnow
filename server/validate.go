@@ -6,8 +6,8 @@ import (
 )
 
 func (r RoomInfo) Validate() error {
-	if len(r.Title) > 30 {
-		return fmt.Errorf("RoomInfo: title is too long")
+	if len([]rune(r.Title)) > 30 {
+		return fmt.Errorf("RoomInfo: title is too long (%d runes)", len([]rune(r.Title)))
 	}
 	return nil
 }
@@ -21,7 +21,7 @@ func (m RpMessageBody) Validate() error {
 			return fmt.Errorf("Msg: image should not have 'charaId'")
 		}
 		if len(m.URL) > 1000 {
-			return fmt.Errorf("Msg: url is too long (%d characters)", len(m.Content))
+			return fmt.Errorf("Msg: url is too long (%d bytes)", len(m.URL))
 		}
 		urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
 		if !urlRegexp.MatchString(m.URL) {
@@ -35,8 +35,8 @@ func (m RpMessageBody) Validate() error {
 		if m.Content == "" {
 			return fmt.Errorf("Msg: content is empty")
 		}
-		if len(m.Content) > 50000 {
-			return fmt.Errorf("Msg: content is too long (%d characters)", len(m.Content))
+		if len([]rune(m.Content)) > 65535 {
+			return fmt.Errorf("Msg: content is too long (%d runes)", len([]rune(m.Content)))
 		}
 		if m.Type == "chara" {
 			if m.CharaID == "" {
@@ -66,8 +66,8 @@ func (c RpCharaBody) Validate() error {
 	if len(c.Name) == 0 {
 		return fmt.Errorf("Chara: name is empty")
 	}
-	if len(c.Name) > 30 {
-		return fmt.Errorf("Chara: name is too long")
+	if len([]rune(c.Name)) > 30 {
+		return fmt.Errorf("Chara: name is too long (%d runes)", len([]rune(c.Name)))
 	}
 	colorRegexp := regexp.MustCompile("^#[0-9a-f]{6}$")
 	if !colorRegexp.MatchString(c.Color) {
