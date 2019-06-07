@@ -236,7 +236,7 @@ func (s *Server) handleRPAddWebhook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
+	urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;*]+$")
 	if !urlRegexp.MatchString(header.Webhook) {
 		http.Error(w, "Webhook does not appear to be a valid URL", 400)
 		return

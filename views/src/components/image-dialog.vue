@@ -52,7 +52,7 @@
     },
     computed: {
       imageDialogIsWellFormed() {
-        const urlRegex = /^https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]+$/gi;
+        const urlRegex = /^https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;*]+$/gi;
         return !!this.imageDialogUrl.match(urlRegex);
       },
     },

@@ -23,9 +23,9 @@ func (m RpMessageBody) Validate() error {
 		if len(m.URL) > 1000 {
 			return fmt.Errorf("Msg: url is too long (%d bytes)", len(m.URL))
 		}
-		urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+$")
+		urlRegexp := regexp.MustCompile("^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;*]+$")
 		if !urlRegexp.MatchString(m.URL) {
-			return fmt.Errorf("Msg: url is invalid")
+			return fmt.Errorf("Msg: url is invalid: %s", m.URL)
 		}
 		return nil
 	} else if m.Type == "narrator" || m.Type == "chara" || m.Type == "ooc" {
