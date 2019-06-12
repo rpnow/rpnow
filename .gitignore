@@ -8,6 +8,8 @@ rpnow-linux.tar.gz
 
 data/*
 
+!.gitkeep
+
 # Editor directories and files
 .idea
 .vscode
