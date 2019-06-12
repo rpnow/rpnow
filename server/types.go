@@ -12,12 +12,13 @@ import (
 )
 
 type RoomInfo struct {
-	RPID      string    `json:"rpid"`
-	Title     string    `json:"title"`
-	ReadCode  string    `json:"readCode"`
-	CreatedAt time.Time `json:"createdAt"`
-	Userid    string    `json:"userid"`
-	Webhooks  []string  `json:"webhooks"`
+	RPID       string    `json:"rpid"`
+	Title      string    `json:"title"`
+	ReadCode   string    `json:"readCode"`
+	CreatedAt  time.Time `json:"createdAt"`
+	Userid     string    `json:"userid"`
+	Webhooks   []string  `json:"webhooks"`
+	ImportInfo string    `json:"importInfo,omitempty"`
 }
 
 // SlugInfo describes what URL corresponds to what RP

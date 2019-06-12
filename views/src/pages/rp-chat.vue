@@ -1,16 +1,20 @@
 <template>
   <div id="app" :class="{'dark-theme':nightMode}">
-    <div id="loading" v-if="rp == null && loadError == null">
+    <div id="loading" v-if="connection === 'done'">
+      <i class="material-icons">error</i>
+      <span>Failed to load RP! {{ socketCloseMessage.reason || socketCloseMessage }}</span>
+    </div>
+
+    <div id="loading" v-else-if="connection === 'importing'">
+      <span>{{ socketCloseMessage.reason }}</span>
+    </div>
+
+    <div id="loading" v-else-if="rp == null">
       <i class="material-icons">hourglass_full</i>
       <span>Loading...</span>
     </div>
 
-    <div id="loading" v-if="loadError != null">
-      <i class="material-icons">error</i>
-      <span>Failed to load RP! {{ loadError }}</span>
-    </div>
-
-    <template v-if="rp != null">
+    <template v-else>
       <div id="main-column">
         <div id="connection-indicator" v-if="isDisconnected" :style="{backgroundColor:disconnectedColor}">
           <i class="material-icons">{{disconnectedIcon}}</i>
@@ -177,7 +181,7 @@
         // rp data
         rpCode: null,
         rp: null,
-        loadError: null,
+        socketCloseMessage: null,
         // rp ui
         isNewRp: false,
         isScrolledToBottom: true,
@@ -285,12 +289,16 @@
                 createWs();
                 this.connection = 'reconnecting';
               }, 1000);
-            } else if (reason === 'RP_NOT_FOUND') {
+            } else if (code === 4202) {
+              this.connection = 'importing';
+              this.socketCloseMessage = { code, reason };
+              setTimeout(() => createWs(), 1000);
+            } else if (code >= 4000) {
               this.connection = 'done';
-              this.loadError = { code, reason };
+              this.socketCloseMessage = { code, reason };
             } else {
               this.connection = 'done';
-              this.loadError = { code, wasClean, reason };
+              this.socketCloseMessage = { code, wasClean, reason };
             }
           });
           this.websocket = ws;

@@ -566,7 +566,7 @@ func (r *RoomInfo) String() string {
 	if r == nil {
 		return "(main menu)"
 	}
-	return fmt.Sprintf("%-30s (%s)", r.Title, r.CreatedAt.Format("02 Jan 2006"))
+	return fmt.Sprintf("%-30s (%s) %s", r.Title, r.CreatedAt.Format("02 Jan 2006"), r.ImportInfo)
 }
 
 func (u *User) String() string {

@@ -265,6 +265,13 @@ func (s *Server) handleRPAddWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleRPChatStream(w http.ResponseWriter, r *http.Request) {
+	conn, err := wsUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		// wsUpgrader already sent an error to the client
+		return
+	}
+	defer conn.Close()
+
 	var rp struct {
 		*RoomInfo
 		Messages []RpMessage `json:"msgs"`
@@ -276,21 +283,27 @@ func (s *Server) handleRPChatStream(w http.ResponseWriter, r *http.Request) {
 	// get rpid from slug
 	slugInfo := s.db.getSlugInfo(params["slug"])
 	if slugInfo == nil {
-		http.Error(w, fmt.Sprintf("Room not found: %s", params["slug"]), 404)
+		msg := websocket.FormatCloseMessage(4404, "Room not found: /rp/"+params["slug"])
+		conn.WriteControl(websocket.CloseMessage, msg, time.Now().Add(time.Second*10))
 		return
 	}
 
 	rp.RoomInfo = s.db.getRoomInfo(slugInfo.Rpid)
 
-	rp.Messages = s.db.getRecentMsgs(slugInfo.Rpid)
-	rp.Charas = s.db.getCharas(slugInfo.Rpid)
-
-	conn, err := wsUpgrader.Upgrade(w, r, nil)
-	if err != nil {
-		// wsUpgrader already sent an error to the client
+	// if it's a WIP import or had import issues, notify and close
+	if rp.RoomInfo.ImportInfo == "IMPORT_IN_PROGRESS" {
+		msgCount := s.db.countRoomPages(slugInfo.Rpid)
+		msg := websocket.FormatCloseMessage(4202, fmt.Sprintf("Import in progress (%d pages imported)", msgCount))
+		conn.WriteControl(websocket.CloseMessage, msg, time.Now().Add(time.Second*10))
+		return
+	} else if rp.RoomInfo.ImportInfo != "" {
+		msg := websocket.FormatCloseMessage(4400, rp.RoomInfo.ImportInfo)
+		conn.WriteControl(websocket.CloseMessage, msg, time.Now().Add(time.Second*10))
 		return
 	}
-	defer conn.Close()
+
+	rp.Messages = s.db.getRecentMsgs(slugInfo.Rpid)
+	rp.Charas = s.db.getCharas(slugInfo.Rpid)
 
 	js, _ := json.Marshal(rp)
 	firstPacket := chatStreamMessage{"init", js}
@@ -668,7 +681,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth a
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	defer file.Close()
+	// We don't defer file.Close() here because we use it in a goroutine later
 
 	// decode json in file
 	dec := json.NewDecoder(file)
@@ -680,6 +693,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth a
 		} else {
 			http.Error(w, fmt.Sprintf("Starting delimiter is %s", t), 400)
 		}
+		file.Close()
 		return
 	}
 
@@ -687,6 +701,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth a
 	var meta exportFirstBlock
 	if err := dec.Decode(&meta); err != nil {
 		http.Error(w, err.Error(), 400)
+		file.Close()
 		return
 	}
 
@@ -695,15 +710,17 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth a
 	rpid := generateRpid()
 
 	roomInfo := &RoomInfo{
-		RPID:      rpid,
-		Title:     meta.Title,
-		ReadCode:  readSlug,
-		CreatedAt: time.Now(),
-		Userid:    auth.userid(),
+		RPID:       rpid,
+		Title:      meta.Title,
+		ReadCode:   readSlug,
+		CreatedAt:  time.Now(),
+		Userid:     auth.userid(),
+		ImportInfo: "IMPORT_IN_PROGRESS",
 	}
 
 	if err := roomInfo.Validate(); err != nil {
 		http.Error(w, err.Error(), 400)
+		file.Close()
 		return
 	}
 
@@ -711,70 +728,88 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request, auth a
 	s.db.addSlugInfo(&SlugInfo{readSlug, rpid, "read"})
 	s.db.addRoomInfo(roomInfo)
 
-	charas := make([]RpChara, len(meta.Charas))
-	for i, rawChara := range meta.Charas {
-		chara := NewRpChara()
-		chara.RpCharaBody = rawChara.RpCharaBody
-		chara.Timestamp = rawChara.Timestamp
-		chara.ID = xid.New().String()
-		chara.Userid = auth.userid()
-		chara.Revision = 0
-		charas[i] = chara
-		if err := chara.Validate(); err != nil {
-			http.Error(w, err.Error(), 400)
-			return
-		}
-		s.db.putChara(rpid, &chara)
+	// Send link to RP while we continue importing
+	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
+
+	importError := func(message string) {
+		roomInfo.ImportInfo = message
+		s.db.addRoomInfo(roomInfo)
 	}
 
-	// read all remaining elements in the array as msgs
-	var wg sync.WaitGroup
-	for dec.More() {
-		var rawMsg exportMessage
-
-		if err := dec.Decode(&rawMsg); err != nil {
-			http.Error(w, err.Error(), 400)
-			return
-		}
-
-		msg := NewRpMessage()
-		msg.RpMessageBody = rawMsg.RpMessageBody
-		if msg.Type == "chara" {
-			if rawMsg.CharaID == nil || *rawMsg.CharaID < 0 || *rawMsg.CharaID >= len(charas) {
-				http.Error(w, fmt.Sprintf("Invalid CharaID: %d", *rawMsg.CharaID), 400)
+	go func() {
+		defer file.Close()
+		charas := make([]RpChara, len(meta.Charas))
+		for i, rawChara := range meta.Charas {
+			chara := NewRpChara()
+			chara.RpCharaBody = rawChara.RpCharaBody
+			chara.Timestamp = rawChara.Timestamp
+			chara.ID = xid.New().String()
+			chara.Userid = auth.userid()
+			chara.Revision = 0
+			charas[i] = chara
+			if err := chara.Validate(); err != nil {
+				importError(fmt.Sprintf("Error importing chara %d: %s", i, err.Error()))
 				return
 			}
-			msg.CharaID = charas[*rawMsg.CharaID].ID
+			s.db.putChara(rpid, &chara)
 		}
-		msg.Timestamp = rawMsg.Timestamp
-		msg.ID = xid.New().String()
-		msg.Userid = auth.userid()
-		msg.Revision = 0
 
-		if err := msg.Validate(); err != nil {
-			http.Error(w, err.Error(), 400)
+		// read all remaining elements in the array as msgs
+		var wg sync.WaitGroup
+		for i := 0; dec.More(); i++ {
+			var rawMsg exportMessage
+
+			if err := dec.Decode(&rawMsg); err != nil {
+				importError(fmt.Sprintf("Error importing message %d: %s", i, err.Error()))
+				return
+			}
+
+			msg := NewRpMessage()
+			msg.RpMessageBody = rawMsg.RpMessageBody
+			if msg.Type == "chara" {
+				if rawMsg.CharaID == nil || *rawMsg.CharaID < 0 || *rawMsg.CharaID >= len(charas) {
+					importError(fmt.Sprintf("Error importing message %d: Invalid CharaID: %d", i, *rawMsg.CharaID))
+					return
+				}
+				msg.CharaID = charas[*rawMsg.CharaID].ID
+			}
+			msg.Timestamp = rawMsg.Timestamp
+			msg.ID = xid.New().String()
+			msg.Userid = auth.userid()
+			msg.Revision = 0
+
+			if err := msg.Validate(); err != nil {
+				importError(fmt.Sprintf("Error importing message %d: %s", i, err.Error()))
+				return
+			}
+			wg.Add(1)
+			go func(msg *RpMessage) {
+				s.db.putMsg(rpid, msg)
+				wg.Done()
+			}(&msg)
+		}
+		wg.Wait()
+
+		// read ending
+		if t, err := dec.Token(); err != nil {
+			importError(fmt.Sprintf("Error at end of array: %s", err.Error()))
+			return
+		} else if t.(json.Delim) != ']' {
+			importError(fmt.Sprintf("Error at end of array: expected ']', got %s", t))
 			return
 		}
-		wg.Add(1)
-		go func(msg *RpMessage) {
-			s.db.putMsg(rpid, msg)
-			wg.Done()
-		}(&msg)
-	}
-	wg.Wait()
+		if t, err := dec.Token(); err == nil {
+			importError(fmt.Sprintf("Error after end of array: Unexpected item after the array: %s", t))
+			return
+		} else if err != io.EOF {
+			importError("Error after end of array: " + err.Error())
+			return
+		}
 
-	// read ending
-	if t, err := dec.Token(); err != nil || t.(json.Delim) != ']' {
-		http.Error(w, err.Error(), 400)
-		return
-	}
-	if _, err := dec.Token(); err != io.EOF {
-		http.Error(w, "Unexpected items after the array", 400)
-		return
-	}
-	fmt.Println("read")
-
-	json.NewEncoder(w).Encode(map[string]string{"rpCode": slug})
+		// done
+		roomInfo.ImportInfo = ""
+		s.db.addRoomInfo(roomInfo)
+	}()
 }
 
 func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
