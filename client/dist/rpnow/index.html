@@ -8,8 +8,29 @@
         <h1>Goodbye, RPNow</h1>
         <p>RPNow is now closed, and has no plans of returning. <a href="https://blog.rpnow.net/post/185370236376/rpnownet-will-permanently-shut-down-on-july-31">More info here.</a></p>
         <script>
+            function p(str) {
+                var el = document.createElement('p');
+                el.innerHTML = str;
+                document.body.appendChild(el);
+            }
+            function ul(array) {
+                var top = document.createElement('ul');
+                for (var i = 0; i < array.length; ++i) {
+                    var str = array[i];
+                    var el = document.createElement('li');
+                    el.innerHTML = str;
+                    top.appendChild(el);
+                }
+                document.body.appendChild(top);
+            }
             if (location.pathname.startsWith('/rp')) {
-
+                var rpCode = location.pathname.split('/')[2];
+                p('However, your RP will still be available to download until December 31.');
+                p('There are two options:');
+                ul([
+                    'To download a plain text document containing your RP, click here: <a target="_blank" href="/api/rp/'+rpCode+'/download.txt">.TXT</a>',
+                    'To download a data file that can be imported into your own RPNow clone, click here: <a target="_blank" href="/api/rp/'+rpCode+'/download.json">.JSON</a>',
+                ]);
             }
         </script>
     </body>
