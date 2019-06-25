@@ -1,16 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes, PreloadAllModules } from '@angular/router';
 
-import { NotFoundComponent } from './not-found/not-found.component';
+import { NotFoundComponent } from './not-found.component';
+import { RpComponent } from './rp.component';
 
 const appRoutes: Routes = [
   {
-    path: 'rp',
-    loadChildren: './rp/rp.module#RpModule'
-  },
-  {
-    path: 'terms',
-    loadChildren: './terms/terms.module#TermsModule'
+    path: 'rp/:rpCode',
+    component: RpComponent,
+    children: [
+      {
+        path: '**',
+        component: RpComponent
+      }
+    ]
   },
   {
     path: '**',

@@ -8,16 +8,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { TitleComponent } from './title.component';
 import { TitleRoutingModule } from './title-routing.module';
-import { LetsRpnowComponent } from './components/lets-rpnow.component';
-import { TitleEntryComponent } from './components/title-entry.component';
 
 
 
 @NgModule({
   declarations: [
     TitleComponent,
-    LetsRpnowComponent,
-    TitleEntryComponent
   ],
   imports: [
     CommonModule,

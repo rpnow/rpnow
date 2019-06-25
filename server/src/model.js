@@ -1,6 +1,5 @@
 const request = require('request-promise-native');
 const nJ = require('normalize-json');
-const { publish } = require('./services/events');
 const dao = require('./dao/dao.mongo');
 const { generateRpCode } = require('./services/rpcode.js');
 const { verifyChallenge } = require('./services/challenge');
@@ -119,7 +118,7 @@ module.exports = ({
 
         msg._id = await dao.addMessage(rpCode, msg);
 
-        publish(rpCode, { type: 'append', data: { msgs: [msg] } });
+        // publish(rpCode, { type: 'append', data: { msgs: [msg] } });
         return msg;
     },
 
@@ -150,7 +149,7 @@ module.exports = ({
 
         msg._id = await dao.addMessage(rpCode, msg);
 
-        publish(rpCode, { type: 'append', data: { msgs: [msg] } });
+        // publish(rpCode, { type: 'append', data: { msgs: [msg] } });
         return msg;
     },
 
@@ -169,7 +168,7 @@ module.exports = ({
 
         chara._id = await dao.addChara(rpCode, chara);
 
-        publish(rpCode, { type: 'append', data: { charas: [chara] } });
+        // publish(rpCode, { type: 'append', data: { charas: [chara] } });
         return chara;
     },
 
@@ -194,7 +193,7 @@ module.exports = ({
 
         await dao.editMessage(rpCode, editInfo.id, msg);
 
-        publish(rpCode, { type: 'put', data: { msgs: [msg] } });
+        // publish(rpCode, { type: 'put', data: { msgs: [msg] } });
         return msg;
     },
 
@@ -220,7 +219,7 @@ module.exports = ({
 
         await dao.editChara(rpCode, editInfo.id, chara);
 
-        publish(rpCode, { type: 'put', data: { charas: [chara] } });
+        // publish(rpCode, { type: 'put', data: { charas: [chara] } });
         return chara;
     },
 });
