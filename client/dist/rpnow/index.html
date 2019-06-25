@@ -27,13 +27,12 @@
             if (location.pathname.startsWith('/rp')) {
                 var rpCode = location.pathname.split('/')[2];
                 p('However, your RP will still be available to download until December 31.');
-                p('There are two options:');
+                p('There are two options, and you are welcome to get both:');
                 ul([
-                    'To download a plain text document containing your RP, click here: <a target="_blank" href="/api/rp/'+rpCode+'/download.txt">.TXT</a>',
-                    'To download a data file that can be imported into your own RPNow clone, click here: <a target="_blank" href="/api/rp/'+rpCode+'/download.json">.JSON</a>',
+                    'To download a data file that can be imported into your own RPNow clone, click here: <a target="_blank" href="/api/rp/'+rpCode+'/download.json">.JSON</a> If you want to create your own personal clone of RPNow, you will use this to import your RP into it.',
+                    'To download a plain text document containing your RP, click here: <a target="_blank" href="/api/rp/'+rpCode+'/download.txt">.TXT</a> If you just want a readable copy of your RP, then use this.',
                 ]);
             }
         </script>
     </body>
 </html>
-
