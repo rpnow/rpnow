@@ -11,7 +11,6 @@ COPY ./server/admin ./admin
 COPY ./client/dist ../client/dist
 
 ENV RPNOW_PORT 3000
-ENV RPNOW_BUNDLE_COMPRESSION gzip
 EXPOSE ${RPNOW_PORT}
 
 CMD ["node", "src/index.js"]
