@@ -13,7 +13,7 @@ However, if you're interested in building the project from source, or modifying 
 
 
 ## Requirements
-)
+
 * [Go 1.11](https://golang.org/dl/) (1.12 seems to break for some reason)
 * [Node.js](https://nodejs.org/en) (used to build the frontend; doesn't actually run on the server.)
 * [Nodemon](https://nodemon.io/) (optional, but helpful for a pleasant development experience)
