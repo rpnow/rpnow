@@ -1,10 +1,8 @@
-# Welcome to RPNow!
+# RPNow
 
 RPNow is a self-hosted, web-based roleplay chat website.
 
 (TODO: add a GIF here!)
-
-There is currently a canonical instance hosted at [rpnow.net](https://rpnow.net); however, it will be taken down by July 31, 2019. At that point, RPNow will become purely self-hosted software.
 
 
 # Running RPNow
@@ -15,9 +13,9 @@ However, if you're interested in building the project from source, or modifying 
 
 
 ## Requirements
-
-* [Node.js 8](https://nodejs.org/en)
+)
 * [Go 1.11](https://golang.org/dl/) (1.12 seems to break for some reason)
+* [Node.js](https://nodejs.org/en) (used to build the frontend; doesn't actually run on the server.)
 * [Nodemon](https://nodemon.io/) (optional, but helpful for a pleasant development experience)
 
 
@@ -50,6 +48,13 @@ server every time you change a source file. To do that for RPNow, run these two 
 
 * **Web Frontend:** Open a shell in the "views" directory. If you haven't already run `npm install`, do that first. Then, run `npm run watch`, which will watch and rebuild the JavaScript.
 * **Server Backend:** Open a shell in the "server" directory. Make sure you have installed Nodemon (`npm install --global nodemon`) and then run `nodemon`. This will keep the server running at http://localhost:13000.
+
+
+# State of the project
+
+RPNow is more-or-less feature-complete. While it's possible that I may add features in the future, it is quite likely that the project will remain dormant for months or years.
+
+If I become aware of any security issues, I will try to address them in a timely manner.
 
 
 # License
