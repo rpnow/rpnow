@@ -1,9 +1,12 @@
+Notification noises w/ AudioContext + resume
+gzip
+Serve icons locally
+
 Character faces
 Audio/embed messages
 Dice roller
 Frontend cache invalidation
 Dialog animations
-See if anything can be done about notification noises
 API unit tests
 Let users add 2-factor auth, using TOTP
 Let users change their passwords
