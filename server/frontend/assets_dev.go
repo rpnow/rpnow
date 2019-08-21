@@ -1,6 +1,6 @@
 // +build dev
 
-package main
+package frontend
 
 import (
 	"log"

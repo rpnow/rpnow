@@ -20,6 +20,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	gonanoid "github.com/matoous/go-nanoid"
+	"github.com/rpnow/rpnow/server/frontend"
 	"github.com/rs/xid"
 )
 
@@ -68,7 +69,7 @@ func (s *Server) clientRouter() *mux.Router {
 	router.HandleFunc("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
 
 	// assets
-	router.PathPrefix("/").Handler(http.FileServer(StaticAssets))
+	router.PathPrefix("/").Handler(http.FileServer(frontend.StaticAssets))
 
 	return router
 }
@@ -1063,7 +1064,7 @@ func (s *Server) handleAddRpToUser(w http.ResponseWriter, r *http.Request, auth 
 }
 
 func indexHTML(w http.ResponseWriter, r *http.Request) {
-	file, err := StaticAssets.Open("index.html")
+	file, err := frontend.StaticAssets.Open("index.html")
 	if err != nil {
 		log.Fatalln(err)
 	}

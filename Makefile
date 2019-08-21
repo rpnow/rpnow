@@ -5,17 +5,17 @@ default: rpnow-linux.tar.gz
 
 .PHONY: clean
 clean:
-	rm -rf rpnow-linux.tar.gz rpnow server/assets_bundle.go views/dist views/node_modules
+	rm -rf rpnow-linux.tar.gz rpnow server/frontend/assets_bundle.go views/dist views/node_modules
 
 rpnow-linux.tar.gz: rpnow install.sh
 	tar -cvzf rpnow-linux.tar.gz rpnow install.sh
 
-rpnow: server/assets_bundle.go $(shell find server)
+rpnow: server/frontend/assets_bundle.go $(shell find server)
 	pushd server >/dev/null && \
 	go build -o ../rpnow && \
 	popd >/dev/null
 
-server/assets_bundle.go: views/dist
+server/frontend/assets_bundle.go: views/dist
 	pushd server >/dev/null && \
 	go generate && \
 	popd >/dev/null

@@ -12,10 +12,10 @@ RPNow is a self-hosted, web-based roleplay chat website.
 However, if you're interested in building the project from source, or modifying the server, read on.
 
 
-## Requirements
+## Build Requirements
 
-* [Go 1.11](https://golang.org/dl/) (1.12 seems to break for some reason)
-* [Node.js](https://nodejs.org/en) (used to build the frontend; doesn't actually run on the server.)
+* [Go 1.11+](https://golang.org/dl/)
+* [Node 8+](https://nodejs.org/en)
 * [Nodemon](https://nodemon.io/) (optional, but helpful for a pleasant development experience)
 
 

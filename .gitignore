@@ -2,7 +2,7 @@
 node_modules
 npm-debug.log*
 dist
-server/assets_bundle.go
+server/frontend/assets_bundle.go
 rpnow
 rpnow-linux.tar.gz
 

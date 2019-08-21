@@ -5,17 +5,16 @@ package main
 import (
 	"log"
 
+	"github.com/rpnow/rpnow/server/frontend"
 	"github.com/shurcooL/vfsgen"
-
-	target "github.com/rpnow/rpnow/server"
 )
 
 func main() {
-	err := vfsgen.Generate(target.StaticAssets, vfsgen.Options{
-		PackageName:  "main",
+	err := vfsgen.Generate(frontend.StaticAssets, vfsgen.Options{
+		PackageName:  "frontend",
 		BuildTags:    "!dev",
 		VariableName: "StaticAssets",
-		Filename:     "assets_bundle.go",
+		Filename:     "frontend/assets_bundle.go",
 	})
 	if err != nil {
 		log.Fatalln(err)
