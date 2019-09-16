@@ -16,6 +16,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/NYTimes/gziphandler"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -59,17 +60,17 @@ func (s *Server) clientRouter() *mux.Router {
 	api.PathPrefix("/").HandlerFunc(apiMalformed)
 
 	// routes
-	router.HandleFunc("/", indexHTML).Methods("GET")
-	router.HandleFunc("/login", indexHTML).Methods("GET")
-	router.HandleFunc("/register", indexHTML).Methods("GET")
-	router.HandleFunc("/import", indexHTML).Methods("GET")
-	router.HandleFunc("/format", indexHTML).Methods("GET")
-	router.HandleFunc("/rp/{rpCode}", indexHTML).Methods("GET")
-	router.HandleFunc("/read/{rpCode}", indexHTML).Methods("GET")
-	router.HandleFunc("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
+	router.Handle("/", indexHTML).Methods("GET")
+	router.Handle("/login", indexHTML).Methods("GET")
+	router.Handle("/register", indexHTML).Methods("GET")
+	router.Handle("/import", indexHTML).Methods("GET")
+	router.Handle("/format", indexHTML).Methods("GET")
+	router.Handle("/rp/{rpCode}", indexHTML).Methods("GET")
+	router.Handle("/read/{rpCode}", indexHTML).Methods("GET")
+	router.Handle("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
 
 	// assets
-	router.PathPrefix("/").Handler(http.FileServer(frontend.StaticAssets))
+	router.PathPrefix("/").Handler(gziphandler.GzipHandler(http.FileServer(frontend.StaticAssets)))
 
 	return router
 }
@@ -1063,7 +1064,7 @@ func (s *Server) handleAddRpToUser(w http.ResponseWriter, r *http.Request, auth 
 	w.WriteHeader(204)
 }
 
-func indexHTML(w http.ResponseWriter, r *http.Request) {
+var indexHTML = gziphandler.GzipHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	file, err := frontend.StaticAssets.Open("index.html")
 	if err != nil {
 		log.Fatalln(err)
@@ -1073,7 +1074,7 @@ func indexHTML(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 	http.ServeContent(w, r, "index.html", stat.ModTime(), file)
-}
+}))
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Malformed request", 400)
