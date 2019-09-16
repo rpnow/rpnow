@@ -165,6 +165,46 @@
   import CharaDrawer from '../components/chara-drawer.vue';
   import { syncToLocalStorage } from '../components/sync-to-localstorage'
 
+  const playAudio = (function() {
+    const src = '/sounds/typewriter.mp3';
+
+    if (window.AudioContext || window.webkitAudioContext) {
+      /** @type{AudioContext} */
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+      const resume = () => {
+        audioContext.resume();
+      }
+      window.onclick = resume;
+      window.ontouchstart = resume;
+      window.onkeydown = resume;
+
+      /** @type{Promise<AudioBuffer>} */
+      const audioBufferPromise = new Promise((resolve, reject) => {
+        const req = new XMLHttpRequest();
+        req.open('GET', src);
+        req.responseType = 'arraybuffer';
+        req.onload = () => {
+          audioContext.decodeAudioData(req.response)
+            .then(audioBuffer => resolve(audioBuffer));
+        };
+        req.onerror = err => reject(err);
+        req.send();
+      })
+      return () => {
+        audioBufferPromise.then(audioBuffer => {
+          const src = audioContext.createBufferSource();
+          src.connect(audioContext.destination);
+          src.buffer = audioBuffer;
+          src.start();
+        });
+      }
+    } else {
+      const ding = new Audio(src);
+      return () => ding.play();
+    }
+  }());
+
   export default {
     components: {
       RpMessage,
@@ -444,6 +484,8 @@
               // "Failed to construct 'Notification': Illegal constructor. Use ServiceWorkerRegistration.showNotification() instead."
               // No action needed
             }
+
+            playAudio();
           }
 
           // page title
