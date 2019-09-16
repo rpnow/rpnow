@@ -124,7 +124,7 @@
           </button>
           <div class="drawer-divider"></div>
           <router-link class="drawer-item" to="/">
-            <i class="material-icons">meeting_room</i>
+            <i class="material-icons">home</i>
             <span>Return home</span>
           </router-link>
         </div>
