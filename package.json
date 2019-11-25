@@ -4,22 +4,24 @@
   "private": true,
   "scripts": {
     "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
     "watch": "vue-cli-service build --watch",
-    "lint": "vue-cli-service lint"
+    "server": "RPNOW_DATA_DIR='../data' RPNOW_PORT=13000 cd server && nodemon --ext 'go' --exec 'go run -tags dev . -- server || exit 1'"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "coolstory.js": "^0.1.2",
     "jquery": "^3.4.1",
+    "nodemon": "^2.0.1",
     "spectrum-colorpicker": "^1.8.0",
     "tinycolor2": "^1.4.1",
     "vue": "^2.5.22",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.4.0",
-    "@vue/cli-plugin-eslint": "^3.4.0",
-    "@vue/cli-service": "^3.4.0",
+    "@vue/cli-plugin-babel": "^4.0.5",
+    "@vue/cli-plugin-eslint": "^4.0.5",
+    "@vue/cli-service": "^4.0.5",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",
