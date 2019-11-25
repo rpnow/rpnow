@@ -18,12 +18,14 @@ const app = require('./app');
     // if (config.trustProxy === true) app.enable('trust proxy');
 
     // start server
-    app.listen(process.env.PORT, (err) => {
+    const port = process.env.PORT || 13000;
+    app.listen(port, (err) => {
         if (err) {
             console.error(`ERROR: RPNow failed to start: ${err}`);
             process.exit(1);
             return;
+        } else {
+            console.log(`Running on port ${port}`);
         }
-        console.log('Running!');
     });
 }());
