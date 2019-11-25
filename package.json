@@ -2,8 +2,8 @@
   "name": "rpnow",
   "private": true,
   "scripts": {
-    "start": "node src/index.js",
-    "start-dev": "cross-env VUE_DEV=true DEBUG=rpnow nodemon src/index.js --ext js,json,vue,css",
+    "start": "node index.js",
+    "start-dev": "cross-env DEBUG=rpnow nodemon index.js --ext js,json,vue,css",
     "test": "ava --watch",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",

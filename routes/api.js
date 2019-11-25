@@ -94,7 +94,7 @@ router.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, ne
 /**
  * Generate a new set of credentials for an anonymous user
  */
-router.post('/user', awrap(async (req, res, next) => {
+router.post('/user/anon', awrap(async (req, res, next) => {
     const credentials = await generateAnonCredentials();
     res.status(200).json(credentials);
 }));
@@ -105,6 +105,17 @@ router.post('/user', awrap(async (req, res, next) => {
 router.get('/user/verify', authMiddleware, (req, res, next) => {
     res.sendStatus(204);
 })
+
+/**
+ * Dashboard
+ */
+router.post('/dashboard', (req, res, next) => {
+    // TODO
+    res.status(200).json({
+        canCreate: true,
+        rooms: []
+    });
+});
 
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 
