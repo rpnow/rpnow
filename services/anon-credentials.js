@@ -23,6 +23,14 @@ module.exports = {
     },
 
     async authMiddleware(req, res, next) {
-        expressJwt({ secret: await jwtSecretPromise })(req, res, next);
+        expressJwt({ secret: await jwtSecretPromise })(req, res, (err) => {
+            if (err && err.name === 'UnauthorizedError') {
+                res.sendStatus(401);
+            } else if (err) {
+                next(err);
+            } else {
+                next();
+            }
+        });
     },
 };
