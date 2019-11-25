@@ -6,7 +6,6 @@ server/frontend/assets_bundle.go
 rpnow
 rpnow-linux.tar.gz
 
-data/*
 .data/*
 
 !.gitkeep
