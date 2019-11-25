@@ -7,6 +7,7 @@ rpnow
 rpnow-linux.tar.gz
 
 data/*
+.data/*
 
 !.gitkeep
 
