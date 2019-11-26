@@ -161,8 +161,7 @@
           hash |= 0; // Convert to 32bit integer
         }
 
-        const [r, g, b] = [0,8,16].map(sh => hash >> sh & 255)
-        const light = (r*299)+(g*587)+(b*114) > 128000;
+        const light = 299*(hash >> 0 & 255) + 587*(hash >> 8 & 255) + 115*(hash >> 16 & 255) > 128000;
 
         return {
           backgroundColor: `rgb(${r}, ${g}, ${b})`,

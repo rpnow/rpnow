@@ -164,10 +164,9 @@
   import SendBox from '../components/send-box.vue';
   import CharaDrawer from '../components/chara-drawer.vue';
   import { syncToLocalStorage } from '../components/sync-to-localstorage'
+  import audioSrc from '../sounds/typewriter.mp3';
 
   const playAudio = (function() {
-    const src = '/sounds/typewriter.mp3';
-
     if (window.AudioContext || window.webkitAudioContext) {
       /** @type{AudioContext} */
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -182,7 +181,7 @@
       /** @type{Promise<AudioBuffer>} */
       const audioBufferPromise = new Promise((resolve, reject) => {
         const req = new XMLHttpRequest();
-        req.open('GET', src);
+        req.open('GET', audioSrc);
         req.responseType = 'arraybuffer';
         req.onload = () => {
           audioContext.decodeAudioData(req.response)
@@ -193,14 +192,14 @@
       })
       return () => {
         audioBufferPromise.then(audioBuffer => {
-          const src = audioContext.createBufferSource();
-          src.connect(audioContext.destination);
-          src.buffer = audioBuffer;
-          src.start();
+          const audioSrc = audioContext.createBufferSource();
+          audioSrc.connect(audioContext.destination);
+          audioSrc.buffer = audioBuffer;
+          audioSrc.start();
         });
       }
     } else {
-      const ding = new Audio(src);
+      const ding = new Audio(audioSrc);
       return () => ding.play();
     }
   }());

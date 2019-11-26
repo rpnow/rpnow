@@ -91,5 +91,3 @@
     },
   };
 </script>
-
-<style src="./rp.css"></style>
