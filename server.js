@@ -283,7 +283,7 @@ api.get(`${rpGroup}/export`, awrap(async (req, res, next) => {
 /**
  * Create something in an RP (message, chara, etc)
  */
-api.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, res, next) => {
+api.post(`${rpGroup}/:collection(msgs|charas)`, authMiddleware, awrap(async (req, res, next) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
@@ -303,7 +303,7 @@ api.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, res
 /**
  * Update something in an RP (message, chara, etc)
  */
-api.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, awrap(async (req, res, next) => {
+api.put(`${rpGroup}/:collection(msgs|charas)/:doc_id([a-z0-9]+)`, authMiddleware, awrap(async (req, res, next) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
@@ -326,7 +326,7 @@ api.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, awr
 /**
  * Get the history of something in an RP (message, chara, etc)
  */
-api.get(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)/history`, awrap(async (req, res, next) => {
+api.get(`${rpGroup}/:collection(msgs|charas)/:doc_id([a-z0-9]+)/history`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
