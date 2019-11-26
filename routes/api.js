@@ -122,19 +122,47 @@ const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 /**
  * Get current state of a RP chatroom
  */
-router.get(`${rpGroup}`, awrap(async (req, res, next) => {
-    const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
-    if (access === 'read') return res.sendStatus(403);
+router.ws(`${rpGroup}/chat`, async (ws, req, next) => {
+    try {
+        const ip = req.headers['x-forwarded-for'];
+        // const ip = req.connection.remoteAddress;
 
-    const lastEventId = await DB.lastEventId();
-    const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta', { snapshot: lastEventId });
-    const { readCode } = await DB.getDoc(rpNamespace, 'readCode', 'readCode', { snapshot: lastEventId });
-    const msgs = await DB.getDocs(rpNamespace, 'msgs', { reverse: true, limit: 60, snapshot: lastEventId }).asArray();
-    msgs.reverse();
-    const charas = await DB.getDocs(rpNamespace, 'charas', { snapshot: lastEventId }).asArray();
+        const rpCode = req.params.rpCode;
 
-    res.status(200).json({ title, desc, msgs, charas, lastEventId, readCode })
-}));
+        const { rpNamespace, access } = await DB.getDoc('system', 'urls', rpCode);
+        if (access === 'read') {
+            return ws.close(4403, 'This code can only be used to view an RP, not to write one.');
+        }
+
+        const send = (data) => {
+            if (ws.readyState === 1) {
+                ws.send(JSON.stringify(data));
+            } else {
+                debug(`NRDY (${ip}): ${rpCode} - tried to send data at readyState ${ws.readyState}`);
+            }
+        };
+
+        const snapshot = await DB.lastEventId();
+        const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta', { snapshot });
+        const { readCode } = await DB.getDoc(rpNamespace, 'readCode', 'readCode', { snapshot });
+        const msgs = await DB.getDocs(rpNamespace, 'msgs', { reverse: true, limit: 60, snapshot }).asArray();
+        msgs.reverse();
+        const charas = await DB.getDocs(rpNamespace, 'charas', { snapshot }).asArray();
+
+        send({
+            type: 'init',
+            data: {
+                title, desc, msgs, charas, readCode
+            }
+        });
+
+        debug(`JOIN (${ip}): ${rpCode}`);
+
+        // TODO listen for updates
+    } catch (err) {
+        ws.close(4400, err.message);
+    }
+});
 
 /**
  * Get updates on an RP since some prior state
