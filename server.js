@@ -115,6 +115,22 @@ api.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, next)
 }));
 
 /**
+ * Register new user
+ */
+api.post('/user', awrap(async (req, res, next) => {
+    // TODO
+    res.sendStatus(501);
+}));
+
+/**
+ * Login user
+ */
+api.post('/user/login', awrap(async (req, res, next) => {
+    // TODO
+    res.sendStatus(501);
+}));
+
+/**
  * Generate a new set of credentials for an anonymous user
  */
 api.post('/user/anon', awrap(async (req, res, next) => {
@@ -141,6 +157,14 @@ api.post('/dashboard', (req, res, next) => {
 });
 
 const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
+
+/**
+ * Add RP to user dashboard
+ */
+api.post(`/user${rpGroup}`, awrap(async (req, res, next) => {
+    // TODO
+    res.sendStatus(501);
+}));
 
 /**
  * Get current state of a RP chatroom
@@ -334,6 +358,22 @@ api.get(`${rpGroup}/:collection(msgs|charas)/:doc_id([a-z0-9]+)/history`, awrap(
     const docs = await DB.getDocs(rpNamespace, collection, { _id, includeHistory: true }).asArray();
 
     res.status(200).json(docs);
+}));
+
+/**
+ * Update RP title
+ */
+api.put(`${rpGroup}/title`, authMiddleware, awrap(async (req, res, next) => {
+    // TODO
+    res.sendStatus(501);
+}));
+
+/**
+ * Add webhook
+ */
+api.put(`${rpGroup}/webhook`, authMiddleware, awrap(async (req, res, next) => {
+    // TODO
+    res.sendStatus(501);
 }));
 
 /**
