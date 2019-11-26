@@ -1,20 +1,4 @@
-.DS_Store
 node_modules
-npm-debug.log*
 dist
-server/frontend/assets_bundle.go
-rpnow
-rpnow-linux.tar.gz
-
-data/*
-
-!.gitkeep
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw*
+.data
+.cache
