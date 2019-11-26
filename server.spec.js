@@ -1,8 +1,8 @@
 const test = require('ava');
 const request = require('supertest');
-const app = require('./app');
+const server = require('./server');
 
-const api = request(app);
+const api = request(server);
 
 const createRp = async ({ title } = { title: 'Test' }) => (await api.post('/api/rp').send({ title })).body;
 const getRpState = async (rpCode) => (await api.get(`/api/rp/${rpCode}`)).body;

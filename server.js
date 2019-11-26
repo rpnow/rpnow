@@ -1,33 +1,55 @@
 const express = require('express');
-const { Router } = require('express');
+const addWs = require('express-ws');
+const path = require('path');
 const Busboy = require('busboy');
 const debug = require('debug')('rpnow');
-const { generateTextFile } = require('../services/txt-file');
-const { exportRp, importRp } = require('../services/json-file');
-const { xRobotsTag } = require('../services/express-x-robots-tag-middleware');
+const { generateTextFile } = require('./services/txt-file');
+const { exportRp, importRp } = require('./services/json-file');
+const { xRobotsTag } = require('./services/express-x-robots-tag-middleware');
 const cuid = require('cuid');
-const DB = require('../services/database');
-const { validate } = require('../services/validate-user-documents');
-const { generateRpCode } = require('../services/generate-rp-code');
-const { generateAnonCredentials, authMiddleware } = require('../services/anon-credentials');
-const { awrap } = require('../services/express-async-handler');
-const { publish, subscribe } = require('../services/events');
+const DB = require('./services/database');
+const { validate } = require('./services/validate-user-documents');
+const { generateRpCode } = require('./services/generate-rp-code');
+const { generateAnonCredentials, authMiddleware } = require('./services/anon-credentials');
+const { awrap } = require('./services/express-async-handler');
+const { publish, subscribe } = require('./services/events');
 
-const router = Router();
-router.use(express.json({ limit: '100mb' }));
-router.use(xRobotsTag);
+const server = express();
+addWs(server);
+
+const staticRoutes = new express.Router();
+const bundleDir = path.join(__dirname, 'dist');
+
+// bundle
+staticRoutes.use('/', express.static(bundleDir));
+
+// valid routes
+const indexHTML = (req, res) => res.sendFile(`${bundleDir}/index.html`);
+staticRoutes.get('/', indexHTML);
+staticRoutes.get('/login', indexHTML);
+staticRoutes.get('/register', indexHTML);
+staticRoutes.get('/import', indexHTML);
+staticRoutes.get('/format', indexHTML);
+staticRoutes.get('/rp/:rpCode', indexHTML);
+staticRoutes.get('/read/:rpCode', indexHTML);
+staticRoutes.get('/read/:rpCode/page/:page', indexHTML);
+
+// API
+const api = new express.Router();
+api.use(express.json({ limit: '100mb' }));
+api.use(xRobotsTag);
 
 /**
  * Health check to see if the server is alive and responding
  */
-router.get('/health', (req, res, next) => {
+api.get('/health', (req, res, next) => {
     res.status(200).json({rpnow:'ok'})
 })
 
 /**
  * Create a new RP
  */
-router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
+api.post('/rp', authMiddleware, awrap(async (req, res, next) => {
     const rpNamespace = 'rp_' + cuid();
     const fields = req.body;
     const { userid } = req.user;
@@ -51,7 +73,7 @@ router.post('/rp', authMiddleware, awrap(async (req, res, next) => {
  */
 const importStatus = new Map();
 
-router.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
+api.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
     const rpNamespace = 'rp_' + cuid();
     const { userid } = req.user;
     const ip = req.ip;
@@ -86,7 +108,7 @@ router.post('/rp/import', authMiddleware, awrap(async (req, res, next) => {
     return req.pipe(busboy);
 }));
 
-router.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, next) => {
+api.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, next) => {
     const info = importStatus.get(req.params.rpCode);
     if (!info) return res.status(404).json({ error: 'Import expired' })
     return res.status(200).json(info);
@@ -95,7 +117,7 @@ router.post('/rp/import/:rpCode([-0-9a-zA-Z]{1,100})', awrap(async (req, res, ne
 /**
  * Generate a new set of credentials for an anonymous user
  */
-router.post('/user/anon', awrap(async (req, res, next) => {
+api.post('/user/anon', awrap(async (req, res, next) => {
     const credentials = await generateAnonCredentials();
     res.status(200).json(credentials);
 }));
@@ -103,14 +125,14 @@ router.post('/user/anon', awrap(async (req, res, next) => {
 /**
  * Verify user using authMiddleware and return OK
  */
-router.get('/user/verify', authMiddleware, (req, res, next) => {
+api.get('/user/verify', authMiddleware, (req, res, next) => {
     res.sendStatus(204);
 })
 
 /**
  * Dashboard
  */
-router.post('/dashboard', (req, res, next) => {
+api.post('/dashboard', (req, res, next) => {
     // TODO
     res.status(200).json({
         canCreate: true,
@@ -123,7 +145,7 @@ const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
 /**
  * Get current state of a RP chatroom
  */
-router.ws(`${rpGroup}/chat`, async (ws, req, next) => {
+api.ws(`${rpGroup}/chat`, async (ws, req, next) => {
     const ip = req.headers['x-forwarded-for'];
     // const ip = req.connection.remoteAddress;
 
@@ -197,7 +219,7 @@ router.ws(`${rpGroup}/chat`, async (ws, req, next) => {
 /**
  * Count the pages in an RP's archive
  */
-router.get(`${rpGroup}/pages`, awrap(async (req, res, next) => {
+api.get(`${rpGroup}/pages`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const lastEventId = await DB.lastEventId();
@@ -212,7 +234,7 @@ router.get(`${rpGroup}/pages`, awrap(async (req, res, next) => {
 /**
  * Get a page from an RP's archive
  */
-router.get(`${rpGroup}/pages/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
+api.get(`${rpGroup}/pages/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const skip = (req.params.pageNum - 1) * 20;
@@ -232,7 +254,7 @@ router.get(`${rpGroup}/pages/:pageNum([1-9][0-9]{0,})`, awrap(async (req, res, n
 /**
  * Get and download a .txt file for an entire RP
  */
-router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
+api.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
 
     const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta');
@@ -249,7 +271,7 @@ router.get(`${rpGroup}/download.txt`, awrap(async (req, res, next) => {
 /**
  * Get and download a .txt file for an entire RP
  */
-router.get(`${rpGroup}/export`, awrap(async (req, res, next) => {
+api.get(`${rpGroup}/export`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const { title } = await DB.getDoc(rpNamespace, 'meta', 'meta');
 
@@ -261,7 +283,7 @@ router.get(`${rpGroup}/export`, awrap(async (req, res, next) => {
 /**
  * Create something in an RP (message, chara, etc)
  */
-router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, res, next) => {
+api.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, res, next) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
@@ -281,7 +303,7 @@ router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, 
 /**
  * Update something in an RP (message, chara, etc)
  */
-router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, awrap(async (req, res, next) => {
+api.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, awrap(async (req, res, next) => {
     const { rpNamespace, access } = await DB.getDoc('system', 'urls', req.params.rpCode);
     if (access === 'read') return res.sendStatus(403);
     const collection = req.params.collection;
@@ -304,7 +326,7 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, 
 /**
  * Get the history of something in an RP (message, chara, etc)
  */
-router.get(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)/history`, awrap(async (req, res, next) => {
+api.get(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)/history`, awrap(async (req, res, next) => {
     const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
     const collection = req.params.collection;
     const _id = req.params.doc_id;
@@ -317,16 +339,19 @@ router.get(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)/history`, awrap(as
 /**
  * Default route (route not found)
  */
-router.all('*', (req, res, next) => {
+api.all('*', (req, res, next) => {
     next({ code: 'UNKNOWN_REQUEST' });
 });
 
 /**
  * Error handling
  */
-router.use((err, req, res, next) => {
+api.use((err, req, res, next) => {
     debug(err);
     res.status(500).json({ error: err.toString() });
 });
 
-module.exports = router;
+server.use('/api', api);
+server.use('/', staticRoutes);
+
+module.exports = server;

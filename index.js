@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const DB = require('./services/database');
-const app = require('./app');
+const server = require('./server');
 
 (async function main() {
     const dataDir = path.join(__dirname, '.data');
@@ -15,11 +15,11 @@ const app = require('./app');
     await DB.open(dataDir);
 
     // enable trustProxy?
-    // if (config.trustProxy === true) app.enable('trust proxy');
+    // if (config.trustProxy === true) server.enable('trust proxy');
 
     // start server
     const port = process.env.PORT || 13000;
-    app.listen(port, (err) => {
+    server.listen(port, (err) => {
         if (err) {
             console.error(`ERROR: RPNow failed to start: ${err}`);
             process.exit(1);
