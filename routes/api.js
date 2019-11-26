@@ -11,6 +11,7 @@ const { validate } = require('../services/validate-user-documents');
 const { generateRpCode } = require('../services/generate-rp-code');
 const { generateAnonCredentials, authMiddleware } = require('../services/anon-credentials');
 const { awrap } = require('../services/express-async-handler');
+const { publish, subscribe } = require('../services/events');
 
 const router = Router();
 router.use(express.json({ limit: '100mb' }));
@@ -123,12 +124,12 @@ const rpGroup = '/rp/:rpCode([-0-9a-zA-Z]{1,100})';
  * Get current state of a RP chatroom
  */
 router.ws(`${rpGroup}/chat`, async (ws, req, next) => {
+    const ip = req.headers['x-forwarded-for'];
+    // const ip = req.connection.remoteAddress;
+
+    const rpCode = req.params.rpCode;
+
     try {
-        const ip = req.headers['x-forwarded-for'];
-        // const ip = req.connection.remoteAddress;
-
-        const rpCode = req.params.rpCode;
-
         const { rpNamespace, access } = await DB.getDoc('system', 'urls', rpCode);
         if (access === 'read') {
             return ws.close(4403, 'This code can only be used to view an RP, not to write one.');
@@ -141,6 +142,8 @@ router.ws(`${rpGroup}/chat`, async (ws, req, next) => {
                 debug(`NRDY (${ip}): ${rpCode} - tried to send data at readyState ${ws.readyState}`);
             }
         };
+
+        // TODO ensure import is not in progress
 
         const snapshot = await DB.lastEventId();
         const { title, desc } = await DB.getDoc(rpNamespace, 'meta', 'meta', { snapshot });
@@ -158,28 +161,38 @@ router.ws(`${rpGroup}/chat`, async (ws, req, next) => {
 
         debug(`JOIN (${ip}): ${rpCode}`);
 
-        // TODO listen for updates
+        const unsub = subscribe(rpNamespace, send);
+
+        let alive = true;
+
+        (function scheduleHeartbeat() {
+            setTimeout(() => {
+                if (ws.readyState === 2 || ws.readyState === 3) {
+                    // socket is closing or closed. no pinging
+                } else if (alive) {
+                    alive = false;
+                    ws.ping();
+                    scheduleHeartbeat();
+                } else {
+                    debug(`DIED (${ip}): ${rpCode}`);
+                    ws.terminate();
+                }
+            }, 30000);
+        }());
+        ws.on('pong', () => {
+            debug(`PONG (${ip}): ${rpCode}`);
+            alive = true;
+        });
+
+        ws.on('close', (code, reason) => {
+            debug(`EXIT (${ip}): ${rpCode} - ${code} ${reason}`);
+            unsub();
+        });
     } catch (err) {
         ws.close(4400, err.message);
+        debug(`JERR (${ip}): ${err.message}`);
     }
 });
-
-/**
- * Get updates on an RP since some prior state
- */
-router.get(`${rpGroup}/updates`, awrap(async (req, res, next) => {
-    const { rpNamespace } = await DB.getDoc('system', 'urls', req.params.rpCode);
-
-    const { since } = req.query;
-    if (!since) throw new Error('Missing since');
-
-    const docs = await DB.getDocs(rpNamespace, null, { since, includeMeta: true }).asArray();
-
-    const updates = docs.map(({ _meta, ...doc }) => ({ data: doc, type: _meta.collection }));
-    const lastEventId = Math.max(since, ...docs.map(({ _meta }) => _meta.event_id));
-
-    res.status(200).json({ lastEventId, updates });
-}));
 
 /**
  * Count the pages in an RP's archive
@@ -260,6 +273,8 @@ router.post(`${rpGroup}/:collection([a-z]+)`, authMiddleware, awrap(async (req, 
 
     const { doc } = await DB.addDoc(rpNamespace, collection, _id, fields, { userid, ip });
 
+    publish(rpNamespace, { type: collection, data: doc })
+
     res.status(201).json(doc);
 }));
 
@@ -280,6 +295,8 @@ router.put(`${rpGroup}/:collection([a-z]+)/:doc_id([a-z0-9]+)`, authMiddleware, 
     if (!oldDoc) return res.sendStatus(404);
 
     const { doc } = await DB.updateDoc(rpNamespace, collection, _id, fields, { userid, ip });
+
+    publish(rpNamespace, { type: collection, data: doc })
 
     res.status(200).json(doc);
 }));
