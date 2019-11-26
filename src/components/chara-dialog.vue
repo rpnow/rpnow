@@ -23,9 +23,7 @@
 </template>
 
 <script>
-  import jQuery from 'jquery';
-  import 'spectrum-colorpicker';
-  import 'spectrum-colorpicker/spectrum.css'
+  const jQuery = window.jQuery
 
   export default {
     props: [

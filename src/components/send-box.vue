@@ -45,7 +45,7 @@
 </template>
 
 <script>
-  import tinycolor from 'tinycolor2';
+  const tinycolor = window.tinycolor;
   import ImageDialog from './image-dialog.vue';
 
   export default  {

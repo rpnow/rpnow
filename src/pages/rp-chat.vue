@@ -159,7 +159,7 @@
 </template>
 
 <script>
-  import axios from 'axios';
+  const axios = window.axios;
   import RpMessage from '../components/rp-message.vue';
   import SendBox from '../components/send-box.vue';
   import CharaDrawer from '../components/chara-drawer.vue';

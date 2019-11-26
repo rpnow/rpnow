@@ -124,8 +124,8 @@
 </style>
 
 <script>
-  import axios from 'axios';
-  import coolstory from 'coolstory.js';
+  const axios = window.axios;
+  // import coolstory from 'coolstory.js';
 
   export default {
     name: 'Dashboard',
@@ -183,15 +183,15 @@
 
         this.submitRp();
       },
-      spinTitle() {
-        let millis = 10.0;
+      // spinTitle() {
+      //   let millis = 10.0;
 
-        const changeTitle = () => this.title = coolstory.title(20);
+      //   const changeTitle = () => this.title = coolstory.title(20);
 
-        while ((millis *= 1.15) < 200.0 / .15) {
-          setTimeout(changeTitle, millis);
-        }
-      },
+      //   while ((millis *= 1.15) < 200.0 / .15) {
+      //     setTimeout(changeTitle, millis);
+      //   }
+      // },
       submitRp() {
         this.loading = true;
 

@@ -44,7 +44,7 @@
 </template>
 
 <script>
-  import axios from 'axios';
+  const axios = window.axios;
   import { syncToLocalStorage } from '../components/sync-to-localstorage'
 
   export default {

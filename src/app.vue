@@ -6,7 +6,7 @@
 </template>
 
 <script>
-  import axios from 'axios';
+  const axios = window.axios;
 
   export default {
     data() {

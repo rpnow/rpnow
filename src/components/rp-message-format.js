@@ -1,4 +1,4 @@
-import tinycolor from 'tinycolor2';
+const tinycolor = window.tinycolor;
 
 export default function transformRpMessage(str, color) {
   // how to render a specific type of tag
