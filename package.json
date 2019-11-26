@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "prebuild": "rm -rf dist/*",
-    "build": "parcel build src/index.html",
+    "build": "parcel build views/index.html",
     "start": "npm run build && node index.js",
     "start-dev": "cross-env DEBUG=rpnow nodemon index.js --ext js,json,vue,css",
     "test": "ava --watch"
@@ -31,7 +31,7 @@
     "@vue/babel-preset-app": "^4.0.5",
     "@vue/component-compiler-utils": "^3.0.2",
     "autoprefixer": "^9.7.2",
-    "ava": "1.0.0-rc.2",
+    "ava": "^1.4.1",
     "cross-env": "^5.2.0",
     "eslint": "^5.9.0",
     "eslint-plugin-vue": "^5.0.0",
@@ -41,14 +41,7 @@
   },
   "ava": {
     "files": [
-      "src/**/*.spec.js"
-    ]
-  },
-  "bin": "src/index.js",
-  "pkg": {
-    "assets": [
-      "src/views/**",
-      "src/static/**"
+      "./**/*.spec.js"
     ]
   },
   "babel": {
