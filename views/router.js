@@ -1,57 +1,32 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Chat from './pages/rp-chat.js'
+// import Archive from './pages/rp-read-index.vue'
+// import Page from './pages/rp-read-page.vue'
+// import Import from './pages/import.vue'
 
-import Home from './pages/home.vue'
-import Format from './pages/format.vue'
-import Import from './pages/import.vue'
-import Login from './pages/login.vue'
+// TODO maybe it makes sense to not use a router at all,
+// and to just get all the functionality onto one page
 
-Vue.use(Router)
-
-export default new Router({
-  mode: 'history',
+export default new window.VueRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login,
-      props: { isRegister: false }
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: Login,
-      props: { isRegister: true }
-    },
-    {
-      path: '/import',
-      name: 'import',
-      component: Import
-    },
-    {
-      path: '/format',
-      name: 'format',
-      component: Format
-    },
-    {
-      path: '/rp/:rpCode',
       name: 'chat',
-      component: () => import(/* webpackChunkName: "chat" */ './pages/rp-chat.vue')
+      component: Chat
     },
-    {
-      path: '/read/:readCode',
-      name: 'archive',
-      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-index.vue')
-    },
-    {
-      path: '/read/:readCode/page/:page',
-      name: 'page',
-      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-page.vue')
-    },
+    // {
+    //   path: '/import',
+    //   name: 'import',
+    //   component: Import
+    // },
+    // {
+    //   path: '/pages',
+    //   name: 'archive',
+    //   component: Archive
+    // },
+    // {
+    //   path: '/pages/:page',
+    //   name: 'page',
+    //   component: Page
+    // },
   ]
 })

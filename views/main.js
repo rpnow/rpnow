@@ -1,10 +1,6 @@
-import Vue from 'vue'
-import router from './router'
-import App from './app.vue';
+import * as store from './store.js';
+import Chat from './pages/rp-chat.js'
 
-Vue.config.productionTip = false
+store.initialize();
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount('#app')
+new window.Vue(Chat).$mount('#app')

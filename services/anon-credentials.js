@@ -1,36 +1,36 @@
+const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const expressJwt = require('express-jwt');
+const ExpressJwt = require('express-jwt');
 const cuid = require('cuid');
-const DB = require('./database');
 
-const jwtSecretPromise = (async function getJwtSecret() {
-    if (await DB.hasDoc('system', 'secrets', 'jwt')) {
-        const doc = await DB.getDoc('system', 'secrets', 'jwt');
-        return Buffer.from(doc.secret, 'hex');
-    } else {
-        const jwtSecret = crypto.randomBytes(256/8)
-        await DB.addDoc('system', 'secrets', 'jwt', { secret: jwtSecret.toString('hex') });
-        return jwtSecret;
-    }
-})();
+const filename = '.data/secret';
+
+function generateSecret() {
+  console.info('generating new secret');
+  const jwtSecret = crypto.randomBytes(256/8)
+  fs.writeFileSync(filename, jwtSecret, 'binary');
+  return jwtSecret;
+}
+
+const jwtSecret = (fs.existsSync(filename))
+  ? fs.readFileSync(filename)
+  : generateSecret();
 
 module.exports = {
-    async generateAnonCredentials() {
-        const userid = 'anon:' + cuid();
-        const token = jwt.sign({ userid }, await jwtSecretPromise);
-        return { userid, token };
-    },
+  generateAnonCredentials() {
+    const userid = 'anon:' + cuid();
+    const token = jwt.sign({ userid }, jwtSecret);
+    return { userid, token };
+  },
 
-    async authMiddleware(req, res, next) {
-        expressJwt({ secret: await jwtSecretPromise })(req, res, (err) => {
-            if (err && err.name === 'UnauthorizedError') {
-                res.sendStatus(401);
-            } else if (err) {
-                next(err);
-            } else {
-                next();
-            }
-        });
+  // TODO xsrf ? not sure where to do that
+  
+  authMiddleware: ExpressJwt({
+    secret: jwtSecret,
+    getToken(req) {
+      return req.cookies.usertoken || null;
     },
+  }),
 };

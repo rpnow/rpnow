@@ -57,18 +57,3 @@
     }
   };
 </script>
-
-<style>
-  #import-page {
-    padding: 20px;
-  }
-  #import-page h1 {
-    margin: 0 0 20px;
-  }
-  #import-page i.material-icons {
-    font-size: 32px;
-    height: 32px;
-    width: 32px;
-  }
-</style>
-

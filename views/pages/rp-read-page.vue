@@ -13,7 +13,7 @@
     <template v-if="rp != null">
       <div id="main-column">
         <div id="chat-header">
-          <router-link class="icon-button" :to="'/read/'+readCode">
+          <router-link class="icon-button" to="/pages">
             <i class="material-icons" title="Back to index">arrow_back</i>
           </router-link>
           <span>
@@ -61,6 +61,7 @@
 </template>
 
 <script>
+  // TODO make this page available again
   const axios = window.axios;
   import RpMessage from '../components/rp-message.vue';
   import { syncToLocalStorage } from '../components/sync-to-localstorage'
@@ -71,21 +72,15 @@
     },
     data() {
       return {
-        pageNumber: null,
-        readCode: null,
         rp: null,
         loadError: null,
         nightMode: false,
       };
     },
     beforeMount() {
-      // get rpCode from URL
-      this.pageNumber = +(location.pathname.match(/\/page\/(\d+)/))[1];
-      this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
-
       // sync certain properties on this component with values in localStorage
       syncToLocalStorage(this, {
-        nightMode: 'rpnow.global.nightMode',
+        nightMode: 'rpnow.nightMode',
       });
     },
     computed: {
@@ -94,6 +89,9 @@
           map[chara._id] = chara;
           return map;
         }, {});
+      },
+      pageNumber() {
+        return this.$route.params.page;
       },
       isFirstPage() {
         return this.pageNumber === 1;
@@ -108,13 +106,13 @@
       }
     },
     mounted() {
-      axios.get('/api/rp/' + this.readCode + '/pages/' + this.pageNumber)
+      axios.get('/api/rp/pages/' + this.pageNumber)
         .then(res => {
           this.rp = res.data;
           document.title = 'Page ' + this.pageNumber + ' - ' + this.rp.title;
         })
-        .catch(() => {
-          this.loadError = 'Check the URL and try again.'
+        .catch(err => {
+          this.loadError = err.message
         });
     },
   };

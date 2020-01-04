@@ -1,3 +1,5 @@
+<!-- TODO make this a dialog? -->
+
 <template>
   <div id="app" :class="{'dark-theme':nightMode}">
     <div id="loading" v-if="rp == null && loadError == null">
@@ -32,7 +34,7 @@
 
           <div id="archive-index">
             <template v-for="n of rp.pageCount">
-              <router-link class="page-number-link" :to="'/read/'+readCode+'/page/'+n" :key="n">
+              <router-link class="page-number-link" :to="'/pages/'+n" :key="n">
                 {{ n }}
               </router-link>
             </template>
@@ -50,19 +52,15 @@
   export default {
     data() {
       return {
-        readCode: null,
         rp: null,
         loadError: null,
         nightMode: false,
       };
     },
     beforeMount() {
-      // get rpCode from URL
-      this.readCode = location.pathname.match(/\/read\/([^/]+)/)[1];
-
       // sync certain properties on this component with values in localStorage
       syncToLocalStorage(this, {
-        nightMode: 'rpnow.global.nightMode',
+        nightMode: 'rpnow.nightMode',
       });
     },
     methods: {
@@ -71,7 +69,7 @@
       }
     },
     mounted() {
-      axios.get('/api/rp/' + this.readCode + '/pages')
+      axios.get('/api/rp/pages')
         .then(res => {
           this.rp = res.data;
           document.title = this.rp.title;
