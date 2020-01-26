@@ -13,5 +13,5 @@ require (
 	github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	github.com/zieckey/goini v0.0.0-20180118150432-0da17d361d26
-	golang.org/x/crypto v0.0.0-20190424203555-c05e17bb3b2d
+	golang.org/x/crypto v0.0.0-20200117160349-530e935923ad
 )
