@@ -10,7 +10,7 @@
   "dependencies": {
     "axios": "^0.18.1",
     "coolstory.js": "^0.1.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "spectrum-colorpicker": "^1.8.0",
     "tinycolor2": "^1.4.1",
     "vue": "^2.5.22",
