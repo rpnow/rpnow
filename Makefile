@@ -1,14 +1,22 @@
 SHELL := /bin/bash # for pushd/popd
 
 .PHONY: default
-default: rpnow-linux.tar.gz
+default: rpnow-linux.tar.gz rpnow-windows.zip
 
 .PHONY: clean
 clean:
 	rm -rf rpnow-linux.tar.gz rpnow server/frontend/assets_bundle.go views/dist views/node_modules
 
+rpnow-windows.zip: rpnow.exe
+	zip rpnow-windows.zip rpnow.exe
+
 rpnow-linux.tar.gz: rpnow install.sh
 	tar -cvzf rpnow-linux.tar.gz rpnow install.sh
+
+rpnow.exe: server/frontend/assets_bundle.go $(shell find server)
+	pushd server >/dev/null && \
+	GOOS=windows GOARCH=386 go build -o ../rpnow.exe && \
+	popd >/dev/null
 
 rpnow: server/frontend/assets_bundle.go $(shell find server)
 	pushd server >/dev/null && \

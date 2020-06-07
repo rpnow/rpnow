@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -30,8 +31,14 @@ type serverConf struct {
 }
 
 func defaultServerConf() *serverConf {
+	var defaultDataDir string
+	if (runtime.GOOS == "windows") {
+		defaultDataDir = "./RP Data"
+	} else {
+		defaultDataDir = "/var/local/rpnow"
+	}
 	return &serverConf{
-		dataDir: "/var/local/rpnow",
+		dataDir: defaultDataDir,
 		ssl:     false,
 	}
 }

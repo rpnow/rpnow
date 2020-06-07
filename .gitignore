@@ -4,7 +4,9 @@ npm-debug.log*
 dist
 server/frontend/assets_bundle.go
 rpnow
+rpnow.exe
 rpnow-linux.tar.gz
+rpnow-windows.zip
 
 data/*
 
