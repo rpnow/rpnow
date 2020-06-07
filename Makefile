@@ -7,8 +7,11 @@ default: rpnow-linux.tar.gz rpnow-windows.zip
 clean:
 	rm -rf rpnow-linux.tar.gz rpnow server/frontend/assets_bundle.go views/dist views/node_modules
 
-rpnow-windows.zip: rpnow.exe
-	zip rpnow-windows.zip rpnow.exe
+rpnow-windows.zip: rpnow.exe RPData
+	zip -r rpnow-windows.zip rpnow.exe RPData
+
+RPData:
+	mkdir RPData
 
 rpnow-linux.tar.gz: rpnow install.sh
 	tar -cvzf rpnow-linux.tar.gz rpnow install.sh

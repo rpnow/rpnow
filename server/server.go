@@ -33,7 +33,7 @@ type serverConf struct {
 func defaultServerConf() *serverConf {
 	var defaultDataDir string
 	if (runtime.GOOS == "windows") {
-		defaultDataDir = "./RP Data"
+		defaultDataDir = "./RPData"
 	} else {
 		defaultDataDir = "/var/local/rpnow"
 	}
