@@ -28,5 +28,6 @@ jobs:
       - store_artifacts:
           path: rpnow-linux.tar.gz
           destination: rpnow-linux.tar.gz
+      - store_artifacts:
           path: rpnow-windows.zip
           destination: rpnow-windows.zip
