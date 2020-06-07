@@ -1,5 +1,7 @@
 module github.com/rpnow/rpnow/server
 
+go 1.14
+
 require (
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/boltdb/bolt v1.3.1
