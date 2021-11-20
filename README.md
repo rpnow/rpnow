@@ -14,7 +14,7 @@ However, if you're interested in building the project from source, or modifying 
 
 ## Build Requirements
 
-* [Go 1.11+](https://golang.org/dl/)
+* [Go 1.16+](https://golang.org/dl/)
 * [Node 8+](https://nodejs.org/en)
 * [Nodemon](https://nodemon.io/) (optional, but helpful for a pleasant development experience)
 
@@ -33,7 +33,6 @@ npm run build
 
 # Build the server
 cd ../server
-go generate
 go build -o ../rpnow
 
 # The built server executable will now be at the project root

@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"regexp"
@@ -21,9 +23,14 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	gonanoid "github.com/matoous/go-nanoid"
-	"github.com/rpnow/rpnow/server/frontend"
 	"github.com/rs/xid"
 )
+
+//go:embed www
+var frontend_files embed.FS
+
+//go:embed www/index.html
+var index_html_file []byte
 
 var wsUpgrader = websocket.Upgrader{}
 
@@ -70,7 +77,15 @@ func (s *Server) clientRouter() *mux.Router {
 	router.Handle("/read/{rpCode}/page/{page}", indexHTML).Methods("GET")
 
 	// assets
-	router.PathPrefix("/").Handler(gziphandler.GzipHandler(http.FileServer(frontend.StaticAssets)))
+	www, err := fs.Sub(frontend_files, "www")
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.PathPrefix("/").Handler(
+		gziphandler.GzipHandler(
+			http.FileServer(http.FS(www)),
+		),
+	)
 
 	return router
 }
@@ -1065,7 +1080,8 @@ func (s *Server) handleAddRpToUser(w http.ResponseWriter, r *http.Request, auth 
 }
 
 var indexHTML = gziphandler.GzipHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	file, err := frontend.StaticAssets.Open("index.html")
+	path := "www/index.html"
+	file, err := frontend_files.Open(path)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -1073,7 +1089,7 @@ var indexHTML = gziphandler.GzipHandler(http.HandlerFunc(func(w http.ResponseWri
 	if err != nil {
 		log.Fatalln(err)
 	}
-	http.ServeContent(w, r, "index.html", stat.ModTime(), file)
+	http.ServeContent(w, r, path, stat.ModTime(), bytes.NewReader(index_html_file))
 }))
 
 func apiMalformed(w http.ResponseWriter, r *http.Request) {
