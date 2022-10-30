@@ -15,7 +15,7 @@ However, if you're interested in building the project from source, or modifying 
 ## Build Requirements
 
 * [Go 1.16+](https://golang.org/dl/)
-* [Node 8+](https://nodejs.org/en)
+* [Node 12+](https://nodejs.org/en)
 * [Nodemon](https://nodemon.io/) (optional, but helpful for a pleasant development experience)
 
 

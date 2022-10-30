@@ -5,8 +5,8 @@
   font-weight: 400;
   src: local('Alice Regular'),
     local('Alice-Regular'),
-    url(/fonts/alice-v11-latin-regular.woff2) format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-    url(/fonts/alice-v11-latin-regular.woff) format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    url(./fonts/alice-v11-latin-regular.woff2) format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+    url(./fonts/alice-v11-latin-regular.woff) format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
 @font-face {
   font-family: 'Material Icons';
@@ -14,8 +14,8 @@
   font-weight: 400;
   src: local('Material Icons'),
     local('MaterialIcons-Regular'),
-    url(/fonts/MaterialIcons-Regular.woff2) format('woff2'),
-    url(/fonts/MaterialIcons-Regular.woff) format('woff');
+    url(./fonts/MaterialIcons-Regular.woff2) format('woff2'),
+    url(./fonts/MaterialIcons-Regular.woff) format('woff');
 }
 .material-icons {
   font-family: 'Material Icons';

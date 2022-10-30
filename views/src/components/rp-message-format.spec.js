@@ -1,5 +1,4 @@
-const test = require('ava');
-const formatMessage = require('./rp-message-format');
+import formatMessage from './rp-message-format.js';
 
 const tests = {
   'regular strings': [
@@ -94,10 +93,12 @@ const tests = {
 };
 
 for (const [testName, pairs] of Object.entries(tests)) {
-  test(testName, t => {
-    for (const [input, color, expected] of pairs) {
-      const html = formatMessage(input, color);
-      t.is(html, expected);
+  for (const [input, color, expected] of pairs) {
+    const html = formatMessage(input, color);
+    if (html !== expected) {
+      throw new Error(`${testName}: output does not match expectation:\n${html}`);
     }
-  });
+  }
 }
+
+console.log('OK')
