@@ -128,7 +128,6 @@
   import coolstory from 'coolstory.js';
 
   export default {
-    name: 'Dashboard',
     props: {
       user: Object,
       myUsername: String,

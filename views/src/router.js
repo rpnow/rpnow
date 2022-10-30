@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import Home from './pages/home.vue'
-import Format from './pages/format.vue'
-import Import from './pages/import.vue'
-import Login from './pages/login.vue'
+import Home from './pages/home-route.vue'
+import Format from './pages/format-route.vue'
+import Import from './pages/import-route.vue'
+import Login from './pages/login-route.vue'
 
 Vue.use(Router)
 
@@ -41,17 +41,17 @@ export default new Router({
     {
       path: '/rp/:rpCode',
       name: 'chat',
-      component: () => import(/* webpackChunkName: "chat" */ './pages/rp-chat.vue')
+      component: () => import(/* webpackChunkName: "chat" */ './pages/rp-chat-route.vue')
     },
     {
       path: '/read/:readCode',
       name: 'archive',
-      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-index.vue')
+      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-index-route.vue')
     },
     {
       path: '/read/:readCode/page/:page',
       name: 'page',
-      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-page.vue')
+      component: () => import(/* webpackChunkName: "archive" */ './pages/rp-read-page-route.vue')
     },
   ]
 })

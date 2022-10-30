@@ -52,7 +52,6 @@
   import axios from 'axios';
 
   export default {
-    name: 'Login',
     props: {
       user: Object,
       myUsername: String,
