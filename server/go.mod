@@ -10,7 +10,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.7.0
-	github.com/gorilla/websocket v1.4.0
+	github.com/gorilla/websocket v1.4.1
 	github.com/manifoldco/promptui v0.3.2
 	github.com/matoous/go-nanoid v0.0.0-20181114085210-eab626deece6
 	github.com/mitchellh/go-wordwrap v1.0.0
